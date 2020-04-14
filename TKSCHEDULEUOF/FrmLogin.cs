@@ -30,7 +30,8 @@ namespace TKSCHEDULEUOF
             if (keyData == Keys.Enter)
             {
                 SendKeys.Send("{TAB}");
-                return true;
+                return true; 
+
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
