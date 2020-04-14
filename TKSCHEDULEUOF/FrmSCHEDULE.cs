@@ -45,7 +45,7 @@ namespace TKSCHEDULEUOF
             InitializeComponent();
 
             timer1.Enabled = true;
-            timer1.Interval = 1000 ;
+            timer1.Interval = 1000*60 ;
             timer1.Start();
         }
 
@@ -54,7 +54,7 @@ namespace TKSCHEDULEUOF
             label2.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
 
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0910";
+            string HHmm = "0900";
 
             // DayOfWeek 0 開始 (表示星期日) 到 6 (表示星期六)
             string RUNDATE = DateTime.Now.DayOfWeek.ToString("d");//tmp2 = 4 
