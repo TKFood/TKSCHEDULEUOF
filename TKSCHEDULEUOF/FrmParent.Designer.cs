@@ -39,6 +39,7 @@
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "FrmParent";
             this.Text = "FrmParent";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmParent_FormClosed);
             this.Load += new System.EventHandler(this.FrmParent_Load);
             this.ResumeLayout(false);
 

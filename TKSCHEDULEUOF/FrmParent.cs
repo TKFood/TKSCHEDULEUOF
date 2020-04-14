@@ -24,8 +24,6 @@ namespace TKSCHEDULEUOF
         public FrmParent(string txt_UserName )
         {
             InitializeComponent();
-
-            InitializeComponent();
             UserName = txt_UserName;
         }
 
