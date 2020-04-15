@@ -31,6 +31,14 @@ namespace TKSCHEDULEUOF
         SqlCommandBuilder sqlCmdBuilder3 = new SqlCommandBuilder();
         SqlDataAdapter adapter4 = new SqlDataAdapter();
         SqlCommandBuilder sqlCmdBuilder4 = new SqlCommandBuilder();
+        SqlDataAdapter adapter5 = new SqlDataAdapter();
+        SqlCommandBuilder sqlCmdBuilder5 = new SqlCommandBuilder();
+        SqlDataAdapter adapter6 = new SqlDataAdapter();
+        SqlCommandBuilder sqlCmdBuilder6 = new SqlCommandBuilder();
+        SqlDataAdapter adapter7 = new SqlDataAdapter();
+        SqlCommandBuilder sqlCmdBuilder7 = new SqlCommandBuilder();
+        SqlDataAdapter adapter8 = new SqlDataAdapter();
+        SqlCommandBuilder sqlCmdBuilder8 = new SqlCommandBuilder();
 
         SqlTransaction tran;
         SqlCommand cmd = new SqlCommand();
@@ -39,6 +47,11 @@ namespace TKSCHEDULEUOF
         DataSet ds2 = new DataSet();
         DataSet ds3 = new DataSet();
         DataSet ds4 = new DataSet();
+        DataSet ds5 = new DataSet();
+        DataSet ds6 = new DataSet();
+        DataSet ds7 = new DataSet();
+        DataSet ds8 = new DataSet();
+
 
         public FrmSCHEDULE()
         {
@@ -499,6 +512,129 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTOUOFTB_EIP_SCH_MEMO_PUR(string Sday)
+        {
+
+            DataSet ds5 = new DataSet();
+            ds5 = SEARCHMANULINE5(Sday);
+          
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+        
+                //先刪除再新增
+
+                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='701e642b-c4d5-43ce-8289-c7dffb7ba016'", Sday);
+                sbSql.AppendFormat(" ");
+
+                if (ds5.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds5.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
+                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
+                        sbSql.AppendFormat(" VALUES");
+                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
+                        sbSql.AppendFormat(" ");
+                    }
+                }
+
+             
+
+
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        //採購明細
+        public DataSet SEARCHMANULINE5(string Sday)
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'701e642b-c4d5-43ce-8289-c7dffb7ba016' AS [CREATE_USER],TD005+'-'+CONVERT(NVARCHAR,(TD008-TD015))+' '+TD009 AS [DESCRIPTION],CONVERT(NVARCHAR,[TD012],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD012],112) AS [START_TIME],TD005+'-'+CONVERT(NVARCHAR,(TD008-TD015))+' '+TD009  AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'701e642b-c4d5-43ce-8289-c7dffb7ba016' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
+                sbSql.AppendFormat(" FROM [TK].[dbo].[PURTD],[TK].dbo.INVMB");
+                sbSql.AppendFormat(" WHERE TD004=MB001");
+                sbSql.AppendFormat(" AND TD016 IN ('N')");
+                sbSql.AppendFormat(" AND (TD004 LIKE '1%' OR TD004 LIKE '2%')");
+                sbSql.AppendFormat(" AND TD012>='{0}'",Sday);
+                sbSql.AppendFormat(" ORDER BY TD012");
+                sbSql.AppendFormat(" ");
+
+                adapter5 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder5= new SqlCommandBuilder(adapter5);
+                sqlConn.Open();
+                ds5.Clear();
+                adapter5.Fill(ds5, "ds5");
+
+
+
+                if (ds5.Tables["ds5"].Rows.Count == 0)
+                {
+                    return ds5;
+                }
+                else
+                {
+                    if (ds5.Tables["ds5"].Rows.Count >= 1)
+                    {
+                        return ds5;
+                    }
+
+                    return ds5;
+                }
+
+            }
+            catch
+            {
+                return ds5;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -507,6 +643,15 @@ namespace TKSCHEDULEUOF
             ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
+        }
         #endregion
 
 
