@@ -77,6 +77,8 @@ namespace TKSCHEDULEUOF
             if (RUNTIME.Equals(HHmm))
             {
                 ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
+                ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
+                ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
             }
         }
 
