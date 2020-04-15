@@ -635,6 +635,271 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTOUOFTB_EIP_SCH_MEMO_COP(string Sday)
+        {
+
+            DataSet ds6 = new DataSet();
+            DataSet ds7 = new DataSet();
+            DataSet ds8 = new DataSet();
+            ds6 = SEARCHMANULINE6(Sday);
+            ds7 = SEARCHMANULINE7(Sday);
+            ds8 = SEARCHMANULINE8(Sday);
+
+
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                //先刪除再新增
+
+                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='4eda2bfc-bf4b-4df2-a39c-1cc46e68598a'", Sday);
+                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='8e841f56-0a77-4b5c-9c7e-1fd05b089900'", Sday);
+                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='e6a83ac9-5ab4-4c5b-af50-1936a694ffe8'", Sday);
+                sbSql.AppendFormat(" ");
+
+                if (ds6.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds6.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
+                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
+                        sbSql.AppendFormat(" VALUES");
+                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
+                        sbSql.AppendFormat(" ");
+                    }
+                }
+                if (ds7.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds7.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
+                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
+                        sbSql.AppendFormat(" VALUES");
+                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
+                        sbSql.AppendFormat(" ");
+                    }
+                }
+                if (ds8.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds8.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
+                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
+                        sbSql.AppendFormat(" VALUES");
+                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
+                        sbSql.AppendFormat(" ");
+                    }
+                }
+
+
+
+
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        //訂單-國內
+        public DataSet SEARCHMANULINE6(string Sday)
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
+                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
+                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
+                sbSql.AppendFormat(" AND TD004=MB001");
+                sbSql.AppendFormat(" AND TD016 IN ('N')");
+                sbSql.AppendFormat(" AND TD001 IN ('A221','A223','A227','A229')");
+                sbSql.AppendFormat(" AND TD013>='{0}'",Sday);
+                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter6 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder6 = new SqlCommandBuilder(adapter6);
+                sqlConn.Open();
+                ds6.Clear();
+                adapter6.Fill(ds6, "ds6");
+
+
+
+                if (ds6.Tables["ds6"].Rows.Count == 0)
+                {
+                    return ds6;
+                }
+                else
+                {
+                    if (ds6.Tables["ds6"].Rows.Count >= 1)
+                    {
+                        return ds6;
+                    }
+
+                    return ds6;
+                }
+
+            }
+            catch
+            {
+                return ds6;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataSet SEARCHMANULINE7(string Sday)
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
+                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
+                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
+                sbSql.AppendFormat(" AND TD004=MB001");
+                sbSql.AppendFormat(" AND TD016 IN ('N')");
+                sbSql.AppendFormat(" AND TD001 IN ('A222','A227')");
+                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
+                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter7 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder7 = new SqlCommandBuilder(adapter7);
+                sqlConn.Open();
+                ds7.Clear();
+                adapter7.Fill(ds7, "ds7");
+
+
+
+                if (ds7.Tables["ds7"].Rows.Count == 0)
+                {
+                    return ds7;
+                }
+                else
+                {
+                    if (ds7.Tables["ds7"].Rows.Count >= 1)
+                    {
+                        return ds7;
+                    }
+
+                    return ds7;
+                }
+
+            }
+            catch
+            {
+                return ds7;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataSet SEARCHMANULINE8(string Sday)
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
+                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
+                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
+                sbSql.AppendFormat(" AND TD004=MB001");
+                sbSql.AppendFormat(" AND TD016 IN ('N')");
+                sbSql.AppendFormat(" AND TD001 IN ('A224','A225','A226','A228')");
+                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
+                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter8 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder8 = new SqlCommandBuilder(adapter8);
+                sqlConn.Open();
+                ds8.Clear();
+                adapter8.Fill(ds8, "ds8");
+
+
+
+                if (ds8.Tables["ds8"].Rows.Count == 0)
+                {
+                    return ds8;
+                }
+                else
+                {
+                    if (ds8.Tables["ds8"].Rows.Count >= 1)
+                    {
+                        return ds8;
+                    }
+
+                    return ds8;
+                }
+
+            }
+            catch
+            {
+                return ds8;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -650,7 +915,7 @@ namespace TKSCHEDULEUOF
 
         private void button3_Click(object sender, EventArgs e)
         {
-            //ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
+            ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
         }
         #endregion
 
