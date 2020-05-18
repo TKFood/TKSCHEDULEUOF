@@ -79,6 +79,8 @@ namespace TKSCHEDULEUOF
                 ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
                 ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
                 ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
+                UPDATEtb_COMPANYSTATUS1();
+                UPDATEtb_COMPANYSTATUS2();
             }
         }
 
@@ -901,6 +903,244 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATEtb_COMPANYSTATUS1()
+        {
+            DataSet dsCOMPA = new DataSet();
+            dsCOMPA = SERACHCOMPA();
+
+            if (dsCOMPA.Tables[0].Rows.Count > 0)
+            {
+                try
+                {
+                    connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                    sqlConn = new SqlConnection(connectionString);
+
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
+
+                    sbSql.Clear();
+
+                    //更新          
+                    foreach (DataRow dr in dsCOMPA.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
+                        sbSql.AppendFormat(@" SET [STATUS]='1'");
+                        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["MA001"].ToString());
+                        sbSql.AppendFormat(@" ");
+                    }
+
+                    sbSql.AppendFormat(@" ");
+
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+
+                    }
+
+                }
+                catch
+                {
+
+                }
+
+                finally
+                {
+                    sqlConn.Close();
+                }
+            }
+
+        }
+
+        public DataSet SERACHCOMPA()
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            SqlTransaction tran;
+            SqlCommand cmd = new SqlCommand();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
+                sbSql.AppendFormat(" SELECT MA001");
+                sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
+                sbSql.AppendFormat(" WHERE MA016<>'999999'");
+                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
+                sbSql.AppendFormat(" AND MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='1' )");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "ds");
+
+
+
+                if (ds.Tables["ds"].Rows.Count == 0)
+                {
+                    return ds;
+                }
+                else
+                {
+                    if (ds.Tables["ds"].Rows.Count >= 1)
+                    {
+                        return ds;
+                    }
+
+                    return ds;
+                }
+
+            }
+            catch
+            {
+                return ds;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
+        public void UPDATEtb_COMPANYSTATUS2()
+        {
+            DataSet dsCOMPASTOP = new DataSet();
+            dsCOMPASTOP=SERACHCOMPASTOP();
+
+            if (dsCOMPASTOP.Tables[0].Rows.Count>0)
+            {
+                try
+                {
+                    connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                    sqlConn = new SqlConnection(connectionString);
+
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
+
+                    sbSql.Clear();
+
+                    //更新          
+                    foreach (DataRow dr in dsCOMPASTOP.Tables[0].Rows)
+                    {
+                        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
+                        sbSql.AppendFormat(@" SET [STATUS]='2'");
+                        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["MA001"].ToString());
+                        sbSql.AppendFormat(@" ");
+                    }
+
+                    sbSql.AppendFormat(@" ");
+
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+
+                    }
+
+                }
+                catch
+                {
+
+                }
+
+                finally
+                {
+                    sqlConn.Close();
+                }
+            }
+
+        }
+
+        public DataSet SERACHCOMPASTOP()
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            SqlTransaction tran;
+            SqlCommand cmd = new SqlCommand();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
+                sbSql.AppendFormat(" SELECT MA001");
+                sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
+                sbSql.AppendFormat(" WHERE MA016='999999'");
+                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
+                sbSql.AppendFormat(" AND MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='2' )");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "ds");
+
+
+
+                if (ds.Tables["ds"].Rows.Count == 0)
+                {
+                    return ds;
+                }
+                else
+                {
+                    if (ds.Tables["ds"].Rows.Count >= 1)
+                    {
+                        return ds;
+                    }
+
+                    return ds;
+                }
+
+            }
+            catch
+            {
+                return ds;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
 
         #endregion
 
@@ -919,6 +1159,12 @@ namespace TKSCHEDULEUOF
         {
             ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
         }
+        private void button4_Click(object sender, EventArgs e)
+        {
+            UPDATEtb_COMPANYSTATUS1();
+            UPDATEtb_COMPANYSTATUS2();
+        }
+
         #endregion
 
 
