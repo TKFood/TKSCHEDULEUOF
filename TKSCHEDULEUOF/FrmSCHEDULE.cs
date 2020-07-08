@@ -81,6 +81,7 @@ namespace TKSCHEDULEUOF
                 ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
                 UPDATEtb_COMPANYSTATUS1();
                 UPDATEtb_COMPANYSTATUS2();
+                UPDATEtb_COMPANYOWNER_ID();
             }
         }
 
