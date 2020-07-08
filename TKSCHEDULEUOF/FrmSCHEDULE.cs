@@ -1146,6 +1146,125 @@ namespace TKSCHEDULEUOF
 
         }
 
+        public void ADDtb_COMPANY()
+        {
+
+        }
+
+        public void UPDATEtb_COMPANYOWNER_ID()
+        {
+            DataSet dsCOMPAMA016 = new DataSet();
+            dsCOMPAMA016 = SERACHCOMPAMA016();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                //更新          
+                foreach (DataRow dr in dsCOMPAMA016.Tables[0].Rows)
+                {
+                    sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
+                    sbSql.AppendFormat(@" SET [OWNER_ID]='{0}'", dr["USER_ID"].ToString());
+                    sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["ERPNO"].ToString());
+                    sbSql.AppendFormat(@" ");
+                }
+                sbSql.AppendFormat(@" ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataSet SERACHCOMPAMA016()
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            SqlTransaction tran;
+            SqlCommand cmd = new SqlCommand();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
+                sbSql.AppendFormat(" SELECT [ERPNO],[OWNER_ID],MA001,MA016,[USER_ACCOUNT],[USER_ID]");
+                sbSql.AppendFormat(" FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY],[TK].dbo.COPMA");
+                sbSql.AppendFormat(" LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] ON [tb_USER].[USER_ACCOUNT]=COPMA.MA016");
+                sbSql.AppendFormat(" WHERE MA001=[ERPNO] ");
+                sbSql.AppendFormat(" AND ISNULL(MA016,'')<>''");
+                sbSql.AppendFormat(" AND [OWNER_ID]<>[USER_ID]");
+                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(" ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "ds");
+
+
+
+                if (ds.Tables["ds"].Rows.Count == 0)
+                {
+                    return ds;
+                }
+                else
+                {
+                    if (ds.Tables["ds"].Rows.Count >= 1)
+                    {
+                        return ds;
+                    }
+
+                    return ds;
+                }
+
+            }
+            catch
+            {
+                return ds;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         #endregion
 
@@ -1169,7 +1288,15 @@ namespace TKSCHEDULEUOF
             UPDATEtb_COMPANYSTATUS1();
             UPDATEtb_COMPANYSTATUS2();
         }
+        private void button5_Click(object sender, EventArgs e)
+        {
+            ADDtb_COMPANY();
+        }
 
+        private void button6_Click(object sender, EventArgs e)
+        {
+            UPDATEtb_COMPANYOWNER_ID();
+        }
         #endregion
 
 
