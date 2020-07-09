@@ -987,9 +987,9 @@ namespace TKSCHEDULEUOF
                 //找出在ERP是被停用的客戶，但是在UOF沒有被停用
                 sbSql.AppendFormat(" SELECT MA001");
                 sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
-                sbSql.AppendFormat(" WHERE MA016<>'999999'");
+                sbSql.AppendFormat(" WHERE ISNULL(UDF01,'')<>'Y'");
                 sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
-                sbSql.AppendFormat(" AND MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='1' )");
+                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='2' )");
                 sbSql.AppendFormat(" ");
                 sbSql.AppendFormat(" ");
 
@@ -1106,9 +1106,9 @@ namespace TKSCHEDULEUOF
                 //找出在ERP是被停用的客戶，但是在UOF沒有被停用
                 sbSql.AppendFormat(" SELECT MA001");
                 sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
-                sbSql.AppendFormat(" WHERE MA016='999999'");
+                sbSql.AppendFormat(" WHERE UDF01='Y'");
                 sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
-                sbSql.AppendFormat(" AND MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='2' )");
+                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='1' )");
                 sbSql.AppendFormat(" ");
                 sbSql.AppendFormat(" ");
 
