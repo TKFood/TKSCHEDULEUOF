@@ -82,6 +82,7 @@ namespace TKSCHEDULEUOF
                 UPDATEtb_COMPANYSTATUS1();
                 UPDATEtb_COMPANYSTATUS2();
                 UPDATEtb_COMPANYOWNER_ID();
+                ADDtb_COMPANY();
             }
         }
 
@@ -1151,7 +1152,65 @@ namespace TKSCHEDULEUOF
 
         public void ADDtb_COMPANY()
         {
+            DataSet dsCOPMA = new DataSet();
+            dsCOPMA = SERACHdsCOPMA();
 
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                //更新          
+                foreach (DataRow dr in dsCOPMA.Tables[0].Rows)
+                {                   
+                    sbSql.AppendFormat(@" 
+                                        INSERT INTO [HJ_BM_DB].[dbo].[tb_COMPANY]
+                                        ([COMPANY_NAME],[ERPNO],[TAX_NUMBER],[PHONE],[FAX],[COUNTRY],[CITY],[TOWN],[ADDRESS],[OVERSEAS_ADDR]
+                                        ,[EMAIL],[WEBSITE],[FACEBOOK],[INDUSTRY],[TURNOVER],[WORKER_NUMBER],[EST_DATE],[PARENT_ID],[UPDATE_DATETIME],[CREATE_DATETIME]
+                                        ,[CREATE_USER_ID],[UPDATE_USER_ID],[NOTE],[OWNER_ID],[LAST_CONTACT_DATE],[STATUS])
+                                        VALUES
+                                        ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}'
+                                        ,'{10}','{11}','{12}','{13}','{14}','{15}','{16}',{17},'{18}','{19}'
+                                        ,'{20}','{21}','{22}','{23}','{24}','{25}')
+                                        ", dr["COMPANY_NAME"].ToString(), dr["ERPNO"].ToString(), dr["TAX_NUMBER"].ToString(), dr["PHONE"].ToString(), dr["FAX"].ToString(), dr["COUNTRY"].ToString(), dr["CITY"].ToString(), dr["TOWN"].ToString(), dr["ADDRESS"].ToString(), dr["OVERSEAS_ADDR"].ToString()
+                                        , dr["EMAIL"].ToString(), dr["WEBSITE"].ToString(), dr["FACEBOOK"].ToString(), dr["INDUSTRY"].ToString(), dr["TURNOVER"].ToString(), dr["WORKER_NUMBER"].ToString(), dr["EST_DATE"].ToString(),"NULL", dr["UPDATE_DATETIME"].ToString(), dr["CREATE_DATETIME"].ToString()
+                                        , dr["CREATE_USER_ID"].ToString(), dr["UPDATE_USER_ID"].ToString(), dr["NOTE"].ToString(), dr["OWNER_ID"].ToString(), dr["LAST_CONTACT_DATE"].ToString(), dr["STATUS"].ToString());
+                }
+                sbSql.AppendFormat(@" ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
         }
 
         public void UPDATEtb_COMPANYOWNER_ID()
@@ -1233,6 +1292,99 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(" AND [OWNER_ID]<>[USER_ID]");
                 sbSql.AppendFormat(" ");
                 sbSql.AppendFormat(" ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "ds");
+
+
+
+                if (ds.Tables["ds"].Rows.Count == 0)
+                {
+                    return ds;
+                }
+                else
+                {
+                    if (ds.Tables["ds"].Rows.Count >= 1)
+                    {
+                        return ds;
+                    }
+
+                    return ds;
+                }
+
+            }
+            catch
+            {
+                return ds;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataSet SERACHdsCOPMA()
+        {
+            DataSet ds = new DataSet();
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            SqlTransaction tran;
+            SqlCommand cmd = new SqlCommand();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //               
+                sbSql.AppendFormat(@" 
+                                    SELECT 
+                                    MA002 [COMPANY_NAME]
+                                    ,MA001 [ERPNO]
+                                    ,MA010 [TAX_NUMBER]
+                                    ,MA006 [PHONE]
+                                    ,MA008 [FAX]
+                                    ,'Taiwan (台灣)' [COUNTRY]
+                                    ,'' [CITY]
+                                    ,'' [TOWN]
+                                    ,'' [ADDRESS]
+                                    ,'' [OVERSEAS_ADDR]
+                                    ,MA009 [EMAIL]
+                                    ,'' [WEBSITE]
+                                    ,'' [FACEBOOK]
+                                    ,'' [INDUSTRY]
+                                    ,'0' [TURNOVER]
+                                    ,'0' [WORKER_NUMBER]
+                                    ,'' [EST_DATE]
+                                    ,'' [PARENT_ID]
+                                    ,CONVERT(nvarchar,GETDATE(),111)  [UPDATE_DATETIME]
+                                    ,CONVERT(nvarchar,GETDATE(),111)  [CREATE_DATETIME]
+                                    ,[USER_ID]  [CREATE_USER_ID]
+                                    ,[USER_ID]  [UPDATE_USER_ID]
+                                    ,''[NOTE]
+                                    ,[USER_ID] [OWNER_ID]
+                                    ,'' [LAST_CONTACT_DATE]
+                                    ,'1' [STATUS]
+                                    FROM [TK].dbo.COPMA
+                                    LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] ON [tb_USER].[USER_ACCOUNT]=MA016
+                                    WHERE MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO] ,'')<>'')
+                                    AND MA001 NOT LIKE '1%'
+                                    AND MA001 NOT LIKE '299%'
+                                    AND MA001 NOT LIKE '399%'
+                                    AND MA001 NOT LIKE '4%'
+                                    AND MA001 NOT LIKE '5%'
+                                    AND MA001 NOT LIKE '6%'
+                                    AND MA001 NOT LIKE '7%'
+                                    AND MA001 NOT LIKE '910%'
+                                    AND MA001 NOT LIKE '990%'
+                                    ");
 
                 adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
 
