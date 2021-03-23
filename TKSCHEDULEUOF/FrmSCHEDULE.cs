@@ -1285,56 +1285,56 @@ namespace TKSCHEDULEUOF
 
         public void UPDATEtb_COMPANYOWNER_ID()
         {
-            DataSet dsCOMPAMA016 = new DataSet();
-            dsCOMPAMA016 = SERACHCOMPAMA016();
+            //DataSet dsCOMPAMA016 = new DataSet();
+            //dsCOMPAMA016 = SERACHCOMPAMA016();
 
-            try
-            {
-                connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                sqlConn = new SqlConnection(connectionString);
+            //try
+            //{
+            //    connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+            //    sqlConn = new SqlConnection(connectionString);
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
+            //    sqlConn.Close();
+            //    sqlConn.Open();
+            //    tran = sqlConn.BeginTransaction();
 
-                sbSql.Clear();
+            //    sbSql.Clear();
 
-                //更新          
-                foreach (DataRow dr in dsCOMPAMA016.Tables[0].Rows)
-                {
-                    sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
-                    sbSql.AppendFormat(@" SET [OWNER_ID]='{0}'", dr["USER_ID"].ToString());
-                    sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["ERPNO"].ToString());
-                    sbSql.AppendFormat(@" ");
-                }
-                sbSql.AppendFormat(@" ");
+            //    //更新          
+            //    foreach (DataRow dr in dsCOMPAMA016.Tables[0].Rows)
+            //    {
+            //        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
+            //        sbSql.AppendFormat(@" SET [OWNER_ID]='{0}'", dr["USER_ID"].ToString());
+            //        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["ERPNO"].ToString());
+            //        sbSql.AppendFormat(@" ");
+            //    }
+            //    sbSql.AppendFormat(@" ");
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
+            //    cmd.Connection = sqlConn;
+            //    cmd.CommandTimeout = 60;
+            //    cmd.CommandText = sbSql.ToString();
+            //    cmd.Transaction = tran;
+            //    result = cmd.ExecuteNonQuery();
 
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
+            //    if (result == 0)
+            //    {
+            //        tran.Rollback();    //交易取消
+            //    }
+            //    else
+            //    {
+            //        tran.Commit();      //執行交易  
 
-                }
+            //    }
 
-            }
-            catch
-            {
+            //}
+            //catch
+            //{
 
-            }
+            //}
 
-            finally
-            {
-                sqlConn.Close();
-            }
+            //finally
+            //{
+            //    sqlConn.Close();
+            //}
         }
 
         public DataSet SERACHCOMPAMA016()
@@ -1530,7 +1530,7 @@ namespace TKSCHEDULEUOF
 
         private void button6_Click(object sender, EventArgs e)
         {
-            UPDATEtb_COMPANYOWNER_ID();
+            //UPDATEtb_COMPANYOWNER_ID();
         }
         #endregion
 
