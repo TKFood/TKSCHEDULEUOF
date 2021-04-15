@@ -13,6 +13,8 @@ using System.Configuration;
 using FastReport;
 using FastReport.Data;
 using System.Threading;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace TKSCHEDULEUOF
 {
@@ -1490,7 +1492,96 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTB_WKF_EXTERNAL_TASK(string TA001, string TA002)
+        {
+            DataTable DT = SEARCHPURTAPURTB(TA001, TA002);
 
+            string account = DT.Rows[0]["CREATOR"].ToString();
+            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+
+            XmlDocument xmlDoc = new XmlDocument();
+            //建立根節點
+            XmlElement Form = xmlDoc.CreateElement("Form");
+            //測試的id
+            Form.SetAttribute("formVersionId", "3b4c6a19-53cc-4274-925e-703298f168b5");
+            
+            //正式的id
+            //Form.SetAttribute("formVersionId", "1cc71c35-0a2c-490c-b733-f887b7975b17");
+
+            Form.SetAttribute("urgentLevel", "2");
+            //加入節點底下
+            xmlDoc.AppendChild(Form);
+
+            ////建立節點Applicant
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            //加入節點底下
+            Form.AppendChild(Applicant);
+
+            //建立節點 Comment
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            //加入至節點底下
+            Applicant.AppendChild(Comment);
+
+        }
+
+        public DataTable SEARCHPURTAPURTB(string TA001,string TA002)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011
+                                    USER_GUID,GROUP_ID,TITLE_ID
+                                    FROM [TK].dbo.PURTA,[TK].dbo.PURTB
+                                    LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID
+                                    WHERE TA001=TB001 AND TA002=TB002
+                                    AND TA001='{0}' AND TA002='{1}'
+                                    ", TA001, TA002);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -1531,6 +1622,10 @@ namespace TKSCHEDULEUOF
         private void button6_Click(object sender, EventArgs e)
         {
             //UPDATEtb_COMPANYOWNER_ID();
+        }
+        private void button7_Click(object sender, EventArgs e)
+        {
+            ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
         }
         #endregion
 
