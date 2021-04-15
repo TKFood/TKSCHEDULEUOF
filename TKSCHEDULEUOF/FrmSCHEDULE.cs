@@ -1697,8 +1697,56 @@ namespace TKSCHEDULEUOF
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='TB']/DataGrid");
                 DataGridS.AppendChild(Row);
 
-                string XML = xmlDoc.OuterXml;
             }
+
+
+            //ADD TO DB
+            string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
+
+            StringBuilder queryString = new StringBuilder();
+
+            ////UOFTEST
+            ///
+            queryString.AppendFormat(@" INSERT INTO [UOFTEST].dbo.TB_WKF_EXTERNAL_TASK
+                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
+                                        VALUES (NEWID(),@XML,2)
+                                        ");
+
+            //UOF
+            //
+            //queryString.AppendFormat(@" INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+            //                             (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
+            //                            VALUES (NEWID(),@XML,2)
+            //                            ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+
+
+           
 
 
         }
