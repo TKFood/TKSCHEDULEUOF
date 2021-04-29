@@ -76,6 +76,10 @@ namespace TKSCHEDULEUOF
             timer1.Enabled = true;
             timer1.Interval = 1000*60 ;
             timer1.Start();
+
+            timer2.Enabled = true;
+            timer2.Interval = 1000 * 1;
+            timer2.Start();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -111,6 +115,11 @@ namespace TKSCHEDULEUOF
                 UPDATEtb_COMPANYOWNER_ID();
                 ADDtb_COMPANY();
             }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            ADDTOUOFOURTAB();
         }
 
         #region FUNCTION
@@ -1804,6 +1813,106 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+
+        public void ADDTOUOFOURTAB()
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@" 
+                                    SELECT TA001,TA002
+                                    FROM [TK].dbo.PURTA
+                                    WHERE TA007='N' AND UDF01='Y'
+                                    ORDER BY TA001,TA002
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    ADDTB_WKF_EXTERNAL_TASK(ds1.Tables["ds1"].Rows[0]["TA001"].ToString().Trim(), ds1.Tables["ds1"].Rows[0]["TA002"].ToString().Trim());
+
+                    //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+            UPDATEPURTAUDF01();
+        }
+
+        public void UPDATEPURTAUDF01()
+        {
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                sqlConn = new SqlConnection(connectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+                              
+                sbSql.AppendFormat(@"
+                                    UPDATE  [TK].dbo.PURTA  
+                                    SET UDF01 = 'UOF'
+                                    WHERE TA007 = 'N' AND UDF01 = 'Y'       
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -1849,8 +1958,9 @@ namespace TKSCHEDULEUOF
         {
             ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
         }
+
         #endregion
 
-
+       
     }
 }

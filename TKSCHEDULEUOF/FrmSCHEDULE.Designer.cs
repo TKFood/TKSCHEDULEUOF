@@ -44,9 +44,10 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.button7 = new System.Windows.Forms.Button();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -253,6 +254,16 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(243, 363);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(219, 34);
+            this.button7.TabIndex = 17;
+            this.button7.Text = "ERP請購單>轉入UOF簽核";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 26);
@@ -267,15 +278,9 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // button7
+            // timer2
             // 
-            this.button7.Location = new System.Drawing.Point(243, 363);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(219, 34);
-            this.button7.TabIndex = 17;
-            this.button7.Text = "ERP請購單>轉入UOF簽核";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // FrmSCHEDULE
             // 
@@ -315,5 +320,6 @@
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Timer timer2;
     }
 }
