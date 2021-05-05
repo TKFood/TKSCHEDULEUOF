@@ -78,7 +78,7 @@ namespace TKSCHEDULEUOF
             timer1.Start();
 
             timer2.Enabled = true;
-            timer2.Interval = 1000 * 1;
+            timer2.Interval = 1000 * 60;
             timer2.Start();
         }
 
