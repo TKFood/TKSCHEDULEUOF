@@ -1775,11 +1775,12 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
-                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011
-                                    ,[TB_EB_USER].USER_GUID,GROUP_ID,TITLE_ID,NAME
+                                   SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011
+                                    ,[TB_EB_USER].USER_GUID,NAME
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID) AS 'TITLE_ID'
                                     FROM [TK].dbo.PURTA,[TK].dbo.PURTB
                                     LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID
                                     WHERE TA001=TB001 AND TA002=TB002
                                     AND TA001='{0}' AND TA002='{1}'
                                     ", TA001, TA002);
