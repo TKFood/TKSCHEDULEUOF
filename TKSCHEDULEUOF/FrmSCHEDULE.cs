@@ -1508,7 +1508,7 @@ namespace TKSCHEDULEUOF
             string account = DT.Rows[0]["CREATOR"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName= DT.Rows[0]["NAME"].ToString();
+            string fillerName= DT.Rows[0]["MV002"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
             int rowscounts = 0;
 
@@ -1516,7 +1516,7 @@ namespace TKSCHEDULEUOF
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
             //測試的id
-            Form.SetAttribute("formVersionId", "dd7e61e3-d77f-40e4-8408-007d2b5fb92e");
+            Form.SetAttribute("formVersionId", "8a61470f-9a93-4001-af9f-4bb8772f4e58");
             
             //正式的id
             //Form.SetAttribute("formVersionId", "1cc71c35-0a2c-490c-b733-f887b7975b17");
@@ -1615,6 +1615,34 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
+            //MV002 姓名	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MV002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MV002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TA006 單頭備註	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TA006");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA006"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
             //TB 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TB");
@@ -1701,6 +1729,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	TB012
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TB012");
+                Cell.SetAttribute("fieldValue", od["TB012"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 rowscounts = rowscounts + 1;
 
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='TB']/DataGrid");
@@ -1775,10 +1813,11 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
-                                   SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011
+                                   SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID) AS 'TITLE_ID'
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
                                     FROM [TK].dbo.PURTA,[TK].dbo.PURTB
                                     LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TA001=TB001 AND TA002=TB002
