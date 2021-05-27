@@ -1505,7 +1505,7 @@ namespace TKSCHEDULEUOF
         {
             DataTable DT = SEARCHPURTAPURTB(TA001, TA002);
 
-            string account = DT.Rows[0]["CREATOR"].ToString();
+            string account = DT.Rows[0]["TA012"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
             string fillerName= DT.Rows[0]["MV002"].ToString();
