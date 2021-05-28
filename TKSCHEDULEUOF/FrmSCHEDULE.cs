@@ -1516,10 +1516,10 @@ namespace TKSCHEDULEUOF
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
             //測試的id
-            Form.SetAttribute("formVersionId", "8a61470f-9a93-4001-af9f-4bb8772f4e58");
-            
+            //Form.SetAttribute("formVersionId", "8a61470f-9a93-4001-af9f-4bb8772f4e58");
+
             //正式的id
-            //Form.SetAttribute("formVersionId", "1cc71c35-0a2c-490c-b733-f887b7975b17");
+            Form.SetAttribute("formVersionId", "28cd6ef7-c65e-4e2d-9951-f71800aae2e0");
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -1752,19 +1752,20 @@ namespace TKSCHEDULEUOF
 
             StringBuilder queryString = new StringBuilder();
 
-            ////UOFTEST
-            ///
-            queryString.AppendFormat(@" INSERT INTO [UOFTEST].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
-                                        VALUES (NEWID(),@XML,2)
-                                        ");
-
-            //UOF
-            //
-            //queryString.AppendFormat(@" INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+            //////UOFTEST
+            /////
+            //queryString.AppendFormat(@" INSERT INTO [UOFTEST].dbo.TB_WKF_EXTERNAL_TASK
             //                             (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
             //                            VALUES (NEWID(),@XML,2)
             //                            ");
+
+            //UOF
+
+
+            queryString.AppendFormat(@" INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
+                                        VALUES (NEWID(),@XML,2)
+                                        ");
 
             try
             {
@@ -1815,15 +1816,15 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                    SELECT CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,MV002
                                     ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOFTEST].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     FROM 
                                     (
                                     SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
                                     FROM [TK].dbo.PURTB,[TK].dbo.PURTA
-                                    LEFT JOIN [192.168.1.223].[UOFTEST].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TA001=TB001 AND TA002=TB002
                                     AND TA001='{0}' AND TA002='{1}'
                                     ) AS TEMP
