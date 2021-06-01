@@ -1519,7 +1519,7 @@ namespace TKSCHEDULEUOF
             //Form.SetAttribute("formVersionId", "8a61470f-9a93-4001-af9f-4bb8772f4e58");
 
             //正式的id
-            Form.SetAttribute("formVersionId", "28cd6ef7-c65e-4e2d-9951-f71800aae2e0");
+            Form.SetAttribute("formVersionId", "8aed0183-7894-46ae-bd53-45c69894d85a");
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -1729,6 +1729,26 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	TB010
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TB010");
+                Cell.SetAttribute("fieldValue", od["TB010"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	MA002
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MA002");
+                Cell.SetAttribute("fieldValue", od["MA002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	TB012
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB012");
@@ -1818,11 +1838,13 @@ namespace TKSCHEDULEUOF
                                     ,USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    ,TB010,MA002
                                     FROM 
                                     (
-                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012
+                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
+                                    ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TB010) AS 'MA002'
                                     FROM [TK].dbo.PURTB,[TK].dbo.PURTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TA001=TB001 AND TA002=TB002
