@@ -15,11 +15,28 @@ using FastReport.Data;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
+using Ede.Uof.WKF.ExternalUtility;
+using System.Xml;
+using System.Xml.Linq;
+using Ede.Uof.Utility.Log;
+using Ede.Uof.Utility.FileCenter;
+using Ede.Uof.Utility.FileCenter.V3;
 
 namespace TKSCHEDULEUOF
 {
     public partial class FrmSCHEDULE : Form
     {
+        //測試ID = "8a61470f-9a93-4001-af9f-4bb8772f4e58";
+        //正式ID ="9c26cd05-861e-4e51-b090-d8e2fe3e685c"
+        //測試DB DBNAME = "UOFTEST";
+        //正式DB DBNAME = "UOF";
+        string ID = "9c26cd05-861e-4e51-b090-d8e2fe3e685c";
+        string DBNAME = "UOF";
+
+        string OLDTASK_ID = null;
+        string NEWTASK_ID = null;
+        string ATTACH_ID = null;
+
         SqlConnection sqlConn = new SqlConnection();
         SqlCommand sqlComm = new SqlCommand();
         string connectionString;
@@ -1515,11 +1532,9 @@ namespace TKSCHEDULEUOF
             XmlDocument xmlDoc = new XmlDocument();
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
-            //測試的id
-            //Form.SetAttribute("formVersionId", "8a61470f-9a93-4001-af9f-4bb8772f4e58");
-
+           
             //正式的id
-            Form.SetAttribute("formVersionId", "9c26cd05-861e-4e51-b090-d8e2fe3e685c");
+            Form.SetAttribute("formVersionId", ID);
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -1766,26 +1781,21 @@ namespace TKSCHEDULEUOF
 
             }
 
+            ////用ADDTACK，直接啟動起單
+            //ADDTACK(Form);
 
             //ADD TO DB
             string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
 
             StringBuilder queryString = new StringBuilder();
 
-            //////UOFTEST
-            /////
-            //queryString.AppendFormat(@" INSERT INTO [UOFTEST].dbo.TB_WKF_EXTERNAL_TASK
-            //                             (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
-            //                            VALUES (NEWID(),@XML,2)
-            //                            ");
-
-            //UOF
 
 
-            queryString.AppendFormat(@" INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+
+            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
                                          (EXTERNAL_TASK_ID,FORM_INFO,STATUS)
                                         VALUES (NEWID(),@XML,2)
-                                        ");
+                                        ", DBNAME);
 
             try
             {
@@ -1814,10 +1824,44 @@ namespace TKSCHEDULEUOF
             }
 
 
-           
+
 
 
         }
+
+        public void ADDTACK(XmlElement Form)
+        {
+            Ede.Uof.WKF.Utility.TaskUtilityUCO taskUCO = new Ede.Uof.WKF.Utility.TaskUtilityUCO();
+
+            string result = taskUCO.WebService_CreateTask(Form.OuterXml);
+
+            XElement resultXE = XElement.Parse(result);
+
+            string status = "";
+            string formNBR = "";
+            string error = "";
+
+            if (resultXE.Element("Status").Value == "1")
+            {
+                status = "起單成功!";
+                formNBR = resultXE.Element("FormNumber").Value;
+                NEWTASK_ID = formNBR;
+
+                //Logger.Write("TEST", status + formNBR);
+
+            }
+            else
+            {
+                status = "起單失敗!";
+                error = resultXE.Element("Exception").Element("Message").Value;
+
+                //Logger.Write("TEST", status + error + "\r\n" + Form.OuterXml);
+
+                throw new Exception(status + error + "\r\n" + Form.OuterXml);
+
+            }
+        }
+
 
         public DataTable SEARCHPURTAPURTB(string TA001,string TA002)
         {
@@ -1915,7 +1959,11 @@ namespace TKSCHEDULEUOF
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    ADDTB_WKF_EXTERNAL_TASK(ds1.Tables["ds1"].Rows[0]["TA001"].ToString().Trim(), ds1.Tables["ds1"].Rows[0]["TA002"].ToString().Trim());
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADDTB_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                    }
+                        
 
                     //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
                 }
