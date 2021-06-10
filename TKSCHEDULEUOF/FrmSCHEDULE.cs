@@ -15,12 +15,9 @@ using FastReport.Data;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
-using Ede.Uof.WKF.ExternalUtility;
 using System.Xml;
 using System.Xml.Linq;
-using Ede.Uof.Utility.Log;
-using Ede.Uof.Utility.FileCenter;
-using Ede.Uof.Utility.FileCenter.V3;
+
 
 namespace TKSCHEDULEUOF
 {
@@ -1831,35 +1828,35 @@ namespace TKSCHEDULEUOF
 
         public void ADDTACK(XmlElement Form)
         {
-            Ede.Uof.WKF.Utility.TaskUtilityUCO taskUCO = new Ede.Uof.WKF.Utility.TaskUtilityUCO();
+            //Ede.Uof.WKF.Utility.TaskUtilityUCO taskUCO = new Ede.Uof.WKF.Utility.TaskUtilityUCO();
 
-            string result = taskUCO.WebService_CreateTask(Form.OuterXml);
+            //string result = taskUCO.WebService_CreateTask(Form.OuterXml);
 
-            XElement resultXE = XElement.Parse(result);
+            //XElement resultXE = XElement.Parse(result);
 
-            string status = "";
-            string formNBR = "";
-            string error = "";
+            //string status = "";
+            //string formNBR = "";
+            //string error = "";
 
-            if (resultXE.Element("Status").Value == "1")
-            {
-                status = "起單成功!";
-                formNBR = resultXE.Element("FormNumber").Value;
-                NEWTASK_ID = formNBR;
+            //if (resultXE.Element("Status").Value == "1")
+            //{
+            //    status = "起單成功!";
+            //    formNBR = resultXE.Element("FormNumber").Value;
+            //    NEWTASK_ID = formNBR;
 
-                //Logger.Write("TEST", status + formNBR);
+            //    //Logger.Write("TEST", status + formNBR);
 
-            }
-            else
-            {
-                status = "起單失敗!";
-                error = resultXE.Element("Exception").Element("Message").Value;
+            //}
+            //else
+            //{
+            //    status = "起單失敗!";
+            //    error = resultXE.Element("Exception").Element("Message").Value;
 
-                //Logger.Write("TEST", status + error + "\r\n" + Form.OuterXml);
+            //    //Logger.Write("TEST", status + error + "\r\n" + Form.OuterXml);
 
-                throw new Exception(status + error + "\r\n" + Form.OuterXml);
+            //    throw new Exception(status + error + "\r\n" + Form.OuterXml);
 
-            }
+            //}
         }
 
 
