@@ -23,11 +23,11 @@ namespace TKSCHEDULEUOF
 {
     public partial class FrmSCHEDULE : Form
     {
-        //測試ID = "8a61470f-9a93-4001-af9f-4bb8772f4e58";
-        //正式ID ="9c26cd05-861e-4e51-b090-d8e2fe3e685c"
+        //測試ID = "";
+        //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string ID = "d7de28b4-f88c-4272-83f8-b093b2268fe8";
+        string ID = "ca12b020-8509-4ab2-944f-609296fed73d";
         string DBNAME = "UOF";
 
         string OLDTASK_ID = null;
