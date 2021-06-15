@@ -27,7 +27,7 @@ namespace TKSCHEDULEUOF
         //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string ID = "ca12b020-8509-4ab2-944f-609296fed73d";
+        string ID = "93ad8e14-05f0-46a0-a06d-1ce1f8df064c";
         string DBNAME = "UOF";
 
         string OLDTASK_ID = null;
@@ -1752,6 +1752,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	SUMLA011 可用庫存數量
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "SUMLA011");
+                Cell.SetAttribute("fieldValue", od["SUMLA011"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	TB011
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB011");
@@ -1895,25 +1905,28 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
                 sbSql.AppendFormat(@"  
                                    SELECT CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,MV002
                                     ,USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    ,TB010,MA002
+                                    ,TB010,MA002,SUMLA011
                                     FROM 
                                     (
                                     SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TB010) AS 'MA002'
+                                    ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TB004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
                                     FROM [TK].dbo.PURTB,[TK].dbo.PURTA
                                     LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TA001=TB001 AND TA002=TB002
                                     AND TA001='{1}' AND TA002='{2}'
                                     ) AS TEMP
                               
-                                    ",DBNAME, TA001, TA002);
+                                    ", DBNAME, TA001, TA002);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
