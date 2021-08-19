@@ -48,6 +48,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button8 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -100,6 +101,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button5, 2, 6);
             this.tableLayoutPanel1.Controls.Add(this.button6, 2, 7);
             this.tableLayoutPanel1.Controls.Add(this.button7, 2, 9);
+            this.tableLayoutPanel1.Controls.Add(this.button8, 2, 10);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -282,6 +284,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(243, 403);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(219, 34);
+            this.button8.TabIndex = 18;
+            this.button8.Text = "ERP訂單>轉入UOF簽核";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -321,5 +333,6 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Timer timer2;
+        private System.Windows.Forms.Button button8;
     }
 }
