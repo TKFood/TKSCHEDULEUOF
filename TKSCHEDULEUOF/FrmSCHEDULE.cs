@@ -2464,7 +2464,7 @@ namespace TKSCHEDULEUOF
             //TC016 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC016");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC016"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NEWTC016"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -2730,7 +2730,7 @@ namespace TKSCHEDULEUOF
             //TC121 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC121");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC121"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NEWTC016"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3194,6 +3194,8 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     ,MA002
+                                    ,CASE WHEN TC016='1' THEN '1.應稅內含'  ELSE (CASE WHEN TC016='2' THEN '2.應稅外加'  ELSE (CASE WHEN TC016='3' THEN '3.零稅率'  ELSE (CASE WHEN TC016='4' THEN '4.免稅'  ELSE (CASE WHEN TC016='9' THEN '9.不計稅'  ELSE '' END) END) END) END ) END AS 'NEWTC016'
+                                    ,CASE WHEN TC121='1' THEN '1.二聯式' ELSE (CASE WHEN TC121='2' THEN '2.三聯式' ELSE (CASE WHEN TC121='3' THEN '3.二聯式收銀機發票' ELSE (CASE WHEN TC121='4' THEN '4.三聯式收銀機發票' ELSE (CASE WHEN TC121='5' THEN '5.電子計算機發票' ELSE (CASE WHEN TC121='6' THEN '6.免用統一發票' ELSE (CASE WHEN TC121='7' THEN '7.電子發票' ELSE '' END) END) END) END) END) END) END AS 'NEWTC121'
                                     FROM 
                                     (
                                     SELECT [COPTC].[COMPANY],[COPTC].[CREATOR],[COPTC].[USR_GROUP],[COPTC].[CREATE_DATE],[COPTC].[MODIFIER],[COPTC].[MODI_DATE],[COPTC].[FLAG],[COPTC].[CREATE_TIME],[COPTC].[MODI_TIME],[COPTC].[TRANS_TYPE],[COPTC].[TRANS_NAME]
