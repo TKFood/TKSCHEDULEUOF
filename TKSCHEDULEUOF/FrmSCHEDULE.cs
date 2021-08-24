@@ -3487,18 +3487,9 @@ namespace TKSCHEDULEUOF
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", (rowscounts).ToString());
 
-                //Row	UDF01
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "UDF01");
-                Cell.SetAttribute("fieldValue", od["UDF01"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
+         
                 //Row	TF004
-                Cell = xmlDoc.CreateElement("Cell");
+                XmlElement Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TF004");
                 Cell.SetAttribute("fieldValue", od["TF004"].ToString());
                 Cell.SetAttribute("realValue", "");
