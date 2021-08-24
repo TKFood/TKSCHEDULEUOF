@@ -28,7 +28,7 @@ namespace TKSCHEDULEUOF
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
         string COPID = "486aab5d-9cc2-48c8-9130-051d2e04f3de";
-        string COPCHANGEID = "";
+        string COPCHANGEID = "c82b7e7f-8e59-49c0-a626-b440e919eb59";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
         string DBNAME = "UOF";
@@ -3344,7 +3344,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            Form.SetAttribute("formVersionId", COPID);
+            Form.SetAttribute("formVersionId", COPCHANGEID);
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -3386,10 +3386,10 @@ namespace TKSCHEDULEUOF
 
 
             //建立節點FieldItem
-            //TC001 表單編號	
+            //TE001 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC001"].ToString());
+            FieldItem.SetAttribute("fieldId", "TE001");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE001"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3400,10 +3400,10 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
-            //TC002 表單編號	
+            //TE002 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC002"].ToString());
+            FieldItem.SetAttribute("fieldId", "TE002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE002"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3414,10 +3414,10 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
-            //TC003 表單編號	
+            //TE003 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC003"].ToString());
+            FieldItem.SetAttribute("fieldId", "TE003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE003"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3497,10 +3497,10 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	TD003
+                //Row	TF004
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TD003");
-                Cell.SetAttribute("fieldValue", od["TD003"].ToString());
+                Cell.SetAttribute("fieldId", "TF004");
+                Cell.SetAttribute("fieldValue", od["TF004"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
