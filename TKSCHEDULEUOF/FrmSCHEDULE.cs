@@ -2196,7 +2196,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATECOPTCUDF02();
+            UPDATECOPTCUDF02();
         }
 
         public void ADDTB_WKF_EXTERNAL_TASK_COPTCCOPTD(string TC001,string TC002)
@@ -3317,7 +3317,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATECOPTCUDF02();
+            UPDATECOPTEUDF01();
         }
 
         public void ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(string TE001, string TE002,string TE003)
@@ -4121,7 +4121,7 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public void UPDATECOPTE()
+        public void UPDATECOPTEUDF01()
         {
             try
             {
