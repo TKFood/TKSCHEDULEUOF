@@ -28,7 +28,7 @@ namespace TKSCHEDULEUOF
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
         string COPID = "486aab5d-9cc2-48c8-9130-051d2e04f3de";
-        string COPCHANGEID = "c82b7e7f-8e59-49c0-a626-b440e919eb59";
+        string COPCHANGEID = "4293a61d-c7df-4061-87c8-6e6828f4ca1a";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
         string DBNAME = "UOF";
@@ -4017,8 +4017,8 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
                 //Row	TF015
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TF015");
-                Cell.SetAttribute("fieldValue", od["TF015"].ToString());
+                Cell.SetAttribute("fieldId", "TF113");
+                Cell.SetAttribute("fieldValue", od["TF113"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
