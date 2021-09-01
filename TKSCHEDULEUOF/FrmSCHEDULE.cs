@@ -28,7 +28,7 @@ namespace TKSCHEDULEUOF
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
         string COPID = "486aab5d-9cc2-48c8-9130-051d2e04f3de";
-        string COPCHANGEID = "4293a61d-c7df-4061-87c8-6e6828f4ca1a";
+        string COPCHANGEID = "48eb6148-dd4c-489e-9985-0c198c5afae1";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
         string DBNAME = "UOF";
@@ -3791,8 +3791,20 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillSiteId", "");
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
-           
 
+            //建立節點FieldItem
+            //UDF05
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "UDF05");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["COPTCUDF05"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
             //MOC 表單編號	
@@ -4239,7 +4251,7 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 ME002 FROM [TK].dbo.CMSME WHERE ME001=TE108) AS 'CMSME002B'
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE009) AS 'CMSMV002A'
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE109) AS 'CMSMV002B'
-
+                                    ,(SELECT TOP 1 COPTC.UDF05 FROM [TK].dbo.COPTC WHERE TC001=TE001 AND TC002=TE002) AS 'COPTCUDF05'
                                     FROM 
                                     (
 
