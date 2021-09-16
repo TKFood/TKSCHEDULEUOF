@@ -28,7 +28,7 @@ namespace TKSCHEDULEUOF
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
         string COPID = "3aac53c7-cef0-48c5-9e58-99431b415cc7";
-        string COPCHANGEID = "48eb6148-dd4c-489e-9985-0c198c5afae1";
+        string COPCHANGEID = "4262aded-a702-4453-8bac-35e4d8e677da";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
         string DBNAME = "UOF";
@@ -2369,7 +2369,7 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC006");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString()+"("+DT.Rows[0]["TC006"].ToString()+")");
-            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("realValue", "&lt;UserSet&gt;&lt;Element type='user'&gt; &lt;userId&gt;cea7db77-293a-4570-9a4b-b67b15ead09e&lt;/userId&gt;&lt;/Element&gt;&lt;/UserSet&gt;&#xD;&#xA;");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
@@ -3369,6 +3369,21 @@ namespace TKSCHEDULEUOF
 
             int rowscounts = 0;
 
+            COPTCUDF01 = "N";
+
+            foreach (DataRow od in DT.Rows)
+            {
+                if (od["COPTDUDF01"].ToString().Equals("Y"))
+                {
+                    COPTCUDF01 = "Y";
+                    break;
+                }
+                else
+                {
+                    COPTCUDF01 = "N";
+                }
+            }
+
             XmlDocument xmlDoc = new XmlDocument();
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
@@ -3460,6 +3475,20 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TE003");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE003"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //COPTCUDF01 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "COPTCUDF01");
+            FieldItem.SetAttribute("fieldValue", COPTCUDF01);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -4282,6 +4311,8 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE009) AS 'CMSMV002A'
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE109) AS 'CMSMV002B'
                                     ,(SELECT TOP 1 COPTC.UDF05 FROM [TK].dbo.COPTC WHERE TC001=TE001 AND TC002=TE002) AS 'COPTCUDF05'
+                                    ,ISNULL((SELECT TOP 1 COPTD.UDF01 FROM [TK].dbo.COPTD WHERE TD001=TE001 AND TD002=TE002 AND COPTD.UDF01='Y'),'N') AS 'COPTDUDF01'
+
                                     FROM 
                                     (
 
