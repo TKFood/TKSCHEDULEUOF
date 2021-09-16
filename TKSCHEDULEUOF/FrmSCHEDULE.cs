@@ -27,7 +27,7 @@ namespace TKSCHEDULEUOF
         //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string COPID = "f8ecf91d-8c24-4857-a919-33060f66e7b8";
+        string COPID = "3aac53c7-cef0-48c5-9e58-99431b415cc7";
         string COPCHANGEID = "48eb6148-dd4c-489e-9985-0c198c5afae1";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
@@ -2219,12 +2219,18 @@ namespace TKSCHEDULEUOF
 
             int rowscounts = 0;
 
+            COPTCUDF01 = "N";
+
             foreach (DataRow od in DT.Rows)
             {
                 if(od["COPTDUDF01"].ToString().Equals("Y"))
                 {
                     COPTCUDF01 = "Y";
                     break;
+                }
+                else
+                {
+                    COPTCUDF01 = "N";
                 }
             }
 
@@ -2362,7 +2368,7 @@ namespace TKSCHEDULEUOF
             //TC006 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC006");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC006"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString()+"("+DT.Rows[0]["TC006"].ToString()+")");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
