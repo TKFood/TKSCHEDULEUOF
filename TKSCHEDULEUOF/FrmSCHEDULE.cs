@@ -27,7 +27,7 @@ namespace TKSCHEDULEUOF
         //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string COPID = "486aab5d-9cc2-48c8-9130-051d2e04f3de";
+        string COPID = "f8ecf91d-8c24-4857-a919-33060f66e7b8";
         string COPCHANGEID = "48eb6148-dd4c-489e-9985-0c198c5afae1";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
@@ -36,6 +36,7 @@ namespace TKSCHEDULEUOF
         string OLDTASK_ID = null;
         string NEWTASK_ID = null;
         string ATTACH_ID = null;
+        string COPTCUDF01 = "N";
 
         SqlConnection sqlConn = new SqlConnection();
         SqlCommand sqlComm = new SqlCommand();
@@ -2218,7 +2219,16 @@ namespace TKSCHEDULEUOF
 
             int rowscounts = 0;
 
-            XmlDocument xmlDoc = new XmlDocument();
+            foreach (DataRow od in DT.Rows)
+            {
+                if(od["COPTDUDF01"].ToString().Equals("Y"))
+                {
+                    COPTCUDF01 = "Y";
+                    break;
+                }
+            }
+
+                XmlDocument xmlDoc = new XmlDocument();
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
 
@@ -2283,6 +2293,20 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC002");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //COPTCUDF01 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "COPTCUDF01");
+            FieldItem.SetAttribute("fieldValue", COPTCUDF01);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -2857,7 +2881,7 @@ namespace TKSCHEDULEUOF
                 //Row	UDF01
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "UDF01");
-                Cell.SetAttribute("fieldValue", od["UDF01"].ToString());
+                Cell.SetAttribute("fieldValue", od["COPTDUDF01"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
