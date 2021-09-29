@@ -28,7 +28,7 @@ namespace TKSCHEDULEUOF
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
         string COPID = "26e535d9-2d9e-4a49-84c4-6ff2b59240b6";
-        string COPCHANGEID = "4262aded-a702-4453-8bac-35e4d8e677da";
+        string COPCHANGEID = "9c31d75f-6f15-4a1e-9025-a7db00ca1aa1";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
         string DBNAME = "UOF";
@@ -3431,6 +3431,10 @@ namespace TKSCHEDULEUOF
             string fillerName = DT.Rows[0]["NAME"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
 
+            string BA = DT.Rows[0]["BA"].ToString();
+            string BANAME = DT.Rows[0]["BANAME"].ToString();
+            string BA_USER_GUID = DT.Rows[0]["BA_USER_GUID"].ToString();
+
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
@@ -3810,11 +3814,21 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillSiteId", "");
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
+
+            //建立userset
+            var xElement = new XElement(
+                  new XElement("UserSet",
+                      new XElement("Element", new XAttribute("type", "user"),
+                          new XElement("userId", BA_USER_GUID)
+                          )
+                          )
+                        );
+
             //TE009 	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TE009");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE009"].ToString());
-            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["CMSMV002A"].ToString() +"("+ DT.Rows[0]["TE009"].ToString()+")");
+            FieldItem.SetAttribute("realValue", xElement.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
@@ -3859,6 +3873,44 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillSiteId", "");
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
+
+            //建立userset
+            var xElement_BA = new XElement(
+                  new XElement("UserSet",
+                      new XElement("Element", new XAttribute("type", "user"),
+                          new XElement("userId", BA_USER_GUID)
+                          )
+                          )
+                        );
+
+            //建立節點FieldItem
+            //BA 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "BA");
+            FieldItem.SetAttribute("fieldValue", BANAME + "(" + BA + ")");
+            FieldItem.SetAttribute("realValue", xElement_BA.ToString());
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //BANAME 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "BANAME");
+            FieldItem.SetAttribute("fieldValue", BANAME);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
             //TE040 	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TE040");
@@ -4381,6 +4433,9 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE109) AS 'CMSMV002B'
                                     ,(SELECT TOP 1 COPTC.UDF05 FROM [TK].dbo.COPTC WHERE TC001=TE001 AND TC002=TE002) AS 'COPTCUDF05'
                                     ,ISNULL((SELECT TOP 1 COPTD.UDF01 FROM [TK].dbo.COPTD WHERE TD001=TE001 AND TD002=TE002 AND COPTD.UDF01='Y'),'N') AS 'COPTDUDF01'
+                                    ,BA
+                                    ,BANAME
+                                    ,(SELECT TOP 1 [USER_GUID] FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER] WHERE [ACCOUNT]=BA COLLATE Chinese_Taiwan_Stroke_BIN) AS 'BA_USER_GUID'
 
                                     FROM 
                                     (
@@ -4432,6 +4487,9 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE009) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.COPMA WHERE MA001=TE007) AS 'MA002'
+                                    ,(SELECT TOP 1 COPMA.UDF04 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TE007) AS 'BA'
+                                    ,(SELECT TOP 1 CMSMV.MV002 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TE007) AS 'BANAME'
+
                                     FROM [TK].dbo.COPTF,[TK].dbo.COPTE
                                     LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TE009 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TE001=TF001 AND TE002=TF002 AND TE003=TF003
