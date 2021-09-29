@@ -27,7 +27,7 @@ namespace TKSCHEDULEUOF
         //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string COPID = "3aac53c7-cef0-48c5-9e58-99431b415cc7";
+        string COPID = "26e535d9-2d9e-4a49-84c4-6ff2b59240b6";
         string COPCHANGEID = "4262aded-a702-4453-8bac-35e4d8e677da";
 
         string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
