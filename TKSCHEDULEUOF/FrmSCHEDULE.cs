@@ -2212,6 +2212,10 @@ namespace TKSCHEDULEUOF
             string fillerName = DT.Rows[0]["NAME"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
 
+            string BA = DT.Rows[0]["BA"].ToString();
+            string BANAME = DT.Rows[0]["BANAME"].ToString();
+            string BA_USER_GUID = DT.Rows[0]["BA_USER_GUID"].ToString();
+
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
@@ -2364,12 +2368,33 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //建立userset
+            var xElement = new XElement(
+                  new XElement("UserSet",
+                      new XElement("Element", new XAttribute("type", "user"),
+                          new XElement("userId", fillerUserGuid)
+                          )
+                          )
+                        );
+
+
+
+            //XmlDocument doc = new XmlDocument();
+            //XmlElement UserSet = doc.CreateElement("UserSet");
+
+            //XmlElement Element = doc.CreateElement("Element");
+            //Element.SetAttribute("type", "user");//設定屬性
+            //UserSet.AppendChild(Element);
+
+            //XmlElement userId = doc.CreateElement("userId", fillerUserGuid);
+            //Element.AppendChild(userId);
+
             //建立節點FieldItem
             //TC006 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC006");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString()+"("+DT.Rows[0]["TC006"].ToString()+")");
-            FieldItem.SetAttribute("realValue", "&lt;UserSet&gt;&lt;Element type='user'&gt; &lt;userId&gt;cea7db77-293a-4570-9a4b-b67b15ead09e&lt;/userId&gt;&lt;/Element&gt;&lt;/UserSet&gt;&#xD;&#xA;");
+            FieldItem.SetAttribute("realValue", xElement.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
@@ -2383,6 +2408,43 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "MV002");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立userset
+            var xElement_BA = new XElement(
+                  new XElement("UserSet",
+                      new XElement("Element", new XAttribute("type", "user"),
+                          new XElement("userId", BA_USER_GUID)
+                          )
+                          )
+                        );
+
+            //建立節點FieldItem
+            //BA 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "BA");
+            FieldItem.SetAttribute("fieldValue",BANAME + "(" + BA + ")");
+            FieldItem.SetAttribute("realValue", xElement_BA.ToString());
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //BANAME 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "BANAME");
+            FieldItem.SetAttribute("fieldValue", BANAME);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3220,6 +3282,10 @@ namespace TKSCHEDULEUOF
                                     ,MA002
                                     ,CASE WHEN TC016='1' THEN '1.應稅內含'  ELSE (CASE WHEN TC016='2' THEN '2.應稅外加'  ELSE (CASE WHEN TC016='3' THEN '3.零稅率'  ELSE (CASE WHEN TC016='4' THEN '4.免稅'  ELSE (CASE WHEN TC016='9' THEN '9.不計稅'  ELSE '' END) END) END) END ) END AS 'NEWTC016'
                                     ,CASE WHEN TC121='1' THEN '1.二聯式' ELSE (CASE WHEN TC121='2' THEN '2.三聯式' ELSE (CASE WHEN TC121='3' THEN '3.二聯式收銀機發票' ELSE (CASE WHEN TC121='4' THEN '4.三聯式收銀機發票' ELSE (CASE WHEN TC121='5' THEN '5.電子計算機發票' ELSE (CASE WHEN TC121='6' THEN '6.免用統一發票' ELSE (CASE WHEN TC121='7' THEN '7.電子發票' ELSE '' END) END) END) END) END) END) END AS 'NEWTC121'
+                                    ,BA
+                                    ,BANAME
+                                    ,(SELECT TOP 1 [USER_GUID] FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER] WHERE [ACCOUNT]=BA COLLATE Chinese_Taiwan_Stroke_BIN) AS 'BA_USER_GUID'
+    
                                     FROM 
                                     (
                                     SELECT [COPTC].[COMPANY],[COPTC].[CREATOR],[COPTC].[USR_GROUP],[COPTC].[CREATE_DATE],[COPTC].[MODIFIER],[COPTC].[MODI_DATE],[COPTC].[FLAG],[COPTC].[CREATE_TIME],[COPTC].[MODI_TIME],[COPTC].[TRANS_TYPE],[COPTC].[TRANS_NAME]
@@ -3256,6 +3322,9 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TC006) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.COPMA WHERE MA001=TC004) AS 'MA002'
+                                    ,(SELECT TOP 1 COPMA.UDF04 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS 'BA'
+                                    ,(SELECT TOP 1 CMSMV.MV002 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS 'BANAME'
+
                                     FROM [TK].dbo.COPTD,[TK].dbo.COPTC
                                     LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TC006 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TC001=TD001 AND TC002=TD002
