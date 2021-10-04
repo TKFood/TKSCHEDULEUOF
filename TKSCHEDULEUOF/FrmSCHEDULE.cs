@@ -2056,7 +2056,7 @@ namespace TKSCHEDULEUOF
 
             String connectionString;
             sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ToString();
+            connectionString = sqlConn.ConnectionString.ToString();
 
             StringBuilder queryString = new StringBuilder();
 
@@ -2218,7 +2218,7 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
                 //sqlConn = new SqlConnection(connectionString);
 
                 //20210902密
@@ -3438,7 +3438,7 @@ namespace TKSCHEDULEUOF
 
             String connectionString;
             sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ToString();
+            connectionString = sqlConn.ConnectionString.ToString();
 
             StringBuilder queryString = new StringBuilder();
 
@@ -4620,7 +4620,7 @@ namespace TKSCHEDULEUOF
 
             String connectionString;
             sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ToString();
+            connectionString = sqlConn.ConnectionString.ToString();
 
             StringBuilder queryString = new StringBuilder();
 
