@@ -31,7 +31,7 @@ namespace TKSCHEDULEUOF
         string COPID = "26e535d9-2d9e-4a49-84c4-6ff2b59240b6";
         string COPCHANGEID = "9c31d75f-6f15-4a1e-9025-a7db00ca1aa1";
 
-        string ID = "9cf7d919-c825-4b79-97e3-7f532f4fb8a6";
+        string PURID = "cbf3035c-2b72-4416-b4b3-534ea8763460";
         string DBNAME = "UOF";
 
         string OLDTASK_ID = null;
@@ -1752,7 +1752,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
            
             //正式的id
-            Form.SetAttribute("formVersionId", ID);
+            Form.SetAttribute("formVersionId", PURID);
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
