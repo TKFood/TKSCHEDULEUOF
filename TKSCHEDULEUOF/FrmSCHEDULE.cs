@@ -139,6 +139,9 @@ namespace TKSCHEDULEUOF
         private void timer2_Tick(object sender, EventArgs e)
         {
             ADDTOUOFOURTAB();
+            ADDCOPTCCOPTD();
+            ADDCOPTECOPTF();
+
         }
 
         #region FUNCTION
