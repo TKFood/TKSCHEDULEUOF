@@ -139,6 +139,8 @@ namespace TKSCHEDULEUOF
         private void timer2_Tick(object sender, EventArgs e)
         {
             ADDTOUOFOURTAB();
+            ADDTOUOFOURTAB();
+            ADDTOUOFOURTAB();
             ADDCOPTCCOPTD();
             ADDCOPTECOPTF();
 
@@ -4901,6 +4903,83 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        private void button10_Click(object sender, EventArgs e)
+        {
+            UPDATE_TB_WKF_TASK_TASK_RESULT();
+        }
+        public void UPDATE_TB_WKF_TASK_TASK_RESULT()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE [UOF].[dbo].[TB_WKF_TASK]
+                                    SET  [TASK_RESULT]='2',TASK_STATUS='2',[CURRENT_SIGNER]=NULL,[CURRENT_SITE_ID]=NULL
+                                    WHERE  TASK_STATUS IN ('4')
+                                    AND [FORM_VERSION_ID] IN
+                                    (
+	                                    SELECT  [FORM_VERSION_ID]
+	                                    FROM [UOF].[dbo].[TB_WKF_FORM_VERSION]
+	                                    WHERE [FORM_ID] IN 
+		                                    (
+		                                    SELECT 
+		                                    [FORM_ID]      
+		                                    FROM [UOF].[dbo].[TB_WKF_FORM]
+		                                    WHERE [FORM_NAME] IN 
+			                                    (
+			                                    SELECT [FORM_NAME] FROM [UOF].[dbo].[Z_TK_FORM_NAME]
+			                                    )
+		                                    )
+                                    )
+                                         
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -4956,8 +5035,9 @@ namespace TKSCHEDULEUOF
             ADDCOPTECOPTF();
         }
 
+
         #endregion
 
-
+       
     }
 }
