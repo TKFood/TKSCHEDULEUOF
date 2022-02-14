@@ -28,10 +28,13 @@ namespace TKSCHEDULEUOF
         //正式ID =""
         //測試DB DBNAME = "UOFTEST";
         //正式DB DBNAME = "UOF";
-        string COPID = "0f2fd9bc-b645-4aa5-b3d2-3ecfed7848ab";
-        string COPCHANGEID = "8c637ad2-adcf-48ef-b665-1860eba83566";
+        //string COPID = "0f2fd9bc-b645-4aa5-b3d2-3ecfed7848ab";
+        string COPID;
+        //string COPCHANGEID = "8c637ad2-adcf-48ef-b665-1860eba83566";
+        string COPCHANGEID;
 
-        string PURID = "cbf3035c-2b72-4416-b4b3-534ea8763460";
+        //string PURID = "cbf3035c-2b72-4416-b4b3-534ea8763460";
+        string PURID;
         string DBNAME = "UOF";
 
         string OLDTASK_ID = null;
@@ -198,6 +201,64 @@ namespace TKSCHEDULEUOF
             catch
             {
                 return 0;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public string SEARCHFORM_VERSION_ID(string FORM_NAME)
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@" 
+                                    SELECT 
+                                    RTRIM(LTRIM([FORM_VERSION_ID])) AS FORM_VERSION_ID
+                                    ,[FORM_NAME]
+                                    FROM [TKIT].[dbo].[UOF_FORM_VERSION_ID]
+                                    WHERE [FORM_NAME]='{0}'
+                                    ", FORM_NAME);
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"].Rows[0]["FORM_VERSION_ID"].ToString();
+                }
+                else
+                {
+                    return "";
+                }
+
+            }
+            catch
+            {
+                return "";
             }
             finally
             {
@@ -1757,9 +1818,15 @@ namespace TKSCHEDULEUOF
             XmlDocument xmlDoc = new XmlDocument();
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
-           
+
             //正式的id
-            Form.SetAttribute("formVersionId", PURID);
+            PURID = SEARCHFORM_VERSION_ID("請購單");
+
+            if (!string.IsNullOrEmpty(PURID))
+            {
+                Form.SetAttribute("formVersionId", PURID);
+            }
+           
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -2533,7 +2600,13 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            Form.SetAttribute("formVersionId", COPID);
+            COPID = SEARCHFORM_VERSION_ID("訂單");
+
+            if (!string.IsNullOrEmpty(COPID))
+            {
+                Form.SetAttribute("formVersionId", COPID);
+            }
+                       
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -3802,7 +3875,13 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            Form.SetAttribute("formVersionId", COPCHANGEID);
+            COPCHANGEID = SEARCHFORM_VERSION_ID("訂單變更");
+
+            if (!string.IsNullOrEmpty(COPCHANGEID))
+            {
+                Form.SetAttribute("formVersionId", COPCHANGEID);
+            }
+          
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
