@@ -2248,9 +2248,9 @@ namespace TKSCHEDULEUOF
 
 
                 sbSql.AppendFormat(@" 
-                                    SELECT TA001,TA002
+                                    SELECT TA001,TA002,UDF01
                                     FROM [TK].dbo.PURTA
-                                    WHERE TA007='N' AND UDF01='Y'
+                                    WHERE TA007='N' AND (UDF01 IN ('Y','y') )
                                     ORDER BY TA001,TA002
                                     ");
 
@@ -2450,7 +2450,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@" 
                                     SELECT TC001,TC002
                                     FROM [TK].dbo.COPTC
-                                    WHERE TC027='N' AND UDF02='Y'
+                                    WHERE TC027='N' AND (UDF02 IN ('Y','y') ) 
                                     ORDER BY TC001,TC002
                                     ");
 
@@ -3720,7 +3720,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@" 
                                     SELECT TE001,TE002,TE003
                                     FROM [TK].dbo.COPTE
-                                    WHERE TE029='N' AND UDF01='Y'
+                                    WHERE TE029='N' AND (UDF01 IN ('Y','y') )
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
