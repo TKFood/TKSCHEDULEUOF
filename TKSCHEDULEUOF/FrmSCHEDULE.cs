@@ -2384,7 +2384,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.PURTA  
                                     SET UDF01 = 'UOF',TA016='1'
-                                    WHERE TA007 = 'N' AND UDF01 = 'Y'       
+                                    WHERE TA007 = 'N' AND (UDF01 IN ('Y','y') )
                                     ");
 
                 cmd.Connection = sqlConn;
