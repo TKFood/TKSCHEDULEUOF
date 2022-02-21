@@ -142,10 +142,9 @@ namespace TKSCHEDULEUOF
         private void timer2_Tick(object sender, EventArgs e)
         {
             ADDTOUOFOURTAB();
-            ADDTOUOFOURTAB();
-            ADDTOUOFOURTAB();
-            ADDCOPTCCOPTD();
-            ADDCOPTECOPTF();
+       
+            //ADDCOPTCCOPTD();
+            //ADDCOPTECOPTF();
 
             //UPDATE_TB_WKF_TASK_TASK_RESULT();
 
