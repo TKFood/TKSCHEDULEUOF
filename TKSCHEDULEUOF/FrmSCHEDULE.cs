@@ -142,6 +142,8 @@ namespace TKSCHEDULEUOF
         private void timer2_Tick(object sender, EventArgs e)
         {
             ADDTOUOFOURTAB();
+            ADDTOUOFOURTAB();
+            ADDTOUOFOURTAB();
        
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
@@ -5060,6 +5062,85 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
+        //從xmlDoc找出各節點的Attributes
+        public void SEARCHUOFTB_WKF_TASK()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT * 
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    WHERE DOC_NBR LIKE 'STORE220300004%'
+                              
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
+                    string STORE1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE1']").Attributes["fieldValue"].Value;
+                    string STORE2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE2']").Attributes["fieldValue"].Value;
+
+
+                    string OK = "";
+
+
+
+                }
+                else
+                {
+                    
+                }
+
+            }
+            catch
+            {
+               
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -5115,9 +5196,13 @@ namespace TKSCHEDULEUOF
             ADDCOPTECOPTF();
         }
 
+        private void button11_Click(object sender, EventArgs e)
+        {
+            SEARCHUOFTB_WKF_TASK();
+        }
 
         #endregion
 
-       
+
     }
 }
