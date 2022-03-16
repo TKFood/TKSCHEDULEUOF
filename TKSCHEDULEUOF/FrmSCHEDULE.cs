@@ -5160,7 +5160,20 @@ namespace TKSCHEDULEUOF
                     string STORE43 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE43']").Attributes["fieldValue"].Value;
                     string STORE44 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE44']").Attributes["fieldValue"].Value;
 
-
+                    int index2 = STORE2.IndexOf("@");
+                    STORE2 = STORE2.Substring(0, index2);
+                    int index8 = STORE8.IndexOf("@");
+                    STORE8 = STORE8.Substring(0, index8);
+                    int index10 = STORE10.IndexOf("@");
+                    STORE10 = STORE10.Substring(0, index10);
+                    int index11 = STORE11.IndexOf("@");
+                    STORE11 = STORE11.Substring(0, index11);
+                    int index12 = STORE12.IndexOf("@");
+                    STORE12 = STORE12.Substring(0, index12);
+                    int index13 = STORE13.IndexOf("@");
+                    STORE13 = STORE13.Substring(0, index13);
+                    int index14 = STORE14.IndexOf("@");
+                    STORE14 = STORE14.Substring(0, index14);
 
                     //string OK = "";
                     ADDTOTKMKTBSTORESCHECK(
