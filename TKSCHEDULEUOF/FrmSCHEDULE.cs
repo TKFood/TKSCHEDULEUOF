@@ -5174,6 +5174,34 @@ namespace TKSCHEDULEUOF
                     STORE13 = STORE13.Substring(0, index13);
                     int index14 = STORE14.IndexOf("@");
                     STORE14 = STORE14.Substring(0, index14);
+                    int index17 = STORE17.IndexOf("@");
+                    STORE17 = STORE17.Substring(0, index17);
+                    int index18 = STORE18.IndexOf("@");
+                    STORE18 = STORE18.Substring(0, index18);
+                    int index19 = STORE19.IndexOf("@");
+                    STORE19 = STORE19.Substring(0, index19);
+                    int index22 = STORE22.IndexOf("@");
+                    STORE22 = STORE22.Substring(0, index22);
+                    int index23 = STORE23.IndexOf("@");
+                    STORE23 = STORE23.Substring(0, index23);
+                    int index24 = STORE24.IndexOf("@");
+                    STORE24 = STORE24.Substring(0, index24);
+                    int index26 = STORE26.IndexOf("@");
+                    STORE26 = STORE26.Substring(0, index26);
+                    int index29 = STORE29.IndexOf("@");
+                    STORE29 = STORE29.Substring(0, index29);
+                    int index30 = STORE30.IndexOf("@");
+                    STORE30 = STORE30.Substring(0, index30);
+                    int index31 = STORE31.IndexOf("@");
+                    STORE31 = STORE31.Substring(0, index31);
+                    int index32 = STORE32.IndexOf("@");
+                    STORE32 = STORE32.Substring(0, index32);
+                    int index33 = STORE33.IndexOf("@");
+                    STORE33 = STORE33.Substring(0, index33);
+                    int index35 = STORE35.IndexOf("@");
+                    STORE35 = STORE35.Substring(0, index35);
+                    int index36 = STORE36.IndexOf("@");
+                    STORE36 = STORE36.Substring(0, index36);
 
                     //string OK = "";
                     ADDTOTKMKTBSTORESCHECK(
