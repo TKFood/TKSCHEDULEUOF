@@ -5063,9 +5063,26 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTKMKdboTBSTORESCHECK()
+        {
+            DataTable DT1 = SEARCHUOFSTORE();
+            DataTable DT2 = SEARCHTKMKTBSTORESCHECK();
+
+            //找DataTable差集
+            //要有相同的欄位名稱
+            IEnumerable<DataRow> query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
+            //差集集合
+            DataTable dt3 = query2.CopyToDataTable();
+            foreach (DataRow dr in dt3.Rows)
+            {
+                SEARCHUOFTB_WKF_TASK(dr["DOC_NBR"].ToString());
+            }
+                
+        }
+
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
-        public void SEARCHUOFTB_WKF_TASK()
+        public void SEARCHUOFTB_WKF_TASK(string DOC_NBR)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -5095,9 +5112,9 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                     SELECT * 
                                     FROM [UOF].DBO.TB_WKF_TASK 
-                                    WHERE DOC_NBR LIKE 'STORE220300004%'
+                                    WHERE DOC_NBR LIKE '{0}%'
                               
-                                    ");
+                                    ", DOC_NBR);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -5511,6 +5528,129 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public DataTable SEARCHUOFSTORE()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();                
+
+                sbSql.AppendFormat(@"  
+                                     SELECT DOC_NBR
+                                     FROM [UOF].DBO.TB_WKF_TASK 
+                                     WHERE DOC_NBR LIKE 'STORE%'
+                              
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable SEARCHTKMKTBSTORESCHECK()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                     SELECT [ID] AS 'DOC_NBR'
+                                     FROM [TKMK].[dbo].[TBSTORESCHECK]
+                              
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -5568,7 +5708,8 @@ namespace TKSCHEDULEUOF
 
         private void button11_Click(object sender, EventArgs e)
         {
-            SEARCHUOFTB_WKF_TASK();
+            ADDTKMKdboTBSTORESCHECK();
+            //SEARCHUOFTB_WKF_TASK();
         }
 
         #endregion
