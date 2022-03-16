@@ -5162,8 +5162,54 @@ namespace TKSCHEDULEUOF
 
 
 
-                    string OK = "";
-
+                    //string OK = "";
+                    ADDTOTKMKTBSTORESCHECK(
+                                            ID
+                                            , STORE1
+                                            , STORE2
+                                            , STORE3
+                                            , STORE4
+                                            , STORE5
+                                            , STORE6
+                                            , STORE7
+                                            , STORE8
+                                            , STORE9
+                                            , STORE10
+                                            , STORE11
+                                            , STORE12
+                                            , STORE13
+                                            , STORE14
+                                            , STORE15
+                                            , STORE16
+                                            , STORE17
+                                            , STORE18
+                                            , STORE19
+                                            , STORE20
+                                            , STORE21
+                                            , STORE22
+                                            , STORE23
+                                            , STORE24
+                                            , STORE25
+                                            , STORE26
+                                            , STORE27
+                                            , STORE28
+                                            , STORE29
+                                            , STORE30
+                                            , STORE31
+                                            , STORE32
+                                            , STORE33
+                                            , STORE34
+                                            , STORE35
+                                            , STORE36
+                                            , STORE37
+                                            , STORE38
+                                            , STORE39
+                                            , STORE40
+                                            , STORE41
+                                            , STORE42
+                                            , STORE43
+                                            , STORE44
+                                            );
 
 
                 }
@@ -5183,6 +5229,246 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTOTKMKTBSTORESCHECK(
+                                        string ID
+                                        , string STORE1
+                                        , string STORE2
+                                        , string STORE3
+                                        , string STORE4
+                                        , string STORE5
+                                        , string STORE6
+                                        , string STORE7
+                                        , string STORE8
+                                        , string STORE9
+                                        , string STORE10
+                                        , string STORE11
+                                        , string STORE12
+                                        , string STORE13
+                                        , string STORE14
+                                        , string STORE15
+                                        , string STORE16
+                                        , string STORE17
+                                        , string STORE18
+                                        , string STORE19
+                                        , string STORE20
+                                        , string STORE21
+                                        , string STORE22
+                                        , string STORE23
+                                        , string STORE24
+                                        , string STORE25
+                                        , string STORE26
+                                        , string STORE27
+                                        , string STORE28
+                                        , string STORE29
+                                        , string STORE30
+                                        , string STORE31
+                                        , string STORE32
+                                        , string STORE33
+                                        , string STORE34
+                                        , string STORE35
+                                        , string STORE36
+                                        , string STORE37
+                                        , string STORE38
+                                        , string STORE39
+                                        , string STORE40
+                                        , string STORE41
+                                        , string STORE42
+                                        , string STORE43
+                                        , string STORE44
+                                            )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    INSERT INTO [TKMK].[dbo].[TBSTORESCHECK]
+                                    (
+                                    [ID]
+                                    ,[STORE1]
+                                    ,[STORE2]
+                                    ,[STORE3]
+                                    ,[STORE4]
+                                    ,[STORE5]
+                                    ,[STORE6]
+                                    ,[STORE7]
+                                    ,[STORE8]
+                                    ,[STORE9]
+                                    ,[STORE10]
+                                    ,[STORE11]
+                                    ,[STORE12]
+                                    ,[STORE13]
+                                    ,[STORE14]
+                                    ,[STORE15]
+                                    ,[STORE16]
+                                    ,[STORE17]
+                                    ,[STORE18]
+                                    ,[STORE19]
+                                    ,[STORE20]
+                                    ,[STORE21]
+                                    ,[STORE22]
+                                    ,[STORE23]
+                                    ,[STORE24]
+                                    ,[STORE25]
+                                    ,[STORE26]
+                                    ,[STORE27]
+                                    ,[STORE28]
+                                    ,[STORE29]
+                                    ,[STORE30]
+                                    ,[STORE31]
+                                    ,[STORE32]
+                                    ,[STORE33]
+                                    ,[STORE34]
+                                    ,[STORE35]
+                                    ,[STORE36]
+                                    ,[STORE37]
+                                    ,[STORE38]
+                                    ,[STORE39]
+                                    ,[STORE40]
+                                    ,[STORE41]
+                                    ,[STORE42]
+                                    ,[STORE43]
+                                    ,[STORE44]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    ,'{21}'
+                                    ,'{22}'
+                                    ,'{23}'
+                                    ,'{24}'
+                                    ,'{25}'
+                                    ,'{26}'
+                                    ,'{27}'
+                                    ,'{28}'
+                                    ,'{29}'
+                                    ,'{30}'
+                                    ,'{31}'
+                                    ,'{32}'
+                                    ,'{33}'
+                                    ,'{34}'
+                                    ,'{35}'
+                                    ,'{36}'
+                                    ,'{37}'
+                                    ,'{38}'
+                                    ,'{39}'
+                                    ,'{40}'
+                                    ,'{41}'
+                                    ,'{42}'
+                                    ,'{43}'
+                                    ,'{44}'
+                                    )
+
+                                    ",ID
+                                    , STORE1
+                                    , STORE2
+                                    , STORE3
+                                    , STORE4
+                                    , STORE5
+                                    , STORE6
+                                    , STORE7
+                                    , STORE8
+                                    , STORE9
+                                    , STORE10
+                                    , STORE11
+                                    , STORE12
+                                    , STORE13
+                                    , STORE14
+                                    , STORE15
+                                    , STORE16
+                                    , STORE17
+                                    , STORE18
+                                    , STORE19
+                                    , STORE20
+                                    , STORE21
+                                    , STORE22
+                                    , STORE23
+                                    , STORE24
+                                    , STORE25
+                                    , STORE26
+                                    , STORE27
+                                    , STORE28
+                                    , STORE29
+                                    , STORE30
+                                    , STORE31
+                                    , STORE32
+                                    , STORE33
+                                    , STORE34
+                                    , STORE35
+                                    , STORE36
+                                    , STORE37
+                                    , STORE38
+                                    , STORE39
+                                    , STORE40
+                                    , STORE41
+                                    , STORE42
+                                    , STORE43
+                                    , STORE44);
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
