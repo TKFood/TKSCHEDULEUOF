@@ -144,7 +144,9 @@ namespace TKSCHEDULEUOF
             ADDTOUOFOURTAB();
             ADDTOUOFOURTAB();
             ADDTOUOFOURTAB();
-       
+
+            ADDTKMKdboTBSTORESCHECK();
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
@@ -5071,12 +5073,18 @@ namespace TKSCHEDULEUOF
             //找DataTable差集
             //要有相同的欄位名稱
             IEnumerable<DataRow> query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
-            //差集集合
-            DataTable dt3 = query2.CopyToDataTable();
-            foreach (DataRow dr in dt3.Rows)
+            
+            if(query2.Count()>0)
             {
-                SEARCHUOFTB_WKF_TASK(dr["DOC_NBR"].ToString());
+                //差集集合
+                DataTable dt3 = query2.CopyToDataTable();
+
+                foreach (DataRow dr in dt3.Rows)
+                {
+                    SEARCHUOFTB_WKF_TASK(dr["DOC_NBR"].ToString());
+                }
             }
+            
                 
         }
 
@@ -5551,13 +5559,16 @@ namespace TKSCHEDULEUOF
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();                
+                sbSqlQuery.Clear();
 
+
+                //是門市督導單STORE
+                //核準過TASK_RESULT='0'
                 sbSql.AppendFormat(@"  
                                      SELECT DOC_NBR
                                      FROM [UOF].DBO.TB_WKF_TASK 
                                      WHERE DOC_NBR LIKE 'STORE%'
-                              
+                                     AND TASK_RESULT='0'
                                     ");
 
 
