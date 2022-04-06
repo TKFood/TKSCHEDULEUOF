@@ -5662,6 +5662,165 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void  CHECKADDTOUOFFORMEDUCATION()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //是門市督導單STORE
+                //核準過TASK_RESULT='0'
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
+                                    WHERE 1=1
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
+                                    AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
+                                    AND [LEACODE]='050B1'
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101220400001'
+                                    ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADDTOUOFFORMEDUCATION(dr["DOC_NBR"].ToString());
+                    }
+
+                }
+                else
+                {
+                    
+                }
+
+            }
+            catch
+            {
+                
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void ADDTOUOFFORMEDUCATION(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
+                                    WHERE 1=1
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
+                                    AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
+                                    AND [LEACODE]='050B1'
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR='{0}'
+                                    ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+                    //string LeaveType = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
+
+                    string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString();
+                    string LeaveHours = ds1.Tables["ds1"].Rows[0]["LEAHOURS"].ToString();
+                    string LeaveDay = ds1.Tables["ds1"].Rows[0]["LEADAYS"].ToString();
+                    string TrainLocal = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                    string TrainFee = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
+                    string TrainDateStart = ds1.Tables["ds1"].Rows[0]["STARTTIME"].ToString();
+                    string TrainDateEnd = ds1.Tables["ds1"].Rows[0]["ENDTIME"].ToString();
+
+
+                }
+                else
+                {
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+
+
+                    
+
+        }
+
+      
+
         #endregion
 
         #region BUTTON
@@ -5721,6 +5880,10 @@ namespace TKSCHEDULEUOF
         {
             ADDTKMKdboTBSTORESCHECK();
             //SEARCHUOFTB_WKF_TASK();
+        }
+        private void button12_Click(object sender, EventArgs e)
+        {
+            CHECKADDTOUOFFORMEDUCATION();
         }
 
         #endregion
