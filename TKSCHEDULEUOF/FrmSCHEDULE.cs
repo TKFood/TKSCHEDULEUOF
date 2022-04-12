@@ -5120,6 +5120,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                     SELECT * 
                                     FROM [UOF].DBO.TB_WKF_TASK 
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
                                     WHERE DOC_NBR LIKE '{0}%'
                               
                                     ", DOC_NBR);
@@ -5135,6 +5136,8 @@ namespace TKSCHEDULEUOF
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
+                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
 
@@ -5275,6 +5278,7 @@ namespace TKSCHEDULEUOF
                                             , STORE42
                                             , STORE43
                                             , STORE44
+                                            , NAME
                                             );
 
 
@@ -5341,6 +5345,7 @@ namespace TKSCHEDULEUOF
                                         , string STORE42
                                         , string STORE43
                                         , string STORE44
+                                        ,string NAME
                                             )
         {
             try
@@ -5413,6 +5418,7 @@ namespace TKSCHEDULEUOF
                                     ,[STORE42]
                                     ,[STORE43]
                                     ,[STORE44]
+                                    ,[NAME]
                                     )
                                     VALUES
                                     (
@@ -5461,9 +5467,10 @@ namespace TKSCHEDULEUOF
                                     ,'{42}'
                                     ,'{43}'
                                     ,'{44}'
+                                    ,'{45}'
                                     )
 
-                                    ",ID
+                                    ", ID
                                     , STORE1
                                     , STORE2
                                     , STORE3
@@ -5507,7 +5514,10 @@ namespace TKSCHEDULEUOF
                                     , STORE41
                                     , STORE42
                                     , STORE43
-                                    , STORE44);
+                                    , STORE44
+                                    , NAME
+
+                                    );
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
