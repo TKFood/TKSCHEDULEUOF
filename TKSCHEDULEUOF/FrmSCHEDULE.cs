@@ -5552,6 +5552,10 @@ namespace TKSCHEDULEUOF
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2,2);
+
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -5577,9 +5581,9 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                      SELECT DOC_NBR
                                      FROM [UOF].DBO.TB_WKF_TASK 
-                                     WHERE DOC_NBR LIKE 'STORE%'
+                                     WHERE DOC_NBR LIKE 'STORE{0}%'
                                      AND TASK_RESULT='0'
-                                    ");
+                                    ", THISYEARS);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -5617,6 +5621,10 @@ namespace TKSCHEDULEUOF
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -5639,8 +5647,8 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                      SELECT [ID] AS 'DOC_NBR'
                                      FROM [TKMK].[dbo].[TBSTORESCHECK]
-                              
-                                    ");
+                                     WHERE [ID] LIKE 'STORE{0}%'
+                                    ", THISYEARS);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
