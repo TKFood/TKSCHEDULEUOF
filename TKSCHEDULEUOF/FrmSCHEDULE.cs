@@ -5067,12 +5067,21 @@ namespace TKSCHEDULEUOF
 
         public void ADDTKMKdboTBSTORESCHECK()
         {
+            IEnumerable<DataRow> query2 = null;
+
             DataTable DT1 = SEARCHUOFSTORE();
             DataTable DT2 = SEARCHTKMKTBSTORESCHECK();
 
             //找DataTable差集
             //要有相同的欄位名稱
-            IEnumerable<DataRow> query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
+            //找DataTable差集
+            //要有相同的欄位名稱
+            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            {
+                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
+            }
+
+           
             
             if(query2.Count()>0)
             {
@@ -5644,10 +5653,16 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
+                //UNION ALL 
+                //SELECT 'A'
+                //避免回傳NULL
+
                 sbSql.AppendFormat(@"  
                                      SELECT [ID] AS 'DOC_NBR'
                                      FROM [TKMK].[dbo].[TBSTORESCHECK]
                                      WHERE [ID] LIKE 'STORE{0}%'
+                                    UNION ALL 
+									SELECT 'A'
                                     ", THISYEARS);
 
 
