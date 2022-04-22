@@ -18,6 +18,9 @@ using System.Xml.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using TKITDLL;
+using TKSCHEDULEUOF.ServiceReference1;
+
+
 
 
 namespace TKSCHEDULEUOF
@@ -5624,6 +5627,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
+    
         public DataTable SEARCHTKMKTBSTORESCHECK()
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -5937,7 +5941,13 @@ namespace TKSCHEDULEUOF
         }
 
       
+        public void TEST()
+        {
+            
 
+
+
+        }
         #endregion
 
         #region BUTTON
@@ -6000,7 +6010,12 @@ namespace TKSCHEDULEUOF
         }
         private void button12_Click(object sender, EventArgs e)
         {
-            CHECKADDTOUOFFORMEDUCATION();
+            //CHECKADDTOUOFFORMEDUCATION();
+            //TEST();
+
+            HellowWorldSoapClient WS1 = new HellowWorldSoapClient();
+
+            MessageBox.Show(WS1.HelloWorld());
         }
 
         #endregion

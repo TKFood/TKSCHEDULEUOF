@@ -49,10 +49,10 @@
             this.button9 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button12 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -315,6 +315,16 @@
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(483, 523);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(201, 34);
+            this.button12.TabIndex = 22;
+            this.button12.Text = "外出訓練單轉心得報告單";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 26);
@@ -332,16 +342,6 @@
             // timer2
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // button12
-            // 
-            this.button12.Location = new System.Drawing.Point(483, 523);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(201, 34);
-            this.button12.TabIndex = 22;
-            this.button12.Text = "外出訓練單轉心得報告單";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // FrmSCHEDULE
             // 
