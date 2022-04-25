@@ -5854,9 +5854,9 @@ namespace TKSCHEDULEUOF
                     //姓名(TrainUserName)
                     string TrainUserName = fillerName + "(" + account + ")";
                     //部門(TrainUserDept) fieldValue
-                    string TrainUserDeptfieldValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                    string TrainUserDeptfieldValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["fieldValue"].Value;
                     //部門(TrainUserDept) realValue
-                    string TrainUserDeptrealValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["realValue"].Value;
+                    string TrainUserDeptrealValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["realValue"].Value;
                     //職稱(TrainUserLevel)
                     string TrainUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //假別(LeaveType)
@@ -5866,7 +5866,7 @@ namespace TKSCHEDULEUOF
                     //請假天數(LeaveDay)
                     string LeaveDay = ds1.Tables["ds1"].Rows[0]["LEADAYS"].ToString();
                     //出差/公出/訓練地點(TrainLocation)
-                    string TrainLocation = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["fieldValue"].Value;
+                    string TrainLocation = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
                     //費用(TrainFee)
                     string TrainFee = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
                     //課程日期_起(TrainDateStart)
@@ -6085,6 +6085,7 @@ namespace TKSCHEDULEUOF
                     FieldItem = xmlDoc.CreateElement("FieldItem");
                     FieldItem.SetAttribute("fieldId", "TrainDateStart");
                     FieldItem.SetAttribute("fieldValue", TrainDateStart);
+                    //FieldItem.SetAttribute("fieldValue", "2022/04/04");
                     FieldItem.SetAttribute("realValue", "");
                     FieldItem.SetAttribute("enableSearch", "True");
                     FieldItem.SetAttribute("fillerName", fillerName);
@@ -6099,6 +6100,7 @@ namespace TKSCHEDULEUOF
                     FieldItem = xmlDoc.CreateElement("FieldItem");
                     FieldItem.SetAttribute("fieldId", "TrainDateEnd");
                     FieldItem.SetAttribute("fieldValue", TrainDateEnd);
+                    //FieldItem.SetAttribute("fieldValue", "2022/04/04");
                     FieldItem.SetAttribute("realValue", "");
                     FieldItem.SetAttribute("enableSearch", "True");
                     FieldItem.SetAttribute("fillerName", fillerName);
