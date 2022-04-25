@@ -6042,6 +6042,7 @@ namespace TKSCHEDULEUOF
                     FieldItem.SetAttribute("fieldId", "TrainLocation");
                     FieldItem.SetAttribute("fieldValue", TrainLocation);
                     FieldItem.SetAttribute("realValue", "");
+                    FieldItem.SetAttribute("customValue", "@null");
                     FieldItem.SetAttribute("enableSearch", "True");
                     FieldItem.SetAttribute("fillerName", fillerName);
                     FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
