@@ -144,11 +144,17 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //ERP請購單
             ADDTOUOFOURTAB();
             ADDTOUOFOURTAB();
             ADDTOUOFOURTAB();
 
+            //門市督導單
             ADDTKMKdboTBSTORESCHECK();
+
+
+            //心得訓練單
+            CHECKADDTOUOFFORMEDUCATION();
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
@@ -5735,7 +5741,8 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
                                     AND [LEACODE]='050B1'
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101220400001'
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT101%'
+                                    AND CONVERT(datetime,STARTTIME,112)>='20220427'
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
