@@ -5808,7 +5808,7 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
-                                    ,CONVERT(nvarchar,STARTTIME,111) NEWSTARTTIME,CONVERT(nvarchar,END_TIME,111) NEWEND_TIME
+                                    ,CONVERT(nvarchar,STARTTIME,111) NEWSTARTTIME,CONVERT(nvarchar,ENDTIME,111) NEWENDTIME
                                     ,USER_GUID
                                     ,(SELECT TOP 1 GROUP_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'TITLE_ID'
@@ -5879,7 +5879,7 @@ namespace TKSCHEDULEUOF
                     //課程日期_起(TrainDateStart)
                     string TrainDateStart = ds1.Tables["ds1"].Rows[0]["NEWSTARTTIME"].ToString();
                     //課程日期_迄(TrainDateEnd)
-                    string TrainDateEnd = ds1.Tables["ds1"].Rows[0]["NEWEND_TIME"].ToString();
+                    string TrainDateEnd = ds1.Tables["ds1"].Rows[0]["NEWENDTIME"].ToString();
 
                     //課程名稱(TrainCourse)
                     string TrainType = "專業課程";
