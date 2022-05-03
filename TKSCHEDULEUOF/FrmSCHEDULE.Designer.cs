@@ -53,6 +53,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button13 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -109,6 +110,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button9, 2, 11);
             this.tableLayoutPanel1.Controls.Add(this.button10, 2, 13);
             this.tableLayoutPanel1.Controls.Add(this.button11, 4, 9);
+            this.tableLayoutPanel1.Controls.Add(this.button13, 4, 14);
             this.tableLayoutPanel1.Controls.Add(this.button12, 4, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
@@ -343,6 +345,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(483, 578);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(201, 34);
+            this.button13.TabIndex = 23;
+            this.button13.Text = "出差報告單";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -387,5 +399,6 @@
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button13;
     }
 }

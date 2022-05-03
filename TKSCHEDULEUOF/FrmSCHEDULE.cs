@@ -6324,7 +6324,82 @@ namespace TKSCHEDULEUOF
 
         }
 
-      
+        public void CHECKADDTOUOFFORBUSINESSTRIPS()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //是門市督導單STORE
+                //核準過TASK_RESULT='0'
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
+                                    WHERE 1=1
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
+                                    AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
+                                    AND [LEACODE]='050A1'
+                                    AND LEADAYS>=1
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT1220400155%'
+                                    --AND CONVERT(datetime,STARTTIME,112)>='20220427'
+                                    ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        //ADDTOUOFFORMEDUCATION(dr["DOC_NBR"].ToString());
+                    }
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         public void TEST()
         {
             
@@ -6332,6 +6407,8 @@ namespace TKSCHEDULEUOF
 
 
         }
+
+
         #endregion
 
         #region BUTTON
@@ -6405,6 +6482,12 @@ namespace TKSCHEDULEUOF
 
 
         }
+        private void button13_Click(object sender, EventArgs e)
+        {
+            CHECKADDTOUOFFORBUSINESSTRIPS();
+        }
+
+
 
         #endregion
 
