@@ -6361,8 +6361,8 @@ namespace TKSCHEDULEUOF
                                     AND [LEACODE]='050A1'
                                     AND LEADAYS>=2
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT1220400155%'
-                                    --AND CONVERT(datetime,STARTTIME,112)>='20220427'
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
+                                    AND CONVERT(datetime,STARTTIME,112)>='20220427'
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
@@ -6499,7 +6499,7 @@ namespace TKSCHEDULEUOF
                     //BTripCashAdvance
                     string BTripCashAdvance = "";
                     //SourceTableNum
-                    string SourceTableNum = "";
+                    string SourceTableNum = EXTERNAL_FORM_NBR;
                     //BTripDate
                     string BTripDate = ds1.Tables["ds1"].Rows[0]["NEWSTARTTIME"].ToString();
                     //BTripPurpose
