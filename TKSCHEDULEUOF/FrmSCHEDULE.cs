@@ -5915,7 +5915,7 @@ namespace TKSCHEDULEUOF
                     XMLDOC = XMLDOC;
 
                     //正式的id
-                    string VERSION_ID = SEARCHFORM_VERSION_ID("2001.教育訓練課程心得報告220406");
+                    string VERSION_ID = SEARCHFORM_VERSION_ID("2001.教育訓練課程心得報告");
 
                     if (!string.IsNullOrEmpty(VERSION_ID))
                     {
