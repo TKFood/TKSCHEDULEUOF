@@ -156,6 +156,9 @@ namespace TKSCHEDULEUOF
             //心得訓練單
             CHECKADDTOUOFFORMEDUCATION();
 
+            //出差報告單 
+            CHECKADDTOUOFFORBUSINESSTRIPS();
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
