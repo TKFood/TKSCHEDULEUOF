@@ -6362,7 +6362,7 @@ namespace TKSCHEDULEUOF
                                     AND LEADAYS>=2
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
-                                    AND CONVERT(datetime,STARTTIME,112)>='20220427'
+                                    AND CONVERT(datetime,STARTTIME,112)>='20220506'
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
