@@ -5871,6 +5871,8 @@ namespace TKSCHEDULEUOF
                     string TrainUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //假別(LeaveType)
                     string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString();
+                    //假別名稱 LeaveName
+                    string LeaveName = ds1.Tables["ds1"].Rows[0]["LEACODENAME"].ToString();
                     //時數(LeaveHours)
                     string LeaveHours = ds1.Tables["ds1"].Rows[0]["LEAHOURS"].ToString();
                     //請假天數(LeaveDay)
@@ -6010,6 +6012,20 @@ namespace TKSCHEDULEUOF
                     FieldItem = xmlDoc.CreateElement("FieldItem");
                     FieldItem.SetAttribute("fieldId", "LeaveType");
                     FieldItem.SetAttribute("fieldValue", LeaveType);
+                    FieldItem.SetAttribute("realValue", "");
+                    FieldItem.SetAttribute("enableSearch", "True");
+                    FieldItem.SetAttribute("fillerName", fillerName);
+                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                    FieldItem.SetAttribute("fillerAccount", account);
+                    FieldItem.SetAttribute("fillSiteId", "");
+                    //加入至members節點底下
+                    FormFieldValue.AppendChild(FieldItem);
+
+                    //建立節點FieldItem
+                    //LeaveName
+                    FieldItem = xmlDoc.CreateElement("FieldItem");
+                    FieldItem.SetAttribute("fieldId", "LeaveName");
+                    FieldItem.SetAttribute("fieldValue", LeaveName);
                     FieldItem.SetAttribute("realValue", "");
                     FieldItem.SetAttribute("enableSearch", "True");
                     FieldItem.SetAttribute("fillerName", fillerName);
@@ -6495,6 +6511,8 @@ namespace TKSCHEDULEUOF
                     string BTripUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //LeaveType
                     string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString();
+                    //假別名稱 LeaveName
+                    string LeaveName = ds1.Tables["ds1"].Rows[0]["LEACODENAME"].ToString();
                     //LeaveDay
                     string LeaveDay = ds1.Tables["ds1"].Rows[0]["LEADAYS"].ToString();
                     //BTripLocation
@@ -6616,6 +6634,20 @@ namespace TKSCHEDULEUOF
                     FieldItem = xmlDoc.CreateElement("FieldItem");
                     FieldItem.SetAttribute("fieldId", "LeaveType");
                     FieldItem.SetAttribute("fieldValue", LeaveType);
+                    FieldItem.SetAttribute("realValue", "");
+                    FieldItem.SetAttribute("enableSearch", "True");
+                    FieldItem.SetAttribute("fillerName", fillerName);
+                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                    FieldItem.SetAttribute("fillerAccount", account);
+                    FieldItem.SetAttribute("fillSiteId", "");
+                    //加入至members節點底下
+                    FormFieldValue.AppendChild(FieldItem);
+
+                    //建立節點FieldItem
+                    //LeaveName
+                    FieldItem = xmlDoc.CreateElement("FieldItem");
+                    FieldItem.SetAttribute("fieldId", "LeaveName");
+                    FieldItem.SetAttribute("fieldValue", LeaveName);
                     FieldItem.SetAttribute("realValue", "");
                     FieldItem.SetAttribute("enableSearch", "True");
                     FieldItem.SetAttribute("fillerName", fillerName);
