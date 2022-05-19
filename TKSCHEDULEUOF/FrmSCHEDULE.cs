@@ -7116,7 +7116,41 @@ namespace TKSCHEDULEUOF
                     string REPORTS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='REPORTS']").Attributes["fieldValue"].Value;
 
                     //string OK = "";
-
+                    ADDTOTKQCTBUOFQC1002(
+                                        QCFrm002SN,
+                                        QCFrm002Date,
+                                        QCFrm002User,
+                                        QCFrm002Dept,
+                                        QCFrm002Rank,
+                                        QCFrm002CUST,
+                                        QCFrm002TEL,
+                                        QCFrm002Add,
+                                        QCFrm002CU,
+                                        QCFrm002PNO,
+                                        QCFrm002CN,
+                                        QCFrm002RDate,
+                                        QCFrm002PRD,
+                                        QCFrm002PKG,
+                                        QCFrm002MD,
+                                        QCFrm002ED,
+                                        QCFrm002OD,
+                                        QCFrm002BP,
+                                        QCFrm002Prove,
+                                        QCFrm002Abns,
+                                        QCFrm002Range,
+                                        QCFrm002RP,
+                                        QCFrm002RD,
+                                        QCFrm002Abn,
+                                        QCFrm002Process,
+                                        QCFrm002QCR,
+                                        QCFrm002ProcessR,
+                                        QCFrm002QCC,
+                                        QCFrm002RCAU,
+                                        QCFrm002PRRD,
+                                        QCFrm002Cmf,
+                                        QCFrm002False,
+                                        REPORTS
+                                           );
 
 
                 }
@@ -7135,6 +7169,205 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+
+        public void ADDTOTKQCTBUOFQC1002(
+                                        string QCFrm002SN,
+                                        string QCFrm002Date,
+                                        string QCFrm002User,
+                                        string QCFrm002Dept,
+                                        string QCFrm002Rank,
+                                        string QCFrm002CUST,
+                                        string QCFrm002TEL,
+                                        string QCFrm002Add,
+                                        string QCFrm002CU,
+                                        string QCFrm002PNO,
+                                        string QCFrm002CN,
+                                        string QCFrm002RDate,
+                                        string QCFrm002PRD,
+                                        string QCFrm002PKG,
+                                        string QCFrm002MD,
+                                        string QCFrm002ED,
+                                        string QCFrm002OD,
+                                        string QCFrm002BP,
+                                        string QCFrm002Prove,
+                                        string QCFrm002Abns,
+                                        string QCFrm002Range,
+                                        string QCFrm002RP,
+                                        string QCFrm002RD,
+                                        string QCFrm002Abn,
+                                        string QCFrm002Process,
+                                        string QCFrm002QCR,
+                                        string QCFrm002ProcessR,
+                                        string QCFrm002QCC,
+                                        string QCFrm002RCAU,
+                                        string QCFrm002PRRD,
+                                        string QCFrm002Cmf,
+                                        string QCFrm002False,
+                                        string REPORTS
+
+
+
+                                           )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    INSERT INTO [TKQC].[dbo].[TBUOFQC1002]
+                                    (
+                                    [QCFrm002SN]
+                                    ,[QCFrm002Date]
+                                    ,[QCFrm002User]
+                                    ,[QCFrm002Dept]
+                                    ,[QCFrm002Rank]
+                                    ,[QCFrm002CUST]
+                                    ,[QCFrm002TEL]
+                                    ,[QCFrm002Add]
+                                    ,[QCFrm002CU]
+                                    ,[QCFrm002PNO]
+                                    ,[QCFrm002CN]
+                                    ,[QCFrm002RDate]
+                                    ,[QCFrm002PRD]
+                                    ,[QCFrm002PKG]
+                                    ,[QCFrm002MD]
+                                    ,[QCFrm002ED]
+                                    ,[QCFrm002OD]
+                                    ,[QCFrm002BP]
+                                    ,[QCFrm002Prove]
+                                    ,[QCFrm002Abns]
+                                    ,[QCFrm002Range]
+                                    ,[QCFrm002RP]
+                                    ,[QCFrm002RD]
+                                    ,[QCFrm002Abn]
+                                    ,[QCFrm002Process]
+                                    ,[QCFrm002QCR]
+                                    ,[QCFrm002ProcessR]
+                                    ,[QCFrm002QCC]
+                                    ,[QCFrm002RCAU]
+                                    ,[QCFrm002PRRD]
+                                    ,[QCFrm002Cmf]
+                                    ,[QCFrm002False]
+                                    ,[REPORTS]
+                                    )
+                                    VALUES(
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    ,'{21}'
+                                    ,'{22}'
+                                    ,'{23}'
+                                    ,'{24}'
+                                    ,'{25}'
+                                    ,'{26}'
+                                    ,'{27}'
+                                    ,'{28}'
+                                    ,'{29}'
+                                    ,'{30}'
+                                    ,'{31}'
+                                    ,'{32}'
+
+                                    )
+                                    "
+                                    , QCFrm002SN
+                                    , QCFrm002Date
+                                    , QCFrm002User
+                                    , QCFrm002Dept
+                                    , QCFrm002Rank
+                                    , QCFrm002CUST
+                                    , QCFrm002TEL
+                                    , QCFrm002Add
+                                    , QCFrm002CU
+                                    , QCFrm002PNO
+                                    , QCFrm002CN
+                                    , QCFrm002RDate
+                                    , QCFrm002PRD
+                                    , QCFrm002PKG
+                                    , QCFrm002MD
+                                    , QCFrm002ED
+                                    , QCFrm002OD
+                                    , QCFrm002BP
+                                    , QCFrm002Prove
+                                    , QCFrm002Abns
+                                    , QCFrm002Range
+                                    , QCFrm002RP
+                                    , QCFrm002RD
+                                    , QCFrm002Abn
+                                    , QCFrm002Process
+                                    , QCFrm002QCR
+                                    , QCFrm002ProcessR
+                                    , QCFrm002QCC
+                                    , QCFrm002RCAU
+                                    , QCFrm002PRRD
+                                    , QCFrm002Cmf
+                                    , QCFrm002False
+                                    , REPORTS
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         #endregion
 
