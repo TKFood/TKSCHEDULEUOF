@@ -159,6 +159,9 @@ namespace TKSCHEDULEUOF
             //出差報告單 
             CHECKADDTOUOFFORBUSINESSTRIPS();
 
+            //1002.客訴異常處理單
+            NEWTBUOFQC1002();
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
