@@ -6850,6 +6850,291 @@ namespace TKSCHEDULEUOF
 
         }
 
+        public void NEWTBUOFQC1002()
+        {
+            IEnumerable<DataRow> query2 = null;
+
+            DataTable DT1 = SEARCHUOFQC1002();
+            DataTable DT2 = SEARCHTKQCTBUOFQC1002();
+
+            //找DataTable差集
+            //要有相同的欄位名稱
+            //找DataTable差集
+            //要有相同的欄位名稱
+            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            {
+                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
+            }
+
+
+
+            if (query2.Count() > 0)
+            {
+                //差集集合
+                DataTable dt3 = query2.CopyToDataTable();
+
+                foreach (DataRow dr in dt3.Rows)
+                {
+                    SEARCHUOFTB_WKF_TASKQC1002(dr["DOC_NBR"].ToString());
+                }
+            }
+
+
+        }
+
+        public DataTable SEARCHUOFQC1002()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //是門市督導單STORE
+                //核準過TASK_RESULT='0'
+                sbSql.AppendFormat(@"  
+                                    SELECT DOC_NBR
+                                    FROM [UOF].dbo.TB_WKF_TASK
+                                    WHERE 1=1
+                                    AND TASK_STATUS='2'
+                                    AND TASK_RESULT='0'
+                                    AND DOC_NBR  LIKE 'QC1002{0}%'
+                                    AND DOC_NBR  LIKE 'QC1002220500006%'
+                                    ORDER BY BEGIN_TIME
+                                    ", THISYEARS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
+        public DataTable SEARCHTKQCTBUOFQC1002()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //UNION ALL 
+                //SELECT 'A'
+                //避免回傳NULL
+
+                sbSql.AppendFormat(@"  
+                                    SELECT [QCFrm002SN] AS 'DOC_NBR'
+                                    FROM [TKQC].[dbo].[TBUOFQC1002]
+                                    WHERE [QCFrm002SN] LIKE 'QC1002{0}%'
+                                    UNION ALL 
+                                    SELECT 'A'
+                                    ", THISYEARS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
+        //從xmlDoc找出各節點的Attributes
+        public void SEARCHUOFTB_WKF_TASKQC1002(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT * 
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    WHERE DOC_NBR LIKE '{0}%'
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    string QCFrm002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
+                    string QCFrm002Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value;
+                    string QCFrm002User = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002User']").Attributes["fieldValue"].Value;
+                    string QCFrm002Dept = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Dept']").Attributes["fieldValue"].Value;
+                    string QCFrm002Rank = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Rank']").Attributes["fieldValue"].Value;
+                    string QCFrm002CUST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CUST']").Attributes["fieldValue"].Value;
+                    string QCFrm002TEL = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002TEL']").Attributes["fieldValue"].Value;
+                    string QCFrm002Add = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Add']").Attributes["fieldValue"].Value;
+                    string QCFrm002CU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CU']").Attributes["fieldValue"].Value;
+                    string QCFrm002PNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PNO']").Attributes["fieldValue"].Value;
+                    string QCFrm002CN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CN']").Attributes["fieldValue"].Value;
+                    string QCFrm002RDate = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RDate']").Attributes["fieldValue"].Value;
+                    string QCFrm002PRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRD']").Attributes["fieldValue"].Value;
+                    string QCFrm002PKG = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PKG']").Attributes["fieldValue"].Value;
+                    string QCFrm002MD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002MD']").Attributes["fieldValue"].Value;
+                    string QCFrm002ED = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ED']").Attributes["fieldValue"].Value;
+                    string QCFrm002OD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002OD']").Attributes["fieldValue"].Value;
+                    string QCFrm002BP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002BP']").Attributes["fieldValue"].Value;
+                    string QCFrm002Prove = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Prove']").Attributes["fieldValue"].Value;
+                    string QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
+                    string QCFrm002Range = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Range']").Attributes["fieldValue"].Value;
+                    string QCFrm002RP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RP']").Attributes["fieldValue"].Value;
+                    string QCFrm002RD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RD']").Attributes["fieldValue"].Value;
+                    string QCFrm002Abn = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value;
+                    string QCFrm002Process = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Process']").Attributes["fieldValue"].Value;
+                    string QCFrm002QCR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCR']").Attributes["fieldValue"].Value;
+                    string QCFrm002ProcessR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ProcessR']").Attributes["fieldValue"].Value;
+                    string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
+                    string QCFrm002RCAU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RCAU']").Attributes["fieldValue"].Value;
+                    string QCFrm002PRRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRRD']").Attributes["fieldValue"].Value;
+                    string QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+                    string QCFrm002False = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002False']").Attributes["fieldValue"].Value;
+                    string REPORTS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='REPORTS']").Attributes["fieldValue"].Value;
+
+                    //string OK = "";
+
+
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
@@ -6929,6 +7214,10 @@ namespace TKSCHEDULEUOF
             CHECKADDTOUOFFORBUSINESSTRIPS();
         }
 
+        private void button14_Click(object sender, EventArgs e)
+        {
+            NEWTBUOFQC1002();
+        }
 
 
         #endregion

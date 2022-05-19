@@ -49,11 +49,12 @@
             this.button9 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
+            this.button13 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button13 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -112,6 +113,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button11, 4, 9);
             this.tableLayoutPanel1.Controls.Add(this.button13, 4, 14);
             this.tableLayoutPanel1.Controls.Add(this.button12, 4, 13);
+            this.tableLayoutPanel1.Controls.Add(this.button14, 6, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -317,6 +319,16 @@
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(483, 578);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(201, 34);
+            this.button13.TabIndex = 23;
+            this.button13.Text = "出差報告單";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
             // button12
             // 
             this.button12.Location = new System.Drawing.Point(483, 523);
@@ -345,15 +357,15 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button13
+            // button14
             // 
-            this.button13.Location = new System.Drawing.Point(483, 578);
-            this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(201, 34);
-            this.button13.TabIndex = 23;
-            this.button13.Text = "出差報告單";
-            this.button13.UseVisualStyleBackColor = true;
-            this.button13.Click += new System.EventHandler(this.button13_Click);
+            this.button14.Location = new System.Drawing.Point(723, 523);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(114, 34);
+            this.button14.TabIndex = 24;
+            this.button14.Text = "轉入1002.客訴異常處理單";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -400,5 +412,6 @@
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Button button14;
     }
 }
