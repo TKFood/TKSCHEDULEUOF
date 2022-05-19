@@ -6891,6 +6891,7 @@ namespace TKSCHEDULEUOF
             string THISYEARS = DateTime.Now.ToString("yyyy");
             //取西元年後2位
             THISYEARS = THISYEARS.Substring(2, 2);
+            //THISYEARS = "21";
 
             try
             {
@@ -6921,7 +6922,7 @@ namespace TKSCHEDULEUOF
                                     AND TASK_STATUS='2'
                                     AND TASK_RESULT='0'
                                     AND DOC_NBR  LIKE 'QC1002{0}%'
-                                    AND DOC_NBR  LIKE 'QC1002220500006%'
+                                    
                                     ORDER BY BEGIN_TIME
                                     ", THISYEARS);
 
@@ -6965,6 +6966,7 @@ namespace TKSCHEDULEUOF
             string THISYEARS = DateTime.Now.ToString("yyyy");
             //取西元年後2位
             THISYEARS = THISYEARS.Substring(2, 2);
+            //THISYEARS = "21";
 
             try
             {
@@ -7075,45 +7077,345 @@ namespace TKSCHEDULEUOF
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
+                    string QCFrm002SN = "";
+                    string QCFrm002Date = "";
+                    string QCFrm002User = "";
+                    string QCFrm002Dept = "";
+                    string QCFrm002Rank = "";
+                    string QCFrm002CUST = "";
+                    string QCFrm002TEL = "";
+                    string QCFrm002Add = "";
+                    string QCFrm002CU = "";
+                    string QCFrm002PNO = "";
+                    string QCFrm002CN = "";
+                    string QCFrm002RDate = "";
+                    string QCFrm002PRD = "";
+                    string QCFrm002PKG = "";
+                    string QCFrm002MD = "";
+                    string QCFrm002ED = "";
+                    string QCFrm002OD = "";
+                    string QCFrm002BP = "";
+                    string QCFrm002Prove = "";
+                    string QCFrm002Abns = "";
+                    string QCFrm002Range = "";
+                    string QCFrm002RP = "";
+                    string QCFrm002RD = "";
+                    string QCFrm002Abn = "";
+                    string QCFrm002Process = "";
+                    string QCFrm002QCR = "";
+                    string QCFrm002ProcessR = "";
+                    string QCFrm002QCC = "";
+                    string QCFrm002RCAU = "";
+                    string QCFrm002PRRD = "";
+                    string QCFrm002Cmf = "";
+                    string QCFrm002False = "";
+                    string REPORTS = "";
+
                     string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
 
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
 
                     //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string QCFrm002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
-                    string QCFrm002Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value;
-                    string QCFrm002User = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002User']").Attributes["fieldValue"].Value;
-                    string QCFrm002Dept = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Dept']").Attributes["fieldValue"].Value;
-                    string QCFrm002Rank = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Rank']").Attributes["fieldValue"].Value;
-                    string QCFrm002CUST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CUST']").Attributes["fieldValue"].Value;
-                    string QCFrm002TEL = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002TEL']").Attributes["fieldValue"].Value;
-                    string QCFrm002Add = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Add']").Attributes["fieldValue"].Value;
-                    string QCFrm002CU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CU']").Attributes["fieldValue"].Value;
-                    string QCFrm002PNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PNO']").Attributes["fieldValue"].Value;
-                    string QCFrm002CN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CN']").Attributes["fieldValue"].Value;
-                    string QCFrm002RDate = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RDate']").Attributes["fieldValue"].Value;
-                    string QCFrm002PRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRD']").Attributes["fieldValue"].Value;
-                    string QCFrm002PKG = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PKG']").Attributes["fieldValue"].Value;
-                    string QCFrm002MD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002MD']").Attributes["fieldValue"].Value;
-                    string QCFrm002ED = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ED']").Attributes["fieldValue"].Value;
-                    string QCFrm002OD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002OD']").Attributes["fieldValue"].Value;
-                    string QCFrm002BP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002BP']").Attributes["fieldValue"].Value;
-                    string QCFrm002Prove = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Prove']").Attributes["fieldValue"].Value;
-                    string QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
-                    string QCFrm002Range = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Range']").Attributes["fieldValue"].Value;
-                    string QCFrm002RP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RP']").Attributes["fieldValue"].Value;
-                    string QCFrm002RD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RD']").Attributes["fieldValue"].Value;
-                    string QCFrm002Abn = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value;
-                    string QCFrm002Process = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Process']").Attributes["fieldValue"].Value;
-                    string QCFrm002QCR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCR']").Attributes["fieldValue"].Value;
-                    string QCFrm002ProcessR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ProcessR']").Attributes["fieldValue"].Value;
-                    string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
-                    string QCFrm002RCAU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RCAU']").Attributes["fieldValue"].Value;
-                    string QCFrm002PRRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRRD']").Attributes["fieldValue"].Value;
-                    string QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-                    string QCFrm002False = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002False']").Attributes["fieldValue"].Value;
-                    string REPORTS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='REPORTS']").Attributes["fieldValue"].Value;
+                    try
+                    {
+                        QCFrm002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002User = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002User']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Dept = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Dept']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Rank = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Rank']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002CUST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CUST']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002TEL = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002TEL']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Add = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Add']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002CU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CU']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002PNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PNO']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002CN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CN']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002RDate = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RDate']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002PRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRD']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002PKG = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PKG']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002MD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002MD']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002ED = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ED']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002OD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002OD']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002BP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002BP']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Prove = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Prove']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Range = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Range']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002RP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RP']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002RD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RD']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Abn = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Process = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Process']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002QCR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCR']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002ProcessR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ProcessR']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002RCAU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RCAU']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002PRRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRRD']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        QCFrm002False = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002False']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                    try
+                    {
+                        REPORTS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='REPORTS']").Attributes["fieldValue"].Value;
+                    }
+                    catch
+                    {
+
+                    }
+                   
+
+                    //string QCFrm002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value;
+                    //string QCFrm002User = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002User']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Dept = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Dept']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Rank = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Rank']").Attributes["fieldValue"].Value;
+                    //string QCFrm002CUST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CUST']").Attributes["fieldValue"].Value;
+                    //string QCFrm002TEL = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002TEL']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Add = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Add']").Attributes["fieldValue"].Value;
+                    //string QCFrm002CU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CU']").Attributes["fieldValue"].Value;
+                    //string QCFrm002PNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PNO']").Attributes["fieldValue"].Value;
+                    //string QCFrm002CN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CN']").Attributes["fieldValue"].Value;
+                    //string QCFrm002RDate = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RDate']").Attributes["fieldValue"].Value;
+                    //string QCFrm002PRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRD']").Attributes["fieldValue"].Value;
+                    //string QCFrm002PKG = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PKG']").Attributes["fieldValue"].Value;
+                    //string QCFrm002MD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002MD']").Attributes["fieldValue"].Value;
+                    //string QCFrm002ED = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ED']").Attributes["fieldValue"].Value;
+                    //string QCFrm002OD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002OD']").Attributes["fieldValue"].Value;
+                    //string QCFrm002BP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002BP']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Prove = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Prove']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Range = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Range']").Attributes["fieldValue"].Value;
+                    //string QCFrm002RP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RP']").Attributes["fieldValue"].Value;
+                    //string QCFrm002RD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RD']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Abn = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Process = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Process']").Attributes["fieldValue"].Value;
+                    //string QCFrm002QCR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCR']").Attributes["fieldValue"].Value;
+                    //string QCFrm002ProcessR = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ProcessR']").Attributes["fieldValue"].Value;
+                    //string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
+                    //string QCFrm002RCAU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RCAU']").Attributes["fieldValue"].Value;
+                    //string QCFrm002PRRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRRD']").Attributes["fieldValue"].Value;
+                    //string QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+                    //string QCFrm002False = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002False']").Attributes["fieldValue"].Value;
+                    //string REPORTS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='REPORTS']").Attributes["fieldValue"].Value;
 
                     //string OK = "";
                     ADDTOTKQCTBUOFQC1002(
