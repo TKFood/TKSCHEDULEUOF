@@ -7700,10 +7700,10 @@ namespace TKSCHEDULEUOF
 
 
                 sbSql.AppendFormat(@" 
-                                    SELECT TA001,TA002,UDF01
-                                    FROM [TK].dbo.PURTA
-                                    WHERE TA007='N' AND (UDF01 IN ('Y','y') )
-                                    ORDER BY TA001,TA002
+                                    SELECT TC001,TC002,UDF01
+                                    FROM [TK].dbo.PURTC
+                                    WHERE TC014='N' AND (UDF01 IN ('Y','y') )
+                                    ORDER BY TC001,TC002
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -7766,11 +7766,11 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            PURID = SEARCHFORM_VERSION_ID("請購單");
+            string PURTCID = SEARCHFORM_VERSION_ID("採購單");
 
-            if (!string.IsNullOrEmpty(PURID))
+            if (!string.IsNullOrEmpty(PURTCID))
             {
-                Form.SetAttribute("formVersionId", PURID);
+                Form.SetAttribute("formVersionId", PURTCID);
             }
 
 
