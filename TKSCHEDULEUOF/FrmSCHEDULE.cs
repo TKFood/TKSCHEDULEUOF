@@ -7673,6 +7673,83 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEWPURTCPURTD()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@" 
+                                    SELECT TA001,TA002,UDF01
+                                    FROM [TK].dbo.PURTA
+                                    WHERE TA007='N' AND (UDF01 IN ('Y','y') )
+                                    ORDER BY TA001,TA002
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADD_PURTCPURTD_TB_WKF_EXTERNAL_TASK(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                    }
+
+
+                    //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+            UPDATEPURTCUDF01();
+        }
+
+        public void ADD_PURTCPURTD_TB_WKF_EXTERNAL_TASK(string TC001,string TC002)
+        {
+
+        }
+        public void UPDATEPURTCUDF01()
+        {
+
+        }
 
         #endregion
 
@@ -7755,6 +7832,10 @@ namespace TKSCHEDULEUOF
         private void button14_Click(object sender, EventArgs e)
         {
             NEWTBUOFQC1002();
+        }
+        private void button15_Click(object sender, EventArgs e)
+        {
+            NEWPURTCPURTD();
         }
 
 
