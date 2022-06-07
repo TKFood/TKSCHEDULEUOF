@@ -8751,7 +8751,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //EUPDATEPURTEUDF01();
+            UPDATEPURTEUDF01();
         }
 
         public void ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(string TE001,string TE002,string TE003)
@@ -9784,6 +9784,63 @@ namespace TKSCHEDULEUOF
             {
                 return null;
             }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATEPURTEUDF01()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE  [TK].dbo.PURTE  
+                                    SET UDF01 = 'UOF'
+                                    WHERE TE017 = 'N' AND (UDF01 IN ('Y','y') )
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
             finally
             {
                 sqlConn.Close();
