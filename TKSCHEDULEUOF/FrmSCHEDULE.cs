@@ -162,6 +162,13 @@ namespace TKSCHEDULEUOF
             //1002.客訴異常處理單
             NEWTBUOFQC1002();
 
+            //採購單
+            NEWPURTCPURTD();
+
+            //採購變更單
+            NEWPURTEPURTF();
+
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
