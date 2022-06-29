@@ -6921,18 +6921,20 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
 
-                //是門市督導單STORE
+             
                 //核準過TASK_RESULT='0'
+                //AND DOC_NBR  LIKE 'QC1002{0}%'
+
                 sbSql.AppendFormat(@"  
                                     SELECT DOC_NBR
                                     FROM [UOF].dbo.TB_WKF_TASK
                                     WHERE 1=1
                                     AND TASK_STATUS='2'
                                     AND TASK_RESULT='0'
-                                    AND DOC_NBR  LIKE 'QC1002{0}%'
+                                    AND DOC_NBR  LIKE 'QC1002%'
                                     
                                     ORDER BY BEGIN_TIME
-                                    ", THISYEARS);
+                                    ");
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -7002,10 +7004,10 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                     SELECT [QCFrm002SN] AS 'DOC_NBR'
                                     FROM [TKQC].[dbo].[TBUOFQC1002]
-                                    WHERE [QCFrm002SN] LIKE 'QC1002{0}%'
+                                    WHERE [QCFrm002SN] LIKE 'QC1002%'
                                     UNION ALL 
                                     SELECT 'A'
-                                    ", THISYEARS);
+                                    ");
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
