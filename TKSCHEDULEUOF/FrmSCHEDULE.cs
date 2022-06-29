@@ -19,9 +19,7 @@ using System.Xml;
 using System.Xml.Linq;
 using TKITDLL;
 using TKSCHEDULEUOF.ServiceReference1;
-
-
-
+using System.Text.RegularExpressions;
 
 namespace TKSCHEDULEUOF
 {
@@ -7369,7 +7367,15 @@ namespace TKSCHEDULEUOF
                     }
                     try
                     {
-                        QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm002Cmf = fieldValue3;
                     }
                     catch
                     {
