@@ -5878,7 +5878,7 @@ namespace TKSCHEDULEUOF
                     //職稱(TrainUserLevel)
                     string TrainUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //假別(LeaveType)
-                    string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString();
+                    string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString().Trim();
                     //假別名稱 LeaveName
                     string LeaveName = ds1.Tables["ds1"].Rows[0]["LEACODENAME"].ToString();
                     //時數(LeaveHours)
@@ -6518,7 +6518,7 @@ namespace TKSCHEDULEUOF
                     //BTripUserLevel
                     string BTripUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //LeaveType
-                    string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString();
+                    string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString().Trim();
                     //假別名稱 LeaveName
                     string LeaveName = ds1.Tables["ds1"].Rows[0]["LEACODENAME"].ToString();
                     //LeaveDay
