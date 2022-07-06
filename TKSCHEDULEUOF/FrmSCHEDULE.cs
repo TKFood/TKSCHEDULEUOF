@@ -2406,7 +2406,7 @@ namespace TKSCHEDULEUOF
                               
                 sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.PURTA  
-                                    SET UDF01 = 'UOF',TA016='1'
+                                    SET UDF01 = 'UOF',TA016='N'
                                     WHERE TA007 = 'N' AND (UDF01 IN ('Y','y') )
                                     ");
 
@@ -5877,7 +5877,7 @@ namespace TKSCHEDULEUOF
                     string TrainUserDeptrealValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["realValue"].Value;
                     //職稱(TrainUserLevel)
                     string TrainUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
-                    //假別(LeaveType)
+                    //假別(LeaveType )
                     string LeaveType = ds1.Tables["ds1"].Rows[0]["LEACODE"].ToString().Trim();
                     //假別名稱 LeaveName
                     string LeaveName = ds1.Tables["ds1"].Rows[0]["LEACODENAME"].ToString();
