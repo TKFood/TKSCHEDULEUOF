@@ -6932,7 +6932,8 @@ namespace TKSCHEDULEUOF
                                     AND TASK_STATUS='2'
                                     AND TASK_RESULT='0'
                                     AND DOC_NBR  LIKE 'QC1002%'
-                                    
+                                                                    
+
                                     ORDER BY BEGIN_TIME
                                     ");
 
@@ -7282,6 +7283,9 @@ namespace TKSCHEDULEUOF
                     try
                     {
                         QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
+                        QCFrm002Abns = QCFrm002Abns+xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["customValue"].Value;
+
+                        QCFrm002Abns = QCFrm002Abns.Replace("others", "");
                     }
                     catch
                     {
