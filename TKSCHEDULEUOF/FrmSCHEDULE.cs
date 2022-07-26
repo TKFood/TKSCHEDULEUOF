@@ -6465,7 +6465,7 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
                                     AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
                                     AND [LEACODE]='050A1'
-                                    AND LEADAYS>=2
+                                  
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
                                     AND [Z_SCSHR_LEAVE].DOC_NBR='{0}'
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
