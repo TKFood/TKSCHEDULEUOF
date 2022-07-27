@@ -166,6 +166,8 @@ namespace TKSCHEDULEUOF
             //採購變更單
             NEWPURTEPURTF();
 
+            //轉入品保檢驗
+            ADDTKQCQCPURTH();
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
@@ -10038,6 +10040,118 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTKQCQCPURTH()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                   
+                                   
+                                        INSERT INTO [TKQC].[dbo].[QCPURTH]
+                                        (
+
+                                        [TH001]
+                                        ,[TH002]
+                                        ,[TH003]
+                                        ,[TG003]
+                                        ,[TG005]
+                                        ,[TG021]
+                                        ,[TH004]
+                                        ,[TH005]
+                                        ,[TH006]
+                                        ,[TH007]
+                                        ,[TH008]
+                                        ,[TH009]
+                                        ,[SAMPLENUMS]
+                                        ,[CARNO]
+                                        ,[CHECKITEMS]
+                                        ,[COA]
+                                        ,[INNERCHECKS]
+                                        ,[INUMS]
+                                        ,[BACKNUMS]
+                                        ,[DATES]
+                                        ,[QCMAN]
+                                        ,[COMMENTS]
+                                        ,[ISIN]
+
+                                        )
+
+                                        SELECT 
+                                        [TH001]
+                                        ,[TH002]
+                                        ,[TH003]
+                                        ,[TG003]
+                                        ,[TG005]
+                                        ,[TG021]
+                                        ,[TH004]
+                                        ,[TH005]
+                                        ,[TH006]
+                                        ,[TH007]
+                                        ,[TH008]
+                                        ,[TH009]
+                                        ,0 [SAMPLENUMS]
+                                        ,'' [CARNO]
+                                        ,'' [CHECKITEMS]
+                                        ,'' [COA]
+                                        ,'' [INNERCHECKS]
+                                        ,0 [INUMS]
+                                        ,0 [BACKNUMS]
+                                        ,'' [DATES]
+                                        ,'' [QCMAN]
+                                        ,'' [COMMENTS]
+                                        ,'N' [ISIN]
+                                        FROM [TK].dbo.PURTG,[TK].dbo.PURTH
+                                        WHERE TG001=TH001 AND TG002=TH002
+                                        AND TG003>='20220726'
+                                        AND TH001+TH002+TH003 NOT IN (SELECT  TH001+TH002+TH003 FROM  [TKQC].[dbo].[QCPURTH])
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
@@ -10133,6 +10247,10 @@ namespace TKSCHEDULEUOF
         private void button17_Click(object sender, EventArgs e)
         {
             ADDTOERPTKMOCUE();
+        }
+        private void button18_Click(object sender, EventArgs e)
+        {
+            ADDTKQCQCPURTH();
         }
 
         #endregion
