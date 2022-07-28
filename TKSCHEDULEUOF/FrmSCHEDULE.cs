@@ -8135,6 +8135,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	TB005
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TB005");
+                Cell.SetAttribute("fieldValue", od["TB005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	TD004
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TD004");
@@ -8668,6 +8678,7 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TC011) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TC004) AS 'MA002'
                                     ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TD004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
+                                    ,(SELECT TOP 1 CONVERT(NVARCHAR,TB005)+',需求日:'+CONVERT(NVARCHAR,TB011)+',數量:'+CONVERT(NVARCHAR,TB009)+' '+CONVERT(NVARCHAR,TB007) FROM  [TK].dbo.PURTB WHERE TB001=[PURTD].TD026 AND TB002=[PURTD].TD027 AND TB003=[PURTD].TD028) AS TB005
                                     FROM [TK].dbo.PURTD,[TK].dbo.PURTC
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TC011 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TC001=TD001 AND TC002=TD002
