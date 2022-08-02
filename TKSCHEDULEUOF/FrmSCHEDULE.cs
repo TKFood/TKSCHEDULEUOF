@@ -5756,6 +5756,9 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT101%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220427'
+
+                                    AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
+
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
@@ -6392,6 +6395,9 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220506'
+
+                                    AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
+
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
