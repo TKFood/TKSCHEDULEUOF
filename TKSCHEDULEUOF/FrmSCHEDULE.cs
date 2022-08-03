@@ -10270,6 +10270,11 @@ namespace TKSCHEDULEUOF
             ADDTKQCQCPURTH();
         }
 
+        private void button19_Click(object sender, EventArgs e)
+        {
+
+        }
+
         #endregion
 
 
