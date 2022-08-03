@@ -10700,12 +10700,12 @@ namespace TKSCHEDULEUOF
                                     ,PURTN.TN008
                                     ,PURTN.TN009
                                     
-                                    ,PURTM.MODIFIER
+                                    ,PURTM.CREATOR
                                     ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTM.MODIFIER) AS 'MV002'
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTM.CREATOR) AS 'MV002'
 
                                     FROM [TK].dbo.PURMA,[TK].dbo.PURTL,[TK].dbo.PURTM
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTM.MODIFIER COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTM.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     LEFT JOIN [TK].dbo.PURTN ON TM001=TN001 AND TM002=TN002 AND TM003=TN003
                                     WHERE 1=1
                                     AND MA001=TL004
