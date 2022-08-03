@@ -10203,7 +10203,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@" 
                                     SELECT TL001,TL002,UDF01
                                     FROM [TK].dbo.PURTL
-                                    WHERE TL001='A321' AND TL002='20220803001'
+                                    WHERE UDF01='Y'
                                     ORDER BY TL001,TL002
 
 
