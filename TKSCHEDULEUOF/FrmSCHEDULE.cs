@@ -10245,9 +10245,9 @@ namespace TKSCHEDULEUOF
         {
 
             DataTable DT = SEARCHPURTLPURTMPURTN(TL001, TL002);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["TE037"].ToString());
+            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["MODIFIER"].ToString());
 
-            string account = DT.Rows[0]["TE037"].ToString();
+            string account = DT.Rows[0]["MODIFIER"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
             string fillerName = DT.Rows[0]["MV002"].ToString();
@@ -10256,7 +10256,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TE001"].ToString().Trim() + DT.Rows[0]["TE002"].ToString().Trim() + DT.Rows[0]["TE003"].ToString().Trim();
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["TL001"].ToString().Trim() + DT.Rows[0]["TL002"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -10265,11 +10265,11 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTEID = SEARCHFORM_VERSION_ID("採購變更單");
+            string PURTLID = SEARCHFORM_VERSION_ID("採購核價單");
 
-            if (!string.IsNullOrEmpty(PURTEID))
+            if (!string.IsNullOrEmpty(PURTLID))
             {
-                Form.SetAttribute("formVersionId", PURTEID);
+                Form.SetAttribute("formVersionId", PURTLID);
             }
 
 
@@ -10311,10 +10311,10 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
-            //TE001	
+            //TL001	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TE001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TE001"].ToString());
+            FieldItem.SetAttribute("fieldId", "TL001");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL001"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -10324,14 +10324,107 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
-           
+            //建立節點FieldItem
+            //TL002	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
+            //建立節點FieldItem
+            //TL003	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL003"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
+            //建立節點FieldItem
+            //TL004	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL004"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
+            //建立節點FieldItem
+            //TL004NAME	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL004NAME");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL004NAME"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TL005	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL005");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL005"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TL008	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL008");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL008"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TL007	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TL007");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TL007"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
 
             //建立節點FieldItem
-            //PURTF
+            //PURTM
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "PURTM");
             FieldItem.SetAttribute("fieldValue", "");
@@ -10357,31 +10450,122 @@ namespace TKSCHEDULEUOF
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", (rowscounts).ToString());
 
-                //Row	TF004
+                //Row	TM003
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TF004");
-                Cell.SetAttribute("fieldValue", od["TF004"].ToString());
+                Cell.SetAttribute("fieldId", "TM003");
+                Cell.SetAttribute("fieldValue", od["TM003"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	TF005
+                //Row	TM004
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TF005");
-                Cell.SetAttribute("fieldValue", od["TF005"].ToString());
+                Cell.SetAttribute("fieldId", "TM004");
+                Cell.SetAttribute("fieldValue", od["TM004"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
-                
+
+                //Row	TM005
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM005");
+                Cell.SetAttribute("fieldValue", od["TM005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM006
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM006");
+                Cell.SetAttribute("fieldValue", od["TM006"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM009
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM009");
+                Cell.SetAttribute("fieldValue", od["TM009"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM010
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM010");
+                Cell.SetAttribute("fieldValue", od["TM010"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM014
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM014");
+                Cell.SetAttribute("fieldValue", od["TM014"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM015
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM015");
+                Cell.SetAttribute("fieldValue", od["TM015"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TN007
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TN007");
+                Cell.SetAttribute("fieldValue", od["TN007"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TN008
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TN008");
+                Cell.SetAttribute("fieldValue", od["TN008"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TM012
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM012");
+                Cell.SetAttribute("fieldValue", od["TM012"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
 
 
                 rowscounts = rowscounts + 1;
 
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='PURTF']/DataGrid");
+                //DataGrid PURTM
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='PURTM']/DataGrid");
                 DataGridS.AppendChild(Row);
 
             }
@@ -10504,10 +10688,15 @@ namespace TKSCHEDULEUOF
                                     ,PURTM.TM008
                                     ,PURTM.TM009
                                     ,PURTM.TM010
+                                    ,PURTM.TM012
+                                    ,PURTM.TM014
+                                    ,PURTM.TM015
+
                                     ,PURTN.TN007
                                     ,PURTN.TN008
                                     ,PURTN.TN009
-
+                                    
+                                    ,PURTM.MODIFIER
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTM.MODIFIER) AS 'MV002'
 
