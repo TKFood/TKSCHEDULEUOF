@@ -10240,7 +10240,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATEPURTCUDF01();
+            UPDATEPURTLUDF01();
         }
 
       
@@ -10741,6 +10741,64 @@ namespace TKSCHEDULEUOF
             {
                 return null;
             }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATEPURTLUDF01()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE  [TK].dbo.PURTL 
+                                    SET UDF01 = 'UOF'
+                                    WHERE TL006='N' AND UDF01='Y'                                             
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
             finally
             {
                 sqlConn.Close();
