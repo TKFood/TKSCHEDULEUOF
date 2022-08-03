@@ -10249,9 +10249,9 @@ namespace TKSCHEDULEUOF
         {
 
             DataTable DT = SEARCHPURTLPURTMPURTN(TL001, TL002);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["MODIFIER"].ToString());
+            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
-            string account = DT.Rows[0]["MODIFIER"].ToString();
+            string account = DT.Rows[0]["CREATOR"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
             string fillerName = DT.Rows[0]["MV002"].ToString();
@@ -10671,6 +10671,7 @@ namespace TKSCHEDULEUOF
                                     FROM 
                                     (
                                     SELECT 
+
                                     PURMA.MA001
                                     ,PURMA.MA002
                                     ,PURMA.MA003
