@@ -10774,7 +10774,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.PURTL 
                                     SET UDF01 = 'UOF'
-                                    WHERE TL006='N' AND UDF01='Y'                                             
+                                    WHERE  UDF01='Y'                                             
 
                                     ");
 
