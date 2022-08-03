@@ -166,8 +166,12 @@ namespace TKSCHEDULEUOF
             //採購變更單
             NEWPURTEPURTF();
 
+            //採購核價單
+            NEWPURTLPURTMPURTN();
+
             //轉入品保檢驗
             ADDTKQCQCPURTH();
+
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
