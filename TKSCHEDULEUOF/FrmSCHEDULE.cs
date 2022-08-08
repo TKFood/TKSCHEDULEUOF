@@ -11179,7 +11179,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("fieldId", "CHECK");
                 Cell.SetAttribute("fieldValue", "Y");
                 Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("customValue", "@null");
                 Cell.SetAttribute("enableSearch", "True");
                 Cell.SetAttribute("fieldMessage", "Y");
                 //Row
