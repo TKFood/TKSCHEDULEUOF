@@ -173,7 +173,7 @@ namespace TKSCHEDULEUOF
             ADDTKQCQCPURTH();
 
             //轉品保UOF驗收表單
-            NEWPURTGPURTH();
+            NEWPURTGPURTH(); 
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
