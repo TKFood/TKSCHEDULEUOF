@@ -172,6 +172,8 @@ namespace TKSCHEDULEUOF
             //轉入品保檢驗
             ADDTKQCQCPURTH();
 
+            //轉品保UOF驗收表單
+            NEWPURTGPURTH();
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
@@ -10928,7 +10930,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATEPURTGUDF01();
+            UPDATEPURTGUDF01();
         }
         public void ADD_PURTGPURTH_TB_WKF_EXTERNAL_TASK(string TG001, string TG002)
         {
