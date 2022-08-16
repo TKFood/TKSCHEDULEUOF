@@ -11609,6 +11609,11 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
+                                    UPDATE [TK].dbo.PURTH
+                                    SET TH028='1'
+                                    WHERE TH001+TH002 IN (SELECT TG001+TG002 FROM [TK].dbo.PURTG WHERE UDF01 IN ('Y','y')      )
+
+
                                     UPDATE   [TK].dbo.PURTG
                                     SET UDF01 = 'UOF'
                                     WHERE  UDF01='Y'                                             
