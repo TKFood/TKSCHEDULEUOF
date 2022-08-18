@@ -1851,7 +1851,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            PURID = SEARCHFORM_VERSION_ID("請購單");
+            PURID = SEARCHFORM_VERSION_ID("PUR10.請購單申請");
 
             if (!string.IsNullOrEmpty(PURID))
             {
@@ -2631,7 +2631,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            COPID = SEARCHFORM_VERSION_ID("訂單");
+            COPID = SEARCHFORM_VERSION_ID("COP10.訂單");
 
             if (!string.IsNullOrEmpty(COPID))
             {
@@ -3906,7 +3906,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            COPCHANGEID = SEARCHFORM_VERSION_ID("訂單變更");
+            COPCHANGEID = SEARCHFORM_VERSION_ID("COP20.訂單變更單");
 
             if (!string.IsNullOrEmpty(COPCHANGEID))
             {
@@ -7799,7 +7799,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTCID = SEARCHFORM_VERSION_ID("採購單");
+            string PURTCID = SEARCHFORM_VERSION_ID("PUR40.採購單");
 
             if (!string.IsNullOrEmpty(PURTCID))
             {
@@ -8822,7 +8822,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTEID = SEARCHFORM_VERSION_ID("採購變更單");
+            string PURTEID = SEARCHFORM_VERSION_ID("PUR50.採購變更單");
 
             if (!string.IsNullOrEmpty(PURTEID))
             {
@@ -10271,7 +10271,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTLID = SEARCHFORM_VERSION_ID("採購核價單");
+            string PURTLID = SEARCHFORM_VERSION_ID("PUR30..採購核價單");
 
             if (!string.IsNullOrEmpty(PURTLID))
             {
@@ -10956,7 +10956,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_VERSION_ID("進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_VERSION_ID("PURA0.進貨-原物料品質驗收單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
@@ -11182,6 +11182,72 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("fieldValue", "Y");
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "@null");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL01
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL01");
+                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL02
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL02");
+                Cell.SetAttribute("fieldValue", "V");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "@null");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL03
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL03");
+                Cell.SetAttribute("fieldValue", "N");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "@null");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL04
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL04");
+                Cell.SetAttribute("fieldValue", "N");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "@null");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL05
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL05");
+                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	DETAIL06
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL06");
+                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 Cell.SetAttribute("fieldMessage", "Y");
                 //Row
