@@ -11713,6 +11713,168 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEWBOMTABOMTBBOMTC()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //TL006='N' AND (UDF01 IN ('Y','y') ) 
+                sbSql.AppendFormat(@" 
+                                    SELECT TA001,TA002,UDF01
+                                    FROM [TK].dbo.BOMTA
+                                    WHERE TA007='N'
+                                    AND UDF01 IN ('Y','y')
+                                    ORDER BY TA001,TA002
+
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADD_BOMTABOMTBBOMTC_TB_WKF_EXTERNAL_TASK(dr["TG001"].ToString().Trim(), dr["TG002"].ToString().Trim());
+                    }
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+            UPDATEBOMTAUDF01();
+        }
+
+        public void ADD_BOMTABOMTBBOMTC_TB_WKF_EXTERNAL_TASK(string TA001,string TA002)
+        {
+            DataTable DT = SEARCHBOMTABOMTBBOMTC(TA001, TA002);
+        }
+
+        public DataTable SEARCHBOMTABOMTBBOMTC(string TA001, string TA002)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    ,USER_GUID,NAME
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    FROM 
+                                    (
+                                    SELECT 
+                                    TA001,TA002,TA003,TA005,TA006
+                                    ,TB003,TB004,TB010,MB1.MB002 TB004MB002,MB1.MB003 TB004MB003
+                                    ,TC004,TC005,TC008,TC009,TC010,MB2.MB002 TC005BM002,MB2.MB002 TC005BM003
+                                    ,[TB_EB_USER].USER_GUID,NAME
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
+                                    FROM [test0923].dbo.BOMTA
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    ,[test0923].dbo.BOMTB
+                                    LEFT JOIN [test0923].dbo.INVMB MB1 ON TB004=MB1.MB001
+                                    ,[test0923].dbo.BOMTC
+                                    LEFT JOIN [test0923].dbo.INVMB MB2 ON TC005=MB2.MB001
+                                    WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
+                                    AND TA001='{0}' AND TA002='{1}'
+                                    ) AS TEMP
+                              
+                                    ", TA001, TA002);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATEBOMTAUDF01()
+        {
+
+        }
         #endregion
 
         #region BUTTON
@@ -11820,6 +11982,10 @@ namespace TKSCHEDULEUOF
         private void button20_Click(object sender, EventArgs e)
         {
             NEWPURTGPURTH();
+        }
+        private void button21_Click(object sender, EventArgs e)
+        {
+            NEWBOMTABOMTBBOMTC();
         }
 
         #endregion
