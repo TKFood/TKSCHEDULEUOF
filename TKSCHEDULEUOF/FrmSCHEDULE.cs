@@ -12520,8 +12520,16 @@ namespace TKSCHEDULEUOF
                     foreach (XmlNode node in xmlDoc.SelectNodes("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']/DataGrid/Row"))
                     {
                         string TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
+                        string TH004 = node.SelectSingleNode("./Cell[@fieldId='TH004']").Attributes["fieldValue"].Value;
+                        string TH005 = node.SelectSingleNode("./Cell[@fieldId='TH005']").Attributes["fieldValue"].Value;
+                        string TH006 = node.SelectSingleNode("./Cell[@fieldId='TH006']").Attributes["fieldValue"].Value;
+                        string TH007 = node.SelectSingleNode("./Cell[@fieldId='TH007']").Attributes["fieldValue"].Value;
+                        string TH008 = node.SelectSingleNode("./Cell[@fieldId='TH008']").Attributes["fieldValue"].Value;
+                        string TH010 = node.SelectSingleNode("./Cell[@fieldId='TH010']").Attributes["fieldValue"].Value;
+                        string TH015 = node.SelectSingleNode("./Cell[@fieldId='TH015']").Attributes["fieldValue"].Value;
+                        string CHECK = node.SelectSingleNode("./Cell[@fieldId='CHECK']").Attributes["fieldValue"].Value;
 
-                        MessageBox.Show(TH003);
+                        //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
                     }
                     //string OK = "";
 
