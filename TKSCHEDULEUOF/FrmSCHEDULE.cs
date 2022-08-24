@@ -12354,6 +12354,8 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].DBO.TB_WKF_TASK 
                                     WHERE DOC_NBR LIKE 'PURTH{0}%'
                                     AND TASK_RESULT='0'
+
+
                                     ", THISYEARS);
 
 
@@ -12489,7 +12491,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].DBO.TB_WKF_TASK 
                                     LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
                                     WHERE DOC_NBR LIKE '{0}%'
-                                    AND DOC_NBR='PURTH220800034'
+
                               
                                     ", DOC_NBR);
 
@@ -12519,24 +12521,177 @@ namespace TKSCHEDULEUOF
 
                     foreach (XmlNode node in xmlDoc.SelectNodes("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']/DataGrid/Row"))
                     {
-                        string TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
-                        string TH004 = node.SelectSingleNode("./Cell[@fieldId='TH004']").Attributes["fieldValue"].Value;
-                        string TH005 = node.SelectSingleNode("./Cell[@fieldId='TH005']").Attributes["fieldValue"].Value;
-                        string TH006 = node.SelectSingleNode("./Cell[@fieldId='TH006']").Attributes["fieldValue"].Value;
-                        string TH007 = node.SelectSingleNode("./Cell[@fieldId='TH007']").Attributes["fieldValue"].Value;
-                        string TH008 = node.SelectSingleNode("./Cell[@fieldId='TH008']").Attributes["fieldValue"].Value;
-                        string TH010 = node.SelectSingleNode("./Cell[@fieldId='TH010']").Attributes["fieldValue"].Value;
-                        string TH015 = node.SelectSingleNode("./Cell[@fieldId='TH015']").Attributes["fieldValue"].Value;
-                        string CHECK = node.SelectSingleNode("./Cell[@fieldId='CHECK']").Attributes["fieldValue"].Value;
+                        string TH003 = "";
+                        string TH004 = "";
+                        string TH005 = "";
+                        string TH006 = "";
+                        string TH007 = "";
+                        string TH008 = "";
+                        string TH010 = "";
+                        string TH015 = "";
+                        string CHECK = "";
+                        string DETAIL01 = "";
+                        string DETAIL02 = "";
+                        string DETAIL03 = "";
+                        string DETAIL04 = "";
+                        string DETAIL05 = "";
+                        string DETAIL06 = "";
 
+                        try
+                        {
+                             TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
+                        }
+                        catch
+                        {                          
+                        }                        
+                        try
+                        {
+                            TH004 = node.SelectSingleNode("./Cell[@fieldId='TH004']").Attributes["fieldValue"].Value;
+                            
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH005 = node.SelectSingleNode("./Cell[@fieldId='TH005']").Attributes["fieldValue"].Value;
+                            
+
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH006 = node.SelectSingleNode("./Cell[@fieldId='TH006']").Attributes["fieldValue"].Value;
+                            
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH007 = node.SelectSingleNode("./Cell[@fieldId='TH007']").Attributes["fieldValue"].Value;
+                           
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH008 = node.SelectSingleNode("./Cell[@fieldId='TH008']").Attributes["fieldValue"].Value;
+                           
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH010 = node.SelectSingleNode("./Cell[@fieldId='TH010']").Attributes["fieldValue"].Value;
+                           
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            TH015 = node.SelectSingleNode("./Cell[@fieldId='TH015']").Attributes["fieldValue"].Value;
+                            
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            CHECK = node.SelectSingleNode("./Cell[@fieldId='CHECK']").Attributes["fieldValue"].Value;
+                          
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL01 = node.SelectSingleNode("./Cell[@fieldId='DETAIL01']").Attributes["fieldValue"].Value;
+                            
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL02 = node.SelectSingleNode("./Cell[@fieldId='DETAIL02']").Attributes["fieldValue"].Value;
+                            
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL03 = node.SelectSingleNode("./Cell[@fieldId='DETAIL03']").Attributes["fieldValue"].Value;
+                          
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL04 = node.SelectSingleNode("./Cell[@fieldId='DETAIL04']").Attributes["fieldValue"].Value;
+                          
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL05 = node.SelectSingleNode("./Cell[@fieldId='DETAIL05']").Attributes["fieldValue"].Value;
+                          
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            DETAIL06 = node.SelectSingleNode("./Cell[@fieldId='DETAIL06']").Attributes["fieldValue"].Value;
+                        }
+                        catch
+                        {
+                        }
+                        
+
+
+
+                        ADDTKQCUOFQCPURTGPURTH(
+                            ID
+                            , TG003
+                            , TG005
+                            , TG021
+                            , TG001
+                            , TG002
+                            , TH003
+                            , TH004
+                            , TH005
+                            , TH006
+                            , TH007
+                            , TH008
+                            , TH010
+                            , TH015
+                            , CHECK
+                            , DETAIL01
+                            , DETAIL02
+                            , DETAIL03
+                            , DETAIL04
+                            , DETAIL05
+                            , DETAIL06
+                            );
+                        
                         //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
                     }
                     //string OK = "";
 
-                        //ADDTOTKMKTBSTORESCHECK(
-                        //                        ID
+                    //ADDTOTKMKTBSTORESCHECK(
+                    //                        ID
 
-                        //                        );
+                    //                        );
 
 
                 }
@@ -12556,6 +12711,150 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTKQCUOFQCPURTGPURTH(
+                                        string ID
+                                        , string TG003
+                                        , string TG005
+                                        , string TG021
+                                        , string TG001
+                                        , string TG002
+                                        , string TH003
+                                        , string TH004
+                                        , string TH005
+                                        , string TH006
+                                        , string TH007
+                                        , string TH008
+                                        , string TH010
+                                        , string TH015
+                                        , string CHECK
+                                        , string DETAIL01
+                                        , string DETAIL02
+                                        , string DETAIL03
+                                        , string DETAIL04
+                                        , string DETAIL05
+                                        , string DETAIL06
+                                        )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                  INSERT INTO [TKQC].[dbo].[UOFQCPURTGPURTH]
+                                    (
+                                    [ID]
+                                    ,[TG003]
+                                    ,[TG005]
+                                    ,[TG021]
+                                    ,[TG001]
+                                    ,[TG002]
+                                    ,[TH003]
+                                    ,[TH004]
+                                    ,[TH005]
+                                    ,[TH006]
+                                    ,[TH007]
+                                    ,[TH008]
+                                    ,[TH010]
+                                    ,[TH015]
+                                    ,[CHECK]
+                                    ,[DETAIL01]
+                                    ,[DETAIL02]
+                                    ,[DETAIL03]
+                                    ,[DETAIL04]
+                                    ,[DETAIL05]
+                                    ,[DETAIL06]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    )
+
+                                   ", ID
+                                    , TG003
+                                    , TG005
+                                    , TG021
+                                    , TG001
+                                    , TG002
+                                    , TH003
+                                    , TH004
+                                    , TH005
+                                    , TH006
+                                    , TH007
+                                    , TH008
+                                    , TH010
+                                    , TH015
+                                    , CHECK
+                                    , DETAIL01
+                                    , DETAIL02
+                                    , DETAIL03
+                                    , DETAIL04
+                                    , DETAIL05
+                                    , DETAIL06);
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
