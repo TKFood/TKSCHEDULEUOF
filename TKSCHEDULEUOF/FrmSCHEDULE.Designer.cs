@@ -53,15 +53,16 @@
             this.button10 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
-            this.button11 = new System.Windows.Forms.Button();
-            this.button14 = new System.Windows.Forms.Button();
-            this.button18 = new System.Windows.Forms.Button();
-            this.button17 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
+            this.button21 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
+            this.button11 = new System.Windows.Forms.Button();
+            this.button17 = new System.Windows.Forms.Button();
+            this.button18 = new System.Windows.Forms.Button();
+            this.button22 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button21 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -98,8 +99,8 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 171F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 143F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 128F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 188F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 83F));
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
@@ -121,12 +122,13 @@
             this.tableLayoutPanel1.Controls.Add(this.button10, 3, 2);
             this.tableLayoutPanel1.Controls.Add(this.button12, 3, 3);
             this.tableLayoutPanel1.Controls.Add(this.button13, 3, 4);
-            this.tableLayoutPanel1.Controls.Add(this.button11, 3, 6);
-            this.tableLayoutPanel1.Controls.Add(this.button14, 3, 8);
-            this.tableLayoutPanel1.Controls.Add(this.button18, 3, 9);
             this.tableLayoutPanel1.Controls.Add(this.button20, 2, 12);
             this.tableLayoutPanel1.Controls.Add(this.button21, 3, 12);
-            this.tableLayoutPanel1.Controls.Add(this.button17, 3, 10);
+            this.tableLayoutPanel1.Controls.Add(this.button14, 5, 5);
+            this.tableLayoutPanel1.Controls.Add(this.button11, 5, 4);
+            this.tableLayoutPanel1.Controls.Add(this.button17, 3, 6);
+            this.tableLayoutPanel1.Controls.Add(this.button18, 2, 11);
+            this.tableLayoutPanel1.Controls.Add(this.button22, 5, 7);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -372,46 +374,6 @@
             this.button13.UseVisualStyleBackColor = true;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
-            // button11
-            // 
-            this.button11.Location = new System.Drawing.Point(491, 243);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(165, 34);
-            this.button11.TabIndex = 21;
-            this.button11.Text = "UOF門市督導轉入DB";
-            this.button11.UseVisualStyleBackColor = true;
-            this.button11.Click += new System.EventHandler(this.button11_Click);
-            // 
-            // button14
-            // 
-            this.button14.Location = new System.Drawing.Point(491, 323);
-            this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(165, 34);
-            this.button14.TabIndex = 24;
-            this.button14.Text = "轉入1002.客訴異常處理單";
-            this.button14.UseVisualStyleBackColor = true;
-            this.button14.Click += new System.EventHandler(this.button14_Click);
-            // 
-            // button18
-            // 
-            this.button18.Location = new System.Drawing.Point(491, 363);
-            this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(165, 34);
-            this.button18.TabIndex = 28;
-            this.button18.Text = "轉入進貨單到品保檢";
-            this.button18.UseVisualStyleBackColor = true;
-            this.button18.Click += new System.EventHandler(this.button18_Click);
-            // 
-            // button17
-            // 
-            this.button17.Location = new System.Drawing.Point(491, 403);
-            this.button17.Name = "button17";
-            this.button17.Size = new System.Drawing.Size(149, 34);
-            this.button17.TabIndex = 27;
-            this.button17.Text = "新增製令多筆訂單";
-            this.button17.UseVisualStyleBackColor = true;
-            this.button17.Click += new System.EventHandler(this.button17_Click);
-            // 
             // button20
             // 
             this.button20.Location = new System.Drawing.Point(336, 483);
@@ -421,6 +383,66 @@
             this.button20.Text = "ERP進貨單明細>轉入UOF簽核";
             this.button20.UseVisualStyleBackColor = true;
             this.button20.Click += new System.EventHandler(this.button20_Click);
+            // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(491, 483);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(165, 34);
+            this.button21.TabIndex = 31;
+            this.button21.Text = "ERPBOM表變更單>轉入UOF簽核";
+            this.button21.UseVisualStyleBackColor = true;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
+            // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(702, 203);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(182, 34);
+            this.button14.TabIndex = 24;
+            this.button14.Text = "轉入1002.客訴異常處理單";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(702, 163);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(182, 34);
+            this.button11.TabIndex = 21;
+            this.button11.Text = "UOF門市督導轉入DB";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
+            // button17
+            // 
+            this.button17.Location = new System.Drawing.Point(491, 243);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(149, 34);
+            this.button17.TabIndex = 27;
+            this.button17.Text = "新增製令多筆訂單";
+            this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
+            // 
+            // button18
+            // 
+            this.button18.Location = new System.Drawing.Point(336, 443);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(149, 34);
+            this.button18.TabIndex = 28;
+            this.button18.Text = "轉入進貨單到品保檢";
+            this.button18.UseVisualStyleBackColor = true;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
+            // 
+            // button22
+            // 
+            this.button22.Location = new System.Drawing.Point(702, 283);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(182, 34);
+            this.button22.TabIndex = 32;
+            this.button22.Text = "UOF PURA0.進貨-原物料品質驗收單轉入DB";
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.button22_Click);
             // 
             // tabPage2
             // 
@@ -439,16 +461,6 @@
             // timer2
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // button21
-            // 
-            this.button21.Location = new System.Drawing.Point(491, 483);
-            this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(165, 34);
-            this.button21.TabIndex = 31;
-            this.button21.Text = "ERPBOM表變更單>轉入UOF簽核";
-            this.button21.UseVisualStyleBackColor = true;
-            this.button21.Click += new System.EventHandler(this.button21_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -503,5 +515,6 @@
         private System.Windows.Forms.Button button19;
         private System.Windows.Forms.Button button20;
         private System.Windows.Forms.Button button21;
+        private System.Windows.Forms.Button button22;
     }
 }

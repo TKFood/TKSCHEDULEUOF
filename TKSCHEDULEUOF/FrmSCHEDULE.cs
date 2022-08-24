@@ -12286,6 +12286,268 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADDTKQCUOFQCPURTGPURTH()
+        {
+            IEnumerable<DataRow> query2 = null;
+
+            DataTable DT1 = SEARCHUOFQCPURTGPURTH();
+            DataTable DT2 = SEARCHTKQCUOFQCPURTGPURTH();
+
+            //找DataTable差集
+            //要有相同的欄位名稱
+            //找DataTable差集
+            //要有相同的欄位名稱
+            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            {
+                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
+            }
+
+
+
+            if (query2.Count() > 0)
+            {
+                //差集集合
+                DataTable dt3 = query2.CopyToDataTable();
+
+                foreach (DataRow dr in dt3.Rows)
+                {
+                    SEARCHUOFQCPURTGPURTH_TB_WKF_TASK(dr["DOC_NBR"].ToString());
+                }
+            }
+
+        }
+
+        public DataTable SEARCHUOFQCPURTGPURTH()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //是門市督導單STORE
+                //核準過TASK_RESULT='0'
+                sbSql.AppendFormat(@"  
+                                    SELECT DOC_NBR
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    WHERE DOC_NBR LIKE 'PURTH{0}%'
+                                    AND TASK_RESULT='0'
+                                    ", THISYEARS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable SEARCHTKQCUOFQCPURTGPURTH()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //UNION ALL 
+                //SELECT 'A'
+                //避免回傳NULL
+
+                sbSql.AppendFormat(@"  
+                                    SELECT [ID] AS 'DOC_NBR'
+                                    FROM [TKQC].[dbo].[UOFQCPURTGPURTH]
+                                    WHERE [ID] LIKE 'PURTH{0}%'
+                                    UNION ALL 
+                                    SELECT 'A'
+                                    ", THISYEARS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void SEARCHUOFQCPURTGPURTH_TB_WKF_TASK(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT * 
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    WHERE DOC_NBR LIKE '{0}%'
+                                    AND DOC_NBR='PURTH220800034'
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
+                    string TG003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG003']").Attributes["fieldValue"].Value;
+                    string TG005 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG005']").Attributes["fieldValue"].Value;
+                    string TG021 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG021']").Attributes["fieldValue"].Value;
+                    string TG001 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG001']").Attributes["fieldValue"].Value;
+                    string TG002 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG002']").Attributes["fieldValue"].Value;
+
+                    foreach (XmlNode node in xmlDoc.SelectNodes("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']/DataGrid/Row"))
+                    {
+                        string TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
+
+                        MessageBox.Show(TH003);
+                    }
+                    //string OK = "";
+
+                        //ADDTOTKMKTBSTORESCHECK(
+                        //                        ID
+
+                        //                        );
+
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         #endregion
 
@@ -12398,6 +12660,11 @@ namespace TKSCHEDULEUOF
         private void button21_Click(object sender, EventArgs e)
         {
             NEWBOMTABOMTBBOMTC();
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            ADDTKQCUOFQCPURTGPURTH();
         }
 
         #endregion
