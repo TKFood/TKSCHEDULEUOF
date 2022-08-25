@@ -178,6 +178,9 @@ namespace TKSCHEDULEUOF
             //轉BOM表變更單
             NEWBOMTABOMTBBOMTC();
 
+            //轉入品保的進貨檢驗單
+            ADDTKQCUOFQCPURTGPURTH();
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
