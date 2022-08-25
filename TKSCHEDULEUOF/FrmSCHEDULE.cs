@@ -12515,6 +12515,7 @@ namespace TKSCHEDULEUOF
                     xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
 
                     //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    string Applicantname = xmlDoc.SelectSingleNode($"/Form/Applicant").Attributes["name"].Value;
                     string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
                     string TG003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG003']").Attributes["fieldValue"].Value;
                     string TG005 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG005']").Attributes["fieldValue"].Value;
@@ -12663,7 +12664,7 @@ namespace TKSCHEDULEUOF
 
 
 
-                        ADDTKQCUOFQCPURTGPURTH(
+                        ADDTOTKQCUOFQCPURTGPURTH(
                             ID
                             , TG003
                             , TG005
@@ -12685,6 +12686,7 @@ namespace TKSCHEDULEUOF
                             , DETAIL04
                             , DETAIL05
                             , DETAIL06
+                            , Applicantname
                             );
                         
                         //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
@@ -12714,7 +12716,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADDTKQCUOFQCPURTGPURTH(
+        public void ADDTOTKQCUOFQCPURTGPURTH(
                                         string ID
                                         , string TG003
                                         , string TG005
@@ -12736,6 +12738,7 @@ namespace TKSCHEDULEUOF
                                         , string DETAIL04
                                         , string DETAIL05
                                         , string DETAIL06
+                                        , string Applicantname
                                         )
         {
             try
@@ -12784,6 +12787,7 @@ namespace TKSCHEDULEUOF
                                     ,[DETAIL04]
                                     ,[DETAIL05]
                                     ,[DETAIL06]
+                                    ,[Applicantname]
                                     )
                                     VALUES
                                     (
@@ -12808,6 +12812,7 @@ namespace TKSCHEDULEUOF
                                     ,'{18}'
                                     ,'{19}'
                                     ,'{20}'
+                                    ,'{21}'
                                     )
 
                                    ", ID
@@ -12830,7 +12835,9 @@ namespace TKSCHEDULEUOF
                                     , DETAIL03
                                     , DETAIL04
                                     , DETAIL05
-                                    , DETAIL06);
+                                    , DETAIL06
+                                    , Applicantname
+                                    );
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
