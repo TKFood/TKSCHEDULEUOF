@@ -11240,7 +11240,7 @@ namespace TKSCHEDULEUOF
                 //Row	DETAIL05
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "DETAIL05");
-                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("fieldValue", "0");
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
