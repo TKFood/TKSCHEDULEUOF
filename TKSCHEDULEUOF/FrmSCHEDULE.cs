@@ -11992,10 +11992,10 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	BOMTBUDF06
+                //Row	TB008
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "BOMTBUDF06");
-                Cell.SetAttribute("fieldValue", od["BOMTBUDF06"].ToString());
+                Cell.SetAttribute("fieldId", "TB008");
+                Cell.SetAttribute("fieldValue", od["TB008"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -12197,6 +12197,8 @@ namespace TKSCHEDULEUOF
                                     ,TA001,TA002,TA003,TA005,TA006
                                     ,TB003,TB004,TB010,MB1.MB002 TB004MB002,MB1.MB003 TB004MB003,BOMTB.UDF06 BOMTBUDF06 
                                     ,TC004,TC005,TC008,TC009,TC010,MB2.MB002 TC005MB002,MB2.MB002 TC005MB003
+                                    ,TB008
+
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
                                     FROM [TK].dbo.BOMTA
