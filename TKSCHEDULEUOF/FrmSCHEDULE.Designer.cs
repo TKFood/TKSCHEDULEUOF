@@ -508,6 +508,7 @@
             this.button24.TabIndex = 34;
             this.button24.Text = "ERP結帳單>轉入UOF簽核";
             this.button24.UseVisualStyleBackColor = true;
+            this.button24.Click += new System.EventHandler(this.button24_Click);
             // 
             // button25
             // 
@@ -517,6 +518,7 @@
             this.button25.TabIndex = 35;
             this.button25.Text = "ERP收款單 >轉入UOF簽核";
             this.button25.UseVisualStyleBackColor = true;
+            this.button25.Click += new System.EventHandler(this.button25_Click);
             // 
             // button26
             // 
@@ -526,6 +528,7 @@
             this.button26.TabIndex = 36;
             this.button26.Text = "ERP應付憑單>轉入UOF簽核";
             this.button26.UseVisualStyleBackColor = true;
+            this.button26.Click += new System.EventHandler(this.button26_Click);
             // 
             // button27
             // 
@@ -535,6 +538,7 @@
             this.button27.TabIndex = 37;
             this.button27.Text = "ERP付款單>轉入UOF簽核";
             this.button27.UseVisualStyleBackColor = true;
+            this.button27.Click += new System.EventHandler(this.button27_Click);
             // 
             // button28
             // 
@@ -544,6 +548,7 @@
             this.button28.TabIndex = 38;
             this.button28.Text = "ERP會計傳票 >轉入UOF簽核";
             this.button28.UseVisualStyleBackColor = true;
+            this.button28.Click += new System.EventHandler(this.button28_Click);
             // 
             // button29
             // 
@@ -553,6 +558,7 @@
             this.button29.TabIndex = 39;
             this.button29.Text = "ERP資產資料>轉入UOF簽核";
             this.button29.UseVisualStyleBackColor = true;
+            this.button29.Click += new System.EventHandler(this.button29_Click);
             // 
             // button30
             // 
@@ -562,6 +568,7 @@
             this.button30.TabIndex = 40;
             this.button30.Text = "ERP資產改良>轉入UOF簽核";
             this.button30.UseVisualStyleBackColor = true;
+            this.button30.Click += new System.EventHandler(this.button30_Click);
             // 
             // button31
             // 
@@ -571,6 +578,7 @@
             this.button31.TabIndex = 41;
             this.button31.Text = "ERP資產重估>轉入UOF簽核";
             this.button31.UseVisualStyleBackColor = true;
+            this.button31.Click += new System.EventHandler(this.button31_Click);
             // 
             // button32
             // 
@@ -580,6 +588,7 @@
             this.button32.TabIndex = 42;
             this.button32.Text = "ERP資產報廢>轉入UOF簽核";
             this.button32.UseVisualStyleBackColor = true;
+            this.button32.Click += new System.EventHandler(this.button32_Click);
             // 
             // button33
             // 
@@ -589,6 +598,7 @@
             this.button33.TabIndex = 43;
             this.button33.Text = "ERP資產出售>轉入UOF簽核";
             this.button33.UseVisualStyleBackColor = true;
+            this.button33.Click += new System.EventHandler(this.button33_Click);
             // 
             // button34
             // 
@@ -598,6 +608,7 @@
             this.button34.TabIndex = 44;
             this.button34.Text = "ERP資產調整>轉入UOF簽核";
             this.button34.UseVisualStyleBackColor = true;
+            this.button34.Click += new System.EventHandler(this.button34_Click);
             // 
             // button35
             // 
@@ -607,6 +618,7 @@
             this.button35.TabIndex = 45;
             this.button35.Text = "ERP資產折舊>轉入UOF簽核";
             this.button35.UseVisualStyleBackColor = true;
+            this.button35.Click += new System.EventHandler(this.button35_Click);
             // 
             // button36
             // 
@@ -616,6 +628,7 @@
             this.button36.TabIndex = 46;
             this.button36.Text = "ERP資產移轉>轉入UOF簽核";
             this.button36.UseVisualStyleBackColor = true;
+            this.button36.Click += new System.EventHandler(this.button36_Click);
             // 
             // FrmSCHEDULE
             // 

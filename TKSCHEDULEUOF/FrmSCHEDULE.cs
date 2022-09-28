@@ -12878,6 +12878,8 @@ namespace TKSCHEDULEUOF
             }
         }
 
+    
+
         #endregion
 
         #region BUTTON
@@ -12997,11 +12999,72 @@ namespace TKSCHEDULEUOF
         }
         private void button23_Click(object sender, EventArgs e)
         {
-
+            ADDUOFMOCTAMOCTB();
         }
+        private void button24_Click(object sender, EventArgs e)
+        {
+            ADDUOFACRTAACRTB();
+        }
+        private void button25_Click(object sender, EventArgs e)
+        {
+            ADDUOFACRTCACRTD();
+        }
+        private void button26_Click(object sender, EventArgs e)
+        {
+            ADDUOFACPTAACPTB();
+        }
+
+        private void button27_Click(object sender, EventArgs e)
+        {
+            ADDUOFACPTCACPTB();
+        }
+        private void button28_Click(object sender, EventArgs e)
+        {
+            ADDUOFACTTAACTTB();
+        }
+        private void button29_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMC();
+        }
+          private void button30_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD();
+        }
+
+        private void button31_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD1();
+        }
+
+        private void button32_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD2();
+        }
+
+        private void button33_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD3();
+        }
+
+        private void button34_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD4();
+        }
+
+        private void button35_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTCASTTD5();
+        }
+
+        private void button36_Click(object sender, EventArgs e)
+        {
+            ADDUOFASTMBASTMCASTTEASTTF();
+        }
+
 
         #endregion
 
-
+      
+        
     }
 }
