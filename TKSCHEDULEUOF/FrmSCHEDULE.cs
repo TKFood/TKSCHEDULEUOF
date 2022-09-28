@@ -12999,65 +12999,79 @@ namespace TKSCHEDULEUOF
         }
         private void button23_Click(object sender, EventArgs e)
         {
+            //MOCI02.製令單 
             ADDUOFMOCTAMOCTB();
         }
         private void button24_Click(object sender, EventArgs e)
         {
+            //ACRI02.結帳單
             ADDUOFACRTAACRTB();
         }
         private void button25_Click(object sender, EventArgs e)
         {
+            //ACRI03.收款單 
             ADDUOFACRTCACRTD();
         }
         private void button26_Click(object sender, EventArgs e)
         {
+            //ACPI02.應付憑單
             ADDUOFACPTAACPTB();
         }
 
         private void button27_Click(object sender, EventArgs e)
         {
+            //ACPI03.付款單
             ADDUOFACPTCACPTB();
         }
         private void button28_Click(object sender, EventArgs e)
         {
+            //ACTI10.會計傳票 
             ADDUOFACTTAACTTB();
         }
         private void button29_Click(object sender, EventArgs e)
         {
+            //ASTI02.資產資料建立作業
             ADDUOFASTMBASTMC();
         }
           private void button30_Click(object sender, EventArgs e)
         {
+            //ASTI06.資產改良建立作業
             ADDUOFASTMBASTMCASTTCASTTD();
         }
 
         private void button31_Click(object sender, EventArgs e)
         {
+            //ASTI07.資產重估建立作業
             ADDUOFASTMBASTMCASTTCASTTD1();
         }
 
         private void button32_Click(object sender, EventArgs e)
         {
+            //ASTI08.資產報廢建立作業
             ADDUOFASTMBASTMCASTTCASTTD2();
         }
 
         private void button33_Click(object sender, EventArgs e)
         {
+            //ASTI09.資產出售建立作業
             ADDUOFASTMBASTMCASTTCASTTD3();
         }
 
         private void button34_Click(object sender, EventArgs e)
         {
+            //ASTI10.資產調整建立作業
             ADDUOFASTMBASTMCASTTCASTTD4();
         }
 
         private void button35_Click(object sender, EventArgs e)
         {
+            //ASTI11.資產折舊建立作業
             ADDUOFASTMBASTMCASTTCASTTD5();
         }
 
         private void button36_Click(object sender, EventArgs e)
         {
+            //ASTI12.資產移轉建立作業
             ADDUOFASTMBASTMCASTTEASTTF();
         }
 
