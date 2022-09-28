@@ -12995,6 +12995,10 @@ namespace TKSCHEDULEUOF
         {
             ADDTKQCUOFQCPURTGPURTH();
         }
+        private void button23_Click(object sender, EventArgs e)
+        {
+
+        }
 
         #endregion
 
