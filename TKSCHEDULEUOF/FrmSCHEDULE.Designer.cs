@@ -61,11 +61,9 @@
             this.button12 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
             this.button17 = new System.Windows.Forms.Button();
-            this.button23 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.button22 = new System.Windows.Forms.Button();
-            this.button21 = new System.Windows.Forms.Button();
             this.button29 = new System.Windows.Forms.Button();
             this.button30 = new System.Windows.Forms.Button();
             this.button31 = new System.Windows.Forms.Button();
@@ -74,10 +72,12 @@
             this.button34 = new System.Windows.Forms.Button();
             this.button35 = new System.Windows.Forms.Button();
             this.button36 = new System.Windows.Forms.Button();
+            this.button21 = new System.Windows.Forms.Button();
+            this.button23 = new System.Windows.Forms.Button();
+            this.button37 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button37 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -484,16 +484,6 @@
             this.button17.UseVisualStyleBackColor = true;
             this.button17.Click += new System.EventHandler(this.button17_Click);
             // 
-            // button23
-            // 
-            this.button23.Location = new System.Drawing.Point(491, 283);
-            this.button23.Name = "button23";
-            this.button23.Size = new System.Drawing.Size(165, 34);
-            this.button23.TabIndex = 33;
-            this.button23.Text = "ERP製令單>轉入UOF簽核";
-            this.button23.UseVisualStyleBackColor = true;
-            this.button23.Click += new System.EventHandler(this.button23_Click);
-            // 
             // button11
             // 
             this.button11.Location = new System.Drawing.Point(702, 43);
@@ -523,16 +513,6 @@
             this.button22.Text = "UOF PURA0.進貨-原物料品質驗收單轉入DB";
             this.button22.UseVisualStyleBackColor = true;
             this.button22.Click += new System.EventHandler(this.button22_Click);
-            // 
-            // button21
-            // 
-            this.button21.Location = new System.Drawing.Point(491, 243);
-            this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(165, 34);
-            this.button21.TabIndex = 31;
-            this.button21.Text = "ERPBOM表變更單>轉入UOF簽核";
-            this.button21.UseVisualStyleBackColor = true;
-            this.button21.Click += new System.EventHandler(this.button21_Click);
             // 
             // button29
             // 
@@ -614,6 +594,36 @@
             this.button36.UseVisualStyleBackColor = true;
             this.button36.Click += new System.EventHandler(this.button36_Click);
             // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(491, 243);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(165, 34);
+            this.button21.TabIndex = 31;
+            this.button21.Text = "ERPBOM表變更單>轉入UOF簽核";
+            this.button21.UseVisualStyleBackColor = true;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
+            // 
+            // button23
+            // 
+            this.button23.Location = new System.Drawing.Point(491, 283);
+            this.button23.Name = "button23";
+            this.button23.Size = new System.Drawing.Size(165, 34);
+            this.button23.TabIndex = 33;
+            this.button23.Text = "ERP製令單>轉入UOF簽核";
+            this.button23.UseVisualStyleBackColor = true;
+            this.button23.Click += new System.EventHandler(this.button23_Click);
+            // 
+            // button37
+            // 
+            this.button37.Location = new System.Drawing.Point(491, 323);
+            this.button37.Name = "button37";
+            this.button37.Size = new System.Drawing.Size(165, 34);
+            this.button37.TabIndex = 47;
+            this.button37.Text = "ERP製令變更單>轉入UOF簽核";
+            this.button37.UseVisualStyleBackColor = true;
+            this.button37.Click += new System.EventHandler(this.button37_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Location = new System.Drawing.Point(4, 26);
@@ -631,16 +641,6 @@
             // timer2
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // button37
-            // 
-            this.button37.Location = new System.Drawing.Point(491, 323);
-            this.button37.Name = "button37";
-            this.button37.Size = new System.Drawing.Size(165, 34);
-            this.button37.TabIndex = 47;
-            this.button37.Text = "ERP製令變更單>轉入UOF簽核";
-            this.button37.UseVisualStyleBackColor = true;
-            this.button37.Click += new System.EventHandler(this.button37_Click);
             // 
             // FrmSCHEDULE
             // 
