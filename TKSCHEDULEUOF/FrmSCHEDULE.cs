@@ -13275,7 +13275,7 @@ namespace TKSCHEDULEUOF
             //建立節點FieldItem
             //明細
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS07");
+            FieldItem.SetAttribute("fieldId", "DETAILS");
             FieldItem.SetAttribute("fieldValue", "");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -13289,7 +13289,7 @@ namespace TKSCHEDULEUOF
             //建立節點 DataGrid
             XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
             //DataGrid 加入至 TB 節點底下
-            XmlNode DETAILS07 = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS07']");
+            XmlNode DETAILS07 = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
             DETAILS07.AppendChild(DataGrid);
 
 
@@ -13385,7 +13385,7 @@ namespace TKSCHEDULEUOF
                 rowscounts = rowscounts + 1;
 
                 //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS07']/DataGrid");
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
                 DataGridS.AppendChild(Row);
 
             }
