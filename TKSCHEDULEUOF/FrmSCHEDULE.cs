@@ -6396,6 +6396,10 @@ namespace TKSCHEDULEUOF
 
                 //是門市督導單STORE
                 //核準過TASK_RESULT='0'
+
+                //AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                //AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
+
                 sbSql.AppendFormat(@"  
                                     SELECT *
                                     FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
@@ -6407,10 +6411,9 @@ namespace TKSCHEDULEUOF
                                     
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220506'
-
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
-
+                                
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101220900050'
+                                 
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
 
@@ -6501,6 +6504,13 @@ namespace TKSCHEDULEUOF
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
                 sqlConn.Close();
+
+                //新建XML文件類別
+                XmlDocument Xmldoc = new XmlDocument();
+                //從指定的字串載入XML文件
+                Xmldoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+                //建立此物件，並輸入透過StringReader讀取Xmldoc中的Xmldoc字串輸出
+                XmlReader Xmlreader = XmlReader.Create(new System.IO.StringReader(Xmldoc.OuterXml));
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
