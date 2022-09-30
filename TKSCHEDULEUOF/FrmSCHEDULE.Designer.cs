@@ -78,6 +78,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button38 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -135,7 +136,6 @@
             this.tableLayoutPanel1.Controls.Add(this.button16, 1, 13);
             this.tableLayoutPanel1.Controls.Add(this.button19, 1, 14);
             this.tableLayoutPanel1.Controls.Add(this.button20, 2, 12);
-            this.tableLayoutPanel1.Controls.Add(this.button18, 2, 11);
             this.tableLayoutPanel1.Controls.Add(this.button24, 3, 10);
             this.tableLayoutPanel1.Controls.Add(this.button25, 3, 11);
             this.tableLayoutPanel1.Controls.Add(this.button26, 3, 12);
@@ -159,6 +159,8 @@
             this.tableLayoutPanel1.Controls.Add(this.button21, 3, 6);
             this.tableLayoutPanel1.Controls.Add(this.button23, 3, 7);
             this.tableLayoutPanel1.Controls.Add(this.button37, 3, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button18, 2, 10);
+            this.tableLayoutPanel1.Controls.Add(this.button38, 2, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -386,7 +388,7 @@
             // 
             // button18
             // 
-            this.button18.Location = new System.Drawing.Point(336, 443);
+            this.button18.Location = new System.Drawing.Point(336, 403);
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(149, 34);
             this.button18.TabIndex = 28;
@@ -642,6 +644,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // button38
+            // 
+            this.button38.Location = new System.Drawing.Point(336, 523);
+            this.button38.Name = "button38";
+            this.button38.Size = new System.Drawing.Size(149, 34);
+            this.button38.TabIndex = 48;
+            this.button38.Text = "ERP客供>轉入UOF簽核";
+            this.button38.UseVisualStyleBackColor = true;
+            this.button38.Click += new System.EventHandler(this.button38_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -711,5 +723,6 @@
         private System.Windows.Forms.Button button35;
         private System.Windows.Forms.Button button36;
         private System.Windows.Forms.Button button37;
+        private System.Windows.Forms.Button button38;
     }
 }

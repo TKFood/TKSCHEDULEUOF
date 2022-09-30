@@ -18346,6 +18346,11 @@ namespace TKSCHEDULEUOF
             //MOCI12.製令變更單
             ADDUOFMOCTOMOCTP();
         }
+        private void button38_Click(object sender, EventArgs e)
+        {
+            //A11A客供入料單同進貨單跑進貨驗收流程
+
+        }
 
 
         #endregion
