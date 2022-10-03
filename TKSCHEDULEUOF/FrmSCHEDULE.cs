@@ -181,6 +181,10 @@ namespace TKSCHEDULEUOF
             //轉入品保的進貨檢驗單
             ADDTKQCUOFQCPURTGPURTH();
 
+            //A11A客供入料單同進貨單跑進貨驗收流程
+            ADDUOFQCINVTAINVTB();
+
+
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
 
