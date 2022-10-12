@@ -6416,7 +6416,7 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220506'
                                 
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101220900050'
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101221000014'
                                  
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
@@ -6514,7 +6514,9 @@ namespace TKSCHEDULEUOF
                 //從指定的字串載入XML文件
                 Xmldoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
                 //建立此物件，並輸入透過StringReader讀取Xmldoc中的Xmldoc字串輸出
-                XmlReader Xmlreader = XmlReader.Create(new System.IO.StringReader(Xmldoc.OuterXml));
+                //XmlReader Xmlreader = XmlReader.Create(new System.IO.StringReader(Xmldoc.OuterXml));
+                string KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                string KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
