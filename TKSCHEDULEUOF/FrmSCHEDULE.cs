@@ -6404,6 +6404,7 @@ namespace TKSCHEDULEUOF
                 //AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
                 //AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
 
+                //AND [Z_SCSHR_LEAVE].DOC_NBR='FT101221000014'
                 sbSql.AppendFormat(@"  
                                     SELECT *
                                     FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
@@ -6415,8 +6416,10 @@ namespace TKSCHEDULEUOF
                                     
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220506'
-                                
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR='FT101221000014'
+                                    
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                                    AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
+                                    
                                  
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
@@ -6515,8 +6518,28 @@ namespace TKSCHEDULEUOF
                 Xmldoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
                 //建立此物件，並輸入透過StringReader讀取Xmldoc中的Xmldoc字串輸出
                 //XmlReader Xmlreader = XmlReader.Create(new System.IO.StringReader(Xmldoc.OuterXml));
-                string KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
-                string KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
+                string KY004 = null;
+                string KY005 = null;
+
+                try
+                {
+                        KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                }
+                catch
+                {
+                    
+                }
+                try
+                {
+                        KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
+                }
+                catch
+                {
+
+                }
+                
+
+                
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
@@ -6561,9 +6584,9 @@ namespace TKSCHEDULEUOF
                     //LeaveDay
                     string LeaveDay = ds1.Tables["ds1"].Rows[0]["LEADAYS"].ToString();
                     //BTripLocation
-                    string BTripLocation = "";
+                    string BTripLocation = KY004;
                     //BTripCashAdvance
-                    string BTripCashAdvance = "";
+                    string BTripCashAdvance = KY005;
                     //SourceTableNum
                     string SourceTableNum = EXTERNAL_FORM_NBR;
                     //BTripDate
@@ -6723,6 +6746,7 @@ namespace TKSCHEDULEUOF
                     FieldItem.SetAttribute("fieldValue", BTripLocation);
                     FieldItem.SetAttribute("realValue", "");
                     FieldItem.SetAttribute("enableSearch", "True");
+                    FieldItem.SetAttribute("customValue", "@null");
                     FieldItem.SetAttribute("fillerName", fillerName);
                     FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
                     FieldItem.SetAttribute("fillerAccount", account);
