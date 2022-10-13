@@ -19357,7 +19357,7 @@ namespace TKSCHEDULEUOF
                                     FROM 
                                     (
                                     SELECT COPTA.CREATOR,TA001,TA002,TA003,TA004,TA005,TA006,TA007,TA008,TA009,TA010,TA011,TA026
-                                    ,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB011
+                                    ,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB011,TB016
                                     ,ISNULL(TK004,0) AS TK004,ISNULL(TK006,0) AS TK006
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA005) AS 'MV002'
