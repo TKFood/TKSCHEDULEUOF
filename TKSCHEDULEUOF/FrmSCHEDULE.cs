@@ -142,6 +142,9 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //ERP報價單
+            ADDCOPMACOPMBCOPMC();
+
             //ERP請購單
             ADDTOUOFOURTAB();
             ADDTOUOFOURTAB();
