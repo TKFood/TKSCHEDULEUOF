@@ -142,6 +142,9 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //ASTI02.資產資料建立作業
+            ADDUOFASTMBASTMC();
+
             //ERP報價單
             ADDCOPMACOPMBCOPMC();
 
