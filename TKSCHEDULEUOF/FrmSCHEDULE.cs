@@ -142,6 +142,9 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //MOCI02.製令單 
+            ADDUOFMOCTAMOCTB();
+
             //ASTI02.資產資料建立作業
             ADDUOFASTMBASTMC();
 
