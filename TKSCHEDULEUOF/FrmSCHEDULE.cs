@@ -258,7 +258,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public string SEARCHFORM_VERSION_ID(string FORM_NAME)
+        public string SEARCHFORM_UOF_VERSION_ID(string FORM_NAME)
         {
             try
             {
@@ -267,7 +267,7 @@ namespace TKSCHEDULEUOF
 
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
@@ -281,11 +281,15 @@ namespace TKSCHEDULEUOF
 
 
                 sbSql.AppendFormat(@" 
-                                    SELECT 
-                                    RTRIM(LTRIM([FORM_VERSION_ID])) AS FORM_VERSION_ID
-                                    ,[FORM_NAME]
-                                    FROM [TKIT].[dbo].[UOF_FORM_VERSION_ID]
-                                    WHERE [FORM_NAME]='{0}'
+                                   SELECT TOP 1 RTRIM(LTRIM(TB_WKF_FORM_VERSION.FORM_VERSION_ID)) FORM_VERSION_ID,TB_WKF_FORM_VERSION.FORM_ID,TB_WKF_FORM_VERSION.VERSION,TB_WKF_FORM_VERSION.ISSUE_CTL
+                                    ,TB_WKF_FORM.FORM_NAME
+                                    FROM [UOF].dbo.TB_WKF_FORM_VERSION,[UOF].dbo.TB_WKF_FORM
+                                    WHERE 1=1
+                                    AND TB_WKF_FORM_VERSION.FORM_ID=TB_WKF_FORM.FORM_ID
+                                    AND TB_WKF_FORM_VERSION.ISSUE_CTL=1
+                                    AND FORM_NAME='{0}'
+                                    ORDER BY TB_WKF_FORM_VERSION.FORM_ID,TB_WKF_FORM_VERSION.VERSION DESC
+
                                     ", FORM_NAME);
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -315,6 +319,65 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+
+        //public string SEARCHFORM_VERSION_ID(string FORM_NAME)
+        //{
+        //    try
+        //    {
+        //        //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+        //        //sqlConn = new SqlConnection(connectionString);
+
+        //        //20210902密
+        //        Class1 TKID = new Class1();//用new 建立類別實體
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+        //        //資料庫使用者密碼解密
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        String connectionString;
+        //        sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+        //        sbSql.Clear();
+        //        sbSqlQuery.Clear();
+
+
+        //        sbSql.AppendFormat(@" 
+        //                            SELECT 
+        //                            RTRIM(LTRIM([FORM_VERSION_ID])) AS FORM_VERSION_ID
+        //                            ,[FORM_NAME]
+        //                            FROM [TKIT].[dbo].[UOF_FORM_VERSION_ID]
+        //                            WHERE [FORM_NAME]='{0}'
+        //                            ", FORM_NAME);
+
+        //        adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+        //        sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+        //        sqlConn.Open();
+        //        ds1.Clear();
+        //        adapter1.Fill(ds1, "ds1");
+
+
+        //        if (ds1.Tables["ds1"].Rows.Count >= 1)
+        //        {
+        //            return ds1.Tables["ds1"].Rows[0]["FORM_VERSION_ID"].ToString();
+        //        }
+        //        else
+        //        {
+        //            return "";
+        //        }
+
+        //    }
+        //    catch
+        //    {
+        //        return "";
+        //    }
+        //    finally
+        //    {
+        //        sqlConn.Close();
+        //    }
+        //}
 
         public void ADDTOUOFTB_EIP_SCH_MEMO_MOC(string Sday)
         {
@@ -1870,7 +1933,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            PURID = SEARCHFORM_VERSION_ID("PUR10.請購單申請");
+            PURID = SEARCHFORM_UOF_VERSION_ID("PUR10.請購單申請");
 
             if (!string.IsNullOrEmpty(PURID))
             {
@@ -2650,7 +2713,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            COPID = SEARCHFORM_VERSION_ID("COP10.訂單");
+            COPID = SEARCHFORM_UOF_VERSION_ID("COP10.訂單");
 
             if (!string.IsNullOrEmpty(COPID))
             {
@@ -3925,7 +3988,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            COPCHANGEID = SEARCHFORM_VERSION_ID("COP20.訂單變更單");
+            COPCHANGEID = SEARCHFORM_UOF_VERSION_ID("COP20.訂單變更單");
 
             if (!string.IsNullOrEmpty(COPCHANGEID))
             {
@@ -5958,7 +6021,7 @@ namespace TKSCHEDULEUOF
                     XMLDOC = XMLDOC;
 
                     //正式的id
-                    string VERSION_ID = SEARCHFORM_VERSION_ID("2001.教育訓練課程心得報告");
+                    string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("2001.教育訓練課程心得報告");
 
                     if (!string.IsNullOrEmpty(VERSION_ID))
                     {
@@ -6619,7 +6682,7 @@ namespace TKSCHEDULEUOF
                     XMLDOC = XMLDOC;
 
                     //正式的id
-                    string VERSION_ID = SEARCHFORM_VERSION_ID("2002.出差報告單");
+                    string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("2002.出差報告單");
 
                     if (!string.IsNullOrEmpty(VERSION_ID))
                     {
@@ -7855,7 +7918,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTCID = SEARCHFORM_VERSION_ID("PUR40.採購單");
+            string PURTCID = SEARCHFORM_UOF_VERSION_ID("PUR40.採購單");
 
             if (!string.IsNullOrEmpty(PURTCID))
             {
@@ -8878,7 +8941,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTEID = SEARCHFORM_VERSION_ID("PUR50.採購變更單");
+            string PURTEID = SEARCHFORM_UOF_VERSION_ID("PUR50.採購變更單");
 
             if (!string.IsNullOrEmpty(PURTEID))
             {
@@ -10327,7 +10390,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTLID = SEARCHFORM_VERSION_ID("PUR30..採購核價單");
+            string PURTLID = SEARCHFORM_UOF_VERSION_ID("PUR30..採購核價單");
 
             if (!string.IsNullOrEmpty(PURTLID))
             {
@@ -11012,7 +11075,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_VERSION_ID("PURA0.進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA0.進貨-原物料品質驗收單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
@@ -11862,7 +11925,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("BOM10.BOM變更單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("BOM10.BOM變更單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -13079,7 +13142,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("MOCI02.製令單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("MOCI02.製令單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -13753,7 +13816,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("MOCI12.製令變更單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("MOCI12.製令變更單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -14407,7 +14470,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ACRI02.結帳單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ACRI02.結帳單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -15281,7 +15344,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ACRI03.收款單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ACRI03.收款單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -15986,7 +16049,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ACPI02.應付憑單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ACPI02.應付憑單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -16793,7 +16856,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ACPI03.付款單");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ACPI03.付款單");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -17521,7 +17584,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ACTI10.會計傳票");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ACTI10.會計傳票");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
@@ -18350,7 +18413,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_VERSION_ID("PURA1.客供進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA1.客供進貨-原物料品質驗收單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
@@ -18955,7 +19018,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string COPTAID = SEARCHFORM_VERSION_ID("COP01.報價單");
+            string COPTAID = SEARCHFORM_UOF_VERSION_ID("COP01.報價單");
 
             if (!string.IsNullOrEmpty(COPTAID))
             {
@@ -19562,7 +19625,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORMID = SEARCHFORM_VERSION_ID("ASTI02.資產資料建立作業");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ASTI02.資產資料建立作業");
 
             if (!string.IsNullOrEmpty(FORMID))
             {
