@@ -12199,6 +12199,28 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	OLDMC004
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMC004");
+                Cell.SetAttribute("fieldValue", od["OLDMC004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMD006
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMD006");
+                Cell.SetAttribute("fieldValue", od["OLDMD006"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
 
 
 
