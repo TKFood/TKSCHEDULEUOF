@@ -18665,7 +18665,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH015
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH015");
-                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("fieldValue", od["TB007"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -18749,6 +18749,7 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+               
 
 
                 rowscounts = rowscounts + 1;
