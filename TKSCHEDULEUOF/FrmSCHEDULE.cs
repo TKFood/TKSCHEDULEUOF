@@ -12297,10 +12297,20 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
+               
                 sbSql.AppendFormat(@"  
-                                    SELECT *
-                                    ,USER_GUID,NAME
+                                    SELECT 
+                                    TEMP.CREATOR
+                                    ,TA001,TA002,TA003,TA005,TA006
+                                    ,TB003,TB004,TB010,TB004MB002,TB004MB003,BOMTBUDF06 
+                                    ,TC004,TC005,TC008,TC009,TC010,TC005MB002,TC005MB003
+                                    ,TB008
+                                    ,TEMP.USER_GUID
+                                    ,TEMP.NAME
+                                    ,MV002
+                                    ,MC004 AS 'OLDMC004'
+                                    ,MD006 AS 'OLDMD006'
+
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     FROM 
@@ -12311,18 +12321,25 @@ namespace TKSCHEDULEUOF
                                     ,TB003,TB004,TB010,MB1.MB002 TB004MB002,MB1.MB003 TB004MB003,BOMTB.UDF06 BOMTBUDF06 
                                     ,TC004,TC005,TC008,TC009,TC010,MB2.MB002 TC005MB002,MB2.MB002 TC005MB003
                                     ,TB008
-
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
+
                                     FROM [TK].dbo.BOMTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     ,[TK].dbo.BOMTB
+
                                     LEFT JOIN [TK].dbo.INVMB MB1 ON TB004=MB1.MB001
                                     ,[TK].dbo.BOMTC
+
                                     LEFT JOIN [TK].dbo.INVMB MB2 ON TC005=MB2.MB001
+
                                     WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
-                                    AND TA001='{0}' AND TA002='{1}'
+                                    AND TA001 = '{0}' AND TA002 = '{1}'
                                     ) AS TEMP
+                                    LEFT JOIN [TK].dbo.BOMMC ON MC001=TB004
+                                    LEFT JOIN [TK].dbo.BOMMD ON MD001=TB004 AND MD003=TC005
+
+                              
                               
                                     ", TA001, TA002);
 
