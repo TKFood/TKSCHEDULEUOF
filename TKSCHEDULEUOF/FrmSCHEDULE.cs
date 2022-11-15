@@ -20453,11 +20453,13 @@ namespace TKSCHEDULEUOF
         }
         private void button8_Click(object sender, EventArgs e)
         {
-            ADDCOPTCCOPTD();
+            //別用，改UOF送單
+            //ADDCOPTCCOPTD();
         }
         private void button9_Click(object sender, EventArgs e)
         {
-            ADDCOPTECOPTF();
+            //別用，改UOF送單
+            //ADDCOPTECOPTF();
         }
 
         private void button11_Click(object sender, EventArgs e)

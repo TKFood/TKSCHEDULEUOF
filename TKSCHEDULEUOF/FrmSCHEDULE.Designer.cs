@@ -324,7 +324,7 @@
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(207, 34);
             this.button8.TabIndex = 18;
-            this.button8.Text = "ERP訂單>轉入UOF簽核";
+            this.button8.Text = "別用，改UOF送單，ERP訂單>轉入UOF簽核";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
@@ -334,7 +334,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(207, 34);
             this.button9.TabIndex = 19;
-            this.button9.Text = "ERP訂單變更>轉入UOF簽核";
+            this.button9.Text = "別用，改UOF送單，ERP訂單變更>轉入UOF簽核";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
