@@ -20958,6 +20958,7 @@ namespace TKSCHEDULEUOF
         }
         private void button40_Click(object sender, EventArgs e)
         {
+            //匯入UOF的門市營業日誌
             ADDTKMKdboTBSTOREDAILY();
         }
 
