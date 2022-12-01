@@ -5895,15 +5895,96 @@ namespace TKSCHEDULEUOF
                     string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
                     string FIELD1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD1']").Attributes["fieldValue"].Value;
                     string FIELD2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD2']").Attributes["fieldValue"].Value;
-                    
-                    int index1 = FIELD1.IndexOf("@");
-                    FIELD1 = FIELD1.Substring(0, index1);
+                    string FIELD3 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD3']").Attributes["fieldValue"].Value;
+                    string FIELD4 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD4']").Attributes["fieldValue"].Value;
+                    string FIELD5 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD5']").Attributes["fieldValue"].Value;
+                    string FIELD6 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD6']").Attributes["fieldValue"].Value;
+                    string FIELD7 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD7']").Attributes["fieldValue"].Value;
+                    string FIELD8 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD8']").Attributes["fieldValue"].Value;
+                    string FIELD9 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD9']").Attributes["fieldValue"].Value;
+                    string FIELD10 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD10']").Attributes["fieldValue"].Value;
+                    string FIELD11 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD11']").Attributes["fieldValue"].Value;
+                    string FIELD12 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD12']").Attributes["fieldValue"].Value;
+                    string FIELD13 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD13']").Attributes["fieldValue"].Value;
+                    string FIELD14 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD14']").Attributes["fieldValue"].Value;
+                    string FIELD15 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD15']").Attributes["fieldValue"].Value;
+                    string FIELD16 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD16']").Attributes["fieldValue"].Value;
+                    string FIELD17 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD17']").Attributes["fieldValue"].Value;
+                    string FIELD18 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD18']").Attributes["fieldValue"].Value;
+                    string FIELD19 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD19']").Attributes["fieldValue"].Value;
+                    string FIELD20 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD20']").Attributes["fieldValue"].Value;
+                    string FIELD21 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD21']").Attributes["fieldValue"].Value;
+                    string FIELD22 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD22']").Attributes["fieldValue"].Value;
+                    string FIELD23 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD23']").Attributes["fieldValue"].Value;
+                    string FIELD24 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD24']").Attributes["fieldValue"].Value;
+                    string FIELD25 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD25']").Attributes["fieldValue"].Value;
+                    string FIELD26 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD26']").Attributes["fieldValue"].Value;
+                    string FIELD27 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD27']").Attributes["fieldValue"].Value;
+                    string FIELD28 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD28']").Attributes["fieldValue"].Value;
+                    string FIELD29 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD29']").Attributes["fieldValue"].Value;
+                    string FIELD30 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD30']").Attributes["fieldValue"].Value;
+                    string FIELD31 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD31']").Attributes["fieldValue"].Value;
+                    string FIELD32 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD32']").Attributes["fieldValue"].Value;
+                    string FIELD33 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD33']").Attributes["fieldValue"].Value;
+                    string FIELD34 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD34']").Attributes["fieldValue"].Value;
+                    string FIELD35 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD35']").Attributes["fieldValue"].Value;
+                    //string FIELD36 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD36']").Attributes["fieldValue"].Value;
+                    string FIELD36 = null;
+                    string FIELD37 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD37']").Attributes["fieldValue"].Value;
+                    string FIELD38 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD38']").Attributes["fieldValue"].Value;
+                    string FIELD39 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD39']").Attributes["fieldValue"].Value;
+                    string FIELD40 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD40']").Attributes["fieldValue"].Value;
+                    string FIELD41 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD41']").Attributes["fieldValue"].Value;
+                    string FIELD42 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD42']").Attributes["fieldValue"].Value;
+
+                    int index7 = FIELD7.IndexOf("@");
+                    FIELD7 = FIELD7.Substring(0, index7);
 
                     //string OK = "";
                     ADDTOTKMKTBSTOREDAILY(
-                                            ID
+                                             ID
                                             , FIELD1
                                             , FIELD2
+                                            , FIELD3
+                                            , FIELD4
+                                            , FIELD5
+                                            , FIELD6
+                                            , FIELD7
+                                            , FIELD8
+                                            , FIELD9
+                                            , FIELD10
+                                            , FIELD11
+                                            , FIELD12
+                                            , FIELD13
+                                            , FIELD14
+                                            , FIELD15
+                                            , FIELD16
+                                            , FIELD17
+                                            , FIELD18
+                                            , FIELD19
+                                            , FIELD20
+                                            , FIELD21
+                                            , FIELD22
+                                            , FIELD23
+                                            , FIELD24
+                                            , FIELD25
+                                            , FIELD26
+                                            , FIELD27
+                                            , FIELD28
+                                            , FIELD29
+                                            , FIELD30
+                                            , FIELD31
+                                            , FIELD32
+                                            , FIELD33
+                                            , FIELD34
+                                            , FIELD35
+                                            , FIELD36
+                                            , FIELD37
+                                            , FIELD38
+                                            , FIELD39
+                                            , FIELD40
+                                            , FIELD41
+                                            , FIELD42
                                             , NAME
                                             );
 
@@ -5929,6 +6010,46 @@ namespace TKSCHEDULEUOF
                                         string ID
                                         , string FIELD1
                                         , string FIELD2
+                                        , string FIELD3
+                                        , string FIELD4
+                                        , string FIELD5
+                                        , string FIELD6
+                                        , string FIELD7
+                                        , string FIELD8
+                                        , string FIELD9
+                                        , string FIELD10
+                                        , string FIELD11
+                                        , string FIELD12
+                                        , string FIELD13
+                                        , string FIELD14
+                                        , string FIELD15
+                                        , string FIELD16
+                                        , string FIELD17
+                                        , string FIELD18
+                                        , string FIELD19
+                                        , string FIELD20
+                                        , string FIELD21
+                                        , string FIELD22
+                                        , string FIELD23
+                                        , string FIELD24
+                                        , string FIELD25
+                                        , string FIELD26
+                                        , string FIELD27
+                                        , string FIELD28
+                                        , string FIELD29
+                                        , string FIELD30
+                                        , string FIELD31
+                                        , string FIELD32
+                                        , string FIELD33
+                                        , string FIELD34
+                                        , string FIELD35
+                                        , string FIELD36
+                                        , string FIELD37
+                                        , string FIELD38
+                                        , string FIELD39
+                                        , string FIELD40
+                                        , string FIELD41
+                                        , string FIELD42
                                         , string NAME
                                             )
         {
@@ -5959,7 +6080,47 @@ namespace TKSCHEDULEUOF
                                     (
                                     [ID]
                                     ,[FIELD1]
-                                    ,[FIELD2]                                    
+                                    ,[FIELD2]
+                                    ,[FIELD3]
+                                    ,[FIELD4]
+                                    ,[FIELD5]
+                                    ,[FIELD6]
+                                    ,[FIELD7]
+                                    ,[FIELD8]
+                                    ,[FIELD9]
+                                    ,[FIELD10]
+                                    ,[FIELD11]
+                                    ,[FIELD12]
+                                    ,[FIELD13]
+                                    ,[FIELD14]
+                                    ,[FIELD15]
+                                    ,[FIELD16]
+                                    ,[FIELD17]
+                                    ,[FIELD18]
+                                    ,[FIELD19]
+                                    ,[FIELD20]
+                                    ,[FIELD21]
+                                    ,[FIELD22]
+                                    ,[FIELD23]
+                                    ,[FIELD24]
+                                    ,[FIELD25]
+                                    ,[FIELD26]
+                                    ,[FIELD27]
+                                    ,[FIELD28]
+                                    ,[FIELD29]
+                                    ,[FIELD30]
+                                    ,[FIELD31]
+                                    ,[FIELD32]
+                                    ,[FIELD33]
+                                    ,[FIELD34]
+                                    ,[FIELD35]
+                                    ,[FIELD36]
+                                    ,[FIELD37]
+                                    ,[FIELD38]
+                                    ,[FIELD39]
+                                    ,[FIELD40]
+                                    ,[FIELD41]
+                                    ,[FIELD42]
                                     ,[NAME]
                                     )
                                     VALUES
@@ -5968,11 +6129,91 @@ namespace TKSCHEDULEUOF
                                     ,'{1}'
                                     ,'{2}'
                                     ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    ,'{21}'
+                                    ,'{22}'
+                                    ,'{23}'
+                                    ,'{24}'
+                                    ,'{25}'
+                                    ,'{26}'
+                                    ,'{27}'
+                                    ,'{28}'
+                                    ,'{29}'
+                                    ,'{30}'
+                                    ,'{31}'
+                                    ,'{32}'
+                                    ,'{33}'
+                                    ,'{34}'
+                                    ,'{35}'
+                                    ,'{36}'
+                                    ,'{37}'
+                                    ,'{38}'
+                                    ,'{39}'
+                                    ,'{40}'
+                                    ,'{41}'
+                                    ,'{42}'
+                                    ,'{43}'
                                     )
 
                                     ", ID
                                     , FIELD1
                                     , FIELD2
+                                    , FIELD3
+                                    , FIELD4
+                                    , FIELD5
+                                    , FIELD6
+                                    , FIELD7
+                                    , FIELD8
+                                    , FIELD9
+                                    , FIELD10
+                                    , FIELD11
+                                    , FIELD12
+                                    , FIELD13
+                                    , FIELD14
+                                    , FIELD15
+                                    , FIELD16
+                                    , FIELD17
+                                    , FIELD18
+                                    , FIELD19
+                                    , FIELD20
+                                    , FIELD21
+                                    , FIELD22
+                                    , FIELD23
+                                    , FIELD24
+                                    , FIELD25
+                                    , FIELD26
+                                    , FIELD27
+                                    , FIELD28
+                                    , FIELD29
+                                    , FIELD30
+                                    , FIELD31
+                                    , FIELD32
+                                    , FIELD33
+                                    , FIELD34
+                                    , FIELD35
+                                    , FIELD36
+                                    , FIELD37
+                                    , FIELD38
+                                    , FIELD39
+                                    , FIELD40
+                                    , FIELD41
+                                    , FIELD42
                                     , NAME
 
                                     );
