@@ -5930,9 +5930,9 @@ namespace TKSCHEDULEUOF
                     string FIELD35 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD35']").Attributes["fieldValue"].Value;
                     //string FIELD36 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD36']").Attributes["fieldValue"].Value;
                     string FIELD36 = null;
-                    string FIELD37 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD37']").Attributes["fieldValue"].Value;
-                    string FIELD38 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD38']").Attributes["fieldValue"].Value;
-                    string FIELD39 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem/DataGrid/Row/Cell[@fieldId='FIELD39']").Attributes["fieldValue"].Value;
+                    string FIELD37 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD37']").Attributes["fieldValue"].Value;
+                    string FIELD38 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD38']").Attributes["fieldValue"].Value;
+                    string FIELD39 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD39']").Attributes["fieldValue"].Value;
                     string FIELD40 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD40']").Attributes["fieldValue"].Value;
                     string FIELD41 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD41']").Attributes["fieldValue"].Value;
                     string FIELD42 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD42']").Attributes["fieldValue"].Value;
