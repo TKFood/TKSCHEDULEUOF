@@ -13442,6 +13442,9 @@ namespace TKSCHEDULEUOF
                             , DETAIL06
                             , Applicantname
                             );
+
+                        //更新第1站的簽核人當Applicantname
+                        UPDATE_UOFQCPURTGPURTH_Applicantname();
                         
                         //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
                     }
@@ -13620,6 +13623,67 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_UOFQCPURTGPURTH_Applicantname()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE [TKQC].[dbo].[UOFQCPURTGPURTH]
+                                    SET Applicantname=SUBSTRING(REPLACE((REPLACE(PURTH.UDF01,'Y,','')),'N,',''),1,3)
+                                    FROM [TKQC].[dbo].[UOFQCPURTGPURTH],[TK].dbo.PURTH
+                                    WHERE [UOFQCPURTGPURTH].TG001+[UOFQCPURTGPURTH].TG002+[UOFQCPURTGPURTH].TH003 =PURTH.TH001+PURTH.TH002+PURTH.TH003
+                                    AND Applicantname<>SUBSTRING(REPLACE((REPLACE(PURTH.UDF01,'Y,','')),'N,',''),1,3)
+
+                                   "
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
         public void ADDUOFMOCTAMOCTB()
         {
             try
