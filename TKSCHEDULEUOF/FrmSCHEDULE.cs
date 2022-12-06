@@ -5922,6 +5922,7 @@ namespace TKSCHEDULEUOF
                     string FIELD27 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD27']").Attributes["fieldValue"].Value;
                     string FIELD28 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD28']").Attributes["fieldValue"].Value;
                     string FIELD29 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD29']").Attributes["fieldValue"].Value;
+                    string FIELD29a = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD29a']").Attributes["fieldValue"].Value;
                     string FIELD30 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD30']").Attributes["fieldValue"].Value;
                     string FIELD31 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD31']").Attributes["fieldValue"].Value;
                     string FIELD32 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD32']").Attributes["fieldValue"].Value;
@@ -5937,6 +5938,10 @@ namespace TKSCHEDULEUOF
                     string FIELD41 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD41']").Attributes["fieldValue"].Value;
                     string FIELD42 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD42']").Attributes["fieldValue"].Value;
 
+                    int index1 = FIELD1.IndexOf("@");
+                    FIELD1 = FIELD1.Substring(0, index1);
+                    int index6 = FIELD6.IndexOf("@");
+                    FIELD6 = FIELD6.Substring(0, index6);
                     int index7 = FIELD7.IndexOf("@");
                     FIELD7 = FIELD7.Substring(0, index7);
 
@@ -5972,6 +5977,7 @@ namespace TKSCHEDULEUOF
                                             , FIELD27
                                             , FIELD28
                                             , FIELD29
+                                            , FIELD29a
                                             , FIELD30
                                             , FIELD31
                                             , FIELD32
@@ -6037,6 +6043,7 @@ namespace TKSCHEDULEUOF
                                         , string FIELD27
                                         , string FIELD28
                                         , string FIELD29
+                                        , string FIELD29a
                                         , string FIELD30
                                         , string FIELD31
                                         , string FIELD32
@@ -6108,6 +6115,7 @@ namespace TKSCHEDULEUOF
                                     ,[FIELD27]
                                     ,[FIELD28]
                                     ,[FIELD29]
+                                    ,[FIELD29a]
                                     ,[FIELD30]
                                     ,[FIELD31]
                                     ,[FIELD32]
@@ -6169,6 +6177,7 @@ namespace TKSCHEDULEUOF
                                     ,'{41}'
                                     ,'{42}'
                                     ,'{43}'
+                                    ,'{44}'
                                     )
 
                                     ", ID
@@ -6201,6 +6210,7 @@ namespace TKSCHEDULEUOF
                                     , FIELD27
                                     , FIELD28
                                     , FIELD29
+                                    , FIELD29a
                                     , FIELD30
                                     , FIELD31
                                     , FIELD32
