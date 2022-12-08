@@ -13385,7 +13385,7 @@ namespace TKSCHEDULEUOF
                         }
                         try
                         {
-                            DETAIL03 = node.SelectSingleNode("./Cell[@fieldId='DETAIL03']").Attributes["fieldValue"].Value;
+                            //DETAIL03 = node.SelectSingleNode("./Cell[@fieldId='DETAIL03']").Attributes["fieldValue"].Value;
                           
                         }
                         catch
