@@ -11918,16 +11918,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	DETAIL03
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL03");
-                Cell.SetAttribute("fieldValue", "N");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "@null");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
+                ////Row	DETAIL03
+                //Cell = xmlDoc.CreateElement("Cell");
+                //Cell.SetAttribute("fieldId", "DETAIL03");
+                //Cell.SetAttribute("fieldValue", "N");
+                //Cell.SetAttribute("realValue", "");
+                //Cell.SetAttribute("customValue", "@null");
+                //Cell.SetAttribute("enableSearch", "True");
+                //Cell.SetAttribute("fieldMessage", "Y");
+                ////Row
+                //Row.AppendChild(Cell);
 
                 //Row	DETAIL04
                 Cell = xmlDoc.CreateElement("Cell");
