@@ -21059,6 +21059,98 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_TO_UOF_QC1001()
+        {
+            DataTable DT_UOF_QC1002 = FIND_UOF_QC1002();
+
+            if(DT_UOF_QC1002.Rows.Count>0)
+            {
+                foreach(DataRow DR in DT_UOF_QC1002.Rows)
+                {
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.LoadXml(DR["CURRENT_DOC"].ToString());
+
+                    break;
+                }
+                
+            }
+
+        }
+
+        public DataTable FIND_UOF_QC1002()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT CURRENT_DOC,*
+                                    FROM [UOF].[dbo].TB_WKF_TASK 
+                                    WHERE DOC_NBR LIKE 'QC%'
+                                    AND FORM_VERSION_ID IN 
+                                    (
+                                    SELECT 
+                                    [FORM_VERSION_ID]      
+                                    FROM [UOF].[dbo].[TB_WKF_FORM_VERSION],[UOF].[dbo].[TB_WKF_FORM]
+                                    WHERE [TB_WKF_FORM_VERSION].FORM_ID=[TB_WKF_FORM].FORM_ID
+                                    AND [FORM_NAME] IN ('1002.客訴異常處理單')
+                                    )
+                                    AND DOC_NBR  COLLATE  Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  DOC_NBR FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1002HCECK]) 
+                                    ORDER BY BEGIN_TIME
+                              
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+
+       }
+
+
         #endregion
 
         #region BUTTON
@@ -21277,6 +21369,10 @@ namespace TKSCHEDULEUOF
             ADDTKMKdboTBSTOREDAILY();
         }
 
+        private void button41_Click(object sender, EventArgs e)
+        {
+            ADD_TO_UOF_QC1001();
+        }
 
         #endregion
 

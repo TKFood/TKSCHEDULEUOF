@@ -78,6 +78,7 @@
             this.button14 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button41 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -156,6 +157,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button17, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.button20, 2, 11);
             this.tableLayoutPanel1.Controls.Add(this.button38, 2, 12);
+            this.tableLayoutPanel1.Controls.Add(this.button41, 2, 14);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -666,6 +668,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // button41
+            // 
+            this.button41.Location = new System.Drawing.Point(336, 563);
+            this.button41.Name = "button41";
+            this.button41.Size = new System.Drawing.Size(149, 34);
+            this.button41.TabIndex = 50;
+            this.button41.Text = "客訴1002轉1001";
+            this.button41.UseVisualStyleBackColor = true;
+            this.button41.Click += new System.EventHandler(this.button41_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -737,5 +749,6 @@
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Button button22;
         private System.Windows.Forms.Button button40;
+        private System.Windows.Forms.Button button41;
     }
 }
