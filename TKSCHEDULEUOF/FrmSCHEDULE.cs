@@ -21070,6 +21070,13 @@ namespace TKSCHEDULEUOF
                     XmlDocument xDoc = new XmlDocument();
                     xDoc.LoadXml(DR["CURRENT_DOC"].ToString());
 
+                    DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
+
+                    if(UOF_TB_EB_USER.Rows.Count>0)
+                    {
+
+                    }
+
                     break;
                 }
                 
@@ -21077,6 +21084,10 @@ namespace TKSCHEDULEUOF
 
         }
 
+        /// <summary>
+        /// 找UOF的客訴異常單 1002
+        /// </summary>
+        /// <returns></returns>
         public DataTable FIND_UOF_QC1002()
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -21148,7 +21159,85 @@ namespace TKSCHEDULEUOF
             }
 
 
-       }
+        }
+
+
+        //找出表單建立者
+        public DataTable FIND_TB_EB_USER(string USER_GUID)
+        {       
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    [USER_GUID]
+                                    ,[ACCOUNT]
+                                    ,[NAME]
+     
+                                    FROM [UOF].[dbo].[TB_EB_USER]
+                                    WHERE USER_GUID='{0}'
+                              
+                                    ", USER_GUID);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        //新增到品保1001表單
+        public void NEW_UOF_QC1001()
+        {
+
+        }
+
+        //DOC_NBR新增到[TKQC].[dbo].[TBUOFQC1002HCECK]
+        public void ADD_TO_TBUOFQC1002HCECK(DataTable DT)
+        {
+
+        }
 
 
         #endregion
