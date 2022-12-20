@@ -21081,7 +21081,10 @@ namespace TKSCHEDULEUOF
                         }
                     }                                       
                 }
-                
+
+                ADD_TO_TBUOFQC1002HCECK(DT_UOF_QC1002);
+
+
             }
 
             UPDATE_UOF_QC1001_ATTACH_ID();
@@ -21324,189 +21327,189 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
-            ////日期QCFrm002Date>QCFrm001Date 
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001Date");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Date"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
+            //日期QCFrm002Date>QCFrm001Date  QCFrm002Date
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001Date");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
 
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////申請者 QCFrm002User> QCFrmB001User
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001User");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002User"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //申請者 QCFrm002User> QCFrmB001User 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001User");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002User']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////部門 QCFrm002Dept> QCFrm001Dept
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001Dept");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Dept"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //部門 QCFrm002Dept> QCFrm001Dept 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001Dept");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Dept']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////職級 QCFrm002Rank> QCFrm001Rank
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001Rank");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Rank"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //職級 QCFrm002Rank> QCFrm001Rank 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001Rank");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Rank']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////供應商/部門單位 QCFrm002CU> QCFrm001CUST
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001CUST");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002CU"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //供應商/部門單位 QCFrm002CU> QCFrm001CUST 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001CUST");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CU']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////批號 QCFrm002PNO> QCFrm001PNO
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001PNO");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002PNO"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //批號 QCFrm002PNO> QCFrm001PNO 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001PNO");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PNO']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////品號 QCFrm002CN> QCFrm001CN
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001CN");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002CN"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //品號 QCFrm002CN> QCFrm001CN 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001CN");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002CN']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////品名 QCFrm002PRD> QCFrm001PRD
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001PRD");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002PRD"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //品名 QCFrm002PRD> QCFrm001PRD 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001PRD");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002PRD']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////受理日期 QCFrm002RDate> QCFrm001RDate
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001RDate");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002RDate"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //受理日期 QCFrm002RDate> QCFrm001RDate 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001RDate");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002RDate']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////製造日期 QCFrm002MD> QCFrm001MD
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001MD");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002MD"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //製造日期 QCFrm002MD> QCFrm001MD 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001MD");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002MD']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////有效日期 QCFrm002ED> QCFrm001ND
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm001ND");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002ED"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //有效日期 QCFrm002ED> QCFrm001ND 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm001ND");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002ED']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////原因分析 QCFrm002Cmf> QCFrm001RCA
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm002Cmf");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Cmf"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //原因分析 QCFrm002Cmf> QCFrm001RCA 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm002Cmf");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////原因分析 QCFrm002Abn > QCFrm002Abn
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm002Abn");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Abn"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //原因分析 QCFrm002Abn > QCFrm002Abn 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm002Abn");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
-            ////原因 QCFrm002Abns
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "QCFrm002Abns");
-            //FieldItem.SetAttribute("fieldValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Abns"].FieldValue.ToString().Trim());
-            //FieldItem.SetAttribute("realValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Abns"].RealValue.ToString().Trim());
-            //FieldItem.SetAttribute("customValue", applyTask.Task.CurrentDocument.Fields["QCFrm002Abns"].CustomValue.ToString().Trim());
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", applyTask.Task.Applicant.UserName);
-            //FieldItem.SetAttribute("fillerUserGuid", applyTask.Task.Applicant.UserGUID);
-            //FieldItem.SetAttribute("fillerAccount", applyTask.Task.Applicant.Account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
+            //原因 QCFrm002Abns 
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "QCFrm002Abns");
+            FieldItem.SetAttribute("fieldValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("realValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("customValue", xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value);
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
             //20210902密
             Class1 TKID = new Class1();//用new 建立類別實體
@@ -21631,6 +21634,7 @@ namespace TKSCHEDULEUOF
         //DOC_NBR新增到[TKQC].[dbo].[TBUOFQC1002HCECK]
         public void ADD_TO_TBUOFQC1002HCECK(DataTable DT)
         {
+           
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -21638,7 +21642,7 @@ namespace TKSCHEDULEUOF
 
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
@@ -21653,9 +21657,24 @@ namespace TKSCHEDULEUOF
 
                 sbSql.Clear();
 
-                sbSql.AppendFormat(@"                                    
-                                   
+                foreach (DataRow DR in DT.Rows)
+                {
+                    sbSql.AppendFormat(@"                                    
+                                        INSERT INTO [TKQC].[dbo].[TBUOFQC1002HCECK]
+                                        (
+                                        [DOC_NBR]
+                                        )
+                                        VALUES
+                                        (
+                                        '{0}'
+                                        )
 
+                                    ", DR["DOC_NBR"].ToString()
+                                    );
+                }
+
+                sbSql.AppendFormat(@"                                    
+                                    
                                     "
                                     );
 
