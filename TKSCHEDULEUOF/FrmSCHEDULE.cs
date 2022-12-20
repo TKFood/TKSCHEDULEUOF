@@ -21070,7 +21070,7 @@ namespace TKSCHEDULEUOF
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
 
-                    DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString(), DR["USER_GROUP_ID"].ToString());
+                    DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
 
                     if(UOF_TB_EB_USER.Rows.Count>0)
                     {
@@ -21167,7 +21167,7 @@ namespace TKSCHEDULEUOF
 
 
         //找出表單建立者
-        public DataTable FIND_TB_EB_USER(string USER_GUID,string GROUP_ID)
+        public DataTable FIND_TB_EB_USER(string USER_GUID)
         {       
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -21212,9 +21212,8 @@ namespace TKSCHEDULEUOF
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
                                     AND [TB_EB_EMPL_DEP].TITLE_ID=[TB_EB_JOB_TITLE].TITLE_ID
                                     AND [TB_EB_USER].USER_GUID='{0}'
-                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]='{1}'
-
-                                    ", USER_GUID, GROUP_ID);
+                                 
+                                    ", USER_GUID);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
