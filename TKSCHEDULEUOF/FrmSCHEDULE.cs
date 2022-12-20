@@ -21067,7 +21067,7 @@ namespace TKSCHEDULEUOF
         {
             DataTable DT_UOF_QC1002 = FIND_UOF_QC1002();
 
-            if(DT_UOF_QC1002.Rows.Count>0)
+            if(DT_UOF_QC1002!= null && DT_UOF_QC1002.Rows.Count>0)
             {
                 foreach(DataRow DR in DT_UOF_QC1002.Rows)
                 {
@@ -21076,7 +21076,7 @@ namespace TKSCHEDULEUOF
 
                     DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
 
-                    if(UOF_TB_EB_USER.Rows.Count>0)
+                    if(UOF_TB_EB_USER != null && UOF_TB_EB_USER.Rows.Count>0)
                     {
                         string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
                         if (QCFrm002QCC.Equals("成立"))
