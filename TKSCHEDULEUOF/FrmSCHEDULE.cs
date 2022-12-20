@@ -21079,12 +21079,12 @@ namespace TKSCHEDULEUOF
                         {
                             NEW_UOF_QC1001(xmlDoc, UOF_TB_EB_USER);
                         }
-                    }
-
-                    break;
+                    }                                       
                 }
                 
             }
+
+            UPDATE_UOF_QC1001_ATTACH_ID();
 
         }
 
@@ -21557,10 +21557,75 @@ namespace TKSCHEDULEUOF
             }
 
         }
-
+        /// <summary>
+        /// 更新附件 ATTACH_ID 到 新QC1001中
+        /// </summary>
         public void UPDATE_UOF_QC1001_ATTACH_ID()
         {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
 
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                    
+                                    UPDATE [UOF].[dbo].TB_WKF_TASK
+                                    SET ATTACH_ID=TEMP.NEW_ATTACH_ID
+                                    FROM 
+                                    (
+                                    SELECT TB_WKF_TASK.DOC_NBR,TB_WKF_TASK.TASK_ID,TB_WKF_TASK.ATTACH_ID,[TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,TB_WKF_TASK2.ATTACH_ID AS  'NEW_ATTACH_ID'
+                                    FROM [UOF].[dbo].TB_WKF_TASK,[UOF].[dbo].[TB_WKF_EXTERNAL_TASK],  [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2
+                                    WHERE TB_WKF_TASK.DOC_NBR=[TB_WKF_EXTERNAL_TASK].DOC_NBR
+                                    AND [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR =TB_WKF_TASK2.DOC_NBR
+                                    AND TB_WKF_TASK.DOC_NBR LIKE 'QC%'
+                                    AND ISNULL(TB_WKF_TASK.ATTACH_ID,'')<>ISNULL(TB_WKF_TASK2.ATTACH_ID,'')
+                                    ) AS TEMP
+                                    WHERE TEMP.TASK_ID=TB_WKF_TASK.TASK_ID
+
+                                    "
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
         }
 
         //DOC_NBR新增到[TKQC].[dbo].[TBUOFQC1002HCECK]
