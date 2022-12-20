@@ -142,6 +142,10 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+
+            //品保1002轉到1002
+            ADD_TO_UOF_QC1001();
+
             //MOCI02.製令單 
             ADDUOFMOCTAMOCTB();
 
