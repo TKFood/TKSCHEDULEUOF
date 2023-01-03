@@ -5703,9 +5703,12 @@ namespace TKSCHEDULEUOF
                 //核準過TASK_RESULT='0'
                 sbSql.AppendFormat(@"  
                                      SELECT DOC_NBR
-                                     FROM [UOF].DBO.TB_WKF_TASK 
+                                     FROM [UOF].dbo.TB_WKF_TASK 
                                      WHERE DOC_NBR LIKE 'STORE{0}%'
                                      AND TASK_RESULT='0'
+                                    
+                                    UNION ALL
+                                    SELECT 'STORE220300013'
                                     ", THISYEARS);
 
 
@@ -13115,6 +13118,8 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].DBO.TB_WKF_TASK 
                                     WHERE DOC_NBR LIKE 'PURTH{0}%'
                                     AND TASK_RESULT='0'
+                                    UNION ALL
+                                    SELECT 'PURTH220800003'
 
 
                                     ", THISYEARS);
