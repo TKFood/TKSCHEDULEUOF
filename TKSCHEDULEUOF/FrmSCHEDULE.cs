@@ -19845,6 +19845,19 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //TA022
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TA022");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA022"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
             //TA026	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TA026");
@@ -20132,6 +20145,7 @@ namespace TKSCHEDULEUOF
                                     FROM 
                                     (
                                     SELECT COPTA.CREATOR,TA001,TA002,TA003,TA004,TA005,TA006,TA007,TA008,TA009,TA010,TA011,TA026
+                                    ,(CASE WHEN TA022='1' THEN '內含'  WHEN TA022='2' THEN '外加'  WHEN TA022='3' THEN '零稅率'   WHEN TA022='4' THEN '免稅' WHEN TA022='9' THEN '不計稅' ELSE '空白' END ) TA022
                                     ,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB011,TB016
                                     ,ISNULL(TK004,0) AS TK004,ISNULL(TK006,0) AS TK006
                                     ,[TB_EB_USER].USER_GUID,NAME
