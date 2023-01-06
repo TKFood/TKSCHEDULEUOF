@@ -70,6 +70,7 @@
             this.button17 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
             this.button38 = new System.Windows.Forms.Button();
+            this.button41 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -78,7 +79,7 @@
             this.button14 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button41 = new System.Windows.Forms.Button();
+            this.button42 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -573,6 +574,16 @@
             this.button38.UseVisualStyleBackColor = true;
             this.button38.Click += new System.EventHandler(this.button38_Click);
             // 
+            // button41
+            // 
+            this.button41.Location = new System.Drawing.Point(336, 563);
+            this.button41.Name = "button41";
+            this.button41.Size = new System.Drawing.Size(149, 34);
+            this.button41.TabIndex = 50;
+            this.button41.Text = "客訴1002轉1001";
+            this.button41.UseVisualStyleBackColor = true;
+            this.button41.Click += new System.EventHandler(this.button41_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tableLayoutPanel2);
@@ -600,6 +611,7 @@
             this.tableLayoutPanel2.Controls.Add(this.button40, 1, 2);
             this.tableLayoutPanel2.Controls.Add(this.button22, 1, 8);
             this.tableLayoutPanel2.Controls.Add(this.button14, 1, 7);
+            this.tableLayoutPanel2.Controls.Add(this.button42, 1, 10);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -668,15 +680,15 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button41
+            // button42
             // 
-            this.button41.Location = new System.Drawing.Point(336, 563);
-            this.button41.Name = "button41";
-            this.button41.Size = new System.Drawing.Size(149, 34);
-            this.button41.TabIndex = 50;
-            this.button41.Text = "客訴1002轉1001";
-            this.button41.UseVisualStyleBackColor = true;
-            this.button41.Click += new System.EventHandler(this.button41_Click);
+            this.button42.Location = new System.Drawing.Point(123, 403);
+            this.button42.Name = "button42";
+            this.button42.Size = new System.Drawing.Size(172, 34);
+            this.button42.TabIndex = 35;
+            this.button42.Text = "1003.雜項請購單轉入總務系統";
+            this.button42.UseVisualStyleBackColor = true;
+            this.button42.Click += new System.EventHandler(this.button42_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -750,5 +762,6 @@
         private System.Windows.Forms.Button button22;
         private System.Windows.Forms.Button button40;
         private System.Windows.Forms.Button button41;
+        private System.Windows.Forms.Button button42;
     }
 }
