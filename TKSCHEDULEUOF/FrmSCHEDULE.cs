@@ -19912,6 +19912,19 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //MA010
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MA010");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MA010"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
 
             //建立節點FieldItem
             //DETAILS 
@@ -20152,11 +20165,14 @@ namespace TKSCHEDULEUOF
                                     ,ISNULL(TK004,0) AS TK004,ISNULL(TK006,0) AS TK006
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA005) AS 'MV002'
+                                    ,MA010
 
                                     FROM [TK].dbo.COPTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA005 COLLATE Chinese_Taiwan_Stroke_BIN
                                     INNER JOIN [TK].dbo.COPTB ON TA001=TB001 AND TA002=TB002
                                     LEFT JOIN [TK].dbo.COPTK ON  TK001=TB001 AND TK002=TB002 AND TK003=TB003
+                                    LEFT JOIN [TK].dbo.COPMA ON MA001=TA004
+
                                     WHERE 
                                     TA001='{0}' AND TA002='{1}'
                                     ) AS TEMP
