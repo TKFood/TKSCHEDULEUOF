@@ -22402,14 +22402,7 @@ namespace TKSCHEDULEUOF
 
                         }
                         catch
-                        { }
-                        try
-                        {
-                            GA009 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG005']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
+                        { }                     
                         try
                         {
                             GA011 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG004']").Attributes["fieldValue"].Value;
