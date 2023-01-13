@@ -77,9 +77,10 @@
             this.button40 = new System.Windows.Forms.Button();
             this.button22 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
+            this.button42 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button42 = new System.Windows.Forms.Button();
+            this.button43 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -159,6 +160,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button20, 2, 11);
             this.tableLayoutPanel1.Controls.Add(this.button38, 2, 12);
             this.tableLayoutPanel1.Controls.Add(this.button41, 2, 14);
+            this.tableLayoutPanel1.Controls.Add(this.button43, 5, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -600,8 +602,8 @@
             this.tableLayoutPanel2.BackColor = System.Drawing.Color.LightGreen;
             this.tableLayoutPanel2.ColumnCount = 8;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 178F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
@@ -672,6 +674,16 @@
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
+            // button42
+            // 
+            this.button42.Location = new System.Drawing.Point(123, 403);
+            this.button42.Name = "button42";
+            this.button42.Size = new System.Drawing.Size(194, 34);
+            this.button42.TabIndex = 35;
+            this.button42.Text = "1003.雜項請購單轉入總務系統";
+            this.button42.UseVisualStyleBackColor = true;
+            this.button42.Click += new System.EventHandler(this.button42_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -680,15 +692,15 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button42
+            // button43
             // 
-            this.button42.Location = new System.Drawing.Point(123, 403);
-            this.button42.Name = "button42";
-            this.button42.Size = new System.Drawing.Size(172, 34);
-            this.button42.TabIndex = 35;
-            this.button42.Text = "1003.雜項請購單轉入總務系統";
-            this.button42.UseVisualStyleBackColor = true;
-            this.button42.Click += new System.EventHandler(this.button42_Click);
+            this.button43.Location = new System.Drawing.Point(702, 43);
+            this.button43.Name = "button43";
+            this.button43.Size = new System.Drawing.Size(182, 34);
+            this.button43.TabIndex = 51;
+            this.button43.Text = "1003.雜項請購單轉入";
+            this.button43.UseVisualStyleBackColor = true;
+            this.button43.Click += new System.EventHandler(this.button43_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -763,5 +775,6 @@
         private System.Windows.Forms.Button button40;
         private System.Windows.Forms.Button button41;
         private System.Windows.Forms.Button button42;
+        private System.Windows.Forms.Button button43;
     }
 }
