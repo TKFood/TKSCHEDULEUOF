@@ -22955,6 +22955,386 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_TKGAFFAIRS_BUYITEMREPORTS()
+        {
+            DataTable DTSEARCHUOF_GRAFFAIRS_1005 = SEARCHUOF_GRAFFAIRS_1005();
+
+            if (DTSEARCHUOF_GRAFFAIRS_1005 != null && DTSEARCHUOF_GRAFFAIRS_1005.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DTSEARCHUOF_GRAFFAIRS_1005.Rows)
+                {
+                    string USER_GUID = DR["USER_GUID"].ToString();
+                    string EMAILTO = DR["EMAIL"].ToString();
+
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+
+                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
+                    string GA001 = "";
+                    string GA002 = "";
+                    string GA003 = "";
+                    string GA004 = "";
+                    string GA005 = "";
+                    string GA006 = "";
+                    string GA007 = "";
+                    string GA008 = "";
+                    string GA009 = "";
+                    string GA010 = "";
+                    string GA011 = "";
+                    string GA012 = "";
+                    string GA013 = "";
+                    string GA014 = "";
+                    string GA015 = "";
+                    string GA016 = "";
+                    string GA017 = "";
+                    string GA099 = "";
+                    string GA999 = "";
+
+                    try
+                    {
+                        GA001 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA001']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA002 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA002']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA003']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA004 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA004']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA005 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA005']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA006 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA006']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA007 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA007']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA008 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA008']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA009 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA009']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA011 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA011']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA012 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA012']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA013 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA013']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA014 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA014']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA015 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA015']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA016 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA016']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA017 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA017']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA099 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA099']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA999']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+
+                    ADD_TO_TKGAFFAIRS_BUYITEMREPORTS(
+                                         ID
+                                        , GA001
+                                        , GA002
+                                        , GA003
+                                        , GA004
+                                        , GA005
+                                        , GA006
+                                        , GA007
+                                        , GA008
+                                        , GA009
+                                        , GA010
+                                        , GA011
+                                        , GA012
+                                        , GA013
+                                        , GA014
+                                        , GA015
+                                        , GA016
+                                        , GA017
+                                        , GA099
+                                        , GA999
+                                                    );
+
+                }
+            }
+
+        }
+
+        //找出昨天，已核單完成的採購單-1005.雜項採購單
+        public DataTable SEARCHUOF_GRAFFAIRS_1005()
+        {
+            StringBuilder MESS = new StringBuilder();
+            DataSet DS_FIND_UOF_TASK_APPLICATION_FORM = new DataSet();
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+
+            string END_TIME = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+
+            try
+            {
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@"                                    
+                                   SELECT CURRENT_DOC,* 
+                                   
+                                    FROM [UOF].[dbo].TB_WKF_TASK ,[UOF].[dbo].[TB_EB_USER]
+                                    WHERE TB_WKF_TASK.USER_GUID=[TB_EB_USER].USER_GUID
+                                    AND TASK_RESULT='2' AND TASK_STATUS='2'
+                                    AND CONVERT(NVARCHAR,END_TIME,112)='20230113'
+                                    AND DOC_NBR = 'GA1005230100005'
+                                   
+
+                                   ", END_TIME);
+
+                adapter = new SqlDataAdapter(@"" + sbSql.ToString(), sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                DS_FIND_UOF_TASK_APPLICATION_FORM.Clear();
+                adapter.Fill(DS_FIND_UOF_TASK_APPLICATION_FORM, "DS_FIND_UOF_TASK_APPLICATION_FORM");
+                sqlConn.Close();
+
+
+
+                if (DS_FIND_UOF_TASK_APPLICATION_FORM.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"].Rows.Count > 0)
+                {
+
+                    return DS_FIND_UOF_TASK_APPLICATION_FORM.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+
+        }
+
+        public void ADD_TO_TKGAFFAIRS_BUYITEMREPORTS(
+                                         string ID
+                                        , string GA001
+                                        , string GA002
+                                        , string GA003
+                                        , string GA004
+                                        , string GA005
+                                        , string GA006
+                                        , string GA007
+                                        , string GA008
+                                        , string GA009
+                                        , string GA010
+                                        , string GA011
+                                        , string GA012
+                                        , string GA013
+                                        , string GA014
+                                        , string GA015
+                                        , string GA016
+                                        , string GA017
+                                        , string GA099
+                                        , string GA999
+                                                    )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    INSERT INTO [TKGAFFAIRS].[dbo].[BUYITEMREPORTS]
+                                    (
+                                    [ID]
+                                    ,[GA001]
+                                    ,[GA002]
+                                    ,[GA003]
+                                    ,[GA004]
+                                    ,[GA005]
+                                    ,[GA006]
+                                    ,[GA007]
+                                    ,[GA008]
+                                    ,[GA009]
+                                    ,[GA010]
+                                    ,[GA011]
+                                    ,[GA012]
+                                    ,[GA013]
+                                    ,[GA014]
+                                    ,[GA015]
+                                    ,[GA016]
+                                    ,[GA017]
+                                    ,[GA099]
+                                    ,[GA999]
+                                  
+                                
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    )
+
+                                    ", ID
+                                    , GA001
+                                    , GA002
+                                    , GA003
+                                    , GA004
+                                    , GA005
+                                    , GA006
+                                    , GA007
+                                    , GA008
+                                    , GA009
+                                    , GA010
+                                    , GA011
+                                    , GA012
+                                    , GA013
+                                    , GA014
+                                    , GA015
+                                    , GA016
+                                    , GA017
+                                    , GA099
+                                    , GA999
+
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -23189,6 +23569,11 @@ namespace TKSCHEDULEUOF
             ADD_UOF_FORM_GRAFFIRS_1005();
         }
 
+        private void button44_Click(object sender, EventArgs e)
+        {
+            //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
+            ADD_TKGAFFAIRS_BUYITEMREPORTS();
+        }
 
         #endregion
 
