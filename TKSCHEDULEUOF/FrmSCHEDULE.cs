@@ -146,6 +146,13 @@ namespace TKSCHEDULEUOF
             //改轉入UOF表單 1005.雜項採購單中 
             //NEWBUYITEM();
 
+            //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+            ADD_UOF_FORM_GRAFFIRS_1005();
+
+            //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
+            ADD_TKGAFFAIRS_BUYITEMREPORTS();
+
+
             //品保1002轉到1002
             ADD_TO_UOF_QC1001();
 
@@ -22221,7 +22228,8 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-      
+                //            AND DOC_NBR = 'GA1003230100138'
+
                 sbSql.AppendFormat(@"  
                                     SELECT DOC_NBR
                                     FROM [UOF].[dbo].TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
@@ -22229,9 +22237,9 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_TASK.TASK_STATUS='2' AND TB_WKF_TASK.TASK_RESULT='0'
                                     AND TB_WKF_FORM.FORM_NAME='1003.雜項請購單'
-                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS='1' AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                                     AND DOC_NBR>='GA1003230100138'
-                                    AND DOC_NBR = 'GA1003230100138'
+                        
                                     ORDER BY DOC_NBR
                                     ");
 
@@ -23125,7 +23133,7 @@ namespace TKSCHEDULEUOF
             SqlDataAdapter adapter = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
 
-            string END_TIME = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+            string END_TIME = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
 
             try
             {
@@ -23154,7 +23162,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME='1005.雜項採購單'
                                     AND TASK_RESULT='0' AND TASK_STATUS='2'
-                                    AND CONVERT(NVARCHAR,END_TIME,112)>='{0}'
+                                    AND CONVERT(NVARCHAR,END_TIME,112)='{0}'
                                     AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [ID] FROM [192.168.1.105].[TKGAFFAIRS].[dbo].[BUYITEMREPORTS]) 
 
                                    ", END_TIME);
