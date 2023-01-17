@@ -22230,8 +22230,8 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_TASK.TASK_STATUS='2' AND TB_WKF_TASK.TASK_RESULT='0'
                                     AND TB_WKF_FORM.FORM_NAME='1003.雜項請購單'
                                     AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS='1' AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
-                                    AND DOC_NBR>='GA1003230100109'
-                                    AND DOC_NBR = 'GA1003230100109'
+                                    AND DOC_NBR>='GA1003230100138'
+                                    AND DOC_NBR = 'GA1003230100138'
                                     ORDER BY DOC_NBR
                                     ");
 
@@ -23153,9 +23153,9 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME='1005.雜項採購單'
-                                    AND TASK_RESULT='2' AND TASK_STATUS='2'
-                                    AND CONVERT(NVARCHAR,END_TIME,112)='20230113'
-                                    AND DOC_NBR = 'GA1005230100005'
+                                    AND TASK_RESULT='0' AND TASK_STATUS='2'
+                                    AND CONVERT(NVARCHAR,END_TIME,112)>='{0}'
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [ID] FROM [192.168.1.105].[TKGAFFAIRS].[dbo].[BUYITEMREPORTS]) 
 
                                    ", END_TIME);
 
