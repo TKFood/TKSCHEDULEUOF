@@ -23146,14 +23146,16 @@ namespace TKSCHEDULEUOF
 
 
                 sbSql.AppendFormat(@"                                    
-                                   SELECT CURRENT_DOC,* 
+                                    SELECT CURRENT_DOC,* 
                                    
-                                    FROM [UOF].[dbo].TB_WKF_TASK ,[UOF].[dbo].[TB_EB_USER]
+                                    FROM [UOF].[dbo].TB_WKF_TASK ,[UOF].[dbo].[TB_EB_USER],[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
                                     WHERE TB_WKF_TASK.USER_GUID=[TB_EB_USER].USER_GUID
+                                    AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME='1005.雜項採購單'
                                     AND TASK_RESULT='2' AND TASK_STATUS='2'
                                     AND CONVERT(NVARCHAR,END_TIME,112)='20230113'
                                     AND DOC_NBR = 'GA1005230100005'
-                                   
 
                                    ", END_TIME);
 
