@@ -22997,6 +22997,7 @@ namespace TKSCHEDULEUOF
                     string GA015 = "";
                     string GA016 = "";
                     string GA017 = "";
+                    string GA018 = "";
                     string GA099 = "";
                     string GA999 = "";
 
@@ -23087,6 +23088,11 @@ namespace TKSCHEDULEUOF
                     catch { }
                     try
                     {
+                        GA018 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA018']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
                         GA099 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA099']").Attributes["fieldValue"].Value;
                     }
                     catch { }
@@ -23115,6 +23121,7 @@ namespace TKSCHEDULEUOF
                                         , GA015
                                         , GA016
                                         , GA017
+                                        , GA018
                                         , GA099
                                         , GA999
                                                     );
@@ -23218,6 +23225,7 @@ namespace TKSCHEDULEUOF
                                         , string GA015
                                         , string GA016
                                         , string GA017
+                                        , string GA018
                                         , string GA099
                                         , string GA999
                                                     )
@@ -23265,6 +23273,7 @@ namespace TKSCHEDULEUOF
                                     ,[GA015]
                                     ,[GA016]
                                     ,[GA017]
+                                    ,[GA018]
                                     ,[GA099]
                                     ,[GA999]
                                   
@@ -23292,6 +23301,8 @@ namespace TKSCHEDULEUOF
                                     ,'{17}'
                                     ,'{18}'
                                     ,'{19}'
+                                    ,'{20}'
+
                                     )
 
                                     ", ID
@@ -23312,6 +23323,7 @@ namespace TKSCHEDULEUOF
                                     , GA015
                                     , GA016
                                     , GA017
+                                    , GA018
                                     , GA099
                                     , GA999
 
