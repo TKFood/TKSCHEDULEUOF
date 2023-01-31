@@ -12828,6 +12828,39 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	BOMTBUDF03
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "BOMTBUDF03");
+                Cell.SetAttribute("fieldValue", od["BOMTBUDF03"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	BOMTBUDF04
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "BOMTBUDF04");
+                Cell.SetAttribute("fieldValue", od["BOMTBUDF04"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	BOMTBUDF05
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "BOMTBUDF05");
+                Cell.SetAttribute("fieldValue", od["BOMTBUDF05"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
 
 
 
@@ -12939,6 +12972,7 @@ namespace TKSCHEDULEUOF
                                     ,MV002
                                     ,MC004 AS 'OLDMC004'
                                     ,MD006 AS 'OLDMD006'
+                                    ,BOMTBUDF03,BOMTBUDF04,BOMTBUDF05
 
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
@@ -12950,19 +12984,22 @@ namespace TKSCHEDULEUOF
                                     ,TB003,TB004,TB010,MB1.MB002 TB004MB002,MB1.MB003 TB004MB003,BOMTB.UDF06 BOMTBUDF06 
                                     ,TC004,TC005,TC008,TC009,TC010,MB2.MB002 TC005MB002,MB2.MB002 TC005MB003
                                     ,TB008
+                                    ,BOMTB.UDF03 AS 'BOMTBUDF03' ,BOMTB.UDF04 AS 'BOMTBUDF04' ,BOMTB.UDF05 AS 'BOMTBUDF05' 
+
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
 
                                     FROM [TK].dbo.BOMTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     ,[TK].dbo.BOMTB
+                                    LEFT JOIN [TK].dbo.BOMTC ON TC001=BOMTB.TB001 AND TC002=BOMTB.TB002 AND TC003=BOMTB.TB003
 
                                     LEFT JOIN [TK].dbo.INVMB MB1 ON TB004=MB1.MB001
-                                    ,[TK].dbo.BOMTC
+        
 
                                     LEFT JOIN [TK].dbo.INVMB MB2 ON TC005=MB2.MB001
 
-                                    WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
+                                    WHERE TA001=TB001 AND TA002=TB002 
                                     AND TA001 = '{0}' AND TA002 = '{1}'
                                     ) AS TEMP
                                     LEFT JOIN [TK].dbo.BOMMC ON MC001=TB004
