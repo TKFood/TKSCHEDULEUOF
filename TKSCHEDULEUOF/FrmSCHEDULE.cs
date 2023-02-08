@@ -22966,7 +22966,7 @@ namespace TKSCHEDULEUOF
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
                                     AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
-                                    AND [TB_EB_USER].[USER_GUID]='b6f50a95-17ec-47f2-b842-4ad12512b431'
+                                    AND [TB_EB_USER].[USER_GUID]='{0}'
                               
                                     ", USER_GUID);
 
