@@ -12526,6 +12526,9 @@ namespace TKSCHEDULEUOF
             string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
 
             string TB004 = "";
+            string TB005 = "";
+            string TB006 = "";
+
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
@@ -12707,9 +12710,18 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
 
                 //Row	TB004MB002
+                //如果變更主件重覆，就只顯示在第1筆
+                if (!TB005.Equals(od["TB004MB002"].ToString()))
+                {
+                    TB005 = od["TB004MB002"].ToString();
+                }
+                else
+                {
+                    TB005 = "";
+                }
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB004MB002");
-                Cell.SetAttribute("fieldValue", od["TB004MB002"].ToString());
+                Cell.SetAttribute("fieldValue", TB005);
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -12717,9 +12729,18 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
 
                 //Row	TB004BM003
+                //如果變更主件重覆，就只顯示在第1筆
+                if (!TB006.Equals(od["TB004MB003"].ToString()))
+                {
+                    TB006 = od["TB004MB003"].ToString();
+                }
+                else
+                {
+                    TB006 = "";
+                }
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB004MB003");
-                Cell.SetAttribute("fieldValue", od["TB004MB003"].ToString());
+                Cell.SetAttribute("fieldValue", TB006);
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
