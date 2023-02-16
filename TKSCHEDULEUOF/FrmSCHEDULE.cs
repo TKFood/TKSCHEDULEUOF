@@ -13040,7 +13040,7 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
                
                 sbSql.AppendFormat(@"  
-                                    SELECT 
+                                   SELECT 
                                     TEMP.CREATOR
                                     ,TA001,TA002,TA003,TA005,TA006
                                     ,TB003,TB004,TB010,TB004MB002,TB004MB003,BOMTBUDF06 
@@ -13050,9 +13050,8 @@ namespace TKSCHEDULEUOF
                                     ,TEMP.NAME
                                     ,MV002
                                     ,MC004 AS 'OLDMC004'
-                                    ,MD006 AS 'OLDMD006'
                                     ,BOMTBUDF03,BOMTBUDF04,BOMTBUDF05
-                                    ,OLDMB001,OLDMB002,OLDMB003,OLDMD007,OLDMD008
+                                    ,OLDMB001,OLDMB002,OLDMB003,OLDMD006,OLDMD007,OLDMD008
                                     ,BOMMC.MC010
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
@@ -13068,8 +13067,7 @@ namespace TKSCHEDULEUOF
 
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
-                                    ,MD1.MD003  AS 'OLDMB001',MB3.MB002 AS 'OLDMB002',MB3.MB003 AS 'OLDMB003',MD1.MD007 AS 'OLDMD007',MD1.MD008 AS 'OLDMD008'
-
+                                    ,MD1.MD003  AS 'OLDMB001',MB3.MB002 AS 'OLDMB002',MB3.MB003 AS 'OLDMB003',MD1.MD006 AS 'OLDMD006',MD1.MD007 AS 'OLDMD007',MD1.MD008 AS 'OLDMD008'
                                     FROM [TK].dbo.BOMTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     ,[TK].dbo.BOMTB
@@ -13087,6 +13085,7 @@ namespace TKSCHEDULEUOF
                                     ) AS TEMP
                                     LEFT JOIN [TK].dbo.BOMMC ON MC001=TB004
                                     LEFT JOIN [TK].dbo.BOMMD ON MD001=TB004 AND BOMMD.MD003=TC005
+
                               
                               
                                     ", TA001, TA002);
