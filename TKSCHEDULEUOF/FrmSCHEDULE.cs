@@ -12525,6 +12525,7 @@ namespace TKSCHEDULEUOF
 
             string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
 
+            string TB004 = "";
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
@@ -12668,6 +12669,8 @@ namespace TKSCHEDULEUOF
 
             foreach (DataRow od in DT.Rows)
             {
+                
+
                 // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", (rowscounts).ToString());
@@ -12683,9 +12686,20 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
 
                 //Row	TB004
+                //如果變更主件重覆，就只顯示在第1筆
+                if(!TB004.Equals(od["TB004"].ToString()))
+                {
+                    TB004 = od["TB004"].ToString();
+                }
+                else
+                {
+                    TB004 = "";
+                }
+               
+
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB004");
-                Cell.SetAttribute("fieldValue", od["TB004"].ToString());
+                Cell.SetAttribute("fieldValue", TB004);
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -12861,6 +12875,71 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	MC010
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MC010");
+                Cell.SetAttribute("fieldValue", od["MC010"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMB001
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMB001");
+                Cell.SetAttribute("fieldValue", od["OLDMB001"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMB002
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMB002");
+                Cell.SetAttribute("fieldValue", od["OLDMB002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMB003
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMB003");
+                Cell.SetAttribute("fieldValue", od["OLDMB003"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMD007
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMD007");
+                Cell.SetAttribute("fieldValue", od["OLDMD007"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	OLDMD008
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "OLDMD008");
+                Cell.SetAttribute("fieldValue", od["OLDMD008"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
 
 
 
@@ -12973,7 +13052,7 @@ namespace TKSCHEDULEUOF
                                     ,MC004 AS 'OLDMC004'
                                     ,MD006 AS 'OLDMD006'
                                     ,BOMTBUDF03,BOMTBUDF04,BOMTBUDF05
-                                    ,OLDMB001,OLDMB002,OLDMB003
+                                    ,OLDMB001,OLDMB002,OLDMB003,OLDMD007,OLDMD008
                                     ,BOMMC.MC010
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
@@ -12989,7 +13068,8 @@ namespace TKSCHEDULEUOF
 
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
-                                    ,MD1.MD003  AS 'OLDMB001',MB3.MB002 AS 'OLDMB002',MB3.MB003 AS 'OLDMB003'
+                                    ,MD1.MD003  AS 'OLDMB001',MB3.MB002 AS 'OLDMB002',MB3.MB003 AS 'OLDMB003',MD1.MD007 AS 'OLDMD007',MD1.MD008 AS 'OLDMD008'
+
                                     FROM [TK].dbo.BOMTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     ,[TK].dbo.BOMTB
