@@ -12973,7 +12973,8 @@ namespace TKSCHEDULEUOF
                                     ,MC004 AS 'OLDMC004'
                                     ,MD006 AS 'OLDMD006'
                                     ,BOMTBUDF03,BOMTBUDF04,BOMTBUDF05
-
+                                    ,OLDMB001,OLDMB002,OLDMB003
+                                    ,BOMMC.MC010
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     FROM 
@@ -12988,23 +12989,24 @@ namespace TKSCHEDULEUOF
 
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMTA.CREATOR) AS 'MV002'
-
+                                    ,MD1.MD003  AS 'OLDMB001',MB3.MB002 AS 'OLDMB002',MB3.MB003 AS 'OLDMB003'
                                     FROM [TK].dbo.BOMTA
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= BOMTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     ,[TK].dbo.BOMTB
                                     LEFT JOIN [TK].dbo.BOMTC ON TC001=BOMTB.TB001 AND TC002=BOMTB.TB002 AND TC003=BOMTB.TB003
 
-                                    LEFT JOIN [TK].dbo.INVMB MB1 ON TB004=MB1.MB001
-        
+                                    LEFT JOIN [TK].dbo.INVMB MB1 ON TB004=MB1.MB001        
 
                                     LEFT JOIN [TK].dbo.INVMB MB2 ON TC005=MB2.MB001
+
+                                    LEFT JOIN [TK].dbo.BOMMD MD1 ON MD1.MD001=TB004  AND MD1.MD002=TC004 
+                                    LEFT JOIN [TK].dbo.INVMB MB3 ON MB3.MB001=MD1.MD003
 
                                     WHERE TA001=TB001 AND TA002=TB002 
                                     AND TA001 = '{0}' AND TA002 = '{1}'
                                     ) AS TEMP
                                     LEFT JOIN [TK].dbo.BOMMC ON MC001=TB004
-                                    LEFT JOIN [TK].dbo.BOMMD ON MD001=TB004 AND MD003=TC005
-
+                                    LEFT JOIN [TK].dbo.BOMMD ON MD001=TB004 AND BOMMD.MD003=TC005
                               
                               
                                     ", TA001, TA002);
