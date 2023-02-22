@@ -12525,6 +12525,9 @@ namespace TKSCHEDULEUOF
 
             string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
 
+            string CHECK_TB004 = "";
+            string CHECK_TB005 = "";
+            string CHECK_TB006 = "";
             string TB004 = "";
             string TB005 = "";
             string TB006 = "";
@@ -12690,8 +12693,9 @@ namespace TKSCHEDULEUOF
 
                 //Row	TB004
                 //如果變更主件重覆，就只顯示在第1筆
-                if(!TB004.Equals(od["TB004"].ToString()))
+                if(!CHECK_TB004.Equals(od["TB004"].ToString()))
                 {
+                    CHECK_TB004 = od["TB004"].ToString();
                     TB004 = od["TB004"].ToString();
                 }
                 else
@@ -12711,8 +12715,9 @@ namespace TKSCHEDULEUOF
 
                 //Row	TB004MB002
                 //如果變更主件重覆，就只顯示在第1筆
-                if (!TB005.Equals(od["TB004MB002"].ToString()))
+                if (!CHECK_TB005.Equals(od["TB004MB002"].ToString()))
                 {
+                    CHECK_TB005 = od["TB004MB002"].ToString();
                     TB005 = od["TB004MB002"].ToString();
                 }
                 else
@@ -12730,8 +12735,9 @@ namespace TKSCHEDULEUOF
 
                 //Row	TB004BM003
                 //如果變更主件重覆，就只顯示在第1筆
-                if (!TB006.Equals(od["TB004MB003"].ToString()))
+                if (!CHECK_TB006.Equals(od["TB004MB003"].ToString()))
                 {
+                    CHECK_TB006 = od["TB004MB003"].ToString();
                     TB006 = od["TB004MB003"].ToString();
                 }
                 else
