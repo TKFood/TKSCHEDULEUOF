@@ -24587,17 +24587,17 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	TC006
+                //Row	TC036
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TC006");
-                Cell.SetAttribute("fieldValue", od["TC006"].ToString());
+                Cell.SetAttribute("fieldId", "TC036");
+                Cell.SetAttribute("fieldValue", od["TC036"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	TC0TC01006
+                //Row	TC010
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TC010");
                 Cell.SetAttribute("fieldValue", od["TC010"].ToString());
