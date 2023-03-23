@@ -22373,8 +22373,8 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //            AND DOC_NBR = 'GA1003230100138'
-
+               
+                //AND DOC_NBR = 'GA1003230300113'
                 sbSql.AppendFormat(@"  
                                     SELECT DOC_NBR
                                     FROM [UOF].[dbo].TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
@@ -22382,7 +22382,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_TASK.TASK_STATUS='2' AND TB_WKF_TASK.TASK_RESULT='0'
                                     AND TB_WKF_FORM.FORM_NAME='1003.雜項請購單'
-                                    AND DOC_NBR='GA1003230300113'
+                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                                     AND DOC_NBR>='GA1003230100138'
                         
                                     ORDER BY DOC_NBR
