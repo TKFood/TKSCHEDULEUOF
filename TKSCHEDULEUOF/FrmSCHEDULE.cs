@@ -22382,7 +22382,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_TASK.TASK_STATUS='2' AND TB_WKF_TASK.TASK_RESULT='0'
                                     AND TB_WKF_FORM.FORM_NAME='1003.雜項請購單'
-                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+                                    AND DOC_NBR='GA1003230300113'
                                     AND DOC_NBR>='GA1003230100138'
                         
                                     ORDER BY DOC_NBR
@@ -22494,6 +22494,7 @@ namespace TKSCHEDULEUOF
                     string GA017 = "";
                     string GA099 = "";
                     string GA999 = "";
+                    string GG010 = "";
 
                     XmlNode XNODES = null;
 
@@ -22563,6 +22564,13 @@ namespace TKSCHEDULEUOF
                         }
                         catch
                         { }
+                        try
+                        {
+                            GG010 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG010']").Attributes["fieldValue"].Value;
+
+                        }
+                        catch
+                        { }
 
 
                         ROWS = ROWS + 1;
@@ -22589,6 +22597,7 @@ namespace TKSCHEDULEUOF
                                                         , GA017
                                                         , GA099
                                                         , GA999
+                                                        , GG010
                                                         );
 
 
@@ -22637,10 +22646,13 @@ namespace TKSCHEDULEUOF
             , string GA017
             , string GA099
             , string GA999
+            , string GA019
             )
         {
 
-            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
+            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
 
             string account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
             string groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
@@ -22926,6 +22938,18 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA999");
             FieldItem.SetAttribute("fieldValue", GA999);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+            //GA019	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "GA019");
+            FieldItem.SetAttribute("fieldValue", GA019);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -28701,6 +28725,67 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public DataTable FIND_Z_UOF_SET_FORM_USERS(string FORM_NAME)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    SELECT TOP 1 [USER_GUID] ,[NAMES] ,[FORM_NAME] 
+                                    FROM [UOF].[dbo].[Z_UOF_SET_FORM_USERS]
+                                    WHERE [FORM_NAME] ='{0}'
+                              
+                                    ", FORM_NAME);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
