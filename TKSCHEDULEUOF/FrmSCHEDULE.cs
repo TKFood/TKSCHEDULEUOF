@@ -22492,6 +22492,7 @@ namespace TKSCHEDULEUOF
                     string GA015 = "";
                     string GA016 = "";
                     string GA017 = "";
+                    string GA098 = "";
                     string GA099 = "";
                     string GA999 = "";
                     string GG010 = "";
@@ -22595,6 +22596,7 @@ namespace TKSCHEDULEUOF
                                                         , GA015
                                                         , GA016
                                                         , GA017
+                                                        , GA098
                                                         , GA099
                                                         , GA999
                                                         , GG010
@@ -22644,6 +22646,7 @@ namespace TKSCHEDULEUOF
             , string GA015
             , string GA016
             , string GA017
+            , string GA098
             , string GA099
             , string GA999
             , string GA019
@@ -22914,6 +22917,18 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA017");
             FieldItem.SetAttribute("fieldValue", GA017);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+            //GA098
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "GA098");
+            FieldItem.SetAttribute("fieldValue", GA098);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
