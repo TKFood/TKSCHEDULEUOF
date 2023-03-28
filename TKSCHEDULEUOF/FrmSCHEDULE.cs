@@ -11682,7 +11682,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA0.進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PUR60.進貨單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
@@ -11741,58 +11741,7 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
-            //TG005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG005");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG005"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TG021	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG021");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG021"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TG001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG001"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TG002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG002"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
+         
 
             //DataGrid
             //建立節點FieldItem
@@ -11832,152 +11781,7 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	TH004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH004");
-                Cell.SetAttribute("fieldValue", od["TH004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH005");
-                Cell.SetAttribute("fieldValue", od["TH005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH006");
-                Cell.SetAttribute("fieldValue", od["TH006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH007");
-                Cell.SetAttribute("fieldValue", od["TH007"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH008");
-                Cell.SetAttribute("fieldValue", od["TH008"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH010
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH010");
-                Cell.SetAttribute("fieldValue", od["TH010"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TH015
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH015");
-                Cell.SetAttribute("fieldValue", od["TH015"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	CHECK
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "CHECK");
-                Cell.SetAttribute("fieldValue", "Y");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "@null");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	DETAIL01
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL01");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	DETAIL02
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL02");
-                Cell.SetAttribute("fieldValue", "V");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "@null");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
-                ////Row	DETAIL03
-                //Cell = xmlDoc.CreateElement("Cell");
-                //Cell.SetAttribute("fieldId", "DETAIL03");
-                //Cell.SetAttribute("fieldValue", "N");
-                //Cell.SetAttribute("realValue", "");
-                //Cell.SetAttribute("customValue", "@null");
-                //Cell.SetAttribute("enableSearch", "True");
-                //Cell.SetAttribute("fieldMessage", "Y");
-                ////Row
-                //Row.AppendChild(Cell);
-
-                //Row	DETAIL04
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL04");
-                Cell.SetAttribute("fieldValue", "N");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "@null");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	DETAIL05
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL05");
-                Cell.SetAttribute("fieldValue", "0");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	DETAIL06
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL06");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
+               
 
 
 
