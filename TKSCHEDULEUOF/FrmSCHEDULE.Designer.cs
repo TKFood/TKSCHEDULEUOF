@@ -72,6 +72,7 @@
             this.button20 = new System.Windows.Forms.Button();
             this.button38 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
+            this.button45 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -82,7 +83,7 @@
             this.button44 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button45 = new System.Windows.Forms.Button();
+            this.button46 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -164,6 +165,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button38, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.button18, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.button45, 2, 5);
+            this.tableLayoutPanel1.Controls.Add(this.button46, 2, 6);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -602,6 +604,17 @@
             this.button18.UseVisualStyleBackColor = true;
             this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
+            // button45
+            // 
+            this.button45.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button45.Location = new System.Drawing.Point(346, 203);
+            this.button45.Name = "button45";
+            this.button45.Size = new System.Drawing.Size(165, 34);
+            this.button45.TabIndex = 52;
+            this.button45.Text = "ERP PUR70.退貨單>轉入UOF簽核";
+            this.button45.UseVisualStyleBackColor = true;
+            this.button45.Click += new System.EventHandler(this.button45_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tableLayoutPanel2);
@@ -719,16 +732,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button45
+            // button46
             // 
-            this.button45.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button45.Location = new System.Drawing.Point(346, 203);
-            this.button45.Name = "button45";
-            this.button45.Size = new System.Drawing.Size(165, 34);
-            this.button45.TabIndex = 52;
-            this.button45.Text = "ERP PUR70.退貨單>轉入UOF簽核";
-            this.button45.UseVisualStyleBackColor = true;
-            this.button45.Click += new System.EventHandler(this.button45_Click);
+            this.button46.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button46.Location = new System.Drawing.Point(346, 243);
+            this.button46.Name = "button46";
+            this.button46.Size = new System.Drawing.Size(165, 34);
+            this.button46.TabIndex = 53;
+            this.button46.Text = "ERP COP30.銷貨單>轉入UOF簽核";
+            this.button46.UseVisualStyleBackColor = true;
+            this.button46.Click += new System.EventHandler(this.button46_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -806,5 +819,6 @@
         private System.Windows.Forms.Button button43;
         private System.Windows.Forms.Button button44;
         private System.Windows.Forms.Button button45;
+        private System.Windows.Forms.Button button46;
     }
 }
