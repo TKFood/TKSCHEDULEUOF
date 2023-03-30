@@ -21425,7 +21425,7 @@ namespace TKSCHEDULEUOF
                     }                                       
                 }
 
-                ADD_TO_TBUOFQC1002HCECK(DT_UOF_QC1002);
+                //ADD_TO_TBUOFQC1002HCECK(DT_UOF_QC1002);
 
 
             }
@@ -21479,7 +21479,9 @@ namespace TKSCHEDULEUOF
                                     WHERE [TB_WKF_FORM_VERSION].FORM_ID=[TB_WKF_FORM].FORM_ID
                                     AND [FORM_NAME] IN ('1002.客訴異常處理單')
                                     )
-                                    AND DOC_NBR  COLLATE  Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  DOC_NBR FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1002HCECK]) 
+                                    AND DOC_NBR  COLLATE  Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM [UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+                                    AND DOC_NBR>='QC1002230100001'
+                              
                                     ORDER BY BEGIN_TIME
                               
                                     ");
