@@ -153,7 +153,7 @@ namespace TKSCHEDULEUOF
             ADD_TKGAFFAIRS_BUYITEMREPORTS();
 
 
-            //品保1002轉到1002
+            //品保1002轉到1001
             ADD_TO_UOF_QC1001();
 
             //MOCI02.製令單 
