@@ -33852,6 +33852,597 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEWTBUOFQC1001()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+            //THISYEARS = "21";
+            string THISYEARSDAYS = DateTime.Now.ToString("yyyy") + "0101";
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                //核準過TASK_RESULT='0'
+                //AND DOC_NBR  LIKE 'QC1002{0}%'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT DOC_NBR,*
+                                    FROM [UOF].dbo.TB_WKF_TASK
+                                    WHERE 1=1
+                                    AND TASK_STATUS='2'
+                                    AND TASK_RESULT='0'
+                                    AND DOC_NBR  LIKE 'QC1001%'
+                                    AND DOC_NBR >='QC1001230300009'
+                                    AND CONVERT(NVARCHAR,BEGIN_TIME,112)>='{0}'
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [QCFrm001SN] FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1001])
+                                                                    
+
+                                    ORDER BY BEGIN_TIME
+                                    ", THISYEARSDAYS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        SEARCHUOFTB_WKF_TASKQC1001(dr["DOC_NBR"].ToString());
+                    }
+                }
+                else
+                {
+                   
+                }
+
+            }
+            catch
+            {
+               
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
+        //從xmlDoc找出各節點的Attributes
+        public void SEARCHUOFTB_WKF_TASKQC1001(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT * 
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    WHERE DOC_NBR LIKE '{0}%'
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    string QCFrm001SN = "";
+                    string QCFrm001ASN = "";
+                    string QCFrm001Date = "";
+                    string QCFrm001User = "";
+                    string QCFrm001Dept = "";
+                    string QCFrm001Rank = "";
+                    string QCFrm001CUST = "";
+                    string QCFrm001PNO = "";
+                    string QCFrm001CN = "";
+                    string QCFrm001PRD = "";
+                    string QCFrm001RDate = "";
+                    string QCFrm001MD = "";
+                    string QCFrm001ND = "";
+                    string QCFrm002Cmf = "";
+                    string QCFrm002Abn = "";
+                    string QCFrm002Abns = "";
+                    string QCFrm001Range = "";
+                    string QCFrm001HB = "";
+                    string QCFrm001RCA = "";
+                    string QCFrm001RCAU = "";                    
+                    string QCFrm001Cmf = "";
+                    string QCFrm001Comp = "";
+                    string QCFrm001Cmf1 = "";
+
+                    string QCFrm001PA = "";
+                    string QCFrm001QA = "";
+                    string QCFrm001PA2 = "";
+                    string QCFrm001QA2 = "";
+                    string QCFrm001PA3 = "";
+                    string QCFrm001QA3 = "";
+
+
+                    XmlDocument xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    try
+                    {
+                        QCFrm001SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001SN']").Attributes["fieldValue"].Value;
+                    }
+                    catch {}
+                    try
+                    {
+                        QCFrm001ASN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001ASN']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Date']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001User = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001User']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Dept = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Dept']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Rank = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Rank']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001CUST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001CUST']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001PNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001PNO']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001CN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001CN']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001PRD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001PRD']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001RDate = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001RDate']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001MD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001MD']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001ND = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001ND']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm002Abn = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abn']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Range = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Range']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001HB = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001HB']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001RCA = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001RCA']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001RCAU = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001RCAU']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Cmf']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Comp = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Comp']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        QCFrm001Cmf1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001Cmf1']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+
+
+
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001PA']/DataGrid/Row/Cell[@fieldId='PA10001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001PA = fieldValue3;
+                    }
+                    catch { }
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001QA']/DataGrid/Row/Cell[@fieldId='QA10001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001QA = fieldValue3;
+                    }
+                    catch { }
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001PA2']/DataGrid/Row/Cell[@fieldId='PA20001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001PA2 = fieldValue3;
+                    }
+                    catch { }
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001QA2']/DataGrid/Row/Cell[@fieldId='QA20001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001QA2 = fieldValue3;
+                    }
+                    catch { }
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001PA3']/DataGrid/Row/Cell[@fieldId='PA30001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001PA3 = fieldValue3;
+                    }
+                    catch { }
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001QA3']/DataGrid/Row/Cell[@fieldId='QA30001']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        QCFrm001QA3 = fieldValue3;
+                    }
+                    catch { }
+                    //string OK = "";
+                    ADDTOTKQCTBUOFQC1001(
+                                         QCFrm001SN,
+                                         QCFrm001ASN,
+                                         QCFrm001Date,
+                                         QCFrm001User,
+                                         QCFrm001Dept,
+                                         QCFrm001Rank,
+                                         QCFrm001CUST,
+                                         QCFrm001PNO,
+                                         QCFrm001CN,
+                                         QCFrm001PRD,
+                                         QCFrm001RDate,
+                                         QCFrm001MD,
+                                         QCFrm001ND,
+                                         QCFrm002Cmf,
+                                         QCFrm002Abn,
+                                         QCFrm002Abns,
+                                         QCFrm001Range,
+                                         QCFrm001HB,
+                                         QCFrm001RCA,
+                                         QCFrm001RCAU,
+                                         QCFrm001Cmf,
+                                         QCFrm001Comp,
+                                         QCFrm001Cmf1,
+                                         QCFrm001PA,
+                                         QCFrm001QA,
+                                         QCFrm001PA2,
+                                         QCFrm001QA2,
+                                         QCFrm001PA3,
+                                         QCFrm001QA3
+                                           );
+
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
+        public void ADDTOTKQCTBUOFQC1001(
+                                        string QCFrm001SN,
+                                        string QCFrm001ASN,
+                                        string QCFrm001Date,
+                                        string QCFrm001User,
+                                        string QCFrm001Dept,
+                                        string QCFrm001Rank,
+                                        string QCFrm001CUST,
+                                        string QCFrm001PNO,
+                                        string QCFrm001CN,
+                                        string QCFrm001PRD,
+                                        string QCFrm001RDate,
+                                        string QCFrm001MD,
+                                        string QCFrm001ND,
+                                        string QCFrm002Cmf,
+                                        string QCFrm002Abn,
+                                        string QCFrm002Abns,
+                                        string QCFrm001Range,
+                                        string QCFrm001HB,
+                                        string QCFrm001RCA,
+                                        string QCFrm001RCAU,
+                                        string QCFrm001Cmf,
+                                        string QCFrm001Comp,
+                                        string QCFrm001Cmf1,
+                                        string QCFrm001PA,
+                                        string QCFrm001QA,
+                                        string QCFrm001PA2,
+                                        string QCFrm001QA2,
+                                        string QCFrm001PA3,
+                                        string QCFrm001QA3
+
+
+                                           )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                   INSERT INTO [TKQC].[dbo].[TBUOFQC1001]
+                                    (
+                                    [QCFrm001SN]
+                                    ,[QCFrm001ASN]
+                                    ,[QCFrm001Date]
+                                    ,[QCFrm001User]
+                                    ,[QCFrm001Dept]
+                                    ,[QCFrm001Rank]
+                                    ,[QCFrm001CUST]
+                                    ,[QCFrm001PNO]
+                                    ,[QCFrm001CN]
+                                    ,[QCFrm001PRD]
+                                    ,[QCFrm001RDate]
+                                    ,[QCFrm001MD]
+                                    ,[QCFrm001ND]
+                                    ,[QCFrm002Cmf]
+                                    ,[QCFrm002Abn]
+                                    ,[QCFrm002Abns]
+                                    ,[QCFrm001Range]
+                                    ,[QCFrm001HB]
+                                    ,[QCFrm001RCA]
+                                    ,[QCFrm001RCAU]
+                                    ,[QCFrm001PA]
+                                    ,[QCFrm001QA]
+                                    ,[QCFrm001PA2]
+                                    ,[QCFrm001QA2]
+                                    ,[QCFrm001PA3]
+                                    ,[QCFrm001QA3]
+                                    ,[QCFrm001Cmf]
+                                    ,[QCFrm001Comp]
+                                    ,[QCFrm001Cmf1]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    ,'{21}'
+                                    ,'{22}'
+                                    ,'{23}'
+                                    ,'{24}'
+                                    ,'{25}'
+                                    ,'{26}'
+                                    ,'{27}'
+                                    ,'{28}'
+                                    )
+                                    ",QCFrm001SN
+                                    ,QCFrm001ASN
+                                    ,QCFrm001Date
+                                    ,QCFrm001User
+                                    ,QCFrm001Dept
+                                    ,QCFrm001Rank
+                                    ,QCFrm001CUST
+                                    ,QCFrm001PNO
+                                    ,QCFrm001CN
+                                    ,QCFrm001PRD
+                                    ,QCFrm001RDate
+                                    ,QCFrm001MD
+                                    ,QCFrm001ND
+                                    ,QCFrm002Cmf
+                                    ,QCFrm002Abn
+                                    ,QCFrm002Abns
+                                    ,QCFrm001Range
+                                    ,QCFrm001HB
+                                    ,QCFrm001RCA
+                                    ,QCFrm001RCAU
+                                    ,QCFrm001PA
+                                    ,QCFrm001QA
+                                    ,QCFrm001PA2
+                                    ,QCFrm001QA2
+                                    ,QCFrm001PA3
+                                    ,QCFrm001QA3
+                                    ,QCFrm001Cmf
+                                    ,QCFrm001Comp
+                                    ,QCFrm001Cmf1);
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
@@ -34114,6 +34705,10 @@ namespace TKSCHEDULEUOF
         private void button49_Click(object sender, EventArgs e)
         {
             NEW_INVTAINVTB_TRANS();
+        }
+        private void button50_Click(object sender, EventArgs e)
+        {
+            NEWTBUOFQC1001();
         }
 
         #endregion
