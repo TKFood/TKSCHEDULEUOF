@@ -81,13 +81,14 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
             this.button40 = new System.Windows.Forms.Button();
-            this.button22 = new System.Windows.Forms.Button();
-            this.button14 = new System.Windows.Forms.Button();
             this.button42 = new System.Windows.Forms.Button();
             this.button44 = new System.Windows.Forms.Button();
+            this.button22 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
+            this.button50 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button50 = new System.Windows.Forms.Button();
+            this.button51 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -172,7 +173,8 @@
             this.tableLayoutPanel1.Controls.Add(this.button46, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.button47, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.button48, 1, 12);
-            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 13);
+            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 14);
+            this.tableLayoutPanel1.Controls.Add(this.button51, 1, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -658,7 +660,7 @@
             // button49
             // 
             this.button49.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button49.Location = new System.Drawing.Point(155, 523);
+            this.button49.Location = new System.Drawing.Point(155, 563);
             this.button49.Name = "button49";
             this.button49.Size = new System.Drawing.Size(185, 34);
             this.button49.TabIndex = 56;
@@ -739,26 +741,6 @@
             this.button40.UseVisualStyleBackColor = true;
             this.button40.Click += new System.EventHandler(this.button40_Click);
             // 
-            // button22
-            // 
-            this.button22.Location = new System.Drawing.Point(123, 363);
-            this.button22.Name = "button22";
-            this.button22.Size = new System.Drawing.Size(172, 34);
-            this.button22.TabIndex = 33;
-            this.button22.Text = "UOF PURA0.進貨-原物料品質驗收單轉入DB";
-            this.button22.UseVisualStyleBackColor = true;
-            this.button22.Click += new System.EventHandler(this.button22_Click);
-            // 
-            // button14
-            // 
-            this.button14.Location = new System.Drawing.Point(123, 163);
-            this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(194, 34);
-            this.button14.TabIndex = 25;
-            this.button14.Text = "轉入1002.客訴異常處理單";
-            this.button14.UseVisualStyleBackColor = true;
-            this.button14.Click += new System.EventHandler(this.button14_Click);
-            // 
             // button42
             // 
             this.button42.Location = new System.Drawing.Point(123, 403);
@@ -779,13 +761,25 @@
             this.button44.UseVisualStyleBackColor = true;
             this.button44.Click += new System.EventHandler(this.button44_Click);
             // 
-            // timer1
+            // button22
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.button22.Location = new System.Drawing.Point(123, 363);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(172, 34);
+            this.button22.TabIndex = 33;
+            this.button22.Text = "UOF PURA0.進貨-原物料品質驗收單轉入DB";
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.button22_Click);
             // 
-            // timer2
+            // button14
             // 
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            this.button14.Location = new System.Drawing.Point(123, 163);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(194, 34);
+            this.button14.TabIndex = 25;
+            this.button14.Text = "轉入1002.客訴異常處理單";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // button50
             // 
@@ -796,6 +790,25 @@
             this.button50.Text = "轉入1001.客訴品質異常處理單";
             this.button50.UseVisualStyleBackColor = true;
             this.button50.Click += new System.EventHandler(this.button50_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // button51
+            // 
+            this.button51.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button51.Location = new System.Drawing.Point(155, 523);
+            this.button51.Name = "button51";
+            this.button51.Size = new System.Drawing.Size(185, 34);
+            this.button51.TabIndex = 57;
+            this.button51.Text = "ERP-INVI07成本開帳調整單";
+            this.button51.UseVisualStyleBackColor = true;
+            this.button51.Click += new System.EventHandler(this.button51_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -878,5 +891,6 @@
         private System.Windows.Forms.Button button48;
         private System.Windows.Forms.Button button49;
         private System.Windows.Forms.Button button50;
+        private System.Windows.Forms.Button button51;
     }
 }
