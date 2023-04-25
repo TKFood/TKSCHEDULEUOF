@@ -35161,6 +35161,878 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEW_MOCTH_MOCTI()
+        {
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //TL006='N' AND (UDF01 IN ('Y','y') ) 
+                sbSql.AppendFormat(@" 
+                                    SELECT TH001,TH002,UDF01
+                                    FROM [test0923].dbo.MOCTH
+                                    WHERE TH023='N'                                  
+                                    AND UDF01 IN ('Y','y')
+                                    ORDER BY TH001,TH002
+
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADD_MOCTH_MOCTI_TB_WKF_EXTERNAL_TASK(dr["TH001"].ToString().Trim(), dr["TH002"].ToString().Trim());
+                    }
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+            UPDATE_MOCTH_UDF01();
+        }
+        public void ADD_MOCTH_MOCTI_TB_WKF_EXTERNAL_TASK(string TH001, string TH002)
+        {
+
+            DataTable DT = SEARCH_MOCTH_MOCTI(TH001, TH002);
+            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
+
+            string account = DT.Rows[0]["CREATOR"].ToString();
+            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+            string fillerName = DT.Rows[0]["MV002"].ToString();
+            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+
+            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["TH001"].ToString().Trim() + DT.Rows[0]["TH002"].ToString().Trim();
+
+            int rowscounts = 0;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            //建立根節點
+            XmlElement Form = xmlDoc.CreateElement("Form");
+
+            //正式的id
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("MOCI06.託外進貨單");
+
+            if (!string.IsNullOrEmpty(PURTGID))
+            {
+                Form.SetAttribute("formVersionId", PURTGID);
+            }
+
+
+            Form.SetAttribute("urgentLevel", "2");
+            //加入節點底下
+            xmlDoc.AppendChild(Form);
+
+            ////建立節點Applicant
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            //加入節點底下
+            Form.AppendChild(Applicant);
+
+            //建立節點 Comment
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            //加入至節點底下
+            Applicant.AppendChild(Comment);
+
+            //建立節點 FormFieldValue
+            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            //加入至節點底下
+            Form.AppendChild(FormFieldValue);
+
+            //建立節點FieldItem
+            //ID 表單編號	
+            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "ID");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+
+            //建立節點FieldItem
+            //TH001	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH001");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH001"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+            //建立節點FieldItem
+            //TH002	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH003	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH003"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH005	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH005");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH005"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH010	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH010");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH010"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH011	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH011");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH011"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH012	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH012");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH012"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH013	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH013");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH013"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH014	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH014");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH014"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH031	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH031");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH031"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //TH032	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TH032");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH032"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+
+
+
+            //DataGrid
+            //建立節點FieldItem
+            //MOCTI
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MOCTI");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點 DataGrid
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+            //DataGrid 加入至 TB 節點底下
+            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='MOCTI']");
+            PURTD.AppendChild(DataGrid);
+
+
+            foreach (DataRow od in DT.Rows)
+            {
+                // 新增 Row
+                XmlElement Row = xmlDoc.CreateElement("Row");
+                Row.SetAttribute("order", (rowscounts).ToString());
+
+                //Row	TI003
+                XmlElement Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI003");
+                Cell.SetAttribute("fieldValue", od["TI003"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	TI004
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI004");
+                Cell.SetAttribute("fieldValue", od["TI004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI005
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI005");
+                Cell.SetAttribute("fieldValue", od["TI005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI006
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI006");
+                Cell.SetAttribute("fieldValue", od["TI006"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI007
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI007");
+                Cell.SetAttribute("fieldValue", od["TI007"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI008
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI008");
+                Cell.SetAttribute("fieldValue", od["TI008"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI009
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI009");
+                Cell.SetAttribute("fieldValue", od["TI009"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI010
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI010");
+                Cell.SetAttribute("fieldValue", od["TI010"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI011
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI011");
+                Cell.SetAttribute("fieldValue", od["TI011"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI013
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI013");
+                Cell.SetAttribute("fieldValue", od["TI013"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI014
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI014");
+                Cell.SetAttribute("fieldValue", od["TI014"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI046
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI046");
+                Cell.SetAttribute("fieldValue", od["TI046"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+                //Row	TI047
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TI047");
+                Cell.SetAttribute("fieldValue", od["TI047"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+                //Row
+
+
+
+
+                rowscounts = rowscounts + 1;
+
+                //DataGrid PURTM
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='MOCTI']/DataGrid");
+                DataGridS.AppendChild(Row);
+
+            }
+
+
+            ////用ADDTACK，直接啟動起單
+            //ADDTACK(Form);
+
+            //ADD TO DB
+            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
+
+            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+            //sqlConn = new SqlConnection(connectionString);
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            connectionString = sqlConn.ConnectionString.ToString();
+
+            StringBuilder queryString = new StringBuilder();
+
+
+
+
+            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
+                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(),@XML,2,'{1}')
+                                        ", DBNAME, EXTERNAL_FORM_NBR);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable SEARCH_MOCTH_MOCTI(string TH001, string TH002)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    
+                                    SELECT *
+                                    ,USER_GUID,NAME
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    FROM 
+                                    (
+                                    SELECT 
+
+                                    [MOCTH].[COMPANY]
+                                    ,[MOCTH].[CREATOR]
+                                    ,[MOCTH].[USR_GROUP]
+                                    ,[MOCTH].[CREATE_DATE]
+                                    ,[MOCTH].[MODIFIER]
+                                    ,[MOCTH].[MODI_DATE]
+                                    ,[MOCTH].[FLAG]
+                                    ,[MOCTH].[CREATE_TIME]
+                                    ,[MOCTH].[MODI_TIME]
+                                    ,[MOCTH].[TRANS_TYPE]
+                                    ,[MOCTH].[TRANS_NAME]
+                                    ,[MOCTH].[sync_date]
+                                    ,[MOCTH].[sync_time]
+                                    ,[MOCTH].[sync_mark]
+                                    ,[MOCTH].[sync_count]
+                                    ,[MOCTH].[DataUser]
+                                    ,[MOCTH].[DataGroup]
+                                    ,[MOCTH].[TH001]
+                                    ,[MOCTH].[TH002]
+                                    ,[MOCTH].[TH003]
+                                    ,[MOCTH].[TH004]
+                                    ,[MOCTH].[TH005]
+                                    ,[MOCTH].[TH006]
+                                    ,[MOCTH].[TH007]
+                                    ,[MOCTH].[TH008]
+                                    ,[MOCTH].[TH009]
+                                    ,[MOCTH].[TH010]
+                                    ,[MOCTH].[TH011]
+                                    ,[MOCTH].[TH012]
+                                    ,[MOCTH].[TH013]
+                                    ,[MOCTH].[TH014]
+                                    ,[MOCTH].[TH015]
+                                    ,[MOCTH].[TH016]
+                                    ,[MOCTH].[TH017]
+                                    ,[MOCTH].[TH018]
+                                    ,[MOCTH].[TH019]
+                                    ,[MOCTH].[TH020]
+                                    ,[MOCTH].[TH021]
+                                    ,[MOCTH].[TH022]
+                                    ,[MOCTH].[TH023]
+                                    ,[MOCTH].[TH024]
+                                    ,[MOCTH].[TH025]
+                                    ,[MOCTH].[TH026]
+                                    ,[MOCTH].[TH027]
+                                    ,[MOCTH].[TH028]
+                                    ,[MOCTH].[TH029]
+                                    ,[MOCTH].[TH030]
+                                    ,[MOCTH].[TH031]
+                                    ,[MOCTH].[TH032]
+                                    ,[MOCTH].[TH033]
+                                    ,[MOCTH].[TH034]
+                                    ,[MOCTH].[TH035]
+                                    ,[MOCTH].[TH036]
+                                    ,[MOCTH].[TH037]
+                                    ,[MOCTH].[TH038]
+                                    ,[MOCTH].[TH039]
+                                    ,[MOCTH].[TH040]
+                                    ,[MOCTH].[TH041]
+                                    ,[MOCTH].[TH042]
+                                    ,[MOCTH].[TH043]
+                                    ,[MOCTH].[TH044]
+                                    ,[MOCTH].[TH045]
+                                    ,[MOCTH].[TH046]
+                                    ,[MOCTH].[TH047]
+                                    ,[MOCTH].[TH048]
+                                    ,[MOCTH].[TH049]
+                                    ,[MOCTH].[TH050]
+                                    ,[MOCTH].[TH051]
+                                    ,[MOCTH].[TH052]
+                                    ,[MOCTH].[TH053]
+                                    ,[MOCTH].[TH054]
+                                    ,[MOCTH].[TH500]
+                                    ,[MOCTH].[TH501]
+                                    ,[MOCTH].[TH502]
+                                    ,[MOCTH].[TH503]
+                                    ,[MOCTH].[TH504]
+                                    ,[MOCTH].[TH505]
+                                    ,[MOCTH].[TH506]
+                                    ,[MOCTH].[UDF01] AS 'MOCTHUDF01'
+                                    ,[MOCTH].[UDF02] AS 'MOCTHUDF02'
+                                    ,[MOCTH].[UDF03] AS 'MOCTHUDF03'
+                                    ,[MOCTH].[UDF04] AS 'MOCTHUDF04'
+                                    ,[MOCTH].[UDF05] AS 'MOCTHUDF05'
+                                    ,[MOCTH].[UDF06] AS 'MOCTHUDF06'
+                                    ,[MOCTH].[UDF07] AS 'MOCTHUDF07'
+                                    ,[MOCTH].[UDF08] AS 'MOCTHUDF08'
+                                    ,[MOCTH].[UDF09] AS 'MOCTHUDF09'
+                                    ,[MOCTH].[UDF10] AS 'MOCTHUDF10'
+                                    ,[MOCTI].[TI001]
+                                    ,[MOCTI].[TI002]
+                                    ,[MOCTI].[TI003]
+                                    ,[MOCTI].[TI004]
+                                    ,[MOCTI].[TI005]
+                                    ,[MOCTI].[TI006]
+                                    ,[MOCTI].[TI007]
+                                    ,[MOCTI].[TI008]
+                                    ,[MOCTI].[TI009]
+                                    ,[MOCTI].[TI010]
+                                    ,[MOCTI].[TI011]
+                                    ,[MOCTI].[TI012]
+                                    ,[MOCTI].[TI013]
+                                    ,[MOCTI].[TI014]
+                                    ,[MOCTI].[TI015]
+                                    ,[MOCTI].[TI016]
+                                    ,[MOCTI].[TI017]
+                                    ,[MOCTI].[TI018]
+                                    ,[MOCTI].[TI019]
+                                    ,[MOCTI].[TI020]
+                                    ,[MOCTI].[TI021]
+                                    ,[MOCTI].[TI022]
+                                    ,[MOCTI].[TI023]
+                                    ,[MOCTI].[TI024]
+                                    ,[MOCTI].[TI025]
+                                    ,[MOCTI].[TI026]
+                                    ,[MOCTI].[TI027]
+                                    ,[MOCTI].[TI028]
+                                    ,[MOCTI].[TI029]
+                                    ,[MOCTI].[TI030]
+                                    ,[MOCTI].[TI031]
+                                    ,[MOCTI].[TI032]
+                                    ,[MOCTI].[TI033]
+                                    ,[MOCTI].[TI034]
+                                    ,[MOCTI].[TI035]
+                                    ,[MOCTI].[TI036]
+                                    ,[MOCTI].[TI037]
+                                    ,[MOCTI].[TI038]
+                                    ,[MOCTI].[TI039]
+                                    ,[MOCTI].[TI040]
+                                    ,[MOCTI].[TI041]
+                                    ,[MOCTI].[TI042]
+                                    ,[MOCTI].[TI043]
+                                    ,[MOCTI].[TI044]
+                                    ,[MOCTI].[TI045]
+                                    ,[MOCTI].[TI046]
+                                    ,[MOCTI].[TI047]
+                                    ,[MOCTI].[TI048]
+                                    ,[MOCTI].[TI049]
+                                    ,[MOCTI].[TI050]
+                                    ,[MOCTI].[TI051]
+                                    ,[MOCTI].[TI052]
+                                    ,[MOCTI].[TI053]
+                                    ,[MOCTI].[TI054]
+                                    ,[MOCTI].[TI055]
+                                    ,[MOCTI].[TI056]
+                                    ,[MOCTI].[TI057]
+                                    ,[MOCTI].[TI058]
+                                    ,[MOCTI].[TI059]
+                                    ,[MOCTI].[TI060]
+                                    ,[MOCTI].[TI061]
+                                    ,[MOCTI].[TI062]
+                                    ,[MOCTI].[TI063]
+                                    ,[MOCTI].[TI064]
+                                    ,[MOCTI].[TI065]
+                                    ,[MOCTI].[TI066]
+                                    ,[MOCTI].[TI067]
+                                    ,[MOCTI].[TI068]
+                                    ,[MOCTI].[TI069]
+                                    ,[MOCTI].[TI070]
+                                    ,[MOCTI].[TI071]
+                                    ,[MOCTI].[TI072]
+                                    ,[MOCTI].[TI073]
+                                    ,[MOCTI].[TI074]
+                                    ,[MOCTI].[TI075]
+                                    ,[MOCTI].[TI500]
+                                    ,[MOCTI].[TI501]
+                                    ,[MOCTI].[TI502]
+                                    ,[MOCTI].[TI503]
+                                    ,[MOCTI].[TI504]
+                                    ,[MOCTI].[TI505]
+                                    ,[MOCTI].[TI506]
+                                    ,[MOCTI].[TI507]
+                                    ,[MOCTI].[TI550]
+                                    ,[MOCTI].[TI551]
+                                    ,[MOCTI].[TI552]
+                                    ,[MOCTI].[TI553]
+                                    ,[MOCTI].[TI554]
+                                    ,[MOCTI].[TI555]
+                                    ,[MOCTI].[TI556]
+                                    ,[MOCTI].[TI557]
+                                    ,[MOCTI].[TI558]
+                                    ,[MOCTI].[TI559]
+                                    ,[MOCTI].[TI560]
+                                    ,[MOCTI].[TI561]
+                                    ,[MOCTI].[TI562]
+                                    ,[MOCTI].[TI563]
+                                    ,[MOCTI].[TI564]
+                                    ,[MOCTI].[TI565]
+                                    ,[MOCTI].[TI567]
+                                    ,[MOCTI].[TI568]
+                                    ,[MOCTI].[TI569]
+                                    ,[MOCTI].[TI570]
+                                    ,[MOCTI].[TI571]
+                                    ,[MOCTI].[TI572]
+                                    ,[MOCTI].[TI573]
+                                    ,[MOCTI].[TI574]
+                                    ,[MOCTI].[TI575]
+                                    ,[MOCTI].[TI576]
+                                    ,[MOCTI].[UDF01] AS 'MOCTIUDF01'
+                                    ,[MOCTI].[UDF02] AS 'MOCTIUDF02'
+                                    ,[MOCTI].[UDF03] AS 'MOCTIUDF03'
+                                    ,[MOCTI].[UDF04] AS 'MOCTIUDF04'
+                                    ,[MOCTI].[UDF05] AS 'MOCTIUDF05'
+                                    ,[MOCTI].[UDF06] AS 'MOCTIUDF06'
+                                    ,[MOCTI].[UDF07] AS 'MOCTIUDF07'
+                                    ,[MOCTI].[UDF08] AS 'MOCTIUDF08'
+                                    ,[MOCTI].[UDF09] AS 'MOCTIUDF09'
+                                    ,[MOCTI].[UDF10] AS 'MOCTIUDF10'                                  
+
+
+                                    ,[TB_EB_USER].USER_GUID,NAME
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTH.CREATOR) AS 'MV002'
+
+                                    FROM [test0923].dbo.MOCTI,[test0923].dbo.MOCTH
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTH.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE 1=1
+                                    AND TH001=TI001 AND TH002=TI002
+                                    AND TH001='{0}' AND TH002='{1}'
+                                    ) AS TEMP
+                                    
+                              
+                                    ", TH001, TH002);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_MOCTH_UDF01()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE  [test0923].dbo.MOCTH
+                                    SET UDF01 = 'UOF'                                   
+                                    WHERE  UDF01 IN ('Y','y')
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -35433,6 +36305,10 @@ namespace TKSCHEDULEUOF
             NEW_INVTJINVTK();
         }
 
+        private void button52_Click(object sender, EventArgs e)
+        {
+            NEW_MOCTH_MOCTI();
+        }
         #endregion
 
 
