@@ -79,6 +79,7 @@
             this.button49 = new System.Windows.Forms.Button();
             this.button51 = new System.Windows.Forms.Button();
             this.button52 = new System.Windows.Forms.Button();
+            this.button53 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -90,7 +91,7 @@
             this.button50 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button53 = new System.Windows.Forms.Button();
+            this.button54 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -179,6 +180,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button51, 1, 13);
             this.tableLayoutPanel1.Controls.Add(this.button52, 2, 6);
             this.tableLayoutPanel1.Controls.Add(this.button53, 2, 7);
+            this.tableLayoutPanel1.Controls.Add(this.button54, 2, 8);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -694,6 +696,17 @@
             this.button52.UseVisualStyleBackColor = true;
             this.button52.Click += new System.EventHandler(this.button52_Click);
             // 
+            // button53
+            // 
+            this.button53.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button53.Location = new System.Drawing.Point(346, 283);
+            this.button53.Name = "button53";
+            this.button53.Size = new System.Drawing.Size(165, 34);
+            this.button53.TabIndex = 59;
+            this.button53.Text = "ERP MMOCI07.託外退貨單>轉入UOF簽核";
+            this.button53.UseVisualStyleBackColor = true;
+            this.button53.Click += new System.EventHandler(this.button53_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tableLayoutPanel2);
@@ -825,16 +838,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button53
+            // button54
             // 
-            this.button53.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button53.Location = new System.Drawing.Point(346, 283);
-            this.button53.Name = "button53";
-            this.button53.Size = new System.Drawing.Size(165, 34);
-            this.button53.TabIndex = 59;
-            this.button53.Text = "ERP MMOCI07.託外退貨單>轉入UOF簽核";
-            this.button53.UseVisualStyleBackColor = true;
-            this.button53.Click += new System.EventHandler(this.button53_Click);
+            this.button54.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button54.Location = new System.Drawing.Point(346, 323);
+            this.button54.Name = "button54";
+            this.button54.Size = new System.Drawing.Size(165, 34);
+            this.button54.TabIndex = 60;
+            this.button54.Text = "ERP MOCI05.生產入庫單>轉入UOF簽核";
+            this.button54.UseVisualStyleBackColor = true;
+            this.button54.Click += new System.EventHandler(this.button54_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -920,5 +933,6 @@
         private System.Windows.Forms.Button button51;
         private System.Windows.Forms.Button button52;
         private System.Windows.Forms.Button button53;
+        private System.Windows.Forms.Button button54;
     }
 }
