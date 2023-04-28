@@ -142,71 +142,173 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //轉入13.研發類表單:1002.設計需求內容清單
+            try
+            {
+                NEW_TKRESEARCH_TK_UOF_RESEARCH_1002();
+            }
+            catch { }
+
             //暫停不轉入總務的外掛
             //改轉入UOF表單 1005.雜項採購單中 
             //NEWBUYITEM();
 
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
-            ADD_UOF_FORM_GRAFFIRS_1005();
+            try
+            {
+                ADD_UOF_FORM_GRAFFIRS_1005();
+            }
+            catch { }
+            
 
             //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
-            ADD_TKGAFFAIRS_BUYITEMREPORTS();
+            try
+            {
+                ADD_TKGAFFAIRS_BUYITEMREPORTS();
+            }
+            catch { }
+           
 
 
             //品保1002轉到1001
-            ADD_TO_UOF_QC1001();
+            try
+            {
+                ADD_TO_UOF_QC1001();
+            }
+            catch { }
+            
 
             //MOCI02.製令單 
-            ADDUOFMOCTAMOCTB();
+            try
+            {
+                ADDUOFMOCTAMOCTB();
+            }
+            catch { }
+           
 
             //ASTI02.資產資料建立作業
+            try
+            {
+
+            }
+            catch { }
             ADDUOFASTMBASTMC();
 
             //ERP報價單
-            ADDCOPMACOPMBCOPMC();
+            try
+            {
+                ADDCOPMACOPMBCOPMC();
+            }
+            catch { }
+           
 
             //ERP請購單
-            ADDTOUOFOURTAB();
-            ADDTOUOFOURTAB();
-            ADDTOUOFOURTAB();
+            try
+            {
+                ADDTOUOFOURTAB();
+                ADDTOUOFOURTAB();
+                ADDTOUOFOURTAB();
+            }
+            catch { }
+           
 
             //門市督導單
-            ADDTKMKdboTBSTORESCHECK();
+            try
+            {
+                ADDTKMKdboTBSTORESCHECK();
+
+            }
+            catch { }
+           
 
 
             //心得訓練單
-            CHECKADDTOUOFFORMEDUCATION();
+            try
+            {
+                CHECKADDTOUOFFORMEDUCATION();
+            }
+            catch { }
+            
 
             //出差報告單 
-            CHECKADDTOUOFFORBUSINESSTRIPS();
+            try
+            {
+                CHECKADDTOUOFFORBUSINESSTRIPS();
+            }
+            catch { }
+            
 
             //1002.客訴異常處理單
-            NEWTBUOFQC1002();
+            try
+            {
+                NEWTBUOFQC1002();
+            }
+            catch { }
+            
 
             //採購單
-            NEWPURTCPURTD();
+            try
+            {
+                NEWPURTCPURTD();
+            }
+            catch { }
+           
 
             //採購變更單
-            NEWPURTEPURTF();
+            try
+            {
+                NEWPURTEPURTF();
+            }
+            catch { }
+           
 
             //採購核價單
-            NEWPURTLPURTMPURTN();
+            try
+            {
+                NEWPURTLPURTMPURTN();
+            }
+            catch { }
+           
 
             //轉入品保檢驗
-            ADDTKQCQCPURTH();
+            try
+            {
+                ADDTKQCQCPURTH();
+            }
+            catch { }
+           
 
             //轉品保UOF驗收表單
-            NEWPURTGPURTH();
+            try
+            {
+                NEWPURTGPURTH();
+            }
+            catch { }
+            
 
             //轉BOM表變更單
-            NEWBOMTABOMTBBOMTC();
+            try
+            {
+                NEWBOMTABOMTBBOMTC();
+            }
+            catch { }
+           
 
             //轉入品保的進貨檢驗單
-            ADDTKQCUOFQCPURTGPURTH();
+            try
+            {
+                ADDTKQCUOFQCPURTGPURTH();
+            }
+            catch { }
+          
 
             //A11A客供入料單同進貨單跑進貨驗收流程
-            ADDUOFQCINVTAINVTB();
-
+            try
+            {
+                ADDUOFQCINVTAINVTB();
+            }
+            catch { }
+          
 
             //ADDCOPTCCOPTD();
             //ADDCOPTECOPTF();
