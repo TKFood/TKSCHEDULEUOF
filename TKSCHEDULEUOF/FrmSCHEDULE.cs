@@ -142,6 +142,14 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //轉入10.行企類表單 1002.產品設計申請
+            try
+            {
+                NEW_TKRESEARCH_TK_UOF_DESIGN_1002();
+            }
+            catch { }
+
+           
             //轉入13.研發類表單:1002.設計需求內容清單
             try
             {
@@ -38285,10 +38293,12 @@ namespace TKSCHEDULEUOF
 
                         string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00009']").Attributes["fieldValue"].Value;
 
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"&#xD;", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"&#xA;", "");
+                        string fieldValue4 = Regex.Replace(fieldValue3, @"<p>", "");
+                        string fieldValue5 = Regex.Replace(fieldValue4, @"</p>", "");
 
-                        FIELDS11 = fieldValue3;
+                        FIELDS11 = fieldValue5;
                     }
                     catch { }
                     //string OK = "";
