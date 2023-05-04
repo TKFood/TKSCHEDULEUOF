@@ -90,9 +90,10 @@
             this.button22 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.button50 = new System.Windows.Forms.Button();
+            this.button55 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button55 = new System.Windows.Forms.Button();
+            this.button56 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -750,6 +751,7 @@
             this.tableLayoutPanel2.Controls.Add(this.button14, 1, 4);
             this.tableLayoutPanel2.Controls.Add(this.button50, 1, 5);
             this.tableLayoutPanel2.Controls.Add(this.button55, 3, 1);
+            this.tableLayoutPanel2.Controls.Add(this.button56, 3, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -843,14 +845,6 @@
             this.button50.UseVisualStyleBackColor = true;
             this.button50.Click += new System.EventHandler(this.button50_Click);
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // timer2
-            // 
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
             // button55
             // 
             this.button55.Location = new System.Drawing.Point(363, 43);
@@ -860,6 +854,24 @@
             this.button55.Text = "轉入13.研發類表單:1002.設計需求內容清單";
             this.button55.UseVisualStyleBackColor = true;
             this.button55.Click += new System.EventHandler(this.button55_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // button56
+            // 
+            this.button56.Location = new System.Drawing.Point(363, 83);
+            this.button56.Name = "button56";
+            this.button56.Size = new System.Drawing.Size(192, 34);
+            this.button56.TabIndex = 39;
+            this.button56.Text = "轉入10.行企類表單-1002.產品設計申請";
+            this.button56.UseVisualStyleBackColor = true;
+            this.button56.Click += new System.EventHandler(this.button56_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -947,5 +959,6 @@
         private System.Windows.Forms.Button button53;
         private System.Windows.Forms.Button button54;
         private System.Windows.Forms.Button button55;
+        private System.Windows.Forms.Button button56;
     }
 }

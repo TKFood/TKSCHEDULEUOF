@@ -38065,6 +38065,384 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        public void NEW_TKRESEARCH_TK_UOF_DESIGN_1002()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
+            //THISYEARS = "21";
+            string THISYEARSDAYS = DateTime.Now.ToString("yyyy") + "0101";
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                //核準過TASK_RESULT='0'
+                //AND DOC_NBR  LIKE 'QC1002{0}%'
+                // 1002.產品設計申請有申請就轉入，不要等核完表單
+                sbSql.AppendFormat(@"  
+                                        SELECT TB_WKF_FORM.FORM_NAME,DOC_NBR,*
+                                        FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                        WHERE 1=1
+                                        AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                        AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
+                                        AND TB_WKF_FORM.FORM_NAME IN ('1002.產品設計申請')
+                                        AND TB_WKF_TASK.TASK_STATUS='1'
+                                        AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [FIELDS1] FROM [192.168.1.105].[TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002])
+                                       
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        SEARCH_UOF_TK_UOF_DESIGN_1002(dr["DOC_NBR"].ToString());
+                    }
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
+        //從xmlDoc找出各節點的Attributes
+        public void SEARCH_UOF_TK_UOF_DESIGN_1002(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT * 
+                                    FROM [UOF].DBO.TB_WKF_TASK 
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    WHERE DOC_NBR LIKE '{0}%'
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    string FIELDS1 = "";
+                    string FIELDS2 = "";
+                    string FIELDS3 = "";
+                    string FIELDS4 = "";
+                    string FIELDS5 = "";
+                    string FIELDS6 = "";
+                    string FIELDS7 = "";
+                    string FIELDS8 = "";
+                    string FIELDS9 = "";
+                    string FIELDS10 = "";
+                    string FIELDS11 = "";
+                    string FIELDS12 = "";
+                    string FIELDS13 = "";
+
+
+                    XmlDocument xmlDoc = new XmlDocument();
+
+                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+
+
+                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                    try
+                    {
+                        FIELDS1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00001']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00000']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS3 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00005']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS4 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00012']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS5 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00002']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS6 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00003']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS7 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00004']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS8 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00011']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS9 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00013']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS10 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00010']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS12 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00014']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+                    try
+                    {
+                        FIELDS13 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00015']").Attributes["fieldValue"].Value;
+                    }
+                    catch { }
+
+
+                    try
+                    {
+                        //把html語法去除 
+                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
+
+                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00009']").Attributes["fieldValue"].Value;
+
+                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
+                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
+
+                        FIELDS11 = fieldValue3;
+                    }
+                    catch { }
+                    //string OK = "";
+                    ADD_TK_UOF_DESIGN_1002(
+                                              FIELDS1
+                                            ,  FIELDS2
+                                            ,  FIELDS3
+                                            ,  FIELDS4
+                                            ,  FIELDS5
+                                            ,  FIELDS6
+                                            ,  FIELDS7
+                                            ,  FIELDS8
+                                            ,  FIELDS9
+                                            ,  FIELDS10
+                                            ,  FIELDS11
+                                            ,  FIELDS12
+                                            ,  FIELDS13
+
+                                           );
+
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
+        public void ADD_TK_UOF_DESIGN_1002(
+                                            string FIELDS1
+                                            , string FIELDS2
+                                            , string FIELDS3
+                                            , string FIELDS4
+                                            , string FIELDS5
+                                            , string FIELDS6
+                                            , string FIELDS7
+                                            , string FIELDS8
+                                            , string FIELDS9
+                                            , string FIELDS10
+                                            , string FIELDS11
+                                            , string FIELDS12
+                                            , string FIELDS13
+
+                                            )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                   
+                                    
+                                    INSERT INTO [TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002]
+                                    (
+                                    [FIELDS1]
+                                    ,[FIELDS2]
+                                    ,[FIELDS3]
+                                    ,[FIELDS4]
+                                    ,[FIELDS5]
+                                    ,[FIELDS6]
+                                    ,[FIELDS7]
+                                    ,[FIELDS8]
+                                    ,[FIELDS9]
+                                    ,[FIELDS10]
+                                    ,[FIELDS11]
+                                    ,[FIELDS12]
+                                    ,[FIELDS13]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    )
+                                    ", FIELDS1
+                                    , FIELDS2
+                                    , FIELDS3
+                                    , FIELDS4
+                                    , FIELDS5
+                                    , FIELDS6
+                                    , FIELDS7
+                                    , FIELDS8
+                                    , FIELDS9
+                                    , FIELDS10
+                                    , FIELDS11
+                                    , FIELDS12
+                                    , FIELDS13 );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -38353,6 +38731,10 @@ namespace TKSCHEDULEUOF
         private void button55_Click(object sender, EventArgs e)
         {
             NEW_TKRESEARCH_TK_UOF_RESEARCH_1002();
+        }
+        private void button56_Click(object sender, EventArgs e)
+        {
+            NEW_TKRESEARCH_TK_UOF_DESIGN_1002();
         }
 
         #endregion
