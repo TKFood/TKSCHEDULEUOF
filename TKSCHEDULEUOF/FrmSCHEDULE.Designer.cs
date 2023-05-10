@@ -91,9 +91,10 @@
             this.button14 = new System.Windows.Forms.Button();
             this.button50 = new System.Windows.Forms.Button();
             this.button55 = new System.Windows.Forms.Button();
+            this.button56 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button56 = new System.Windows.Forms.Button();
+            this.button57 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -183,6 +184,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button52, 2, 6);
             this.tableLayoutPanel1.Controls.Add(this.button53, 2, 7);
             this.tableLayoutPanel1.Controls.Add(this.button54, 2, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button57, 2, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -855,14 +857,6 @@
             this.button55.UseVisualStyleBackColor = true;
             this.button55.Click += new System.EventHandler(this.button55_Click);
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // timer2
-            // 
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
             // button56
             // 
             this.button56.Location = new System.Drawing.Point(363, 83);
@@ -872,6 +866,25 @@
             this.button56.Text = "轉入10.行企類表單-1002.產品設計申請";
             this.button56.UseVisualStyleBackColor = true;
             this.button56.Click += new System.EventHandler(this.button56_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // button57
+            // 
+            this.button57.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button57.Location = new System.Drawing.Point(346, 363);
+            this.button57.Name = "button57";
+            this.button57.Size = new System.Drawing.Size(165, 34);
+            this.button57.TabIndex = 61;
+            this.button57.Text = "ERP MOCI03.領料單>轉入UOF簽核";
+            this.button57.UseVisualStyleBackColor = true;
+            this.button57.Click += new System.EventHandler(this.button57_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -960,5 +973,6 @@
         private System.Windows.Forms.Button button54;
         private System.Windows.Forms.Button button55;
         private System.Windows.Forms.Button button56;
+        private System.Windows.Forms.Button button57;
     }
 }
