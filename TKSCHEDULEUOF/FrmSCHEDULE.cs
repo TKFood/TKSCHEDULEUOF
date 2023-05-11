@@ -39310,10 +39310,10 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MC002	
+            //MB004	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC002"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB004"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -39455,6 +39455,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
 
                 //Row	MD016
                 Cell = xmlDoc.CreateElement("Cell");
@@ -39464,7 +39465,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 Row.AppendChild(Cell);
-                Row.AppendChild(Cell);
+                
 
 
                 rowscounts = rowscounts + 1;
@@ -39674,9 +39675,11 @@ namespace TKSCHEDULEUOF
                                     ,[BOMMD].[UDF10] AS 'BOMMDUDF10'                                  
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMMC.CREATOR) AS 'MV002'
+                                    ,INVMB1.MB004
 
                                     FROM [TK].dbo.BOMMD,[TK].dbo.BOMMC
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=BOMMC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [TK].dbo.INVMB INVMB1 ON INVMB1.MB001=MC001
                                     WHERE 1=1
                                     AND MC001=MD001
                                     AND MC001='{0}'
@@ -39741,7 +39744,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.BOMMC
+                                    UPDATE  [TK].dbo.BOMMC
                                     SET UDF01 = 'UOF簽核中'                                   
                                     WHERE  UDF01 IN ('Y','y')
 
