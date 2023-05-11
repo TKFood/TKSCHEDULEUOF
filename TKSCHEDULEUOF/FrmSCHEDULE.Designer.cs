@@ -95,6 +95,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.button57 = new System.Windows.Forms.Button();
+            this.button58 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -179,12 +180,13 @@
             this.tableLayoutPanel1.Controls.Add(this.button46, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.button47, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.button48, 1, 12);
-            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 14);
-            this.tableLayoutPanel1.Controls.Add(this.button51, 1, 13);
             this.tableLayoutPanel1.Controls.Add(this.button52, 2, 6);
             this.tableLayoutPanel1.Controls.Add(this.button53, 2, 7);
             this.tableLayoutPanel1.Controls.Add(this.button54, 2, 8);
             this.tableLayoutPanel1.Controls.Add(this.button57, 2, 9);
+            this.tableLayoutPanel1.Controls.Add(this.button51, 3, 4);
+            this.tableLayoutPanel1.Controls.Add(this.button58, 3, 5);
+            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -670,7 +672,7 @@
             // button49
             // 
             this.button49.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button49.Location = new System.Drawing.Point(155, 563);
+            this.button49.Location = new System.Drawing.Point(155, 523);
             this.button49.Name = "button49";
             this.button49.Size = new System.Drawing.Size(185, 34);
             this.button49.TabIndex = 56;
@@ -681,11 +683,11 @@
             // button51
             // 
             this.button51.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button51.Location = new System.Drawing.Point(155, 523);
+            this.button51.Location = new System.Drawing.Point(517, 163);
             this.button51.Name = "button51";
-            this.button51.Size = new System.Drawing.Size(185, 34);
+            this.button51.Size = new System.Drawing.Size(155, 34);
             this.button51.TabIndex = 57;
-            this.button51.Text = "ERP-INVI07成本開帳調整單";
+            this.button51.Text = "ERP MOC單>轉入UOF簽核";
             this.button51.UseVisualStyleBackColor = true;
             this.button51.Click += new System.EventHandler(this.button51_Click);
             // 
@@ -886,6 +888,17 @@
             this.button57.UseVisualStyleBackColor = true;
             this.button57.Click += new System.EventHandler(this.button57_Click);
             // 
+            // button58
+            // 
+            this.button58.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button58.Location = new System.Drawing.Point(517, 203);
+            this.button58.Name = "button58";
+            this.button58.Size = new System.Drawing.Size(155, 34);
+            this.button58.TabIndex = 62;
+            this.button58.Text = "ERP-BOM表>轉入UOF簽核";
+            this.button58.UseVisualStyleBackColor = true;
+            this.button58.Click += new System.EventHandler(this.button58_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -974,5 +987,6 @@
         private System.Windows.Forms.Button button55;
         private System.Windows.Forms.Button button56;
         private System.Windows.Forms.Button button57;
+        private System.Windows.Forms.Button button58;
     }
 }
