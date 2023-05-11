@@ -39310,9 +39310,9 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MB004	
+            //MC002	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB004");
+            FieldItem.SetAttribute("fieldId", "MC002");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB004"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
