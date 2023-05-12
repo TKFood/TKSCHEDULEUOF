@@ -39786,6 +39786,625 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEW_BOMMJ_BOMMK()
+        {
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //TL006='N' AND (UDF01 IN ('Y','y') ) 
+                sbSql.AppendFormat(@" 
+                                    SELECT MJ001,UDF01
+                                    FROM [TK].dbo.BOMMJ
+                                    WHERE UDF01 IN ('Y','y')
+                                    ORDER BY MJ001
+
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADD_BOMMJ_BOMMK_TB_WKF_EXTERNAL_TASK(dr["MJ001"].ToString().Trim());
+                    }
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+            UPDATE_BOMMC_UDF01();
+        }
+        public void ADD_BOMMJ_BOMMK_TB_WKF_EXTERNAL_TASK(string MJ001)
+        {
+
+            DataTable DT = SEARCH_BOMMJ_BOMMK(MJ001);
+            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
+
+            string account = DT.Rows[0]["CREATOR"].ToString();
+            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+            string fillerName = DT.Rows[0]["MV002"].ToString();
+            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+
+            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["MJ001"].ToString().Trim();
+
+            int rowscounts = 0;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            //建立根節點
+            XmlElement Form = xmlDoc.CreateElement("Form");
+
+            //正式的id
+            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("BOM11.EBOM表");
+
+            if (!string.IsNullOrEmpty(FORM_ID))
+            {
+                Form.SetAttribute("formVersionId", FORM_ID);
+            }
+
+
+            Form.SetAttribute("urgentLevel", "2");
+            //加入節點底下
+            xmlDoc.AppendChild(Form);
+
+            ////建立節點Applicant
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            //加入節點底下
+            Form.AppendChild(Applicant);
+
+            //建立節點 Comment
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            //加入至節點底下
+            Applicant.AppendChild(Comment);
+
+            //建立節點 FormFieldValue
+            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            //加入至節點底下
+            Form.AppendChild(FormFieldValue);
+
+            //建立節點FieldItem
+            //ID 表單編號	
+            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "ID");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+
+            //建立節點FieldItem
+            //MJ001	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MJ001");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MJ001"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MMB002	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MMB002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MMB003	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MMB003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB003"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MMB004	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MMB004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB004"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MJ004	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MJ004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MJ004"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+
+
+
+            //DataGrid
+            //建立節點FieldItem
+            //BOMMK
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "BOMMK");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點 DataGrid
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+            //DataGrid 加入至 TB 節點底下
+            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='BOMMK']");
+            PURTD.AppendChild(DataGrid);
+
+
+            foreach (DataRow od in DT.Rows)
+            {
+                // 新增 Row
+                XmlElement Row = xmlDoc.CreateElement("Row");
+                Row.SetAttribute("order", (rowscounts).ToString());
+
+                //Row	MK002
+                XmlElement Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MK002");
+                Cell.SetAttribute("fieldValue", od["MK002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	MK003
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MK003");
+                Cell.SetAttribute("fieldValue", od["MK003"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	DMB002
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DMB002");
+                Cell.SetAttribute("fieldValue", od["DMB002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	DMB003
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DMB003");
+                Cell.SetAttribute("fieldValue", od["DMB003"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	DMB004
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DMB004");
+                Cell.SetAttribute("fieldValue", od["DMB004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	MK006
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MK006");
+                Cell.SetAttribute("fieldValue", od["MK006"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	MK007
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MK007");
+                Cell.SetAttribute("fieldValue", od["MK007"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+                //Row	MK008
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "MK008");
+                Cell.SetAttribute("fieldValue", od["MK008"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Row.AppendChild(Cell);
+
+
+                rowscounts = rowscounts + 1;
+
+                //DataGrid PURTM
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='BOMMK']/DataGrid");
+                DataGridS.AppendChild(Row);
+
+            }
+
+
+            ////用ADDTACK，直接啟動起單
+            //ADDTACK(Form);
+
+            //ADD TO DB
+            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
+
+            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+            //sqlConn = new SqlConnection(connectionString);
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            connectionString = sqlConn.ConnectionString.ToString();
+
+            StringBuilder queryString = new StringBuilder();
+
+
+
+
+            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
+                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(),@XML,2,'{1}')
+                                        ", DBNAME, EXTERNAL_FORM_NBR);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable SEARCH_BOMMJ_BOMMK(string MJ001)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    ,USER_GUID,NAME
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    FROM 
+                                    (
+                                    SELECT 
+                                    [BOMMJ].[COMPANY]
+                                    ,[BOMMJ].[CREATOR]
+                                    ,[BOMMJ].[USR_GROUP]
+                                    ,[BOMMJ].[CREATE_DATE]
+                                    ,[BOMMJ].[MODIFIER]
+                                    ,[BOMMJ].[MODI_DATE]
+                                    ,[BOMMJ].[FLAG]
+                                    ,[BOMMJ].[CREATE_TIME]
+                                    ,[BOMMJ].[MODI_TIME]
+                                    ,[BOMMJ].[TRANS_TYPE]
+                                    ,[BOMMJ].[TRANS_NAME]
+                                    ,[BOMMJ].[sync_date]
+                                    ,[BOMMJ].[sync_time]
+                                    ,[BOMMJ].[sync_mark]
+                                    ,[BOMMJ].[sync_count]
+                                    ,[BOMMJ].[DataUser]
+                                    ,[BOMMJ].[DataGroup]
+                                    ,[BOMMJ].[MJ001]
+                                    ,[BOMMJ].[MJ004]
+                                    ,[BOMMJ].[MJ005]
+                                    ,[BOMMJ].[MJ006]
+                                    ,[BOMMJ].[MJ007]
+                                    ,[BOMMJ].[MJ008]
+                                    ,[BOMMJ].[MJ009]
+                                    ,[BOMMJ].[MJ010]
+                                    ,[BOMMJ].[MJ011]
+                                    ,[BOMMJ].[MJ012]
+                                    ,[BOMMJ].[MJ013]
+                                    ,[BOMMJ].[MJ014]
+                                    ,[BOMMJ].[MJ015]
+                                    ,[BOMMJ].[MJ016]
+                                    ,[BOMMJ].[MJ017]
+                                    ,[BOMMJ].[MJ018]
+                                    ,[BOMMJ].[MJ019]
+                                    ,[BOMMJ].[MJ020]
+                                    ,[BOMMJ].[MJ021]
+                                    ,[BOMMJ].[MJ022]
+                                    ,[BOMMJ].[UDF01] AS 'BOMMJUDF01'
+                                    ,[BOMMJ].[UDF02] AS 'BOMMJUDF02'
+                                    ,[BOMMJ].[UDF03] AS 'BOMMJUDF03'
+                                    ,[BOMMJ].[UDF04] AS 'BOMMJUDF04'
+                                    ,[BOMMJ].[UDF05] AS 'BOMMJUDF05'
+                                    ,[BOMMJ].[UDF06] AS 'BOMMJUDF06'
+                                    ,[BOMMJ].[UDF07] AS 'BOMMJUDF07'
+                                    ,[BOMMJ].[UDF08] AS 'BOMMJUDF08'
+                                    ,[BOMMJ].[UDF09] AS 'BOMMJUDF09'
+                                    ,[BOMMJ].[UDF10] AS 'BOMMJUDF10'
+                                    ,[BOMMK].[MK001]
+                                    ,[BOMMK].[MK002]
+                                    ,[BOMMK].[MK003]
+                                    ,[BOMMK].[MK006]
+                                    ,[BOMMK].[MK007]
+                                    ,[BOMMK].[MK008]
+                                    ,[BOMMK].[MK009]
+                                    ,[BOMMK].[MK010]
+                                    ,[BOMMK].[MK011]
+                                    ,[BOMMK].[MK012]
+                                    ,[BOMMK].[MK013]
+                                    ,[BOMMK].[MK014]
+                                    ,[BOMMK].[MK015]
+                                    ,[BOMMK].[MK016]
+                                    ,[BOMMK].[MK017]
+                                    ,[BOMMK].[MK018]
+                                    ,[BOMMK].[MK019]
+                                    ,[BOMMK].[MK020]
+                                    ,[BOMMK].[MK021]
+                                    ,[BOMMK].[MK022]
+                                    ,[BOMMK].[MK023]
+                                    ,[BOMMK].[MK024]
+                                    ,[BOMMK].[MK025]
+                                    ,[BOMMK].[MK026]
+                                    ,[BOMMK].[MK027]
+                                    ,[BOMMK].[MK028]
+                                    ,[BOMMK].[MK029]
+                                    ,[BOMMK].[MK030]
+                                    ,[BOMMK].[MK031]
+                                    ,[BOMMK].[MK032]
+                                    ,[BOMMK].[MK033]
+                                    ,[BOMMK].[MK034]
+                                    ,[BOMMK].[MK035]
+                                    ,[BOMMK].[MK036]
+                                    ,[BOMMK].[MK037]
+                                    ,[BOMMK].[MK038]
+                                    ,[BOMMK].[UDF01] AS 'BOMMKUDF01'
+                                    ,[BOMMK].[UDF02] AS 'BOMMKUDF02'
+                                    ,[BOMMK].[UDF03] AS 'BOMMKUDF03'
+                                    ,[BOMMK].[UDF04] AS 'BOMMKUDF04'
+                                    ,[BOMMK].[UDF05] AS 'BOMMKUDF05'
+                                    ,[BOMMK].[UDF06] AS 'BOMMKUDF06'
+                                    ,[BOMMK].[UDF07] AS 'BOMMKUDF07'
+                                    ,[BOMMK].[UDF08] AS 'BOMMKUDF08'
+                                    ,[BOMMK].[UDF09] AS 'BOMMKUDF09'
+                                    ,[BOMMK].[UDF10] AS 'BOMMKUDF10'                                  
+                                    ,[TB_EB_USER].USER_GUID,NAME
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMMJ.CREATOR) AS 'MV002'
+                                    ,INVMB1.MB002 MMB002
+                                    ,INVMB1.MB003 MMB003
+                                    ,INVMB1.MB004 MMB004
+                                    ,INVMB2.MB002 DMB002
+                                    ,INVMB2.MB003 DMB003
+                                    ,INVMB2.MB004 DMB004
+                                    FROM [TK].dbo.BOMMK
+                                    LEFT JOIN [TK].dbo.INVMB INVMB2 ON INVMB2.MB001=MK003
+                                    ,[TK].dbo.BOMMJ
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=BOMMJ.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [TK].dbo.INVMB INVMB1 ON INVMB1.MB001=MJ001
+
+                                    WHERE 1=1
+                                    AND MJ001=MK001
+                                    AND MJ001='{0}'
+                                    ) AS TEMP
+                                 
+                              
+                                    ", MJ001);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_BOMMJ_UDF01()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE  [TK].dbo.BOMMJ
+                                    SET UDF01 = 'UOF簽核中'                                   
+                                    WHERE  UDF01 IN ('Y','y')
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         #endregion
 
@@ -40089,6 +40708,11 @@ namespace TKSCHEDULEUOF
         {
             NEW_BOMMC_BOMMD();
         }
+        private void button59_Click(object sender, EventArgs e)
+        {
+            NEW_BOMMJ_BOMMK();
+        }
+
         #endregion
 
 
