@@ -142,6 +142,22 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+
+            //轉入ERP的品到EBOM中
+            try
+            {
+                NEW_BOMMI();
+            }
+            catch { }
+
+            //轉入EBOM中
+            try
+            {
+                NEW_BOMMJ_BOMMK();
+            }
+            catch { }
+
+           
             //轉入BOM表
             try
             {
@@ -40405,6 +40421,111 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEW_BOMMI()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    
+                                    INSERT INTO [TK].[dbo].[BOMMI]
+                                    ([COMPANY]
+                                    ,[CREATOR]
+                                    ,[USR_GROUP]
+                                    ,[CREATE_DATE]
+                                    ,[MODIFIER]
+                                    ,[MODI_DATE]
+                                    ,[FLAG]
+                                    ,[CREATE_TIME]
+                                    ,[MODI_TIME]
+                                    ,[TRANS_TYPE]
+                                    ,[TRANS_NAME]
+                                    ,[sync_date]
+                                    ,[sync_time]
+                                    ,[sync_mark]
+                                    ,[sync_count]
+                                    ,[DataUser]
+                                    ,[DataGroup]
+                                    ,[MI001]
+                                    ,[MI002]
+                                    ,[MI003]
+                                    ,[MI004]
+                                    ,[MI005]
+                                    ,[MI006])
+                                    SELECT 
+                                    [COMPANY]
+                                    ,[CREATOR]
+                                    ,[USR_GROUP]
+                                    ,[CREATE_DATE]
+                                    ,[MODIFIER]
+                                    ,[MODI_DATE]
+                                    ,[FLAG]
+                                    ,[CREATE_TIME]
+                                    ,[MODI_TIME]
+                                    ,[TRANS_TYPE]
+                                    ,[TRANS_NAME]
+                                    ,[sync_date]
+                                    ,[sync_time]
+                                    ,[sync_mark]
+                                    ,[sync_count]
+                                    ,[DataUser]
+                                    ,[DataGroup]
+                                    ,MB001 [MI001]
+                                    ,MB002 [MI002]
+                                    ,MB003 [MI003]
+                                    ,MB004 [MI004]
+                                    ,MB005 [MI005]
+                                    ,MB001 [MI006]
+                                    FROM [TK].[dbo].[INVMB]
+                                    WHERE MB001 NOT IN (SELECT MI001 FROM [TK].[dbo].[BOMMI])
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
 
         #endregion
 
@@ -40711,6 +40832,10 @@ namespace TKSCHEDULEUOF
         private void button59_Click(object sender, EventArgs e)
         {
             NEW_BOMMJ_BOMMK();
+        }
+        private void button60_Click(object sender, EventArgs e)
+        {
+            NEW_BOMMI();
         }
 
         #endregion
