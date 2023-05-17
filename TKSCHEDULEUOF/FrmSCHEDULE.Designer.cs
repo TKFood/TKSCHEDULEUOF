@@ -936,6 +936,7 @@
             this.button61.TabIndex = 65;
             this.button61.Text = "ERP MOCI03.退料單>轉入UOF簽核";
             this.button61.UseVisualStyleBackColor = true;
+            this.button61.Click += new System.EventHandler(this.button61_Click);
             // 
             // FrmSCHEDULE
             // 
