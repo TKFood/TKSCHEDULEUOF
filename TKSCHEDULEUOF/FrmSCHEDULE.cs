@@ -38503,10 +38503,12 @@ namespace TKSCHEDULEUOF
 
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
-                                    SELECT TC001,TC002,UDF01
-                                    FROM [test0923].dbo.MOCTC
-                                    WHERE TC009='N'                                  
-                                    AND UDF01 IN ('Y','y')
+                                    SELECT TC001,TC002,MOCTC.UDF01
+                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    WHERE TC001=MQ001
+                                    AND MQ010='-1'
+                                    AND TC009='N'                                  
+                                    AND MOCTC.UDF01 IN ('Y','y')
                                     ORDER BY TC001,TC002
 
 
@@ -39112,8 +39114,13 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"
                                     UPDATE  [test0923].dbo.MOCTC
-                                    SET UDF01 = 'UOF'                                   
-                                    WHERE  UDF01 IN ('Y','y')
+                                    SET UDF01 = 'UOF' 
+                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    WHERE TC001=MQ001
+                                    AND MQ010='-1'
+                                    AND TC009='N'                                  
+                                    AND MOCTC.UDF01 IN ('Y','y')
+                                
 
                                     ");
 
