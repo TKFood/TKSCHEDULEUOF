@@ -6574,6 +6574,9 @@ namespace TKSCHEDULEUOF
 
                 //是門市督導單STORE
                 //核準過TASK_RESULT='0'
+                // 
+                //AND [Z_SCSHR_LEAVE].DOC_NBR = 'FT101230500026'
+
                 sbSql.AppendFormat(@"  
                                     SELECT *
                                     FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
@@ -6581,11 +6584,12 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
                                     AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
                                     AND [LEACODE]='050B1'
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                                    
                                     AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT101%'
                                     AND CONVERT(datetime,STARTTIME,112)>='20220427'
-
                                     AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
+                                    
+                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%') 
 
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                                     ");
@@ -6648,7 +6652,8 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                //AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
+                //AND[Z_SCSHR_LEAVE].DOC_NBR = '{0}'
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
@@ -6662,8 +6667,9 @@ namespace TKSCHEDULEUOF
                                     AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
                                     AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
                                     AND [LEACODE]='050B1'
+    
                                     AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR='{0}'
+                                    AND[Z_SCSHR_LEAVE].DOC_NBR = '{0}'
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
                               
                                     ", DOC_NBR);
@@ -6690,6 +6696,7 @@ namespace TKSCHEDULEUOF
 
                     string account = ds1.Tables["ds1"].Rows[0]["APPLICANT"].ToString().Trim();
                     string groupId = ds1.Tables["ds1"].Rows[0]["GROUP_ID"].ToString().Trim();
+                    
                     string jobTitleId = ds1.Tables["ds1"].Rows[0]["TITLE_ID"].ToString().Trim();
                     string fillerName = ds1.Tables["ds1"].Rows[0]["NAME"].ToString().Trim();
                     string fillerUserGuid = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString().Trim();
@@ -6708,6 +6715,10 @@ namespace TKSCHEDULEUOF
                     string TrainUserDeptfieldValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["fieldValue"].Value;
                     //部門(TrainUserDept) realValue
                     string TrainUserDeptrealValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["realValue"].Value;
+                    string str = TrainUserDeptrealValue;
+                    string[] parts = str.Split(',');
+                    string result = parts[0]; // 取得逗號之前的字串
+                    groupId = result;
                     //職稱(TrainUserLevel)
                     string TrainUserLevel = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY003']").Attributes["fieldValue"].Value;
                     //假別(LeaveType )
@@ -41273,6 +41284,8 @@ namespace TKSCHEDULEUOF
         }
         private void button12_Click(object sender, EventArgs e)
         {
+            //20230529
+            // 02.老楊出差訓練及外出申請單 轉 2001.教育訓練課程心得報告 
             CHECKADDTOUOFFORMEDUCATION();
 
             //TEST();
