@@ -2374,6 +2374,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	LASTTB
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "LASTTH");
+                Cell.SetAttribute("fieldValue", od["LASTTH"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 rowscounts = rowscounts + 1;
 
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='TB']/DataGrid");
@@ -2518,10 +2528,20 @@ namespace TKSCHEDULEUOF
                                     WHERE TA001=TB001 AND TA002=TB002
                                     AND TB010=MA001
                                     AND TA012=MV001
-                                    AND TA007 IN ('Y')
+                                    AND TA007 NOT IN ('V')
                                     AND TB004=TEMP.TB004
                                     AND TA001+TA002<>TEMP.TA001+TEMP.TA002
-                                    ORDER BY TA003 DESC) AS 'LASTTB'
+                                    ORDER BY TA003 DESC
+                                    ) AS 'LASTTB'
+                                    ,(
+                                    SELECT TOP 1 '進貨日:'+TG003+' ，進貨單:'+TH001+TH002+TH003+' ，進貨數量:'+CONVERT(NVARCHAR,TH007)+' '+TH008+' ，廠商:'+MA002
+                                    FROM [TK].dbo.PURTG,[TK].dbo.PURTH,[TK].dbo.PURMA
+                                    WHERE TG001=TH001 AND TG002=TH002
+                                    AND TG005=MA001
+                                    AND TG013 IN ('Y')
+                                    AND TH004=TEMP.TB004
+                                    ORDER BY TG003 DESC
+                                    ) AS 'LASTTH'
                                     FROM 
                                     (
                                     SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010,PURTA.UDF03
