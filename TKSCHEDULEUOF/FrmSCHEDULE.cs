@@ -2364,6 +2364,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	LASTTB
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "LASTTB");
+                Cell.SetAttribute("fieldValue", od["LASTTB"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 rowscounts = rowscounts + 1;
 
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='TB']/DataGrid");
@@ -2502,6 +2512,16 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     ,TB010,MA002,SUMLA011
+                                    ,(
+                                    SELECT TOP 1 '請購日:'+TA003+' ，請購單:'+TB001+TB002+TB003+' ，請購數量:'+CONVERT(NVARCHAR,TB009)+' '+TB007+' ，廠商:'+MA002+' ，請購人:'+MV002
+                                    FROM [TK].dbo.PURTA,[TK].dbo.PURTB,[TK].dbo.PURMA,[TK].dbo.CMSMV
+                                    WHERE TA001=TB001 AND TA002=TB002
+                                    AND TB010=MA001
+                                    AND TA012=MV001
+                                    AND TA007 IN ('Y')
+                                    AND TB004=TEMP.TB004
+                                    AND TA001+TA002<>TEMP.TA001+TEMP.TA002
+                                    ORDER BY TA003 DESC) AS 'LASTTB'
                                     FROM 
                                     (
                                     SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010,PURTA.UDF03
