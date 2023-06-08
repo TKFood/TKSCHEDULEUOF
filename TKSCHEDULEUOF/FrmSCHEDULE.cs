@@ -39927,7 +39927,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            UPDATE_BOMMC_UDF01();
+            UPDATE_BOMMJ_UDF01();
         }
         public void ADD_BOMMJ_BOMMK_TB_WKF_EXTERNAL_TASK(string MJ001)
         {
