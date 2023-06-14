@@ -41302,7 +41302,16 @@ namespace TKSCHEDULEUOF
                     // 提取純文字內容
                     string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
                     Text = Text.Replace("&nbsp;", "").Replace("@u", "");
-                    ACTIONS = Text.Substring(0, 990);
+                    int Text_LEGTH = Text.Length;
+                    if(Text_LEGTH<=990)
+                    {
+                        ACTIONS = Text;
+                    }
+                    else if(Text_LEGTH>=990)
+                    {
+                        ACTIONS = Text.Substring(0, 990);
+                    }
+                   
 
                     ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
                                                      DOC_NBR,
