@@ -143,7 +143,13 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-
+            //轉入  行銷廣告的活動成效記錄表
+            try
+            {
+                ADD_TBPROMOTIONNFEE();
+            }
+            catch { }
+           
             //轉入ERP的品到EBOM中
             try
             {
