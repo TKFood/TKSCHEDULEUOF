@@ -20,6 +20,7 @@ using System.Xml.Linq;
 using TKITDLL;
 using TKSCHEDULEUOF.ServiceReference1;
 using System.Text.RegularExpressions;
+using HtmlAgilityPack;
 
 namespace TKSCHEDULEUOF
 {
@@ -41260,6 +41261,124 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        public void ADD_TBPROMOTIONNFEE()
+        {
+            DataTable DT = FIND_UOF_PROMOT();
+            string html = "@"+DT.Rows[0]["COFrm002TD"].ToString();
+;
+
+            // 使用HtmlAgilityPack解析HTML
+            HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+            htmlDoc.LoadHtml(html);
+
+            // 提取純文字內容
+            string text = ExtractTextFromHtml(htmlDoc.DocumentNode);
+            text=text.Replace("&nbsp;", "").Replace("@u","");
+        }
+        public static string ExtractTextFromHtml(HtmlNode node)
+        {
+            if (node.NodeType == HtmlNodeType.Text)
+            {
+                return node.InnerText;
+            }
+
+            if (node.NodeType == HtmlNodeType.Element && !node.HasChildNodes)
+            {
+                string text = node.InnerText.Trim();
+                return !string.IsNullOrEmpty(text) ? text + " " : string.Empty;
+            }
+
+            return string.Concat(node.ChildNodes.Select(ExtractTextFromHtml));
+        }
+        public DataTable FIND_UOF_PROMOT()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM 
+                                    (
+                                    SELECT DOC_NBR
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Date""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Date
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Main""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Main
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Usr""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002Usr
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002CS""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002CS
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MDP""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002MDP
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MG""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002MG
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002TD""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002TD
+
+                                    , TB_WKF_FORM.FORM_NAME
+                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN('2001.會辦單（行企）', '1002.會辦單（一般）')
+                                    AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
+                                    
+                                    ) AS TEMP
+                                    WHERE COFrm002MG IN('年節/產品活動或價格事宜')
+                                    AND DOC_NBR>= 'CO1002230100001'
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT[DOC_NBR] FROM[192.168.1.105].[TKBUSINESS].[dbo].[TBPROMOTIONNFEE] WHERE ISNULL([DOC_NBR], '')<> '')
+                                    ORDER BY COFrm002Date
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return DT;
+        }
         #endregion
 
         #region BUTTON
@@ -41575,6 +41694,10 @@ namespace TKSCHEDULEUOF
         private void button61_Click(object sender, EventArgs e)
         {
             NEW_MOCTC_MOCTE_B();
+        }
+        private void button62_Click(object sender, EventArgs e)
+        {
+            ADD_TBPROMOTIONNFEE();
         }
 
         #endregion
