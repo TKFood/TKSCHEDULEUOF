@@ -41274,38 +41274,42 @@ namespace TKSCHEDULEUOF
             string NAMES = "";
             string ACTIONS = "";
 
-            foreach (DataRow dr in DT.Rows)
+            if(DT!=null && DT.Rows.Count>=1)
             {
+                foreach (DataRow dr in DT.Rows)
+                {
 
-                DOC_NBR = dr["DOC_NBR"].ToString();
-                YEARS = dr["YEARS"].ToString();
-                DEPNAME = dr["COFrm002MDP"].ToString();
-                TITLES = dr["COFrm002CS"].ToString();
-                SALES = dr["SALES"].ToString();
-                NAMES = dr["COFrm002Main"].ToString();
-                ACTIONS = dr["COFrm002TD"].ToString();
+                    DOC_NBR = dr["DOC_NBR"].ToString();
+                    YEARS = dr["YEARS"].ToString();
+                    DEPNAME = dr["COFrm002MDP"].ToString();
+                    TITLES = dr["COFrm002CS"].ToString();
+                    SALES = dr["SALES"].ToString();
+                    NAMES = dr["COFrm002Main"].ToString();
+                    ACTIONS = dr["COFrm002TD"].ToString();
 
-                string html = "@" + dr["COFrm002TD"].ToString();
+                    string html = "@" + dr["COFrm002TD"].ToString();
 
-                // 使用HtmlAgilityPack解析HTML
-                HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-                htmlDoc.LoadHtml(html);
+                    // 使用HtmlAgilityPack解析HTML
+                    HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+                    htmlDoc.LoadHtml(html);
 
-                // 提取純文字內容
-                string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
-                Text = Text.Replace("&nbsp;", "").Replace("@u", "");
-                ACTIONS = Text;
+                    // 提取純文字內容
+                    string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
+                    Text = Text.Replace("&nbsp;", "").Replace("@u", "");
+                    ACTIONS = Text.Substring(0, 990);
 
-                ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
-                                                 DOC_NBR,
-                                                 YEARS,
-                                                 DEPNAME,
-                                                 TITLES,
-                                                 SALES,
-                                                 NAMES,
-                                                 ACTIONS
-                                                );
+                    ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
+                                                     DOC_NBR,
+                                                     YEARS,
+                                                     DEPNAME,
+                                                     TITLES,
+                                                     SALES,
+                                                     NAMES,
+                                                     ACTIONS
+                                                    );
+                }
             }
+           
             
         }
         public static string ExtractTextFromHtml(HtmlNode node)
