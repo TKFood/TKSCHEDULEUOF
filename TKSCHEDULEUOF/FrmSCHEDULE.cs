@@ -41265,16 +41265,48 @@ namespace TKSCHEDULEUOF
         public void ADD_TBPROMOTIONNFEE()
         {
             DataTable DT = FIND_UOF_PROMOT();
-            string html = "@"+DT.Rows[0]["COFrm002TD"].ToString();
-;
 
-            // 使用HtmlAgilityPack解析HTML
-            HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-            htmlDoc.LoadHtml(html);
+            string DOC_NBR = "";
+            string YEARS = "";
+            string DEPNAME = "";
+            string TITLES = "";
+            string SALES = "";
+            string NAMES = "";
+            string ACTIONS = "";
 
-            // 提取純文字內容
-            string text = ExtractTextFromHtml(htmlDoc.DocumentNode);
-            text=text.Replace("&nbsp;", "").Replace("@u","");
+            foreach (DataRow dr in DT.Rows)
+            {
+
+                DOC_NBR = dr["DOC_NBR"].ToString();
+                YEARS = dr["YEARS"].ToString();
+                DEPNAME = dr["COFrm002MDP"].ToString();
+                TITLES = dr["COFrm002CS"].ToString();
+                SALES = dr["SALES"].ToString();
+                NAMES = dr["COFrm002Main"].ToString();
+                ACTIONS = dr["COFrm002TD"].ToString();
+
+                string html = "@" + dr["COFrm002TD"].ToString();
+
+                // 使用HtmlAgilityPack解析HTML
+                HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+                htmlDoc.LoadHtml(html);
+
+                // 提取純文字內容
+                string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
+                Text = Text.Replace("&nbsp;", "").Replace("@u", "");
+                ACTIONS = Text;
+
+                ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
+                                                 DOC_NBR,
+                                                 YEARS,
+                                                 DEPNAME,
+                                                 TITLES,
+                                                 SALES,
+                                                 NAMES,
+                                                 ACTIONS
+                                                );
+            }
+            
         }
         public static string ExtractTextFromHtml(HtmlNode node)
         {
@@ -41321,6 +41353,9 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
+                                    ,SUBSTRING(COFrm002Date,1,4) AS 'YEARS'
+                                    ,SUBSTRING(COFrm002Usr,1,3) AS 'SALES'
+    
                                     FROM 
                                     (
                                     SELECT DOC_NBR
@@ -41379,6 +41414,98 @@ namespace TKSCHEDULEUOF
 
             return DT;
         }
+
+        public void ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
+            string DOC_NBR,
+            string YEARS,
+            string DEPNAME,
+            string TITLES,
+            string SALES,
+            string NAMES ,
+            string ACTIONS
+            )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                   
+                                    INSERT INTO [TKBUSINESS].[dbo].[TBPROMOTIONNFEE]
+                                    (
+                                    [DOC_NBR],
+                                    [YEARS],
+                                    [DEPNAME],
+                                    [TITLES],
+                                    [SALES],
+                                    [NAMES],
+                                    [ACTIONS]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}',
+                                    '{1}',
+                                    '{2}',
+                                    '{3}',
+                                    '{4}',
+                                    '{5}',
+                                    '{6}'
+                                    )
+                                    "
+                                    ,
+                                    DOC_NBR,
+                                    YEARS,
+                                    DEPNAME,
+                                    TITLES,
+                                    SALES,
+                                    NAMES,
+                                    ACTIONS
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
