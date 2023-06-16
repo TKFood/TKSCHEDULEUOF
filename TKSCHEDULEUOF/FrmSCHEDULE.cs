@@ -41395,8 +41395,8 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
                                     
                                     ) AS TEMP
-                                    WHERE COFrm002MG IN('年節/產品活動或價格事宜')
-                                    AND DOC_NBR>= 'CO1002230100001'
+                                    WHERE COFrm002MG IN ('年節/產品活動或價格事宜')
+                                    
                                     AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT[DOC_NBR] FROM[192.168.1.105].[TKBUSINESS].[dbo].[TBPROMOTIONNFEE] WHERE ISNULL([DOC_NBR], '')<> '')
                                     ORDER BY COFrm002Date
 
