@@ -6706,7 +6706,7 @@ namespace TKSCHEDULEUOF
                                     SELECT *
                                     ,CONVERT(nvarchar,STARTTIME,111) NEWSTARTTIME,CONVERT(nvarchar,ENDTIME,111) NEWENDTIME
                                     ,USER_GUID
-                                    ,(SELECT TOP 1 GROUP_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'GROUP_ID'
+                                    ,(SELECT TOP 1 GROUP_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE ORDERS='0' AND [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'TITLE_ID'
                                     ,(SELECT TOP 1 NAME FROM [UOF].[dbo].[TB_EB_USER] WHERE [TB_EB_USER].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'NAME'
                                     FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
