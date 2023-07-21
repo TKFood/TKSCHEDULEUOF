@@ -257,24 +257,24 @@ namespace TKSCHEDULEUOF
 
             }
             catch { }
-           
 
 
-            //心得訓練單
-            try
-            {
-                CHECKADDTOUOFFORMEDUCATION();
-            }
-            catch { }
-            
+            //20230721 暫停
+            ////心得訓練單
+            //try
+            //{
+            //    CHECKADDTOUOFFORMEDUCATION();
+            //}
+            //catch { }
 
-            //出差報告單 
-            try
-            {
-                CHECKADDTOUOFFORBUSINESSTRIPS();
-            }
-            catch { }
-            
+            //20230721 暫停
+            ////出差報告單 
+            //try
+            //{
+            //    CHECKADDTOUOFFORBUSINESSTRIPS();
+            //}
+            //catch { }
+
 
             //1002.客訴異常處理單
             try
@@ -41612,19 +41612,16 @@ namespace TKSCHEDULEUOF
         {
             //20230529
             // 02.老楊出差訓練及外出申請單 轉 2001.教育訓練課程心得報告 
+            //20230721 暫停
             CHECKADDTOUOFFORMEDUCATION();
-
-            //TEST();
-
-            //呼叫web serices
-            //HellowWorldSoapClient WS1 = new HellowWorldSoapClient();            
-            //MessageBox.Show(WS1.HelloWorld());
 
 
 
         }
         private void button13_Click(object sender, EventArgs e)
         {
+            //出差報告單
+            //20230721 暫停
             CHECKADDTOUOFFORBUSINESSTRIPS();
         }
 
