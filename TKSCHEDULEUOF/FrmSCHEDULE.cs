@@ -23273,7 +23273,24 @@ namespace TKSCHEDULEUOF
                     catch { }
                     try
                     {
-                        GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+                        string TEMP_GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+
+                        if(TEMP_GA999.Equals("何翔鈞(190041)"))
+                        {
+                            GA999 = "何翔鈞";
+                        }
+                        else if (TEMP_GA999.Equals("吳德明(230034)"))
+                        {
+                            GA999 = "吳德明";
+                        }
+                        else if (TEMP_GA999.Equals("邱筠軒(190029)"))
+                        {
+                            GA999 = "邱筠軒";
+                        }
+                        else
+                        {
+                            GA999 = "何翔鈞";
+                        }
                     }
                     catch { }
                     try
