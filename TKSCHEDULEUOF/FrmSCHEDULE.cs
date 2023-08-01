@@ -23275,22 +23275,24 @@ namespace TKSCHEDULEUOF
                     {
                         string TEMP_GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
 
-                        if(TEMP_GA999.Equals("何翔鈞(190041)"))
-                        {
-                            GA999 = "何翔鈞";
-                        }
-                        else if (TEMP_GA999.Equals("吳德明(230034)"))
-                        {
-                            GA999 = "吳德明";
-                        }
-                        else if (TEMP_GA999.Equals("邱筠軒(190029)"))
-                        {
-                            GA999 = "邱筠軒";
-                        }
-                        else
-                        {
-                            GA999 = "何翔鈞";
-                        }
+                        GA999=FIND_TKGAFFAIRS_TBASSINGS(TEMP_GA999);
+
+                        //if(TEMP_GA999.Equals("何翔鈞(190041)"))
+                        //{
+                        //    GA999 = "何翔鈞";
+                        //}
+                        //else if (TEMP_GA999.Equals("吳德明(230034)"))
+                        //{
+                        //    GA999 = "吳德明";
+                        //}
+                        //else if (TEMP_GA999.Equals("邱筠軒(190029)"))
+                        //{
+                        //    GA999 = "邱筠軒";
+                        //}
+                        //else
+                        //{
+                        //    GA999 = "何翔鈞";
+                        //}
                     }
                     catch { }
                     try
@@ -41561,6 +41563,75 @@ namespace TKSCHEDULEUOF
             {
                 sqlConn.Close();
             }
+        }
+
+        public string  FIND_TKGAFFAIRS_TBASSINGS(string ASSINGS)
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT TOP 1
+                                    [ID]
+                                    ,[ASSINGS]
+                                    ,[TOS]
+                                    FROM [TKGAFFAIRS].[dbo].[TBASSINGS]
+                                    WHERE [ASSINGS]='{0}'
+                                    ", ASSINGS);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"].Rows[0]["TOS"].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return null;
         }
 
         #endregion
