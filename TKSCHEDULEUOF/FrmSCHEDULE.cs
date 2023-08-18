@@ -41677,6 +41677,7 @@ namespace TKSCHEDULEUOF
                                     WHERE 1=1
                                     AND TC054=MA002
                                     AND TC054 IN (SELECT  [ID] FROM [TK].[dbo].[ZCOPMATOADDRESS])
+                                    AND TC010<>MA027
                                     ) AS TEMP
                                     WHERE TEMP.TC001=COPTC.TC001 AND TEMP.TC002=COPTC.TC002
                                     AND COPTC.TC010<>TEMP.MA027
