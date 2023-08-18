@@ -143,6 +143,13 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //官網訂單，依TC054 收貨部門，更改TC010=3大超商的總倉地址 、TC011=指定收貨的門市地址 
+            try
+            {
+                COPTC_TC010_TC011_UPDATE();
+            }
+            catch { }
+           
             //轉入  行銷廣告的活動成效記錄表
             try
             {
