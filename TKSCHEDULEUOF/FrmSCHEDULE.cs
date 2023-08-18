@@ -41634,6 +41634,75 @@ namespace TKSCHEDULEUOF
             return null;
         }
 
+
+        public void COPTC_TC010_TC011_UPDATE()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                   
+                                    UPDATE  [TK].dbo.COPTC
+                                    SET COPTC.TC011=TEMP.TC010,COPTC.TC010=TEMP.MA027
+                                    FROM 
+                                    (
+                                    SELECT TC054,TC010,TC011,TC001,TC002
+                                    ,MA027
+                                    FROM [TK].dbo.COPTC,[TK].dbo.COPMA
+                                    WHERE 1=1
+                                    AND TC054=MA002
+                                    AND TC054 IN (SELECT  [ID] FROM [TK].[dbo].[ZCOPMATOADDRESS])
+                                    ) AS TEMP
+                                    WHERE TEMP.TC001=COPTC.TC001 AND TEMP.TC002=COPTC.TC002
+                                    AND COPTC.TC010<>TEMP.MA027
+
+                                    "
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -41950,6 +42019,10 @@ namespace TKSCHEDULEUOF
         private void button62_Click(object sender, EventArgs e)
         {
             ADD_TBPROMOTIONNFEE();
+        }
+        private void button63_Click(object sender, EventArgs e)
+        {
+            COPTC_TC010_TC011_UPDATE();
         }
 
         #endregion
