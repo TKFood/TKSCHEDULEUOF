@@ -23559,8 +23559,8 @@ namespace TKSCHEDULEUOF
             ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account_SET);
-            Applicant.SetAttribute("groupId", groupId_SET);
-            Applicant.SetAttribute("jobTitleId", jobTitleId_SET);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
             //加入節點底下
             Form.AppendChild(Applicant);
 
