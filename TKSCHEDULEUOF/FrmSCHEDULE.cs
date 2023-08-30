@@ -23516,9 +23516,9 @@ namespace TKSCHEDULEUOF
             )
         {
 
-            DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
-            DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
-            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            //DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
+            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
 
             string account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
             string groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
