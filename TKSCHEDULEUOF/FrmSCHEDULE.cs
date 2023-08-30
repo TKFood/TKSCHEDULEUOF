@@ -23304,12 +23304,26 @@ namespace TKSCHEDULEUOF
                     catch { }
                     try
                     {
+                        GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+
+                        string NAMES = GA010.Substring(0, 3);
+                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
+
+                        if (DT != null && DT.Rows.Count >= 1)
+                        {
+                            USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
+                        }
+
+                    }
+                    catch { }
+                    try
+                    {
                         XNODES = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA008']/DataGrid");
 
                     }
                     catch { }
 
-
+                   
 
 
                     foreach (XmlNode nodeDataGrid in XNODES)
@@ -23351,7 +23365,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             GG010 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG010']").Attributes["fieldValue"].Value;
-
+                            
                         }
                         catch
                         { }
@@ -23410,6 +23424,72 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        public DataTable SEARCH_UOF_TB_EB_USER(string NAME)
+        {
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //AND DOC_NBR = 'GA1003230300113'
+                sbSql.AppendFormat(@"  
+                                    SELECT USER_GUID,NAME
+                                    FROM [UOF].[dbo].[TB_EB_USER] 
+                                    WHERE [TB_EB_USER].NAME='{0}'
+                                    ", NAME);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(string USER_GUID,string DOC_NBR
             ,string GA001
@@ -24016,6 +24096,8 @@ namespace TKSCHEDULEUOF
                     try
                     {
                         GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+
+                    
                     }
                     catch { }
                     try
