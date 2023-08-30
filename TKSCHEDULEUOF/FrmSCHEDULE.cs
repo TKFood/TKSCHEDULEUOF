@@ -23516,9 +23516,9 @@ namespace TKSCHEDULEUOF
             )
         {
 
-            //DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
-            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
-            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
+
 
             string account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
             string groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
@@ -23530,6 +23530,12 @@ namespace TKSCHEDULEUOF
             string DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
 
             string  EXTERNAL_FORM_NBR = DOC_NBR;
+
+            DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
+            string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
+            string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId_SET = DTUSERDEP_SET.Rows[0]["TITLE_ID"].ToString();
+
 
             int rowscounts = 0;
 
@@ -23552,9 +23558,9 @@ namespace TKSCHEDULEUOF
 
             ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account);
-            Applicant.SetAttribute("groupId", groupId);
-            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            Applicant.SetAttribute("account", account_SET);
+            Applicant.SetAttribute("groupId", groupId_SET);
+            Applicant.SetAttribute("jobTitleId", jobTitleId_SET);
             //加入節點底下
             Form.AppendChild(Applicant);
 
