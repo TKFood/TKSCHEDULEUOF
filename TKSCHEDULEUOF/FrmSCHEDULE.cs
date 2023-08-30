@@ -23304,9 +23304,9 @@ namespace TKSCHEDULEUOF
                     catch { }
                     try
                     {
-                        GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
+                        string TEMP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
 
-                        string NAMES = GA010.Substring(0, 3);
+                        string NAMES = TEMP.Substring(0, 3);
                         DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
 
                         if (DT != null && DT.Rows.Count >= 1)
@@ -23516,8 +23516,14 @@ namespace TKSCHEDULEUOF
             )
         {
 
-            DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
-            DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
+            //DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
+            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
+            
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            //DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
+            //string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
+            //string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
+            //string jobTitleId_SET = DTUSERDEP_SET.Rows[0]["TITLE_ID"].ToString();
 
 
             string account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
@@ -23531,10 +23537,7 @@ namespace TKSCHEDULEUOF
 
             string  EXTERNAL_FORM_NBR = DOC_NBR;
 
-            DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
-            string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
-            string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId_SET = DTUSERDEP_SET.Rows[0]["TITLE_ID"].ToString();
+            
 
 
             int rowscounts = 0;
@@ -23558,7 +23561,7 @@ namespace TKSCHEDULEUOF
 
             ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account_SET);
+            Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
             //加入節點底下
