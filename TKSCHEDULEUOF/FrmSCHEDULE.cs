@@ -143,6 +143,13 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //更新 工程品號基本資料檔
+            try
+            {
+                UPDATE_TK_BOMMI();
+            }
+            catch { }
+
             //官網訂單，依TC054 收貨部門，更改TC010=3大超商的總倉地址 、TC011=指定收貨的門市地址 
             try
             {
@@ -41802,6 +41809,76 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+
+        public void UPDATE_TK_BOMMI()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                   
+                                    UPDATE [TK].dbo.BOMMI
+                                    SET MI004=MB004
+                                    FROM [TK].dbo.BOMMI,[TK].dbo.INVMB
+                                    WHERE MI001=MB001
+                                    AND MI004<>MB004
+
+                                    UPDATE [TK].dbo.BOMMI
+                                    SET MI002=MB002
+                                    FROM [TK].dbo.BOMMI,[TK].dbo.INVMB
+                                    WHERE MI001=MB001
+                                    AND MI002<>MB002
+
+                                    "
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -42122,6 +42199,10 @@ namespace TKSCHEDULEUOF
         private void button63_Click(object sender, EventArgs e)
         {
             COPTC_TC010_TC011_UPDATE();
+        }
+        private void button64_Click(object sender, EventArgs e)
+        {
+            UPDATE_TK_BOMMI();
         }
 
         #endregion
