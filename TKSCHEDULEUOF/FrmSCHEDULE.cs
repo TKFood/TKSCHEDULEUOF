@@ -41878,6 +41878,86 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_TK_COPTGTG113()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    UPDATE [TK].dbo.COPTG
+                                    SET TG113=TG045+TG046
+                                    FROM (
+                                    SELECT TG001,TG002,TG142,TG113,TG045+TG046 AS MONEYSS
+                                    FROM [TK].dbo.COPTG
+                                    WHERE TG142 IN (SELECT  [TG142] FROM [TK].[dbo].[ZCOPTG] WHERE  [KIND]='TG142')
+                                    AND TG023 NOT IN ('V')
+                                    AND TG113<>TG045+TG046
+                                    ) AS TEMP
+                                    WHERE TEMP.TG001=COPTG.TG001 AND TEMP.TG002=COPTG.TG002
+
+
+                                    UPDATE [TK].dbo.COPTG
+                                    SET TG113=TG045+TG046
+                                    FROM (
+                                    SELECT TG001,TG002,TG142,TG113,TG045+TG046 AS MONEYSS
+                                    FROM [TK].dbo.COPTG
+                                    WHERE TG146 IN (SELECT  [TG142] FROM [TK].[dbo].[ZCOPTG] WHERE  [KIND]='TG146')
+                                    AND TG023 NOT IN ('V')
+                                    AND TG113<>TG045+TG046
+                                    ) AS TEMP
+                                    WHERE TEMP.TG001=COPTG.TG001 AND TEMP.TG002=COPTG.TG002
+
+
+
+                                    "
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
 
         #endregion
 
@@ -42203,6 +42283,10 @@ namespace TKSCHEDULEUOF
         private void button64_Click(object sender, EventArgs e)
         {
             UPDATE_TK_BOMMI();
+        }
+        private void button65_Click(object sender, EventArgs e)
+        {
+            UPDATE_TK_COPTGTG113();
         }
 
         #endregion
