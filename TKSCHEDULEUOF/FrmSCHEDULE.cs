@@ -143,6 +143,12 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //更新銷貨代收貨款 
+            try
+            {
+                UPDATE_TK_COPTGTG113();
+            }
+            catch { }
             //更新 工程品號基本資料檔
             try
             {
