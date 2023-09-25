@@ -14592,7 +14592,7 @@ namespace TKSCHEDULEUOF
                                     FROM [TKQC].[dbo].[UOFQCPURTGPURTH],[TK].dbo.PURTH
                                     WHERE [UOFQCPURTGPURTH].TG001+[UOFQCPURTGPURTH].TG002+[UOFQCPURTGPURTH].TH003 =PURTH.TH001+PURTH.TH002+PURTH.TH003
                                     AND Applicantname<>SUBSTRING(REPLACE((REPLACE(PURTH.UDF01,'Y,','')),'N,',''),1,3)
-
+                                    AND ISNULL(Applicantname,'')=NULL
                                    "
                                     );
 
