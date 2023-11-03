@@ -143,6 +143,13 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //轉入1006委外送驗申請單
+            try
+            {
+                NEWUOFQC1006();
+            }
+            catch { }
+          
             //更新銷貨代收貨款 
             try
             {
