@@ -42103,8 +42103,7 @@ namespace TKSCHEDULEUOF
                  
                     string fieldId = fieldItem.Attribute("fieldId").Value;
 
-                    // 節點存在，取值
-                    var CHECK_fieldItems = fieldItems.Elements("FieldItem");
+                    // 節點存在，取值       
                     string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
 
                     if(fieldId.Equals("QCFrm004SN"))
@@ -42112,7 +42111,55 @@ namespace TKSCHEDULEUOF
                         DOC_NBR = fieldValue;
                         QCFrm004SN = fieldValue;
                     }
-                    
+                    else if (fieldId.Equals("QCFrm004Date"))
+                    {
+                        QCFrm004Date = fieldValue;
+                    }
+                    else if(fieldId.Equals("QCFrm004UserLevel"))
+                    {
+                        QCFrm004UserLevel = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6001"))
+                    {
+                        QC6001 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6002"))
+                    {
+                        QC6002 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6012"))
+                    {
+                        QC6012 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6003"))
+                    {
+                        QC6003 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6004"))
+                    {
+                        QC6004 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6005"))
+                    {
+                        QC6005 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6006"))
+                    {
+                        QC6006 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6008"))
+                    {
+                        QC6008 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC6009"))
+                    {
+                        QC6009 = fieldValue;
+                    }
+                    else if(fieldId.Equals("QC60010"))
+                    {
+                        QC60010 = fieldValue;
+                    }
+
                 }
 
                 var dataGrids = doc.Descendants("DataGrid");
@@ -42123,13 +42170,35 @@ namespace TKSCHEDULEUOF
 
                     foreach (var rowdata in rows)
                     {
+                        QC6007 = "";
                         var cells = rowdata.Descendants("Cell");
 
                         foreach (var cell in cells)
                         {
-                            string cellFieldId = cell.Attribute("fieldId").Value;
-                            string cellFieldValue = cell.Attribute("fieldValue").Value;
+                          
+                            string cellFieldId = cell.Attribute("fieldId")?.Value; 
+                            string cellFieldValue = cell.Attribute("fieldValue")?.Value; 
 
+                            if (cellFieldId.Equals("QC60071"))
+                            {
+                                QC6007 = QC6007+ cellFieldValue + "-";
+                            }
+                            else if (cellFieldId.Equals("QC60072"))
+                            {
+                                QC6007 = QC6007 + cellFieldValue + "、";
+                            }
+
+                          
+                        }
+                        //去除+"、";
+                        if (QC6007.Length >=1)
+                        {
+                            QC6007 = QC6007.Substring(0, QC6007.Length-1);
+                        }
+                        //
+                        if (QC6007.Length >= 250)
+                        {
+                            QC6007 = QC6007.Substring(0, 249);
                         }
                     }
                 }
