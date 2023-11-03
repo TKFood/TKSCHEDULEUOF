@@ -41970,8 +41970,10 @@ namespace TKSCHEDULEUOF
 
             if (DT!=null&& DT.Rows.Count>=1)
             {
-                ADD_TO_TMQC_TBUOFQC1006(DT);
+                NEW_TO_TMQC_TBUOFQC1006(DT);
             }
+
+            MessageBox.Show("完成");
         }
         public DataTable FIND_UOF_QC1006()
         {
@@ -42052,12 +42054,44 @@ namespace TKSCHEDULEUOF
             return null;
         }
 
-        public void ADD_TO_TMQC_TBUOFQC1006(DataTable DT)
+        public void NEW_TO_TMQC_TBUOFQC1006(DataTable DT)
         {
             string xmlData = "";
+            string DOC_NBR = ""; 
+            string QCFrm004SN = "";
+            string QCFrm004Date = "";
+            string QCFrm004UserLevel = "";
+            string QC6001 = "";
+            string QC6002 = "";
+            string QC6012 = "";
+            string QC6003 = "";
+            string QC6004 = "";
+            string QC6005 = "";
+            string QC6006 = "";
+            string QC6007 = "";
+            string QC6008 = "";
+            string QC6009 = "";
+            string QC60010 = "";
+
             foreach (DataRow row in DT.Rows)
             {
                 xmlData = "";
+                DOC_NBR = "";
+                QCFrm004SN = "";
+                QCFrm004Date = "";
+                QCFrm004UserLevel = "";
+                QC6001 = "";
+                QC6002 = "";
+                QC6012 = "";
+                QC6003 = "";
+                QC6004 = "";
+                QC6005 = "";
+                QC6006 = "";
+                QC6007 = "";
+                QC6008 = "";
+                QC6009 = "";
+                QC60010 = "";
+
                 xmlData = FIND_UOF_QC1006(row["DOC_NBR"].ToString());
 
                 XDocument doc = XDocument.Parse(xmlData);
@@ -42072,6 +42106,12 @@ namespace TKSCHEDULEUOF
                     // 節點存在，取值
                     var CHECK_fieldItems = fieldItems.Elements("FieldItem");
                     string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
+
+                    if(fieldId.Equals("QCFrm004SN"))
+                    {
+                        DOC_NBR = fieldValue;
+                        QCFrm004SN = fieldValue;
+                    }
                     
                 }
 
@@ -42093,6 +42133,25 @@ namespace TKSCHEDULEUOF
                         }
                     }
                 }
+
+
+                ADD_NEW_TO_TMQC_TBUOFQC1006(
+                                            DOC_NBR
+                                            , QCFrm004SN
+                                            , QCFrm004Date
+                                            , QCFrm004UserLevel
+                                            , QC6001
+                                            , QC6002
+                                            , QC6012
+                                            , QC6003
+                                            , QC6004
+                                            , QC6005
+                                            , QC6006
+                                            , QC6007
+                                            , QC6008
+                                            , QC6009
+                                            , QC60010
+                                            );
             }
         }
 
@@ -42128,8 +42187,8 @@ namespace TKSCHEDULEUOF
                                     SELECT 
                                     DOC_NBR,CONVERT(nvarchar(MAX),CURRENT_DOC) CURRENT_DOC
                                     FROM [UOF].[dbo].[TB_WKF_TASK]
-                                    WHERE DOC_NBR='QC1006230600002'
-                                    ");
+                                    WHERE DOC_NBR='{0}'
+                                    ", DOC_NBR);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -42162,6 +42221,128 @@ namespace TKSCHEDULEUOF
 
             return null;
         }
+        public void ADD_NEW_TO_TMQC_TBUOFQC1006(
+            string DOC_NBR
+            , string QCFrm004SN
+            , string QCFrm004Date
+            , string QCFrm004UserLevel
+            , string QC6001
+            , string QC6002
+            , string QC6012
+            , string QC6003
+            , string QC6004
+            , string QC6005
+            , string QC6006
+            , string QC6007
+            , string QC6008
+            , string QC6009
+            , string QC60010
+            )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                    
+                                    INSERT INTO [TKQC].[dbo].[TBUOFQC1006]
+                                    (
+                                    [DOC_NBR]
+                                    ,[QCFrm004SN]
+                                    ,[QCFrm004Date]
+                                    ,[QCFrm004UserLevel]
+                                    ,[QC6001]
+                                    ,[QC6002]
+                                    ,[QC6012]
+                                    ,[QC6003]
+                                    ,[QC6004]
+                                    ,[QC6005]
+                                    ,[QC6006]
+                                    ,[QC6007]
+                                    ,[QC6008]
+                                    ,[QC6009]
+                                    ,[QC60010]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    )
+
+                                    ", DOC_NBR
+                                    , QCFrm004SN
+                                    , QCFrm004Date
+                                    , QCFrm004UserLevel
+                                    , QC6001
+                                    , QC6002
+                                    , QC6012
+                                    , QC6003
+                                    , QC6004
+                                    , QC6005
+                                    , QC6006
+                                    , QC6007
+                                    , QC6008
+                                    , QC6009
+                                    , QC60010
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
