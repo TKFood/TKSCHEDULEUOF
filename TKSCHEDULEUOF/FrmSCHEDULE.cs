@@ -41980,7 +41980,7 @@ namespace TKSCHEDULEUOF
                 NEW_TO_TMQC_TBUOFQC1006(DT);
             }
 
-            MessageBox.Show("完成");
+           // MessageBox.Show("完成");
         }
         public DataTable FIND_UOF_QC1006()
         {
