@@ -42059,6 +42059,40 @@ namespace TKSCHEDULEUOF
             {
                 xmlData = "";
                 xmlData = FIND_UOF_QC1006(row["DOC_NBR"].ToString());
+
+                XDocument doc = XDocument.Parse(xmlData);
+
+                var fieldItems = doc.Descendants("FieldItem");
+
+                foreach (var fieldItem in fieldItems)
+                {
+                 
+                    string fieldId = fieldItem.Attribute("fieldId").Value;
+
+                    // 節點存在，取值
+                    var CHECK_fieldItems = fieldItems.Elements("FieldItem");
+                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
+                    
+                }
+
+                var dataGrids = doc.Descendants("DataGrid");
+
+                foreach (var dataGrid in dataGrids)
+                {
+                    var rows = dataGrid.Descendants("Row");
+
+                    foreach (var rowdata in rows)
+                    {
+                        var cells = rowdata.Descendants("Cell");
+
+                        foreach (var cell in cells)
+                        {
+                            string cellFieldId = cell.Attribute("fieldId").Value;
+                            string cellFieldValue = cell.Attribute("fieldValue").Value;
+
+                        }
+                    }
+                }
             }
         }
 
