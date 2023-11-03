@@ -101,10 +101,11 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button63 = new System.Windows.Forms.Button();
+            this.button65 = new System.Windows.Forms.Button();
             this.button64 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button65 = new System.Windows.Forms.Button();
+            this.button66 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -827,6 +828,7 @@
             this.tableLayoutPanel2.Controls.Add(this.button55, 3, 1);
             this.tableLayoutPanel2.Controls.Add(this.button56, 3, 2);
             this.tableLayoutPanel2.Controls.Add(this.button62, 3, 4);
+            this.tableLayoutPanel2.Controls.Add(this.button66, 1, 6);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -1009,6 +1011,17 @@
             this.button63.UseVisualStyleBackColor = true;
             this.button63.Click += new System.EventHandler(this.button63_Click);
             // 
+            // button65
+            // 
+            this.button65.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button65.Location = new System.Drawing.Point(123, 83);
+            this.button65.Name = "button65";
+            this.button65.Size = new System.Drawing.Size(170, 34);
+            this.button65.TabIndex = 39;
+            this.button65.Text = "更新銷貨代收貨款 ";
+            this.button65.UseVisualStyleBackColor = true;
+            this.button65.Click += new System.EventHandler(this.button65_Click);
+            // 
             // button64
             // 
             this.button64.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -1028,16 +1041,15 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button65
+            // button66
             // 
-            this.button65.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button65.Location = new System.Drawing.Point(123, 83);
-            this.button65.Name = "button65";
-            this.button65.Size = new System.Drawing.Size(170, 34);
-            this.button65.TabIndex = 39;
-            this.button65.Text = "更新銷貨代收貨款 ";
-            this.button65.UseVisualStyleBackColor = true;
-            this.button65.Click += new System.EventHandler(this.button65_Click);
+            this.button66.Location = new System.Drawing.Point(123, 243);
+            this.button66.Name = "button66";
+            this.button66.Size = new System.Drawing.Size(194, 34);
+            this.button66.TabIndex = 41;
+            this.button66.Text = "轉入1006.委外送驗申請單";
+            this.button66.UseVisualStyleBackColor = true;
+            this.button66.Click += new System.EventHandler(this.button66_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1139,5 +1151,6 @@
         private System.Windows.Forms.Button button63;
         private System.Windows.Forms.Button button64;
         private System.Windows.Forms.Button button65;
+        private System.Windows.Forms.Button button66;
     }
 }

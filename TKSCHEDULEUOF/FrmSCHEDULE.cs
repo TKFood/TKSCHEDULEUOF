@@ -41964,7 +41964,170 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEWUOFQC1006()
+        {
+            DataTable DT = FIND_UOF_QC1006();
 
+            if (DT!=null&& DT.Rows.Count>=1)
+            {
+                ADD_TO_TMQC_TBUOFQC1006(DT);
+            }
+        }
+        public DataTable FIND_UOF_QC1006()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    DOC_NBR
+                                    FROM [UOF].[dbo].[TB_WKF_TASK]
+                                    WHERE FORM_VERSION_ID IN 
+                                    (
+                                    SELECT 
+                                    FORM_VERSION_ID
+                                    FROM [UOF].[dbo].[TB_WKF_FORM_VERSION]
+                                    WHERE FORM_ID IN (
+                                    SELECT 
+                                    [FORM_ID]
+                                    FROM [UOF].[dbo].[TB_WKF_FORM]
+                                    WHERE [FORM_NAME] LIKE '%委外送驗申請單%'
+                                    )
+                                    )
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN  NOT IN (SELECT DOC_NBR FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1006])
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return null;
+        }
+
+        public void ADD_TO_TMQC_TBUOFQC1006(DataTable DT)
+        {
+            string xmlData = "";
+            foreach (DataRow row in DT.Rows)
+            {
+                xmlData = "";
+                xmlData = FIND_UOF_QC1006(row["DOC_NBR"].ToString());
+            }
+        }
+
+        public string FIND_UOF_QC1006(string DOC_NBR)
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    DOC_NBR,CONVERT(nvarchar(MAX),CURRENT_DOC) CURRENT_DOC
+                                    FROM [UOF].[dbo].[TB_WKF_TASK]
+                                    WHERE DOC_NBR='QC1006230600002'
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return null;
+        }
         #endregion
 
         #region BUTTON
@@ -42295,6 +42458,10 @@ namespace TKSCHEDULEUOF
             UPDATE_TK_COPTGTG113();
         }
 
+        private void button66_Click(object sender, EventArgs e)
+        {
+            NEWUOFQC1006();
+        }
         #endregion
 
 
