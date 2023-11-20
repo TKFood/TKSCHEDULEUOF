@@ -42419,6 +42419,246 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_UOF_COPMA()
+        {
+            ADD_TB_UOF_COPMA();
+        }
+
+        public void ADD_TB_UOF_COPMA()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@" 
+                                     DELETE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                     INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    (
+                                    [MA001]
+                                    ,[sd001]
+                                    ,[sd002]
+                                    ,[sd003]
+                                    ,[sd004]
+                                    ,[sd005]
+                                    ,[sd90]
+                                    ,[sd006]
+                                    ,[sd007]
+                                    ,[sd008]
+                                    ,[sd009]
+                                    ,[sd010]
+                                    ,[sd011]
+                                    ,[sd012]
+                                    ,[sd013]
+                                    ,[sd014]
+                                    ,[sd015]
+                                    ,[sd016]
+                                    ,[sd017]
+                                    ,[sd018]
+                                    ,[sd019]
+                                    ,[sd020]
+                                    ,[sd021]
+                                    ,[sd022]
+                                    ,[sd023]
+                                    ,[sd024]
+                                    ,[sd025]
+                                    ,[sd026]
+                                    ,[sd027]
+                                    ,[sd028]
+                                    ,[sd029]
+                                    ,[sd030]
+                                    ,[sd031]
+                                    ,[sd032]
+                                    ,[sd033]
+                                    ,[sd034]
+                                    ,[sd035]
+                                    ,[sd036]
+                                    ,[sd037]
+                                    ,[sd038]
+                                    ,[sd039]
+                                    ,[sd040]
+                                    ,[sd041]
+                                    ,[sd042]
+                                    ,[sd043]
+                                    ,[sd044]
+                                    ,[sd0]
+                                    ,[sd051]
+                                    ,[sd052]
+                                    ,[sd053]
+                                    ,[sd054]
+                                    ,[sd055]
+                                    ,[sd056]
+                                    ,[sd057]
+                                    ,[sd058]
+                                    ,[sd060]
+                                    ,[sd061]
+                                    ,[sd062]
+                                    ,[sd063]
+                                    ,[sd064]
+                                    ,[sd065]
+                                    ,[sd066]
+                                    ,[sd067]
+                                    ,[sd068]
+                                    ,[sd069]
+                                    ,[sd070]
+                                    ,[sd071]
+                                    ,[sd072]
+                                    ,[sd073]
+                                    ,[sd074]
+                                    ,[sd075]
+                                    ,[sd076]
+                                    ,[sd077]
+                                    ,[sd078]
+                                    ,[sd079]
+                                    ,[sd080]
+                                    ,[sd081]
+                                    ,[sd082]
+                                    ,[sd083]
+                                    )
+
+                                    SELECT   
+                                     MA001
+                                    ,'' AS  sd001
+                                    ,CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.CREATE_DATE),111) AS  sd002
+                                    ,'新增' AS  sd003
+                                    ,MA002 AS  sd004
+                                    ,MA003 AS  sd005
+                                    ,(CASE WHEN MA001 LIKE '2%' THEN '國內業務@國內業務' WHEN MA001 LIKE 'A%' THEN '國內業務@國內業務'  WHEN MA001 LIKE '3%' THEN '國外業務@國外業務' WHEN MA001 LIKE 'B%' THEN '國外業務@國外業務' END  )AS  sd90
+                                    ,MA023 AS  sd006
+                                    ,MA025 AS  sd007
+                                    ,MA010 AS  sd008
+                                    ,MA004 AS  sd009
+                                    ,MA005 AS  sd010
+                                    ,'' AS  sd011
+                                    ,'' AS  sd012
+                                    ,'' AS  sd013
+                                    ,'' AS  sd014
+                                    ,'' AS  sd015
+                                    ,MA009 AS  sd016
+                                    ,(CASE WHEN ISNULL(MA020,'') <>'' THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
+                                    ,MA011 AS  sd018
+                                    ,'有限公司' AS  sd019
+                                    ,MA013 AS  sd020
+                                    ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd021
+                                    ,'' AS  sd022
+                                    ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd023
+                                    ,'' AS  sd024
+                                    ,'自有' AS  sd025
+                                    ,'' AS  sd026
+                                    ,'電子發票' AS  sd027
+                                    ,(CASE WHEN MA041='1' THEN '現金'  WHEN MA041='2' THEN '電匯' WHEN MA041='3' THEN '支票' WHEN MA041='4' THEN '其他'END ) AS  sd028 
+                                    ,'法人' AS  sd029
+                                    ,COPMA.UDF02 AS  sd030
+                                    ,'' AS  sd031
+                                    ,'' AS  sd032
+                                    ,'' AS  sd033
+                                    ,'25號' AS  sd034
+                                    ,MO006 AS  sd035
+                                    ,'月結' AS  sd036
+                                    ,'' AS  sd037
+                                    ,'' AS  sd038
+                                    ,NA003 AS  sd039
+                                    ,NA003 AS  sd041
+                                    ,NA005 AS  sd040
+                                    ,MA033 AS  sd042
+                                    ,MA033 AS  sd043
+                                    ,MA014 AS  sd044
+                                    ,'客戶信用評分及信用額度' AS  sd0
+                                    ,' 信用評分' AS  sd051
+                                    ,'' AS  sd052
+                                    ,'' AS  sd053
+                                    ,'' AS  sd054
+                                    ,'' AS  sd055
+                                    ,'' AS  sd056
+                                    ,'3000萬以下(4分)' AS  sd057
+                                    ,'4' AS  sd058
+                                    ,'0' AS  sd060
+                                    ,'300000' AS  sd061
+                                    ,'0' AS  sd062
+                                    ,'400000' AS  sd063
+                                    ,'3000萬以下（4分）' AS  sd064
+                                    ,'4' AS  sd065
+                                    ,'0' AS  sd066
+                                    ,'300000' AS  sd067
+                                    ,'0' AS  sd068
+                                    ,'400000' AS  sd069
+                                    ,'50萬以下(5分)' AS  sd070
+                                    ,'5' AS  sd071
+                                    ,'沒有(10分)' AS  sd072
+                                    ,'10' AS  sd073
+                                    ,'正常(10分)' AS  sd074
+                                    ,'10' AS  sd075
+                                    ,'' AS  sd076
+                                    ,'5%以下(5分)' AS  sd077
+                                    ,'5' AS  sd078
+                                    ,'38' AS  sd079
+                                    ,'0' AS  sd080
+                                    ,'' AS  sd081
+                                    ,'38' AS  sd082
+                                    ,'0' AS  sd083
+                                    FROM [TK].dbo.COPMA
+                                    LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
+                                    LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
+                                    WHERE MA002 LIKE '%傌克斯%'"
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable FIND_TB_UOF_COPMA()
+        {
+            DataTable dt = new DataTable();
+
+
+            return dt;
+        }
+
+        public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA()
+        {
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -42752,6 +42992,10 @@ namespace TKSCHEDULEUOF
         private void button66_Click(object sender, EventArgs e)
         {
             NEWUOFQC1006();
+        }
+        private void button67_Click(object sender, EventArgs e)
+        {
+            ADD_UOF_COPMA();
         }
         #endregion
 

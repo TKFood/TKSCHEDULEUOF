@@ -98,6 +98,7 @@
             this.button55 = new System.Windows.Forms.Button();
             this.button56 = new System.Windows.Forms.Button();
             this.button62 = new System.Windows.Forms.Button();
+            this.button66 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button63 = new System.Windows.Forms.Button();
@@ -105,7 +106,7 @@
             this.button64 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button66 = new System.Windows.Forms.Button();
+            this.button67 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -203,6 +204,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button58, 3, 7);
             this.tableLayoutPanel1.Controls.Add(this.button59, 3, 6);
             this.tableLayoutPanel1.Controls.Add(this.button51, 3, 5);
+            this.tableLayoutPanel1.Controls.Add(this.button67, 0, 8);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -952,6 +954,16 @@
             this.button62.UseVisualStyleBackColor = true;
             this.button62.Click += new System.EventHandler(this.button62_Click);
             // 
+            // button66
+            // 
+            this.button66.Location = new System.Drawing.Point(123, 243);
+            this.button66.Name = "button66";
+            this.button66.Size = new System.Drawing.Size(194, 34);
+            this.button66.TabIndex = 41;
+            this.button66.Text = "轉入1006.委外送驗申請單";
+            this.button66.UseVisualStyleBackColor = true;
+            this.button66.Click += new System.EventHandler(this.button66_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.tableLayoutPanel3);
@@ -1041,15 +1053,16 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button66
+            // button67
             // 
-            this.button66.Location = new System.Drawing.Point(123, 243);
-            this.button66.Name = "button66";
-            this.button66.Size = new System.Drawing.Size(194, 34);
-            this.button66.TabIndex = 41;
-            this.button66.Text = "轉入1006.委外送驗申請單";
-            this.button66.UseVisualStyleBackColor = true;
-            this.button66.Click += new System.EventHandler(this.button66_Click);
+            this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button67.Location = new System.Drawing.Point(3, 323);
+            this.button67.Name = "button67";
+            this.button67.Size = new System.Drawing.Size(146, 34);
+            this.button67.TabIndex = 66;
+            this.button67.Text = "ERP客戶轉UOF表單";
+            this.button67.UseVisualStyleBackColor = true;
+            this.button67.Click += new System.EventHandler(this.button67_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1152,5 +1165,6 @@
         private System.Windows.Forms.Button button64;
         private System.Windows.Forms.Button button65;
         private System.Windows.Forms.Button button66;
+        private System.Windows.Forms.Button button67;
     }
 }
