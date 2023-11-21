@@ -42625,10 +42625,7 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
                                     LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
                                     WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND MA002 LIKE '%傌克斯%'
-
-
-
+                                  
                                     UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
                                     SET [sd057]='3000萬以下(4分)'
 
