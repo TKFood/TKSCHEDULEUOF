@@ -42952,6 +42952,20 @@ namespace TKSCHEDULEUOF
                 FormFieldValue.AppendChild(FieldItem);
 
                 //建立節點FieldItem
+                //MA001	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "MA001");
+                FieldItem.SetAttribute("fieldValue", DR["MA001"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //建立節點FieldItem
                 //sd002	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd002");
