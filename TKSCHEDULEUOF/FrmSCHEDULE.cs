@@ -42422,6 +42422,7 @@ namespace TKSCHEDULEUOF
 
         public void ADD_UOF_COPMA()
         {
+            //新增客戶資料
             ADD_TB_UOF_COPMA();
 
             DataTable dt = FIND_TB_UOF_COPMA();
@@ -42623,7 +42624,167 @@ namespace TKSCHEDULEUOF
                                     FROM [TK].dbo.COPMA
                                     LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
                                     LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
-                                    WHERE MA002 LIKE '%傌克斯%'"
+                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    AND MA002 LIKE '%傌克斯%'
+
+
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd057]='3000萬以下(4分)'
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd057]='3001萬~5000萬(6分)'
+                                    WHERE MA001 IN (
+                                    SELECT MA001 
+                                    FROM [TK].dbo.COPMA
+                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    AND  MA011>=30000001
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd057]='5001萬~1億以上(10分)'
+                                    WHERE MA001 IN (
+                                    SELECT MA001 
+                                    FROM [TK].dbo.COPMA
+                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    AND  MA011>=50000001
+                                    )
+
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET sd058='4'
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET sd058='6'
+                                    WHERE MA001 IN (
+                                    SELECT MA001 
+                                    FROM [TK].dbo.COPMA
+                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    AND  MA011>=30000001
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET sd058='10'
+                                    WHERE MA001 IN (
+                                    SELECT MA001 
+                                    FROM [TK].dbo.COPMA
+                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    AND  MA011>=50000001
+                                    )
+
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd070]='50萬以下(5分)'
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd070]='51萬~150萬(10分)'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 510000
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd070]='151萬~300萬(15分)'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 1510000
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd070]='300萬以上(20分)'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 3000000
+                                    )
+
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd071]='5'
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd071]='10'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 510000
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd071]='15'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 1510000
+                                    )
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    SET [sd071]='20'
+                                    WHERE MA001 IN (
+                                    SELECT MA001
+                                    FROM (
+                                        SELECT MA001,
+                                            (
+                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
+                                                FROM [TK].dbo.SASLA
+                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                            ) AS LASTMONEYS
+                                        FROM [TK].dbo.COPMA
+                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
+                                    ) AS TEMP
+                                    WHERE LASTMONEYS > 3000000
+                                    )
+
+                                    "
+
+
                                     );
 
                 cmd.Connection = sqlConn;
@@ -42777,7 +42938,7 @@ namespace TKSCHEDULEUOF
                 Form.AppendChild(FormFieldValue);
 
                 //建立節點FieldItem
-                //ID 表單編號	
+                //sd001 表單編號	
                 XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd001");
                 FieldItem.SetAttribute("fieldValue", "");
@@ -42791,7 +42952,7 @@ namespace TKSCHEDULEUOF
                 FormFieldValue.AppendChild(FieldItem);
 
                 //建立節點FieldItem
-                //QC	
+                //sd002	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd002");
                 FieldItem.SetAttribute("fieldValue", DR["sd002"].ToString());
@@ -42806,7 +42967,7 @@ namespace TKSCHEDULEUOF
 
 
                 //建立節點FieldItem
-                //TB 表單編號	
+                //sd038 表單編號	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd038");
                 FieldItem.SetAttribute("fieldValue", "");
