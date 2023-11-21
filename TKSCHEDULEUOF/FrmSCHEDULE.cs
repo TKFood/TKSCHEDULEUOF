@@ -11859,6 +11859,7 @@ namespace TKSCHEDULEUOF
                         //ADD_PURTGPURTH_TB_WKF_EXTERNAL_TASK(dr["TG001"].ToString().Trim(), dr["TG002"].ToString().Trim());
 
                         //PURA0.進貨-原物料品質驗收單
+                        //PURA0.進貨-進貨品質驗收單
                         ADD_PURTGPURTH_TB_WKF_EXTERNAL_TASK2(dr["TG001"].ToString().Trim(), dr["TG002"].ToString().Trim());
                     }
 
@@ -11904,7 +11905,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA0.進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA0.進貨-進貨品質驗收單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
