@@ -42965,6 +42965,486 @@ namespace TKSCHEDULEUOF
                 //加入至members節點底下
                 FormFieldValue.AppendChild(FieldItem);
 
+                //sd002	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd002");
+                FieldItem.SetAttribute("fieldValue", DR["sd002"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd003	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd003");
+                FieldItem.SetAttribute("fieldValue", DR["sd003"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd004	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd004");
+                FieldItem.SetAttribute("fieldValue", DR["sd004"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd005	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd005");
+                FieldItem.SetAttribute("fieldValue", DR["sd005"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd90	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd90");
+                FieldItem.SetAttribute("fieldValue", DR["sd90"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd006	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd006");
+                FieldItem.SetAttribute("fieldValue", DR["sd006"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd007	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd007");
+                FieldItem.SetAttribute("fieldValue", DR["sd007"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd008	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd008");
+                FieldItem.SetAttribute("fieldValue", DR["sd008"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd009	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd009");
+                FieldItem.SetAttribute("fieldValue", DR["sd009"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd010	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd010");
+                FieldItem.SetAttribute("fieldValue", DR["sd010"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd011	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd011");
+                FieldItem.SetAttribute("fieldValue", DR["sd011"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd012	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd012");
+                FieldItem.SetAttribute("fieldValue", DR["sd012"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd013	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd013");
+                FieldItem.SetAttribute("fieldValue", DR["sd013"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd014	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd014");
+                FieldItem.SetAttribute("fieldValue", DR["sd014"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd015	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd015");
+                FieldItem.SetAttribute("fieldValue", DR["sd015"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd016	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd016");
+                FieldItem.SetAttribute("fieldValue", DR["sd016"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd017	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd017");
+                FieldItem.SetAttribute("fieldValue", DR["sd017"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd018	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd018");
+                FieldItem.SetAttribute("fieldValue", DR["sd018"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd019	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd019");
+                FieldItem.SetAttribute("fieldValue", DR["sd019"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd020	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd020");
+                FieldItem.SetAttribute("fieldValue", DR["sd020"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd021	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd021");
+                FieldItem.SetAttribute("fieldValue", DR["sd021"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd022	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd022");
+                FieldItem.SetAttribute("fieldValue", DR["sd022"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd023	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd023");
+                FieldItem.SetAttribute("fieldValue", DR["sd023"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd024	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd024");
+                FieldItem.SetAttribute("fieldValue", DR["sd024"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd025	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd025");
+                FieldItem.SetAttribute("fieldValue", DR["sd025"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd026	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd026");
+                FieldItem.SetAttribute("fieldValue", DR["sd026"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd027	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd027");
+                FieldItem.SetAttribute("fieldValue", DR["sd027"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd028	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd028");
+                FieldItem.SetAttribute("fieldValue", DR["sd028"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd029	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd029");
+                FieldItem.SetAttribute("fieldValue", DR["sd029"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd030	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd030");
+                FieldItem.SetAttribute("fieldValue", DR["sd030"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd031	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd031");
+                FieldItem.SetAttribute("fieldValue", DR["sd031"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd032	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd032");
+                FieldItem.SetAttribute("fieldValue", DR["sd032"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd033	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd033");
+                FieldItem.SetAttribute("fieldValue", DR["sd033"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd034	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd034");
+                FieldItem.SetAttribute("fieldValue", DR["sd034"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd035	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd035");
+                FieldItem.SetAttribute("fieldValue", DR["sd035"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd036	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd036");
+                FieldItem.SetAttribute("fieldValue", DR["sd036"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd037	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd037");
+                FieldItem.SetAttribute("fieldValue", DR["sd037"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
 
                 //建立節點FieldItem
                 //sd038 表單編號	
@@ -42990,19 +43470,428 @@ namespace TKSCHEDULEUOF
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", (rowscounts).ToString());
 
-                //Row	sd039
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "sd039");
-                Cell.SetAttribute("fieldValue", DR["sd039"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
+                    //Row	sd039
+                    XmlElement Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd039");
+                    Cell.SetAttribute("fieldValue", DR["sd039"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
+                    //Row	sd040
+                    Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd040");
+                    Cell.SetAttribute("fieldValue", DR["sd040"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
+                    //Row	sd041
+                    Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd041");
+                    Cell.SetAttribute("fieldValue", DR["sd041"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
+                    //Row	sd042
+                    Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd042");
+                    Cell.SetAttribute("fieldValue", DR["sd042"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
+                    //Row	sd043
+                    Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd043");
+                    Cell.SetAttribute("fieldValue", DR["sd043"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
+                    //Row	sd044
+                    Cell = xmlDoc.CreateElement("Cell");
+                    Cell.SetAttribute("fieldId", "sd044");
+                    Cell.SetAttribute("fieldValue", DR["sd044"].ToString());
+                    Cell.SetAttribute("realValue", "");
+                    Cell.SetAttribute("customValue", "");
+                    Cell.SetAttribute("enableSearch", "True");
+                    //Row
+                    Row.AppendChild(Cell);
 
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='sd038']/DataGrid");
                 DataGridS.AppendChild(Row);
 
+                //sd0	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd0");
+                FieldItem.SetAttribute("fieldValue", DR["sd0"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd051	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd051");
+                FieldItem.SetAttribute("fieldValue", DR["sd051"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd057	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd057");
+                FieldItem.SetAttribute("fieldValue", DR["sd057"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd058	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd058");
+                FieldItem.SetAttribute("fieldValue", DR["sd058"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd060	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd060");
+                FieldItem.SetAttribute("fieldValue", DR["sd060"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd061	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd061");
+                FieldItem.SetAttribute("fieldValue", DR["sd061"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd062	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd062");
+                FieldItem.SetAttribute("fieldValue", DR["sd062"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd063	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd063");
+                FieldItem.SetAttribute("fieldValue", DR["sd063"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd064	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd064");
+                FieldItem.SetAttribute("fieldValue", DR["sd064"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd065	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd065");
+                FieldItem.SetAttribute("fieldValue", DR["sd065"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd066	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd066");
+                FieldItem.SetAttribute("fieldValue", DR["sd066"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd067	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd067");
+                FieldItem.SetAttribute("fieldValue", DR["sd067"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd068	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd068");
+                FieldItem.SetAttribute("fieldValue", DR["sd068"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd069	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd069");
+                FieldItem.SetAttribute("fieldValue", DR["sd069"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd070	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd070");
+                FieldItem.SetAttribute("fieldValue", DR["sd070"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd071	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd071");
+                FieldItem.SetAttribute("fieldValue", DR["sd071"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd072	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd072");
+                FieldItem.SetAttribute("fieldValue", DR["sd072"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd073	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd073");
+                FieldItem.SetAttribute("fieldValue", DR["sd073"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd074	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd074");
+                FieldItem.SetAttribute("fieldValue", DR["sd074"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd075	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd075");
+                FieldItem.SetAttribute("fieldValue", DR["sd075"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd076	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd076");
+                FieldItem.SetAttribute("fieldValue", DR["sd076"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd077	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd077");
+                FieldItem.SetAttribute("fieldValue", DR["sd077"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd078	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd078");
+                FieldItem.SetAttribute("fieldValue", DR["sd078"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd079	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd079");
+                FieldItem.SetAttribute("fieldValue", DR["sd079"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd080	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd080");
+                FieldItem.SetAttribute("fieldValue", DR["sd080"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd081	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd081");
+                FieldItem.SetAttribute("fieldValue", DR["sd081"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd082	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd082");
+                FieldItem.SetAttribute("fieldValue", DR["sd082"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+
+                //sd083	
+                FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "sd083");
+                FieldItem.SetAttribute("fieldValue", DR["sd083"].ToString());
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                //加入至members節點底下
+                FormFieldValue.AppendChild(FieldItem);
+               
                 //foreach (DataRow od in DT.Rows)
                 //{
                 //    // 新增 Row
