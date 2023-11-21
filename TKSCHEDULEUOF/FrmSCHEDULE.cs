@@ -42560,7 +42560,7 @@ namespace TKSCHEDULEUOF
                                     ,'' AS  sd014
                                     ,'' AS  sd015
                                     ,MA009 AS  sd016
-                                    ,(CASE WHEN ISNULL(MA020,'') <>'' THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
+                                    ,(CASE WHEN ISDATE(MA020) = 1  THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
                                     ,MA011 AS  sd018
                                     ,'有限公司' AS  sd019
                                     ,MA013 AS  sd020
@@ -42598,15 +42598,15 @@ namespace TKSCHEDULEUOF
                                     ,'3000萬以下(4分)' AS  sd057
                                     ,'4' AS  sd058
                                     ,'0' AS  sd060
-                                    ,'300000' AS  sd061
+                                    ,'0' AS  sd061
                                     ,'0' AS  sd062
-                                    ,'400000' AS  sd063
+                                    ,'' AS  sd063
                                     ,'3000萬以下（4分）' AS  sd064
                                     ,'4' AS  sd065
                                     ,'0' AS  sd066
-                                    ,'300000' AS  sd067
+                                    ,'' AS  sd067
                                     ,'0' AS  sd068
-                                    ,'400000' AS  sd069
+                                    ,'' AS  sd069
                                     ,'50萬以下(5分)' AS  sd070
                                     ,'5' AS  sd071
                                     ,'沒有(10分)' AS  sd072
