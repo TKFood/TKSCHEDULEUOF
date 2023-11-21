@@ -42898,7 +42898,7 @@ namespace TKSCHEDULEUOF
             int rowscounts = 0;
 
             //正式的id
-            string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("1001.客戶基本資料表");           
+            string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("100A.客戶基本資料表");           
 
 
             foreach (DataRow DR in dt.Rows)
