@@ -43994,7 +43994,7 @@ namespace TKSCHEDULEUOF
 
         public void ADD_UOF_COPMA_1001()
         {
-            //新增客戶資料
+            //新增客戶資料 TKBUSINESS UOF_COPMA1001
             ADD_TB_UOF_COPMA_1001();
 
             DataTable dt = FIND_TB_UOF_COPMA_1001();
@@ -44483,6 +44483,17 @@ namespace TKSCHEDULEUOF
 
             foreach (DataRow DR in dt.Rows)
             {
+                DTUPFDEP = SEARCHUOFDEP(DR["MA016"].ToString());
+
+                account = DTUPFDEP.Rows[0]["ACCOUNT"].ToString();
+                groupId = DTUPFDEP.Rows[0]["GROUP_ID"].ToString();
+                jobTitleId = DTUPFDEP.Rows[0]["TITLE_ID"].ToString();
+                fillerName = DTUPFDEP.Rows[0]["NAME"].ToString();
+                fillerUserGuid = DTUPFDEP.Rows[0]["USER_GUID"].ToString();
+
+                DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+                DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
                 EXTERNAL_FORM_NBR = DR["MA001"].ToString();
 
                 XmlDocument xmlDoc = new XmlDocument();
