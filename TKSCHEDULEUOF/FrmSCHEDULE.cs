@@ -42545,7 +42545,7 @@ namespace TKSCHEDULEUOF
                                      MA001
                                     ,'' AS  sd001
                                     ,CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.CREATE_DATE),111) AS  sd002
-                                    ,'新增' AS  sd003
+                                    ,'修改' AS  sd003
                                     ,MA002 AS  sd004
                                     ,MA003 AS  sd005
                                     ,(CASE WHEN MA001 LIKE '2%' THEN '國內業務@國內業務' WHEN MA001 LIKE 'A%' THEN '國內業務@國內業務'  WHEN MA001 LIKE '3%' THEN '國外業務@國外業務' WHEN MA001 LIKE 'B%' THEN '國外業務@國外業務' END  )AS  sd90
