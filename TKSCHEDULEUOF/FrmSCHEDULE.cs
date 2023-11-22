@@ -44333,6 +44333,8 @@ namespace TKSCHEDULEUOF
             //更新STATUS='2',DOC_NBR=NULL,TASK_ID=NULL
             //UOF要自動核單，到下一關
 
+            //要重起UOF的才服務-Ede.Uof.Utlity.Task.Engine
+
             //不要有逾時[UOF].dbo.TB_WKF_TASK_NODE
             //UPDATE[UOF].dbo.TB_WKF_TASK_NODE
             ADD_UOF_COPMA();
