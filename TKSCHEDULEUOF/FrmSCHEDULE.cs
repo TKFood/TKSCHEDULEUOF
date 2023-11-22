@@ -44332,6 +44332,9 @@ namespace TKSCHEDULEUOF
             //UOF一次拋轉表單5分鐘只能100筆，所以要分批拋轉
             //更新STATUS='2',DOC_NBR=NULL,TASK_ID=NULL
             //UOF要自動核單，到下一關
+
+            //不要有逾時[UOF].dbo.TB_WKF_TASK_NODE
+            //UPDATE[UOF].dbo.TB_WKF_TASK_NODE
             ADD_UOF_COPMA();
         }
         #endregion
