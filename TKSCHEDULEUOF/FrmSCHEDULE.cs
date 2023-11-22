@@ -42544,7 +42544,7 @@ namespace TKSCHEDULEUOF
                                     SELECT   
                                      MA001
                                     ,'' AS  sd001
-                                    ,CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.CREATE_DATE),111) AS  sd002
+                                    ,CONVERT(NVARCHAR,CONVERT(DATETIME,GETDATE()),111) AS  sd002
                                     ,'修改' AS  sd003
                                     ,MA002 AS  sd004
                                     ,MA003 AS  sd005
