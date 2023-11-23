@@ -146,7 +146,7 @@ namespace TKSCHEDULEUOF
             //ERP客戶轉UOF表單-1001客戶基本資料表
             try
             {
-                ADD_UOF_COPMA_1001();
+                ADD_UOF_COPMA_1001(); 
             }
             catch { }
             //轉入1006委外送驗申請單
