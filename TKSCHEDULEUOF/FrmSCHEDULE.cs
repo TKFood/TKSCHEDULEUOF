@@ -42591,12 +42591,12 @@ namespace TKSCHEDULEUOF
                                     ,MA033 AS  sd043
                                     ,MA014 AS  sd044
                                     ,'客戶信用評分及信用額度' AS  sd0
-                                    ,' 信用評分' AS  sd051
+                                    ,'信用評分' AS  sd051
                                     ,'' AS  sd052
                                     ,'' AS  sd053
                                     ,'' AS  sd054
                                     ,'' AS  sd055
-                                    ,'' AS  sd056
+                                    ,'信用評分' AS  sd056
                                     ,'3000萬以下(4分)' AS  sd057
                                     ,'4' AS  sd058
                                     ,'0' AS  sd060
@@ -44177,7 +44177,7 @@ namespace TKSCHEDULEUOF
                                     ,MA033 AS  sd043
                                     ,MA014 AS  sd044
                                     ,'客戶信用評分及信用額度' AS  sd0
-                                    ,' 信用評分' AS  sd051
+                                    ,'信用評分' AS  sd051
                                     ,'' AS  sd052
                                     ,'' AS  sd053
                                     ,'' AS  sd054
