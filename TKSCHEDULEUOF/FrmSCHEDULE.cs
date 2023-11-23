@@ -42576,7 +42576,7 @@ namespace TKSCHEDULEUOF
                                     ,COPMA.UDF02 AS  sd030
                                     ,'' AS  sd031
                                     ,'' AS  sd032
-                                    ,'' AS  sd033
+                                    ,'0' AS  sd033
                                     ,'25號' AS  sd034
                                     ,MO006 AS  sd035
                                     ,'月結' AS  sd036
@@ -44033,6 +44033,7 @@ namespace TKSCHEDULEUOF
                                      INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA1001]
                                     (
                                     [MA001]
+                                    ,[MA016]
                                     ,[sd001]
                                     ,[sd002]
                                     ,[sd003]
@@ -44115,6 +44116,7 @@ namespace TKSCHEDULEUOF
 
                                     SELECT   
                                      MA001
+                                    ,MA016
                                     ,'' AS  sd001
                                     ,CONVERT(NVARCHAR,CONVERT(DATETIME,GETDATE()),111) AS  sd002
                                     ,'修改' AS  sd003
@@ -44148,7 +44150,7 @@ namespace TKSCHEDULEUOF
                                     ,COPMA.UDF02 AS  sd030
                                     ,'' AS  sd031
                                     ,'' AS  sd032
-                                    ,'' AS  sd033
+                                    ,'0' AS  sd033
                                     ,'25號' AS  sd034
                                     ,MO006 AS  sd035
                                     ,'月結' AS  sd036
