@@ -265,12 +265,12 @@ namespace TKSCHEDULEUOF
             catch { }
             ADDUOFASTMBASTMC();
 
-            //ERP報價單
-            try
-            {
-                ADDCOPMACOPMBCOPMC();
-            }
-            catch { }
+            ////ERP報價單
+            //try
+            //{
+            //    ADDCOPMACOPMBCOPMC();
+            //}
+            //catch { }
            
 
             //ERP請購單
@@ -379,10 +379,15 @@ namespace TKSCHEDULEUOF
                 ADDUOFQCINVTAINVTB();
             }
             catch { }
-          
 
-            //ADDCOPTCCOPTD();
-            //ADDCOPTECOPTF();
+            //try
+            //{
+            //    ADDCOPTECOPTF();
+            //    ADDCOPTECOPTF();
+            //}
+            //catch { }
+
+      
 
             //UPDATE_TB_WKF_TASK_TASK_RESULT();
 
