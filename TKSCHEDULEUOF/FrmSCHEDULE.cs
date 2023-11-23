@@ -42461,6 +42461,7 @@ namespace TKSCHEDULEUOF
                                      INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA]
                                     (
                                     [MA001]
+                                    ,[MA016]
                                     ,[sd001]
                                     ,[sd002]
                                     ,[sd003]
@@ -42543,6 +42544,7 @@ namespace TKSCHEDULEUOF
 
                                     SELECT   
                                      MA001
+                                    ,MA016
                                     ,'' AS  sd001
                                     ,CONVERT(NVARCHAR,CONVERT(DATETIME,GETDATE()),111) AS  sd002
                                     ,'修改' AS  sd003
@@ -42900,6 +42902,18 @@ namespace TKSCHEDULEUOF
 
             foreach (DataRow DR in dt.Rows)
             {
+                DTUPFDEP = SEARCHUOFDEP(DR["MA016"].ToString());
+
+                account = DTUPFDEP.Rows[0]["ACCOUNT"].ToString();
+                groupId = DTUPFDEP.Rows[0]["GROUP_ID"].ToString();
+                jobTitleId = DTUPFDEP.Rows[0]["TITLE_ID"].ToString();
+                fillerName = DTUPFDEP.Rows[0]["NAME"].ToString();
+                fillerUserGuid = DTUPFDEP.Rows[0]["USER_GUID"].ToString();
+
+                DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+                DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+
                 EXTERNAL_FORM_NBR = DR["MA001"].ToString();
 
                 XmlDocument xmlDoc = new XmlDocument();
