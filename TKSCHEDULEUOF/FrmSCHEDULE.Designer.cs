@@ -386,9 +386,10 @@
             // 
             // button8
             // 
+            this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button8.Location = new System.Drawing.Point(3, 403);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(146, 34);
+            this.button8.Size = new System.Drawing.Size(157, 34);
             this.button8.TabIndex = 18;
             this.button8.Text = "別用，改UOF送單，ERP訂單>轉入UOF簽核";
             this.button8.UseVisualStyleBackColor = true;
@@ -396,9 +397,10 @@
             // 
             // button9
             // 
+            this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button9.Location = new System.Drawing.Point(3, 443);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(146, 34);
+            this.button9.Size = new System.Drawing.Size(157, 34);
             this.button9.TabIndex = 19;
             this.button9.Text = "別用，改UOF送單，ERP訂單變更>轉入UOF簽核";
             this.button9.UseVisualStyleBackColor = true;
