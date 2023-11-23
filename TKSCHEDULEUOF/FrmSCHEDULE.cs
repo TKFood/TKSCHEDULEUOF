@@ -44182,7 +44182,7 @@ namespace TKSCHEDULEUOF
                                     ,'' AS  sd053
                                     ,'' AS  sd054
                                     ,'' AS  sd055
-                                    ,'' AS  sd056
+                                    ,'信用評分' AS  sd056
                                     ,'3000萬以下(4分)' AS  sd057
                                     ,'4' AS  sd058
                                     ,'0' AS  sd060
