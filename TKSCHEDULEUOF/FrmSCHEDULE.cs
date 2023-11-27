@@ -42431,19 +42431,19 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_UOF_COPMA()
+        public void ADD_UOF_COPMA_100A()
         {
             //新增客戶資料
-            ADD_TB_UOF_COPMA();
+            ADD_TB_UOF_COPMA_100A();
 
-            DataTable dt = FIND_TB_UOF_COPMA();
+            DataTable dt = FIND_TB_UOF_COPMA_100A();
             if(dt!=null&& dt.Rows.Count>=1)
             {
-                ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA(dt);
+                ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(dt);
             }
         }
 
-        public void ADD_TB_UOF_COPMA()
+        public void ADD_TB_UOF_COPMA_100A()
         {
             try
             {
@@ -42468,8 +42468,8 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@" 
-                                     DELETE [TKBUSINESS].[dbo].[UOF_COPMA]
-                                     INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA]
+                                     DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
+                                     INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     (
                                     [MA001]
                                     ,[MA016]
@@ -42638,11 +42638,12 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
                                     LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
                                     WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                  
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    AND    MA001='2999999A' 
+
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd057]='3000萬以下(4分)'
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd057]='3001萬~5000萬(6分)'
                                     WHERE MA001 IN (
                                     SELECT MA001 
@@ -42651,7 +42652,7 @@ namespace TKSCHEDULEUOF
                                     AND  MA011>=30000001
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd057]='5001萬~1億以上(10分)'
                                     WHERE MA001 IN (
                                     SELECT MA001 
@@ -42661,10 +42662,10 @@ namespace TKSCHEDULEUOF
                                     )
 
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET sd058='4'
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET sd058='6'
                                     WHERE MA001 IN (
                                     SELECT MA001 
@@ -42673,7 +42674,7 @@ namespace TKSCHEDULEUOF
                                     AND  MA011>=30000001
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET sd058='10'
                                     WHERE MA001 IN (
                                     SELECT MA001 
@@ -42683,10 +42684,10 @@ namespace TKSCHEDULEUOF
                                     )
 
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd070]='50萬以下(5分)'
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd070]='51萬~150萬(10分)'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42703,7 +42704,7 @@ namespace TKSCHEDULEUOF
                                     WHERE LASTMONEYS > 510000
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd070]='151萬~300萬(15分)'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42720,7 +42721,7 @@ namespace TKSCHEDULEUOF
                                     WHERE LASTMONEYS > 1510000
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd070]='300萬以上(20分)'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42738,10 +42739,10 @@ namespace TKSCHEDULEUOF
                                     )
 
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd071]='5'
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd071]='10'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42758,7 +42759,7 @@ namespace TKSCHEDULEUOF
                                     WHERE LASTMONEYS > 510000
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd071]='15'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42775,7 +42776,7 @@ namespace TKSCHEDULEUOF
                                     WHERE LASTMONEYS > 1510000
                                     )
 
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd071]='20'
                                     WHERE MA001 IN (
                                     SELECT MA001
@@ -42824,7 +42825,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable FIND_TB_UOF_COPMA()
+        public DataTable FIND_TB_UOF_COPMA_100A()
         {
             DataTable dt = new DataTable();
             DataTable DT = new DataTable();
@@ -42855,7 +42856,7 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
-                                    FROM [TKBUSINESS].[dbo].[UOF_COPMA]
+                                    FROM [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     ");
 
 
@@ -42889,7 +42890,7 @@ namespace TKSCHEDULEUOF
             return dt;
         }
 
-        public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA(DataTable dt)
+        public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(DataTable dt)
         {
             DataTable DT = dt;
             DataTable DTUPFDEP = SEARCHUOFDEP("140078");
@@ -46058,7 +46059,7 @@ namespace TKSCHEDULEUOF
 
             //不要有逾時[UOF].dbo.TB_WKF_TASK_NODE
             //UPDATE[UOF].dbo.TB_WKF_TASK_NODE
-            ADD_UOF_COPMA();
+            ADD_UOF_COPMA_100A();
         }
         private void button68_Click(object sender, EventArgs e)
         {
