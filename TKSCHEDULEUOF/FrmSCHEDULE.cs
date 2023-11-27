@@ -42570,11 +42570,11 @@ namespace TKSCHEDULEUOF
                                     ,'' AS  sd011
                                     ,'' AS  sd012
                                     ,'' AS  sd013
-                                    ,'' AS  sd014
-                                    ,'' AS  sd015
+                                    ,MA006 AS  sd014
+                                    ,MA007 AS  sd015
                                     ,MA009 AS  sd016
                                     ,(CASE WHEN ISDATE(MA020) = 1  THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
-                                    ,MA011 AS  sd018
+                                    ,MA011*10000  AS  sd018
                                     ,'有限公司' AS  sd019
                                     ,MA013 AS  sd020
                                     ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd021
@@ -43571,7 +43571,7 @@ namespace TKSCHEDULEUOF
                 //sd044	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd044");
-                FieldItem.SetAttribute("fieldValue", "");
+                FieldItem.SetAttribute("fieldValue", DR["sd044"].ToString());
                 FieldItem.SetAttribute("realValue", "");
                 FieldItem.SetAttribute("enableSearch", "True");
                 FieldItem.SetAttribute("fillerName", fillerName);
@@ -44173,11 +44173,11 @@ namespace TKSCHEDULEUOF
                                     ,'' AS  sd011
                                     ,'' AS  sd012
                                     ,'' AS  sd013
-                                    ,'' AS  sd014
-                                    ,'' AS  sd015
+                                    ,MA006 AS  sd014
+                                    ,MA007 AS  sd015
                                     ,MA009 AS  sd016
                                     ,(CASE WHEN ISDATE(MA020) = 1  THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
-                                    ,MA011 AS  sd018
+                                    ,MA011*10000 AS  sd018
                                     ,'有限公司' AS  sd019
                                     ,MA013 AS  sd020
                                     ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd021
