@@ -43543,7 +43543,7 @@ namespace TKSCHEDULEUOF
                 //sd042	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd042");
-                FieldItem.SetAttribute("fieldValue", "");
+                FieldItem.SetAttribute("fieldValue", DR["sd042"].ToString());
                 FieldItem.SetAttribute("realValue", "");
                 FieldItem.SetAttribute("enableSearch", "True");
                 FieldItem.SetAttribute("fillerName", fillerName);
@@ -43557,7 +43557,7 @@ namespace TKSCHEDULEUOF
                 //sd043	
                 FieldItem = xmlDoc.CreateElement("FieldItem");
                 FieldItem.SetAttribute("fieldId", "sd043");
-                FieldItem.SetAttribute("fieldValue", "");
+                FieldItem.SetAttribute("fieldValue", DR["sd043"].ToString());
                 FieldItem.SetAttribute("realValue", "");
                 FieldItem.SetAttribute("enableSearch", "True");
                 FieldItem.SetAttribute("fillerName", fillerName);
