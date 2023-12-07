@@ -45714,6 +45714,1011 @@ namespace TKSCHEDULEUOF
 
         }
 
+        public void NEWPURTEPURTF_ERP()
+        {
+            //查詢請購變更單已核，但是未產生採購變更單的明細
+            DataTable DT_FIND_View_TB_WKF_TASK_PURTACHANGE = FIND_View_TB_WKF_TASK_PURTACHANGE();
+
+            if (DT_FIND_View_TB_WKF_TASK_PURTACHANGE!=null&& DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows.Count>=1)
+            {
+                foreach(DataRow DR_FIND_View_TB_WKF_TASK_PURTACHANGE in DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows)
+                {
+                    string TA001 = DR_FIND_View_TB_WKF_TASK_PURTACHANGE["TA001"].ToString();
+                    string TA002 = DR_FIND_View_TB_WKF_TASK_PURTACHANGE["TA002"].ToString();
+                    string VERSIONS = DR_FIND_View_TB_WKF_TASK_PURTACHANGE["VERSIONS"].ToString();
+
+                    //檢查請購變更單的採購單，是否有採購變更單未核準
+                    DataTable DTCHECKPURTEPURTF = CHECKPURTEPURTF(TA001, TA002, VERSIONS);
+                    //DTCHECKPURTEPURTF = null;
+                    if (DTCHECKPURTEPURTF == null)
+                    {
+                        //找出請購變更單有幾張採購單，要1對多
+                        DataTable DTPURTCPURTD = SEARCHPURTCPURTD(TA001, TA002, VERSIONS);
+                        //DataTable DTPURTCPURTD = SEARCHPURTCPURTD("A312", "20221116001", "2");
+                        DataTable DTOURTE = new DataTable();
+
+                        //找出採購單跟最大的版次
+                        if (DTPURTCPURTD.Rows.Count > 0)
+                        {
+                            DTOURTE = FINDPURTE(DTPURTCPURTD);
+                        }
+
+                        //新增採購變更單
+                        if (DTOURTE.Rows.Count > 0)
+                        {
+                            ADDTOPURTEPURTF(DTOURTE);
+                        }
+                    }
+                    else
+                    {
+                        StringBuilder MESS = new StringBuilder();
+                        foreach (DataRow DR in DTCHECKPURTEPURTF.Rows)
+                        {
+                            MESS.AppendFormat(@" 採購變更單:" + DR["TE001"].ToString() + " " + DR["TE002"].ToString() + "" + "變更版次:" + DR["TE003"].ToString() + " 沒有核準 ");
+                        }
+
+                        MessageBox.Show(MESS.ToString());
+                    }
+
+                }
+
+
+            }
+
+
+
+        }
+
+        public DataTable FIND_View_TB_WKF_TASK_PURTACHANGE()
+        {
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            DataSet ds = new DataSet();
+
+            try
+            {
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    [TA001]
+                                    ,[TA002]
+                                    ,[VERSIONS]
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_PURTACHANGE]
+                                    WHERE 1=1
+                                    AND ISNULL([TA002],'')<>''
+                                    AND [VERSIONS]+[TA001]+[TA002] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                    (
+                                    SELECT SUBSTRING(UDF01,1,LEN(UDF01)-4) FROM [192.168.1.105].[TK].dbo.PURTF 
+                                    WHERE ISNULL(UDF01,'')<>''
+
+                                    GROUP BY SUBSTRING(UDF01,1,LEN(UDF01)-4)
+                                    )
+                                    AND TA002>='20231207001'
+                                    GROUP BY TA001, TA002, VERSIONS
+                                    ORDER BY [TA002]
+
+                                    ");
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "TEMPds1");
+                sqlConn.Close();
+
+
+                if (ds.Tables["TEMPds1"].Rows.Count >= 1)
+                {
+
+                    return ds.Tables["TEMPds1"];
+                }
+                else
+                {
+                    return null;
+
+                }
+
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+
+
+
+        }
+
+        public DataTable CHECKPURTEPURTF(string TA001, string TA002, string VERSIONS)
+        {
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            DataSet ds = new DataSet();
+
+            try
+            {
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@"  
+                                    SELECT TE001,TE002,TE003
+                                    FROM [TK].dbo.PURTE
+                                    WHERE TE017 IN ('N')
+                                    AND TE001+TE002 IN 
+                                    (
+                                    SELECT TD001+TD002
+                                    FROM [TK].dbo.PURTD
+                                    WHERE TD026+TD027+TD028 IN 
+                                    (
+                                    SELECT TA001+TA002+TB003
+                                    FROM [TKPUR].[dbo].[PURTATBCHAGE]
+                                    WHERE  TA001='{0}' AND TA002='{1}' AND VERSIONS='{2}'
+                                    )
+                                    GROUP BY  TD001,TD002
+                                    )
+
+                                    ", TA001, TA002, VERSIONS);
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "TEMPds1");
+                sqlConn.Close();
+
+
+                if (ds.Tables["TEMPds1"].Rows.Count >= 1)
+                {
+
+                    return ds.Tables["TEMPds1"];
+                }
+                else
+                {
+                    return null;
+
+                }
+
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+
+
+
+        }
+
+        public DataTable SEARCHPURTCPURTD(string TA001, string TA002, string VERSIONS)
+        {
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            DataSet ds = new DataSet();
+
+            try
+            {
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                sbSql.AppendFormat(@"  
+                                  
+                                    SELECT TD001,TD002,'{0}' TA001,'{1}' TA002,'{2}' VERSIONS
+                                    FROM [TK].dbo.PURTD
+                                    WHERE TD026+TD027+TD028 IN 
+                                    (
+                                    SELECT TA001+TA002+TB003
+                                    FROM [TKPUR].[dbo].[PURTATBCHAGE]
+                                    WHERE  TA001='{0}' AND TA002='{1}' AND VERSIONS='{2}'
+                                    )
+                                    GROUP BY  TD001,TD002
+
+                                    ", TA001, TA002, VERSIONS);
+
+                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                sqlConn.Open();
+                ds.Clear();
+                adapter.Fill(ds, "TEMPds1");
+                sqlConn.Close();
+
+
+                if (ds.Tables["TEMPds1"].Rows.Count >= 1)
+                {
+
+                    return ds.Tables["TEMPds1"];
+                }
+                else
+                {
+                    return null;
+
+                }
+
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+
+            }
+
+
+
+        }
+
+        public DataTable FINDPURTE(DataTable DTTEMP)
+        {
+            DataTable DT = new DataTable();
+            DT.Clear();
+            DT.Columns.Add("TE001");
+            DT.Columns.Add("TE002");
+            DT.Columns.Add("TE003");
+            DT.Columns.Add("TA001");
+            DT.Columns.Add("TA002");
+            DT.Columns.Add("VERSIONS");
+
+
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            DataSet ds = new DataSet();
+
+            string TE001 = null;
+            string TE002 = null;
+            string TA001 = null;
+            string TA002 = null;
+            string VERSIONS = null;
+
+            if (DTTEMP.Rows.Count > 0)
+            {
+                foreach (DataRow DR in DTTEMP.Rows)
+                {
+
+                    TE001 = DR["TD001"].ToString();
+                    TE002 = DR["TD002"].ToString();
+                    TA001 = DR["TA001"].ToString();
+                    TA002 = DR["TA002"].ToString();
+                    VERSIONS = DR["VERSIONS"].ToString();
+
+                    try
+                    {
+                        //20210902密
+                        Class1 TKID = new Class1();//用new 建立類別實體
+                        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                        //資料庫使用者密碼解密
+                        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                        String connectionString;
+                        sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+
+                        sbSql.Clear();
+                        sbSqlQuery.Clear();
+
+
+                        sbSql.AppendFormat(@"  
+                                            SELECT TOP 1 TE001,TE002,TE003
+                                            FROM [TK].dbo.PURTE
+                                            WHERE TE001='{0}' AND TE002='{1}'
+                                            ORDER BY TE001 DESC,TE002 DESC,TE003 DESC
+
+                                             ", TE001, TE002);
+
+                        adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                        sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                        sqlConn.Open();
+                        ds.Clear();
+                        adapter.Fill(ds, "TEMPds1");
+                        sqlConn.Close();
+
+
+                        if (ds.Tables["TEMPds1"].Rows.Count >= 1)
+                        {
+                            int serno = Convert.ToInt16(ds.Tables["TEMPds1"].Rows[0]["TE003"].ToString());
+                            serno = serno + 1;
+                            string temp = serno.ToString();
+                            temp = temp.PadLeft(4, '0');
+
+                            DataRow NEWDR = DT.NewRow();
+                            NEWDR["TE001"] = TE001;
+                            NEWDR["TE002"] = TE002;
+                            NEWDR["TE003"] = temp;
+                            NEWDR["TA001"] = TA001;
+                            NEWDR["TA002"] = TA002;
+                            NEWDR["VERSIONS"] = VERSIONS;
+                            DT.Rows.Add(NEWDR);
+
+                        }
+                        else
+                        {
+                            DataRow NEWDR = DT.NewRow();
+                            NEWDR["TE001"] = TE001;
+                            NEWDR["TE002"] = TE002;
+                            NEWDR["TE003"] = "0001";
+                            NEWDR["TA001"] = TA001;
+                            NEWDR["TA002"] = TA002;
+                            NEWDR["VERSIONS"] = VERSIONS;
+                            DT.Rows.Add(NEWDR);
+
+                        }
+
+
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                    finally
+                    {
+
+                    }
+                }
+
+                return DT;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        public void ADDTOPURTEPURTF(DataTable NEWPURTEPURTF)
+        {
+            if (NEWPURTEPURTF.Rows.Count > 0)
+            {
+                try
+                {
+                    //20210902密
+                    Class1 TKID = new Class1();//用new 建立類別實體
+                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                    //資料庫使用者密碼解密
+                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                    String connectionString;
+                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
+
+                    sbSql.Clear();
+
+                    foreach (DataRow DR in NEWPURTEPURTF.Rows)
+                    {
+                        sbSql.AppendFormat(@"  
+                                   
+                                            INSERT INTO [TK].[dbo].[PURTF]
+                                            (
+                                            [COMPANY]
+                                            ,[CREATOR]
+                                            ,[USR_GROUP]
+                                            ,[CREATE_DATE]
+                                            ,[MODIFIER]
+                                            ,[MODI_DATE]
+                                            ,[FLAG]
+                                            ,[CREATE_TIME]
+                                            ,[MODI_TIME]
+                                            ,[TRANS_TYPE]
+                                            ,[TRANS_NAME]
+                                            ,[sync_date]
+                                            ,[sync_time]
+                                            ,[sync_mark]
+                                            ,[sync_count]
+                                            ,[DataUser]
+                                            ,[DataGroup]
+                                            ,[TF001]
+                                            ,[TF002]
+                                            ,[TF003]
+                                            ,[TF004]
+                                            ,[TF005]
+                                            ,[TF006]
+                                            ,[TF007]
+                                            ,[TF008]
+                                            ,[TF009]
+                                            ,[TF010]
+                                            ,[TF011]
+                                            ,[TF012]
+                                            ,[TF013]
+                                            ,[TF014]
+                                            ,[TF015]
+                                            ,[TF016]
+                                            ,[TF017]
+                                            ,[TF018]
+                                            ,[TF019]
+                                            ,[TF020]
+                                            ,[TF021]
+                                            ,[TF022]
+                                            ,[TF023]
+                                            ,[TF024]
+                                            ,[TF025]
+                                            ,[TF026]
+                                            ,[TF027]
+                                            ,[TF028]
+                                            ,[TF029]
+                                            ,[TF030]
+                                            ,[TF031]
+                                            ,[TF032]
+                                            ,[TF033]
+                                            ,[TF034]
+                                            ,[TF035]
+                                            ,[TF036]
+                                            ,[TF037]
+                                            ,[TF038]
+                                            ,[TF039]
+                                            ,[TF040]
+                                            ,[TF041]
+                                            ,[TF104]
+                                            ,[TF105]
+                                            ,[TF106]
+                                            ,[TF107]
+                                            ,[TF108]
+                                            ,[TF109]
+                                            ,[TF110]
+                                            ,[TF111]
+                                            ,[TF112]
+                                            ,[TF113]
+                                            ,[TF114]
+                                            ,[TF118]
+                                            ,[TF119]
+                                            ,[TF120]
+                                            ,[TF121]
+                                            ,[TF122]
+                                            ,[TF123]
+                                            ,[TF124]
+                                            ,[TF125]
+                                            ,[TF126]
+                                            ,[TF127]
+                                            ,[TF128]
+                                            ,[TF129]
+                                            ,[TF130]
+                                            ,[TF131]
+                                            ,[TF132]
+                                            ,[TF133]
+                                            ,[TF134]
+                                            ,[TF135]
+                                            ,[TF136]
+                                            ,[TF137]
+                                            ,[TF138]
+                                            ,[TF139]
+                                            ,[TF140]
+                                            ,[TF141]
+                                            ,[TF142]
+                                            ,[TF143]
+                                            ,[TF144]
+                                            ,[TF145]
+                                            ,[TF146]
+                                            ,[TF147]
+                                            ,[TF148]
+                                            ,[TF149]
+                                            ,[TF150]
+                                            ,[TF151]
+                                            ,[TF152]
+                                            ,[TF153]
+                                            ,[TF154]
+                                            ,[TF155]
+                                            ,[TF156]
+                                            ,[TF157]
+                                            ,[TF158]
+                                            ,[TF159]
+                                            ,[TF160]
+                                            ,[TF161]
+                                            ,[TF162]
+                                            ,[TF163]
+                                            ,[TF164]
+                                            ,[TF165]
+                                            ,[TF166]
+                                            ,[TF167]
+                                            ,[TF168]
+                                            ,[TF169]
+                                            ,[TF170]
+                                            ,[TF171]
+                                            ,[TF172]
+                                            ,[TF173]
+                                            ,[UDF01]
+                                            ,[UDF02]
+                                            ,[UDF03]
+                                            ,[UDF04]
+                                            ,[UDF05]
+                                            ,[UDF06]
+                                            ,[UDF07]
+                                            ,[UDF08]
+                                            ,[UDF09]
+                                            ,[UDF10]
+                                            )
+
+                                            SELECT 
+                                            PURTD.[COMPANY]
+                                            ,PURTD.[CREATOR] AS [CREATOR]
+                                            ,PURTD.[USR_GROUP] AS [USR_GROUP]
+                                            ,PURTD.[CREATE_DATE] AS [CREATE_DATE]
+                                            ,PURTD.[MODIFIER] AS [MODIFIER]
+                                            ,PURTD.[MODI_DATE] AS [MODI_DATE]
+                                            ,PURTD.[FLAG] AS [FLAG]
+                                            ,PURTD.[CREATE_TIME] AS [CREATE_TIME]
+                                            ,PURTD.[MODI_TIME] AS [MODI_TIME]
+                                            ,PURTD.[TRANS_TYPE] AS [TRANS_TYPE]
+                                            ,'PURI08' AS [TRANS_NAME]
+                                            ,PURTD.[sync_date] AS [sync_date]
+                                            ,PURTD.[sync_time] AS [sync_time]
+                                            ,PURTD.[sync_mark] AS [sync_mark]
+                                            ,PURTD.[sync_count] AS [sync_count]
+                                            ,PURTD.[DataUser] AS [DataUser]
+                                            ,PURTD.[DataGroup] AS [DataGroup]
+                                            ,TD001 AS [TF001]
+                                            ,TD002 AS [TF002]
+                                            ,'{3}' AS [TF003]
+                                            ,TD003 AS [TF004]
+                                            ,[PURTATBCHAGE].TB004 AS [TF005]
+                                            ,[PURTATBCHAGE].TB005 AS [TF006]
+                                            ,[PURTATBCHAGE].TB006 AS [TF007]
+                                            ,TD007 AS [TF008]
+                                            ,[PURTATBCHAGE].TB009 AS [TF009]
+                                            ,TD009 AS [TF010]
+                                            ,TD010 AS [TF011]
+                                            ,[PURTATBCHAGE].TB009*TD010 AS [TF012]
+                                            ,[PURTATBCHAGE].TB011 AS [TF013]
+                                            ,'N' AS [TF014]
+                                            ,TD015 AS [TF015]
+                                            ,'N' AS [TF016]
+                                            ,[PURTATBCHAGE].TB012 AS [TF017]
+                                            ,TD019 AS [TF018]
+                                            ,TD020 AS [TF019]
+                                            ,TD022 AS [TF020]
+                                            ,TD025 AS [TF021]
+                                            ,TD017 AS [TF022]
+                                            ,TD029 AS [TF023]
+                                            ,TD030 AS [TF024]
+                                            ,TD032 AS [TF025]
+                                            ,TD033 AS [TF026]
+                                            ,TD036 AS [TF027]
+                                            ,TD037 AS [TF028]
+                                            ,TD038 AS [TF029]
+                                            ,TD014 AS [TF030]
+                                            ,'' AS [TF031]
+                                            ,'' AS [TF032]
+                                            ,'' AS [TF033]
+                                            ,'' AS [TF034]
+                                            ,'' AS [TF035]
+                                            ,0 AS [TF036]
+                                            ,0 AS [TF037]
+                                            ,'' AS [TF038]
+                                            ,'' AS [TF039]
+                                            ,'' AS [TF040]
+                                            ,0 AS [TF041]
+                                            ,TD003 AS [TF104]
+                                            ,TD004 AS [TF105]
+                                            ,TD005 AS [TF106]
+                                            ,TD006 AS [TF107]
+                                            ,TD007 AS [TF108]
+                                            ,TD008 AS [TF109]
+                                            ,TD009 AS [TF110]
+                                            ,TD010 AS [TF111]
+                                            ,TD011 AS [TF112]
+                                            ,TD012 AS [TF113]
+                                            ,TD016 AS [TF114]
+                                            ,TD019 AS [TF118]
+                                            ,TD020 AS [TF119]
+                                            ,TD022 AS [TF120]
+                                            ,TD025 AS [TF121]
+                                            ,TD017 AS [TF122]
+                                            ,TD029 AS [TF123]
+                                            ,TD030 AS [TF124]
+                                            ,TD031 AS [TF125]
+                                            ,TD032 AS [TF126]
+                                            ,TD033 AS [TF127]
+                                            ,TD034 AS [TF128]
+                                            ,TD035 AS [TF129]
+                                            ,TD034 AS [TF130]
+                                            ,TD035 AS [TF131]
+                                            ,TD036 AS [TF132]
+                                            ,TD037 AS [TF133]
+                                            ,TD038 AS [TF134]
+                                            ,TD014 AS [TF135]
+                                            ,0 AS [TF136]
+                                            ,0 AS [TF137]
+                                            ,'' AS [TF138]
+                                            ,'' AS [TF139]
+                                            ,'' AS [TF140]
+                                            ,0 AS [TF141]
+                                            ,'' AS [TF142]
+                                            ,'' AS [TF143]
+                                            ,'' AS [TF144]
+                                            ,'2' AS [TF145]
+                                            ,'2' AS [TF146]
+                                            ,'' AS [TF147]
+                                            ,'' AS [TF148]
+                                            ,'' AS [TF149]
+                                            ,'' AS [TF150]
+                                            ,'' AS [TF151]
+                                            ,TD080 AS [TF152]
+                                            ,TD081 AS [TF153]
+                                            ,TD082 AS [TF154]
+                                            ,TD083 AS [TF155]
+                                            ,TD080 AS [TF156]
+                                            ,TD081 AS [TF157]
+                                            ,TD082 AS [TF158]
+                                            ,TD083 AS [TF159]
+                                            ,TD084 AS [TF160]
+                                            ,TD085 AS [TF161]
+                                            ,TD084 AS [TF162]
+                                            ,TD085 AS [TF163]
+                                            ,0 AS [TF164]
+                                            ,0 AS [TF165]
+                                            ,0 AS [TF166]
+                                            ,0 AS [TF167]
+                                            ,'' AS [TF168]
+                                            ,'' AS [TF169]
+                                            ,'' AS [TF170]
+                                            ,'' AS [TF171]
+                                            ,'' AS [TF172]
+                                            ,'' AS [TF173]
+                                            ,CONVERT(NVARCHAR,[PURTATBCHAGE].VERSIONS)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA001)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA002)+CONVERT(NVARCHAR,[PURTATBCHAGE].TB003) AS [UDF01]
+                                            ,'' AS [UDF02]
+                                            ,'' AS [UDF03]
+                                            ,'' AS [UDF04]
+                                            ,'' AS [UDF05]
+                                            ,0 AS [UDF06]
+                                            ,0 AS [UDF07]
+                                            ,0 AS [UDF08]
+                                            ,0 AS [UDF09]
+                                            ,0 AS [UDF10]
+
+                                            FROM [TK].dbo.PURTD,[TKPUR].[dbo].[PURTATBCHAGE]
+                                            WHERE 1=1
+                                            AND PURTD.TD026=[PURTATBCHAGE].TA001 AND PURTD.TD027=[PURTATBCHAGE].TA002 AND PURTD.TD028=[PURTATBCHAGE].TB003
+                                            AND TD001='{4}' AND TD002='{5}'
+                                            AND [PURTATBCHAGE].TA001='{0}' AND [PURTATBCHAGE].TA002='{1}' AND [PURTATBCHAGE].VERSIONS='{2}'
+
+
+
+                                            INSERT INTO [TK].[dbo].[PURTE]
+                                            (
+                                            [COMPANY]
+                                            ,[CREATOR]
+                                            ,[USR_GROUP]
+                                            ,[CREATE_DATE]
+                                            ,[MODIFIER]
+                                            ,[MODI_DATE]
+                                            ,[FLAG]
+                                            ,[CREATE_TIME]
+                                            ,[MODI_TIME]
+                                            ,[TRANS_TYPE]
+                                            ,[TRANS_NAME]
+                                            ,[sync_date]
+                                            ,[sync_time]
+                                            ,[sync_mark]
+                                            ,[sync_count]
+                                            ,[DataUser]
+                                            ,[DataGroup]
+                                            ,[TE001]
+                                            ,[TE002]
+                                            ,[TE003]
+                                            ,[TE004]
+                                            ,[TE005]
+                                            ,[TE006]
+                                            ,[TE007]
+                                            ,[TE008]
+                                            ,[TE009]
+                                            ,[TE010]
+                                            ,[TE011]
+                                            ,[TE012]
+                                            ,[TE013]
+                                            ,[TE014]
+                                            ,[TE015]
+                                            ,[TE016]
+                                            ,[TE017]
+                                            ,[TE018]
+                                            ,[TE019]
+                                            ,[TE020]
+                                            ,[TE021]
+                                            ,[TE022]
+                                            ,[TE023]
+                                            ,[TE024]
+                                            ,[TE025]
+                                            ,[TE026]
+                                            ,[TE027]
+                                            ,[TE028]
+                                            ,[TE029]
+                                            ,[TE030]
+                                            ,[TE031]
+                                            ,[TE032]
+                                            ,[TE033]
+                                            ,[TE034]
+                                            ,[TE035]
+                                            ,[TE036]
+                                            ,[TE037]
+                                            ,[TE038]
+                                            ,[TE039]
+                                            ,[TE040]
+                                            ,[TE041]
+                                            ,[TE042]
+                                            ,[TE043]
+                                            ,[TE045]
+                                            ,[TE046]
+                                            ,[TE047]
+                                            ,[TE048]
+                                            ,[TE103]
+                                            ,[TE107]
+                                            ,[TE108]
+                                            ,[TE109]
+                                            ,[TE110]
+                                            ,[TE113]
+                                            ,[TE114]
+                                            ,[TE115]
+                                            ,[TE118]
+                                            ,[TE119]
+                                            ,[TE120]
+                                            ,[TE121]
+                                            ,[TE122]
+                                            ,[TE123]
+                                            ,[TE124]
+                                            ,[TE125]
+                                            ,[TE134]
+                                            ,[TE135]
+                                            ,[TE136]
+                                            ,[TE137]
+                                            ,[TE138]
+                                            ,[TE139]
+                                            ,[TE140]
+                                            ,[TE141]
+                                            ,[TE142]
+                                            ,[TE143]
+                                            ,[TE144]
+                                            ,[TE145]
+                                            ,[TE146]
+                                            ,[TE147]
+                                            ,[TE148]
+                                            ,[TE149]
+                                            ,[TE150]
+                                            ,[TE151]
+                                            ,[TE152]
+                                            ,[TE153]
+                                            ,[TE154]
+                                            ,[TE155]
+                                            ,[TE156]
+                                            ,[TE157]
+                                            ,[TE158]
+                                            ,[TE159]
+                                            ,[TE160]
+                                            ,[TE161]
+                                            ,[TE162]
+                                            ,[UDF01]
+                                            ,[UDF02]
+                                            ,[UDF03]
+                                            ,[UDF04]
+                                            ,[UDF05]
+                                            ,[UDF06]
+                                            ,[UDF07]
+                                            ,[UDF08]
+                                            ,[UDF09]
+                                            ,[UDF10]
+                                            )
+                                            SELECT 
+                                            PURTC.[COMPANY]
+                                            ,PURTC.[CREATOR]
+                                            ,PURTC.[USR_GROUP]
+                                            ,PURTC.[CREATE_DATE]
+                                            ,PURTC.[MODIFIER]
+                                            ,PURTC.[MODI_DATE]
+                                            ,PURTC.[FLAG]
+                                            ,PURTC.[CREATE_TIME]
+                                            ,PURTC.[MODI_TIME]
+                                            ,PURTC.[TRANS_TYPE]
+                                            ,'PURI08' AS [TRANS_NAME]
+                                            ,PURTC.[sync_date]
+                                            ,PURTC.[sync_time]
+                                            ,PURTC.[sync_mark]
+                                            ,PURTC.[sync_count]
+                                            ,PURTC.[DataUser]
+                                            ,PURTC.[DataGroup]
+                                            ,TC001 AS [TE001]
+                                            ,TC002 AS [TE002]
+                                            ,'{3}' AS [TE003]
+                                            ,CONVERT(NVARCHAR,GETDATE(),112) AS [TE004]
+                                            ,TC004 AS [TE005]
+                                            ,'' AS [TE006]
+                                            ,TC005 AS [TE007]
+                                            ,TC006 AS [TE008]
+                                            ,TC007 AS [TE009]
+                                            ,TC008 AS [TE010]
+                                            ,CONVERT(NVARCHAR,GETDATE(),112) AS [TE011]
+                                            ,'N' AS [TE012]
+                                            ,TC015 AS [TE013]
+                                            ,TC016 AS [TE014]
+                                            ,TC017 AS [TE015]
+                                            ,0 AS [TE016]
+                                            ,'N' AS [TE017]
+                                            ,TC018 AS [TE018]
+                                            ,TC021 AS [TE019]
+                                            ,TC022 AS [TE020]
+                                            ,'' AS [TE021]
+                                            ,TC026 AS [TE022]
+                                            ,TC027 AS [TE023]
+                                            ,TC028 AS [TE024]
+                                            ,'N' AS [TE025]
+                                            ,0 AS [TE026]
+                                            ,TC009 AS [TE027]
+                                            ,'N' AS [TE028]
+                                            ,TC035 AS [TE029]
+                                            ,'' AS [TE030]
+                                            ,'' AS [TE031]
+                                            ,'N' AS [TE032]
+                                            ,'' AS [TE033]
+                                            ,0 AS [TE034]
+                                            ,0 AS [TE035]
+                                            ,'' AS [TE036]
+                                            ,TC011 AS [TE037]
+                                            ,'' AS [TE038]
+                                            ,'' AS [TE039]
+                                            ,'' AS [TE040]
+                                            ,TC050 AS [TE041]
+                                            ,'' AS [TE042]
+                                            ,TC036 AS [TE043]
+                                            ,TC037 AS [TE045]
+                                            ,TC038 AS [TE046]
+                                            ,TC039 AS [TE047]
+                                            ,TC040 AS [TE048]
+                                            ,'' AS [TE103]
+                                            ,TC005 AS [TE107]
+                                            ,TC006 AS [TE108]
+                                            ,TC007 AS [TE109]
+                                            ,TC008 AS [TE110]
+                                            ,TC015 AS [TE113]
+                                            ,TC016 AS [TE114]
+                                            ,TC017 AS [TE115]
+                                            ,TC018 AS [TE118]
+                                            ,TC021 AS [TE119]
+                                            ,TC022 AS [TE120]
+                                            ,TC026 AS [TE121]
+                                            ,TC027 AS [TE122]
+                                            ,TC028 AS [TE123]
+                                            ,TC009 AS [TE124]
+                                            ,TC035 AS [TE125]
+                                            ,0 AS [TE134]
+                                            ,0 AS [TE135]
+                                            ,'' AS [TE136]
+                                            ,'' AS [TE137]
+                                            ,'' AS [TE138]
+                                            ,'' AS [TE139]
+                                            ,'1' AS [TE140]
+                                            ,'N' AS [TE141]
+                                            ,'N' AS [TE142]
+                                            ,TC036 AS [TE143]
+                                            ,'N' AS [TE144]
+                                            ,'' AS [TE145]
+                                            ,TC041 AS [TE146]
+                                            ,TC041 AS [TE147]
+                                            ,TC011 AS [TE148]
+                                            ,0 AS [TE149]
+                                            ,0 AS [TE150]
+                                            ,0 AS [TE151]
+                                            ,0 AS [TE152]
+                                            ,'' AS [TE153]
+                                            ,'' AS [TE154]
+                                            ,'' AS [TE155]
+                                            ,'' AS [TE156]
+                                            ,'' AS [TE157]
+                                            ,'' AS [TE158]
+                                            ,TC037 AS [TE159]
+                                            ,TC038 AS [TE160]
+                                            ,TC039 AS [TE161]
+                                            ,TC040 AS [TE162]
+                                            ,'' AS [UDF01]
+                                            ,'' AS [UDF02]
+                                            ,'' AS [UDF03]
+                                            ,'' AS [UDF04]
+                                            ,'' AS [UDF05]
+                                            ,0 AS [UDF06]
+                                            ,0 AS [UDF07]
+                                            ,0 AS [UDF08]
+                                            ,0 AS [UDF09]
+                                            ,0 AS [UDF10]
+                                            FROM  [TK].dbo.PURTC
+                                            WHERE 1=1
+                                            AND TC001='{4}' AND TC002='{5}'
+                                            ", DR["TA001"].ToString(), DR["TA002"].ToString(), DR["VERSIONS"].ToString(), DR["TE003"].ToString(), DR["TE001"].ToString(), DR["TE002"].ToString());
+                    }
+
+                    sbSql.AppendFormat(@"  
+                                   
+                                        ");
+
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+
+
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+
+
+                    }
+                }
+                catch
+                {
+
+                }
+
+                finally
+                {
+                    sqlConn.Close();
+                }
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -46064,6 +47069,10 @@ namespace TKSCHEDULEUOF
         private void button68_Click(object sender, EventArgs e)
         {
             ADD_UOF_COPMA_1001();
+        }
+        private void button69_Click(object sender, EventArgs e)
+        {
+            NEWPURTEPURTF_ERP();
         }
         #endregion
 

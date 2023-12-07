@@ -64,7 +64,6 @@
             this.button38 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
             this.button45 = new System.Windows.Forms.Button();
-            this.button39 = new System.Windows.Forms.Button();
             this.button46 = new System.Windows.Forms.Button();
             this.button47 = new System.Windows.Forms.Button();
             this.button48 = new System.Windows.Forms.Button();
@@ -86,6 +85,7 @@
             this.button58 = new System.Windows.Forms.Button();
             this.button59 = new System.Windows.Forms.Button();
             this.button51 = new System.Windows.Forms.Button();
+            this.button39 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -108,6 +108,7 @@
             this.button68 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.button69 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -566,16 +567,6 @@
             this.button45.UseVisualStyleBackColor = true;
             this.button45.Click += new System.EventHandler(this.button45_Click);
             // 
-            // button39
-            // 
-            this.button39.Location = new System.Drawing.Point(3, 483);
-            this.button39.Name = "button39";
-            this.button39.Size = new System.Drawing.Size(157, 34);
-            this.button39.TabIndex = 49;
-            this.button39.Text = "別用，改UOF送單，ERP報價單>轉入UOF簽核";
-            this.button39.UseVisualStyleBackColor = true;
-            this.button39.Click += new System.EventHandler(this.button39_Click);
-            // 
             // button46
             // 
             this.button46.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -799,6 +790,16 @@
             this.button51.UseVisualStyleBackColor = true;
             this.button51.Click += new System.EventHandler(this.button51_Click);
             // 
+            // button39
+            // 
+            this.button39.Location = new System.Drawing.Point(3, 483);
+            this.button39.Name = "button39";
+            this.button39.Size = new System.Drawing.Size(157, 34);
+            this.button39.TabIndex = 49;
+            this.button39.Text = "別用，改UOF送單，ERP報價單>轉入UOF簽核";
+            this.button39.UseVisualStyleBackColor = true;
+            this.button39.Click += new System.EventHandler(this.button39_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tableLayoutPanel2);
@@ -985,14 +986,15 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 194F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 105F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel3.Controls.Add(this.button63, 1, 1);
             this.tableLayoutPanel3.Controls.Add(this.button65, 1, 2);
             this.tableLayoutPanel3.Controls.Add(this.button64, 1, 7);
-            this.tableLayoutPanel3.Controls.Add(this.button67, 3, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button68, 3, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button68, 3, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button67, 3, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button69, 5, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1052,9 +1054,9 @@
             // button67
             // 
             this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button67.Location = new System.Drawing.Point(363, 132);
+            this.button67.Location = new System.Drawing.Point(363, 83);
             this.button67.Name = "button67";
-            this.button67.Size = new System.Drawing.Size(188, 45);
+            this.button67.Size = new System.Drawing.Size(188, 41);
             this.button67.TabIndex = 67;
             this.button67.Text = "ERP客戶轉UOF表單-100A客戶基本資料表";
             this.button67.UseVisualStyleBackColor = true;
@@ -1063,9 +1065,9 @@
             // button68
             // 
             this.button68.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button68.Location = new System.Drawing.Point(363, 83);
+            this.button68.Location = new System.Drawing.Point(363, 43);
             this.button68.Name = "button68";
-            this.button68.Size = new System.Drawing.Size(188, 41);
+            this.button68.Size = new System.Drawing.Size(188, 34);
             this.button68.TabIndex = 68;
             this.button68.Text = "ERP客戶轉UOF表單-1001客戶基本資料表";
             this.button68.UseVisualStyleBackColor = true;
@@ -1078,6 +1080,17 @@
             // timer2
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // button69
+            // 
+            this.button69.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button69.Location = new System.Drawing.Point(603, 43);
+            this.button69.Name = "button69";
+            this.button69.Size = new System.Drawing.Size(129, 34);
+            this.button69.TabIndex = 69;
+            this.button69.Text = "產生採購變更單";
+            this.button69.UseVisualStyleBackColor = true;
+            this.button69.Click += new System.EventHandler(this.button69_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1182,5 +1195,6 @@
         private System.Windows.Forms.Button button66;
         private System.Windows.Forms.Button button67;
         private System.Windows.Forms.Button button68;
+        private System.Windows.Forms.Button button69;
     }
 }
