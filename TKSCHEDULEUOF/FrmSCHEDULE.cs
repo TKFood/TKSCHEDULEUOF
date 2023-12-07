@@ -143,6 +143,12 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //請購變更單，UOF核準後，自動豆是否有採購單，如果有就產生採購變購單
+            try
+            {
+                NEWPURTEPURTF_ERP();
+            }
+            catch { }           
             //ERP客戶轉UOF表單-1001客戶基本資料表
             try
             {
@@ -45741,13 +45747,15 @@ namespace TKSCHEDULEUOF
                         if (DTPURTCPURTD.Rows.Count > 0)
                         {
                             DTOURTE = FINDPURTE(DTPURTCPURTD);
+
+                            //新增採購變更單
+                            if (DTOURTE.Rows.Count > 0)
+                            {
+                                ADDTOPURTEPURTF(DTOURTE);
+                            }
                         }
 
-                        //新增採購變更單
-                        if (DTOURTE.Rows.Count > 0)
-                        {
-                            ADDTOPURTEPURTF(DTOURTE);
-                        }
+                       
                     }
                     else
                     {
