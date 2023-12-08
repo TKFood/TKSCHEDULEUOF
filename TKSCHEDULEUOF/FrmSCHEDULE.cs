@@ -20070,7 +20070,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA1.客供進貨-原物料品質驗收單");
+            string PURTGID = SEARCHFORM_UOF_VERSION_ID("PURA1.客供進貨-進貨品質驗收單");
 
             if (!string.IsNullOrEmpty(PURTGID))
             {
