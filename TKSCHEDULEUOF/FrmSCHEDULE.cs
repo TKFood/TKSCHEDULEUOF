@@ -20334,17 +20334,6 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	DETAIL04
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "DETAIL04");
-                Cell.SetAttribute("fieldValue", "N");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "@null");
-                Cell.SetAttribute("enableSearch", "True");
-                Cell.SetAttribute("fieldMessage", "Y");
-                //Row
-                Row.AppendChild(Cell);
-
                 //Row	DETAIL05
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "DETAIL05");
@@ -20367,7 +20356,27 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-               
+                //Row	DETAIL06
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL07");
+                Cell.SetAttribute("fieldValue", od["TB033"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+                //Row	DETAIL06
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "DETAIL08");
+                Cell.SetAttribute("fieldValue", od["TB015"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
 
 
                 rowscounts = rowscounts + 1;
@@ -20484,7 +20493,9 @@ namespace TKSCHEDULEUOF
                                     ,INVTB.TB007
                                     ,INVTB.TB008
                                     ,INVTB.TB014
-                                   
+                                    ,INVTB.TB015
+                                    ,INVTB.TB033  
+
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVTA.CREATOR) AS 'MV002'
 
