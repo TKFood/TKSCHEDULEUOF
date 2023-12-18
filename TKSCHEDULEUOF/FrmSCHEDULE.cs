@@ -23569,20 +23569,44 @@ namespace TKSCHEDULEUOF
             //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
             
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut();
             //DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
             //string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
             //string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
             //string jobTitleId_SET = DTUSERDEP_SET.Rows[0]["TITLE_ID"].ToString();
 
+            string account = "";
+            string groupId = "";
+            string jobTitleId = "";
+            string fillerName = "";
+            string fillerUserGuid = "";
 
-            string account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
-            string groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
-            string fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
-            string fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+            string DEPNAME = "";
+            string DEPNO = "";
 
-            string DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
-            string DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
+            if (DTUSERDEP!=null&& DTUSERDEP.Rows.Count>=1)
+            {
+                account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
+                groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
+                jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
+                fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
+                fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+
+                DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
+                DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
+
+            }
+            else
+            {
+                account = DTUSERDEP_Defalut.Rows[0]["ACCOUNT"].ToString();
+                groupId = DTUSERDEP_Defalut.Rows[0]["GROUP_ID"].ToString();
+                jobTitleId = DTUSERDEP_Defalut.Rows[0]["TITLE_ID"].ToString();
+                fillerName = DTUSERDEP_Defalut.Rows[0]["NAME"].ToString();
+                fillerUserGuid = DTUSERDEP_Defalut.Rows[0]["USER_GUID"].ToString();
+
+                DEPNAME = DTUSERDEP_Defalut.Rows[0]["DEPNAME"].ToString();
+                DEPNO = DTUSERDEP_Defalut.Rows[0]["DEPNO"].ToString();
+            }
 
             string  EXTERNAL_FORM_NBR = DOC_NBR;
 
@@ -24037,6 +24061,73 @@ namespace TKSCHEDULEUOF
                                     AND [TB_EB_USER].[USER_GUID]='{0}'
                               
                                     ", USER_GUID);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+        public DataTable SEARCHUOFUSERDEP_Defalut()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    [ACCOUNT]
+                                    ,[GROUP_ID]
+                                    ,[TITLE_ID]
+                                    ,[NAME]
+                                    ,[USER_GUID]
+                                    ,[DEPNAME]
+                                    ,[DEPNO]
+                                    FROM [TKGAFFAIRS].[dbo].[UOF1005DEFALUT]
+                              
+                                    ");
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
