@@ -44303,7 +44303,7 @@ namespace TKSCHEDULEUOF
                                     ,'0' AS  sd033
                                     ,'25號' AS  sd034
                                     ,MO006 AS  sd035
-                                    ,'月結' AS  sd036
+                                    ,'' AS  sd036
                                     ,'' AS  sd037
                                     ,'' AS  sd038
                                     ,NA003 AS  sd039
