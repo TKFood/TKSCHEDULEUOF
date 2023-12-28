@@ -46829,6 +46829,183 @@ namespace TKSCHEDULEUOF
                 }
             }
         }
+
+        public void NEW_POSET()
+        {
+            DataTable DT = FIND_POSETS();
+           
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                ADD_TK_Z_POSSET(DT);
+            }
+        }
+
+        public DataTable FIND_POSETS()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM 
+                                    (
+                                    SELECT DOC_NBR
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD001""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD001
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD002""]/ @fieldValue)[1]', 'nvarchar(max)') AS FIELD002
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD003""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD003
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD004""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD004
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD005""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD005
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD006""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD006
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD007""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD007
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD008""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD008
+
+                                    , TB_WKF_FORM.FORM_NAME
+                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN('POS,商品活動設定')
+                                    AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
+
+                                    ) AS TEMP
+                                    WHERE 1 = 1
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT DOC_NBR FROM[192.168.1.105].[TK].[dbo].[Z_POSSET] WHERE ISNULL(DOC_NBR, '') <> '')
+
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return DT;
+        }
+
+        public void ADD_TK_Z_POSSET(DataTable DT)
+        {
+            string DOC_NBR = null;
+            string KINDS = null;
+            string ID = null;
+            StringBuilder SQL = new StringBuilder();
+            SQL.AppendFormat(@" ");
+
+            foreach (DataRow dr in DT.Rows)
+            {
+                DOC_NBR = dr["DOC_NBR"].ToString();
+                KINDS = dr["FIELD007"].ToString();
+                ID = dr["FIELD002"].ToString();
+
+                SQL.AppendFormat(@" 
+                                INSERT INTO [TK].[dbo].[Z_POSSET]
+                                ([DOC_NBR],[KINDS],[ID])
+                                VALUES
+                                ('{0}','{1}','{2}')
+                                ", DOC_NBR, KINDS, ID);
+
+            }
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+                
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
+
+
         #endregion
 
         #region BUTTON
@@ -47183,6 +47360,10 @@ namespace TKSCHEDULEUOF
         private void button69_Click(object sender, EventArgs e)
         {
             NEWPURTEPURTF_ERP();
+        }
+        private void button70_Click(object sender, EventArgs e)
+        {
+            NEW_POSET();
         }
         #endregion
 
