@@ -104,6 +104,10 @@ namespace TKSCHEDULEUOF
             timer2.Enabled = true;
             timer2.Interval = 1000 * 60;
             timer2.Start();
+
+            timer3.Enabled = true;
+            timer3.Interval = 1000 * 60;
+            timer3.Start();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -396,6 +400,11 @@ namespace TKSCHEDULEUOF
       
 
             //UPDATE_TB_WKF_TASK_TASK_RESULT();
+
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
 
         }
 
@@ -47365,8 +47374,9 @@ namespace TKSCHEDULEUOF
         {
             NEW_POSET();
         }
+
         #endregion
 
-
+        
     }
 }

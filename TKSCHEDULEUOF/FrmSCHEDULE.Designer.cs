@@ -99,6 +99,7 @@
             this.button56 = new System.Windows.Forms.Button();
             this.button62 = new System.Windows.Forms.Button();
             this.button66 = new System.Windows.Forms.Button();
+            this.button70 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button63 = new System.Windows.Forms.Button();
@@ -109,7 +110,7 @@
             this.button69 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button70 = new System.Windows.Forms.Button();
+            this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -969,6 +970,16 @@
             this.button66.UseVisualStyleBackColor = true;
             this.button66.Click += new System.EventHandler(this.button66_Click);
             // 
+            // button70
+            // 
+            this.button70.Location = new System.Drawing.Point(363, 243);
+            this.button70.Name = "button70";
+            this.button70.Size = new System.Drawing.Size(192, 34);
+            this.button70.TabIndex = 42;
+            this.button70.Text = "轉入POS活動";
+            this.button70.UseVisualStyleBackColor = true;
+            this.button70.Click += new System.EventHandler(this.button70_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.tableLayoutPanel3);
@@ -1094,15 +1105,9 @@
             // 
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button70
+            // timer3
             // 
-            this.button70.Location = new System.Drawing.Point(363, 243);
-            this.button70.Name = "button70";
-            this.button70.Size = new System.Drawing.Size(192, 34);
-            this.button70.TabIndex = 42;
-            this.button70.Text = "轉入POS活動";
-            this.button70.UseVisualStyleBackColor = true;
-            this.button70.Click += new System.EventHandler(this.button70_Click);
+            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
             // FrmSCHEDULE
             // 
@@ -1209,5 +1214,6 @@
         private System.Windows.Forms.Button button68;
         private System.Windows.Forms.Button button69;
         private System.Windows.Forms.Button button70;
+        private System.Windows.Forms.Timer timer3;
     }
 }
