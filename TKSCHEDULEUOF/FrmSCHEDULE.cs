@@ -46841,6 +46841,7 @@ namespace TKSCHEDULEUOF
 
         public void NEW_POSET()
         {
+            //找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
             DataTable DT_FIND_POSETS = FIND_POSETS();           
 
             if (DT_FIND_POSETS != null && DT_FIND_POSETS.Rows.Count >= 1)
@@ -46848,11 +46849,15 @@ namespace TKSCHEDULEUOF
                 ADD_TK_Z_POSSET(DT_FIND_POSETS);
             }
 
+            //針對TK_Z_POSSET的活動做POS機的LOG發送
             DataTable DT_TK_Z_POSSET = FIND_TK_Z_POSSET();
             if (DT_TK_Z_POSSET != null && DT_TK_Z_POSSET.Rows.Count >= 1)
             {
                 INSERT_UPDATE_LOG_POSM(DT_TK_Z_POSSET);
             }
+
+            //更新TK_Z_POSSET的[ISUPDATE]
+            //UPDATE_Z_POSSET();
         }
 
         public DataTable FIND_POSETS()
@@ -46950,7 +46955,7 @@ namespace TKSCHEDULEUOF
             string KINDS = null;
             string ID = null;
             StringBuilder SQL = new StringBuilder();
-            SQL.AppendFormat(@" ");
+            SQL.Clear();
 
             foreach (DataRow dr in DT.Rows)
             {
@@ -47022,18 +47027,14 @@ namespace TKSCHEDULEUOF
         {
           
             StringBuilder SQL = new StringBuilder();
-            SQL.AppendFormat(@" ");
+            SQL.Clear();
 
             if (DT!=null&& DT.Rows.Count>=1)
             {
                 foreach(DataRow DR in DT.Rows)
                 {
                     SQL.AppendFormat(@"
-                                        --LOG_POSMB
-                                        SELECT *
-                                        FROM [TK].dbo.LOG_POSMB
-                                        WHERE MB003='{0}'
-                                        ORDER BY store_ip
+                                        --LOG_POSMB                                 
 
                                         DELETE [TK].dbo.LOG_POSMB
                                         WHERE MB003='{0}'
@@ -47183,6 +47184,70 @@ namespace TKSCHEDULEUOF
 
 
             return DT;
+        }
+
+        public void UPDATE_Z_POSSET()
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            SQL.AppendFormat(@"
+                            UPDATE  [TK].[dbo].[Z_POSSET]
+                            SET ISUPDATE='Y'
+                            WHERE ISUPDATE IN ('N')
+                            ");
+
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
         }
         #endregion
 
