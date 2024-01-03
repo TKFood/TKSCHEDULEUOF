@@ -46901,6 +46901,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD006""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD006
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD007""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD007
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD008""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD008
+                                    ,CURRENT_DOC.value('(Form/Applicant/@account)[1]', 'nvarchar(max)') AS account
 
                                     , TB_WKF_FORM.FORM_NAME
                                     FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
@@ -46954,6 +46955,7 @@ namespace TKSCHEDULEUOF
             string DOC_NBR = null;
             string KINDS = null;
             string ID = null;
+            string account = null;
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
 
@@ -46962,13 +46964,13 @@ namespace TKSCHEDULEUOF
                 DOC_NBR = dr["DOC_NBR"].ToString();
                 KINDS = dr["FIELD007"].ToString();
                 ID = dr["FIELD002"].ToString();
-
+                account= dr["account"].ToString();
                 SQL.AppendFormat(@" 
                                 INSERT INTO [TK].[dbo].[Z_POSSET]
-                                ([DOC_NBR],[KINDS],[ID])
+                                ([DOC_NBR],[KINDS],[ID],[ADMINID])
                                 VALUES
-                                ('{0}','{1}','{2}')
-                                ", DOC_NBR, KINDS, ID);
+                                ('{0}','{1}','{2}','{3}')
+                                ", DOC_NBR, KINDS, ID, account);
 
             }
 
