@@ -46841,12 +46841,17 @@ namespace TKSCHEDULEUOF
 
         public void NEW_POSET()
         {
-            DataTable DT = FIND_POSETS();
-           
+            DataTable DT_FIND_POSETS = FIND_POSETS();           
 
-            if (DT != null && DT.Rows.Count >= 1)
+            if (DT_FIND_POSETS != null && DT_FIND_POSETS.Rows.Count >= 1)
             {
-                ADD_TK_Z_POSSET(DT);
+                ADD_TK_Z_POSSET(DT_FIND_POSETS);
+            }
+
+            DataTable DT_TK_Z_POSSET = FIND_TK_Z_POSSET();
+            if (DT_TK_Z_POSSET != null && DT_TK_Z_POSSET.Rows.Count >= 1)
+            {
+                INSERT_UPDATE_LOG_POSM(DT_TK_Z_POSSET);
             }
         }
 
@@ -47013,8 +47018,172 @@ namespace TKSCHEDULEUOF
 
         }
 
+        public void INSERT_UPDATE_LOG_POSM(DataTable DT)
+        {
+          
+            StringBuilder SQL = new StringBuilder();
+            SQL.AppendFormat(@" ");
+
+            if (DT!=null&& DT.Rows.Count>=1)
+            {
+                foreach(DataRow DR in DT.Rows)
+                {
+                    SQL.AppendFormat(@"
+                                        --LOG_POSMB
+                                        SELECT *
+                                        FROM [TK].dbo.LOG_POSMB
+                                        WHERE MB003='{0}'
+                                        ORDER BY store_ip
+
+                                        DELETE [TK].dbo.LOG_POSMB
+                                        WHERE MB003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMB
+                                        (TRS_CODE,TRS_DATE,TRS_TIME,store_ip,sync_date,sync_time,sync_mark,sync_count,MB001,MB002,MB003)
+                                        SELECT
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,POSMB.MB001 MB001
+                                        ,POSMB.MB002 MB002
+                                        ,POSMB.MB003 MB003
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMB
+                                        WHERE PI025<>'2'  
+                                        AND MB003='{0}' 
+                                        GROUP BY PI010,POSMB.MB001,POSMB.MB002,POSMB.MB003
+                                        ORDER BY PI010
+
+                                        ",DR["ID"].ToString());
+                }
+            }
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
 
 
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
+        public DataTable FIND_TK_Z_POSSET()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT
+                                    [DOC_NBR]
+                                    ,[KINDS]
+                                    ,[ID]
+                                    ,[ISUPDATE]
+                                    ,[CREATEDATES]
+                                    FROM [TK].[dbo].[Z_POSSET]
+                                    WHERE ISUPDATE IN ('N')
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return DT;
+        }
         #endregion
 
         #region BUTTON
