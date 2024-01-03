@@ -47036,8 +47036,11 @@ namespace TKSCHEDULEUOF
                     SQL.AppendFormat(@"
                                         --POSMB
                                         UPDATE [TK].dbo.POSMB
-                                        SET MB008='Y'
-                                        WHERE MB003='{0}'
+                                        SET MB008='Y',MB007=ADMINID
+                                        FROM [TK].[dbo].[Z_POSSET]
+                                        WHERE [Z_POSSET].ID=MB003
+                                        AND MB003='{0}'
+
 
                                         --POSMC
                                         UPDATE [TK].dbo.POSMC
