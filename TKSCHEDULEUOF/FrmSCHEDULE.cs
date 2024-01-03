@@ -47036,7 +47036,7 @@ namespace TKSCHEDULEUOF
                     SQL.AppendFormat(@"
                                         --POSMB
                                         UPDATE [TK].dbo.POSMB
-                                        SET MB008='Y',MB007=ADMINID
+                                        SET MB008='Y',MB007=ADMINID,MB006=MB005
                                         FROM [TK].[dbo].[Z_POSSET]
                                         WHERE [Z_POSSET].ID=MB003
                                         AND MB003='{0}'
@@ -47046,6 +47046,42 @@ namespace TKSCHEDULEUOF
                                         UPDATE [TK].dbo.POSMC
                                         SET MC011='Y'
                                         WHERE MC003='{0}'
+
+                                        --POSMI
+                                        UPDATE [TK].dbo.POSMI
+                                        SET MI015='Y',MI016=ADMINID,MI014=MI007
+                                        FROM [TK].[dbo].[Z_POSSET]
+                                        WHERE [Z_POSSET].ID=MI003
+                                        AND MI003='{0}'
+
+                                        --POSMJ
+                                        UPDATE [TK].dbo.POSMJ
+                                        SET MJ006='Y'
+                                        WHERE MJ003='{0}'
+
+                                        --POSMM
+                                        UPDATE [TK].dbo.POSMM
+                                        SET MM015='Y',MM017=ADMINID,MM014=MM007
+                                        FROM [TK].[dbo].[Z_POSSET]
+                                        WHERE [Z_POSSET].ID=MM003
+                                        AND MM003='{0}'
+
+                                        --POSMN
+                                        UPDATE [TK].dbo.POSMN
+                                        SET MN010='Y'
+                                        WHERE MN003='{0}'
+
+                                        --POSMO
+                                        UPDATE [TK].dbo.POSMO
+                                        SET MO008='Y',MO007=ADMINID,MO006=MO005
+                                        FROM [TK].[dbo].[Z_POSSET]
+                                        WHERE [Z_POSSET].ID=MO003
+                                        AND MO003='{0}'
+
+                                        --POSMP
+                                        UPDATE [TK].dbo.POSMP
+                                        SET MP008='Y'
+                                        WHERE MP003='{0}'
 
                                         --LOG_POSMB                                 
 
