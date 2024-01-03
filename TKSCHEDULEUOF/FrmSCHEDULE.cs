@@ -46903,7 +46903,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD008""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD008
 
                                     , TB_WKF_FORM.FORM_NAME
-                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
                                     WHERE 1 = 1
                                     AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
