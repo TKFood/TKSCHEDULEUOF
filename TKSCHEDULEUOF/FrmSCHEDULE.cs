@@ -47034,6 +47034,16 @@ namespace TKSCHEDULEUOF
                 foreach(DataRow DR in DT.Rows)
                 {
                     SQL.AppendFormat(@"
+                                        --POSMB
+                                        UPDATE [TK].dbo.POSMB
+                                        SET MB008='Y'
+                                        WHERE MB003='{0}'
+
+                                        --POSMC
+                                        UPDATE [TK].dbo.POSMC
+                                        SET MC011='Y'
+                                        WHERE MC003='{0}'
+
                                         --LOG_POSMB                                 
 
                                         DELETE [TK].dbo.LOG_POSMB
