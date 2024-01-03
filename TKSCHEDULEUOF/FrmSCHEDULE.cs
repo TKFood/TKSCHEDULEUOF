@@ -47139,6 +47139,514 @@ namespace TKSCHEDULEUOF
                                         GROUP BY PI010,MD001,MD002,MD003,MD021,MD004
                                         ORDER BY PI010
 
+                                        --LOG_POSME
+                                        DELETE  [TK].dbo.LOG_POSME
+                                        WHERE ME003='{0}'
+
+                                        INSERT INTO  [TK].dbo.LOG_POSME
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,ME001
+                                        ,ME002
+                                        ,ME003
+                                        ,ME004
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,ME001
+                                        ,ME002
+                                        ,ME003
+                                        ,ME004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSME
+                                        WHERE PI025<>'2'  
+                                        AND ME003='{0}' 
+                                        GROUP BY PI010,ME001,ME002,ME003,ME004
+                                        ORDER BY PI010
+
+                                        ---LOG_POSMF
+                                        DELETE [TK].dbo.LOG_POSMF
+                                        WHERE MF003='{0}'
+
+                                        INSERT INTO  [TK].dbo.LOG_POSMF
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MF001
+                                        ,MF002
+                                        ,MF003
+                                        ,MF004
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MF001
+                                        ,MF002
+                                        ,MF003
+                                        ,MF004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMF
+                                        WHERE PI025<>'2'  
+                                        AND MF003='{0}' 
+                                        GROUP BY PI010,MF001,MF002,MF003,MF004
+                                        ORDER BY PI010
+
+                                        --LOG_POSMG
+                                        DELETE [TK].dbo.LOG_POSMG
+                                        WHERE MG003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMG
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MG001
+                                        ,MG002
+                                        ,MG003
+                                        ,MG017
+                                        ,MG004
+                                        ,MG005
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MG001
+                                        ,MG002
+                                        ,MG003
+                                        ,MG017
+                                        ,MG004
+                                        ,MG005
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMG
+                                        WHERE PI025<>'2'  
+                                        AND MG003='{0}' 
+                                        GROUP BY PI010,MG001,MG002,MG003,MG017,MG004,MG005
+                                        ORDER BY PI010
+
+                                        --LOG_POSMH
+                                        DELETE  [TK].dbo.LOG_POSMH
+                                        WHERE MH003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMH
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MH001
+                                        ,MH002
+                                        ,MH003
+                                        ,MH004
+                                        ,MH005
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MH001
+                                        ,MH002
+                                        ,MH003
+                                        ,MH004
+                                        ,MH005
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMH
+                                        WHERE PI025<>'2'  
+                                        AND MH003='{0}' 
+                                        GROUP BY PI010,MH001,MH002,MH003,MH004,MH005
+                                        ORDER BY PI010
+
+                                        --LOG_POSMI
+                                        DELETE [TK].dbo.LOG_POSMI
+                                        WHERE MI003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMI
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MI001
+                                        ,MI002
+                                        ,MI003
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MI001
+                                        ,MI002
+                                        ,MI003
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMI
+                                        WHERE PI025<>'2'  
+                                        AND MI003='{0}' 
+                                        GROUP BY PI010,MI001,MI002,MI003
+                                        ORDER BY PI010
+
+                                        --LOG_POSMJ
+                                        DELETE  [TK].dbo.LOG_POSMJ
+                                        WHERE MJ003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMJ
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MJ001
+                                        ,MJ002
+                                        ,MJ003
+                                        ,MJ015
+                                        ,MJ004
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MJ001
+                                        ,MJ002
+                                        ,MJ003
+                                        ,MJ015
+                                        ,MJ004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMJ
+                                        WHERE PI025<>'2'  
+                                        AND MJ003='{0}' 
+                                        GROUP BY PI010,MJ001,MJ002,MJ003,MJ015,MJ004
+                                        ORDER BY PI010
+
+
+                                        --LOG_POSMK
+                                        DELETE [TK].dbo.LOG_POSMK
+                                        WHERE MK003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMK
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MK001
+                                        ,MK002
+                                        ,MK003
+                                        ,MK017
+                                        ,MK004
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MK001
+                                        ,MK002
+                                        ,MK003
+                                        ,MK017
+                                        ,MK004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMK
+                                        WHERE PI025<>'2'  
+                                        AND MK003='{0}' 
+                                        GROUP BY PI010,MK001,MK002,MK003,MK017,MK004
+                                        ORDER BY PI010
+
+
+
+                                        --LOG_POSML
+                                        DELETE [TK].dbo.LOG_POSML
+                                        WHERE ML003='{0}'
+
+                                        INSERT INTO  [TK].dbo.LOG_POSML
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,ML001
+                                        ,ML002
+                                        ,ML003
+                                        ,ML004
+                                        )
+                                        SELECT
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,ML001
+                                        ,ML002
+                                        ,ML003
+                                        ,ML004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSML
+                                        WHERE PI025<>'2'  
+                                        AND ML003='{0}' 
+                                        GROUP BY PI010,ML001,ML002,ML003,ML004
+                                        ORDER BY PI010
+
+
+                                        --LOG_POSMM
+                                        DELETE [TK].dbo.LOG_POSMM
+                                        WHERE MM003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMM
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MM001
+                                        ,MM002
+                                        ,MM003
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MM001
+                                        ,MM002
+                                        ,MM003
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMM
+                                        WHERE PI025<>'2'  
+                                        AND MM003='{0}' 
+                                        GROUP BY PI010,MM001,MM002,MM003
+                                        ORDER BY PI010
+
+                                        --LOG_POSMN
+                                        DELETE  [TK].dbo.LOG_POSMN
+                                        WHERE MN003='{0}' 
+
+                                        INSERT INTO  [TK].dbo.LOG_POSMN
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MN001
+                                        ,MN002
+                                        ,MN003
+                                        ,MN004
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MN001
+                                        ,MN002
+                                        ,MN003
+                                        ,MN004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMN
+                                        WHERE PI025<>'2'  
+                                        AND MN003='{0}' 
+                                        GROUP BY PI010,MN001,MN002,MN003,MN004
+                                        ORDER BY PI010
+
+
+                                        --LOG_POSMO
+                                        DELETE  [TK].dbo.LOG_POSMO
+                                        WHERE MO003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSMO
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MO001
+                                        ,MO002
+                                        ,MO003
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MO001
+                                        ,MO002
+                                        ,MO003
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMO
+                                        WHERE PI025<>'2'  
+                                        AND MO003='{0}' 
+                                        GROUP BY PI010,MO001,MO002,MO003
+                                        ORDER BY PI010
+
+
+                                        --LOG_POSMP
+                                        DELETE  [TK].dbo.LOG_POSMP
+                                        WHERE MP003='{0}'
+
+                                        INSERT INTO  [TK].dbo.LOG_POSMP
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,MP001
+                                        ,MP002
+                                        ,MP003
+                                        ,MP004
+                                        ,MP017
+                                        ,MP005
+                                        )
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,MP001
+                                        ,MP002
+                                        ,MP003
+                                        ,MP004
+                                        ,MP017
+                                        ,MP005
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSMP
+                                        WHERE PI025<>'2'  
+                                        AND MP003='{0}' 
+                                        GROUP BY PI010,MP001,MP002,MP003,MP004,MP017,MP005
+                                        ORDER BY PI010
+
+                                        --LOG_POSRL
+                                        DELETE [TK].dbo.LOG_POSRL
+                                        WHERE RL003='{0}'
+
+                                        INSERT INTO [TK].dbo.LOG_POSRL
+                                        (
+                                        TRS_CODE
+                                        ,TRS_DATE
+                                        ,TRS_TIME
+                                        ,store_ip
+                                        ,sync_date
+                                        ,sync_time
+                                        ,sync_mark
+                                        ,sync_count
+                                        ,RL001
+                                        ,RL002
+                                        ,RL003
+                                        ,RL004
+                                        )
+
+                                        SELECT 
+                                        '3' TRS_CODE
+                                        ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
+                                        ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
+                                        ,PI010 store_ip
+                                        ,'' sync_date
+                                        ,'' sync_time
+                                        ,'N'  sync_mark
+                                        ,0  sync_count
+                                        ,RL001
+                                        ,RL002
+                                        ,RL003
+                                        ,RL004
+                                        FROM [TK].dbo.POSPI, [TK].dbo.POSRL
+                                        WHERE PI025<>'2'  
+                                        AND RL003='{0}' 
+                                        GROUP BY PI010,RL001,RL002,RL003,RL004
+                                        ORDER BY PI010
 
                                         ", DR["ID"].ToString());
                 }
