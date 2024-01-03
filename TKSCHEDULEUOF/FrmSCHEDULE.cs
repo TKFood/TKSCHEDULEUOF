@@ -47042,7 +47042,7 @@ namespace TKSCHEDULEUOF
                                         INSERT INTO [TK].dbo.LOG_POSMB
                                         (TRS_CODE,TRS_DATE,TRS_TIME,store_ip,sync_date,sync_time,sync_mark,sync_count,MB001,MB002,MB003)
                                         SELECT
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47080,7 +47080,7 @@ namespace TKSCHEDULEUOF
                                         ,MC004
                                         )
                                         SELECT
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47120,7 +47120,7 @@ namespace TKSCHEDULEUOF
                                         ,MD004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47159,7 +47159,7 @@ namespace TKSCHEDULEUOF
                                         ,ME004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47197,7 +47197,7 @@ namespace TKSCHEDULEUOF
                                         ,MF004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47237,7 +47237,7 @@ namespace TKSCHEDULEUOF
                                         ,MG005
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47278,7 +47278,7 @@ namespace TKSCHEDULEUOF
                                         ,MH005
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47316,7 +47316,7 @@ namespace TKSCHEDULEUOF
                                         ,MI003
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47354,7 +47354,7 @@ namespace TKSCHEDULEUOF
                                         ,MJ004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47395,7 +47395,7 @@ namespace TKSCHEDULEUOF
                                         ,MK004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47436,7 +47436,7 @@ namespace TKSCHEDULEUOF
                                         ,ML004
                                         )
                                         SELECT
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47474,7 +47474,7 @@ namespace TKSCHEDULEUOF
                                         ,MM003
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47511,7 +47511,7 @@ namespace TKSCHEDULEUOF
                                         ,MN004
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47549,7 +47549,7 @@ namespace TKSCHEDULEUOF
                                         ,MO003
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47589,7 +47589,7 @@ namespace TKSCHEDULEUOF
                                         ,MP005
                                         )
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
@@ -47630,7 +47630,7 @@ namespace TKSCHEDULEUOF
                                         )
 
                                         SELECT 
-                                        '3' TRS_CODE
+                                        '2' TRS_CODE
                                         ,CONVERT(char(08), GETDATE(), 112 )  TRS_DATE
                                         ,CONVERT(char(12), GETDATE(), 114 )  TRS_TIME
                                         ,PI010 store_ip
