@@ -41888,7 +41888,9 @@ namespace TKSCHEDULEUOF
             return null;
         }
 
-
+        /// <summary>
+        /// 利用COPMA的MA0012來比對訂單、銷貨單的收貨部門，如果是SevenEleven、 Family、 HiLife 改成地址
+        /// </summary>
         public void COPTC_TC010_TC011_UPDATE()
         {
             try
@@ -41929,6 +41931,20 @@ namespace TKSCHEDULEUOF
                                     WHERE TEMP.TC001=COPTC.TC001 AND TEMP.TC002=COPTC.TC002
                                     AND COPTC.TC010<>TEMP.MA027
 
+                                    UPDATE [TK].dbo.COPTG
+                                    SET COPTG.TG008=TEMP.MA027
+                                    FROM
+                                    (
+                                    SELECT TG001,TG002,TG075,TG008,MA027
+                                    FROM [TK].dbo.COPTG,[TK].dbo.COPMA
+                                    WHERE 1=1
+                                    AND TG075=MA002
+                                    AND TG023 IN ('N')
+                                    AND TG075 IN ( (SELECT  [ID] FROM [TK].[dbo].[ZCOPMATOADDRESS]))
+                                    AND TG008<>MA027
+                                    ) AS TEMP
+                                    WHERE TEMP.TG001=COPTG.TG001 AND TEMP.TG002=COPTG.TG002
+                                    AND COPTG.TG008<>TEMP.MA027
                                     "
                                     );
 
