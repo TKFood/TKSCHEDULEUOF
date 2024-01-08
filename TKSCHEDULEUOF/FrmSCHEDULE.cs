@@ -147,7 +147,14 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            //請購變更單，UOF核準後，自動豆是否有採購單，如果有就產生採購變購單
+            //UOF簽核後，產生活動代號到暫存的[TK].[dbo].[Z_POSSET]，再由[TK].[dbo].[Z_POSSET]去更新POS機資料
+            try
+            {
+                NEW_POSET();
+            }
+            catch { }
+           
+            //請購變更單，UOF核準後，自動判斷是否有採購單，如果有就產生採購變購單
             try
             {
                 NEWPURTEPURTF_ERP();
