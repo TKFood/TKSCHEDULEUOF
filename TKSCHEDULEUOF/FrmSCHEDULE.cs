@@ -46880,7 +46880,7 @@ namespace TKSCHEDULEUOF
             }
 
             //更新TK_Z_POSSET的[ISUPDATE]
-            //UPDATE_Z_POSSET();
+            UPDATE_Z_POSSET();
         }
 
         public DataTable FIND_POSETS()
