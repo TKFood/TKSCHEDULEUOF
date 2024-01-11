@@ -47912,6 +47912,321 @@ namespace TKSCHEDULEUOF
             }
 
         }
+         //門市日誌-早班
+        public void NEW_TBSTOREDAILY_MORNING()
+        {
+            DataTable DT = FIND_UOF_TBSTOREDAILY_MORNING();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                NEW_TO_TKMK_TBSTOREDAILY_MORNING(DT);
+            }
+        }
+        ///門市日誌-午班
+        public void NEW_TBSTOREDAILY_AFTERMOON()
+        {
+
+        }
+        public DataTable FIND_UOF_TBSTOREDAILY_MORNING()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"                                     
+                                    SELECT TB_WKF_FORM.FORM_NAME,DOC_NBR,*
+                                    FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1=1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN ('0901.門市營業日誌-早班')
+                                    AND TB_WKF_TASK.TASK_RESULT='0'
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [DOC_NBR] FROM [192.168.1.105].[TKMK].[dbo].[TBSTOREDAILY_MORNING])
+   
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return null;
+        }
+        public void NEW_TO_TKMK_TBSTOREDAILY_MORNING(DataTable DT)
+        {
+            string xmlData = "";
+            string DOC_NBR = "";
+            string FIELD1 = "";
+
+
+
+            foreach (DataRow row in DT.Rows)
+            {
+                xmlData = "";
+                DOC_NBR = "";
+                FIELD1 = "";
+
+                xmlData = FIND_UOF_CURRENT_DOC(row["DOC_NBR"].ToString());
+
+                XDocument doc = XDocument.Parse(xmlData);
+
+                var fieldItems = doc.Descendants("FieldItem");
+
+                foreach (var fieldItem in fieldItems)
+                {
+
+                    string fieldId = fieldItem.Attribute("fieldId").Value;
+
+                    // 節點存在，取值       
+                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
+
+                    if (fieldId.Equals("ID"))
+                    {
+                        DOC_NBR = fieldValue;                       
+                    }
+                    else if (fieldId.Equals("FIELD1"))
+                    {
+                        FIELD1 = fieldValue;
+                    }
+                  
+
+                }
+
+                //var dataGrids = doc.Descendants("DataGrid");
+
+                //foreach (var dataGrid in dataGrids)
+                //{
+                //    var rows = dataGrid.Descendants("Row");
+
+                //    foreach (var rowdata in rows)
+                //    {
+                //        QC6007 = "";
+                //        var cells = rowdata.Descendants("Cell");
+
+                //        foreach (var cell in cells)
+                //        {
+
+                //            string cellFieldId = cell.Attribute("fieldId")?.Value;
+                //            string cellFieldValue = cell.Attribute("fieldValue")?.Value;
+
+                //            if (cellFieldId.Equals("QC60071"))
+                //            {
+                //                QC6007 = QC6007 + cellFieldValue + "-";
+                //            }
+                //            else if (cellFieldId.Equals("QC60072"))
+                //            {
+                //                QC6007 = QC6007 + cellFieldValue + "、";
+                //            }
+
+
+                //        }
+                //        //去除+"、";
+                //        if (QC6007.Length >= 1)
+                //        {
+                //            QC6007 = QC6007.Substring(0, QC6007.Length - 1);
+                //        }
+                //        //
+                //        if (QC6007.Length >= 250)
+                //        {
+                //            QC6007 = QC6007.Substring(0, 249);
+                //        }
+                //    }
+                //}
+
+
+                ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
+                                            DOC_NBR
+                                            , FIELD1
+                                          
+                                            );
+            }
+        }
+
+        public string FIND_UOF_CURRENT_DOC(string DOC_NBR)
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT 
+                                    DOC_NBR,CONVERT(nvarchar(MAX),CURRENT_DOC) CURRENT_DOC
+                                    FROM [UOF].[dbo].[TB_WKF_TASK]
+                                    WHERE DOC_NBR='{0}'
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return null;
+        }
+
+        public void ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
+            string DOC_NBR
+            ,string  FIELD1
+
+            )
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"                                    
+                                    INSERT INTO [TKMK].[dbo].[TBSTOREDAILY_MORNING]
+                                    (
+                                    [DOC_NBR]
+                                    ,[FIELD1]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                   
+                                    )
+
+                                    ", DOC_NBR
+                                   ,   FIELD1
+
+
+                                    );
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -48271,9 +48586,16 @@ namespace TKSCHEDULEUOF
         {
             NEW_POSET();
         }
+        private void button71_Click(object sender, EventArgs e)
+        {
+            //門市日誌-早班
+            NEW_TBSTOREDAILY_MORNING();
+            ///門市日誌-午班
+            NEW_TBSTOREDAILY_AFTERMOON();
+        }
 
         #endregion
 
-        
+
     }
 }

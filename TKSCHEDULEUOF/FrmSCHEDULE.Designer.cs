@@ -111,6 +111,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.button71 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -837,6 +838,7 @@
             this.tableLayoutPanel2.Controls.Add(this.button62, 3, 4);
             this.tableLayoutPanel2.Controls.Add(this.button66, 1, 6);
             this.tableLayoutPanel2.Controls.Add(this.button70, 3, 6);
+            this.tableLayoutPanel2.Controls.Add(this.button71, 1, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -1109,6 +1111,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
+            // button71
+            // 
+            this.button71.Location = new System.Drawing.Point(123, 123);
+            this.button71.Name = "button71";
+            this.button71.Size = new System.Drawing.Size(194, 34);
+            this.button71.TabIndex = 43;
+            this.button71.Text = "門市-門市營業日誌-早午班";
+            this.button71.UseVisualStyleBackColor = true;
+            this.button71.Click += new System.EventHandler(this.button71_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1215,5 +1227,6 @@
         private System.Windows.Forms.Button button69;
         private System.Windows.Forms.Button button70;
         private System.Windows.Forms.Timer timer3;
+        private System.Windows.Forms.Button button71;
     }
 }
