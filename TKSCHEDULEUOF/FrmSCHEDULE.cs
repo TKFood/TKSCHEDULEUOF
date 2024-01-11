@@ -48000,8 +48000,27 @@ namespace TKSCHEDULEUOF
         {
             string xmlData = "";
             string DOC_NBR = "";
-            string FIELD1 = "";
-
+            string FIELD1 = "";           
+            string FIELD2 = "";
+            string FIELD3 = "";
+            string FIELD4 = "";
+            string FIELD5 = "";
+            string FIELD6 = "";
+            string FIELD7 = "";
+            string FIELD8 = "";
+            string FIELD9 = "";
+            string FIELD10 = "";
+            string FIELD11 = "";
+            string FIELD12 = "";
+            string FIELD13 = "";
+            string FIELD14 = "";
+            string FIELD15 = "";
+            string FIELD16 = "";
+            string FIELD17 = "";
+            string FIELD18 = "";
+            string FIELD19 = "";
+            string FIELD20 = "";
+            string FIELD21 = "";
 
 
             foreach (DataRow row in DT.Rows)
@@ -48009,6 +48028,26 @@ namespace TKSCHEDULEUOF
                 xmlData = "";
                 DOC_NBR = "";
                 FIELD1 = "";
+                FIELD2 = "";
+                FIELD3 = "";
+                FIELD4 = "";
+                FIELD5 = "";
+                FIELD6 = "";
+                FIELD7 = "";
+                FIELD8 = "";
+                FIELD9 = "";
+                FIELD10 = "";
+                FIELD11 = "";
+                FIELD12 = "";
+                FIELD13 = "";
+                FIELD14 = "";
+                FIELD15 = "";
+                FIELD16 = "";
+                FIELD17 = "";
+                FIELD18 = "";
+                FIELD19 = "";
+                FIELD20 = "";
+                FIELD21 = "";
 
                 xmlData = FIND_UOF_CURRENT_DOC(row["DOC_NBR"].ToString());
 
@@ -48030,18 +48069,106 @@ namespace TKSCHEDULEUOF
                     }
                     else if (fieldId.Equals("FIELD1"))
                     {
-                        FIELD1 = fieldValue;
-                        string[] parts = FIELD1.Split('@');
+                        string S_fieldValue = fieldValue;
+                        string[] parts = S_fieldValue.Split('@');
 
                         // 如果分割後的部分數量大於等於1，取第一部分
                         if (parts.Length >= 1)
                         {
-                            FIELD1 = parts[0];
-                            
+                            FIELD1 = parts[0];                            
                         }
                     }
-                  
+                    else if(fieldId.Equals("FIELD2"))
+                    {
+                        FIELD2 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD3"))
+                    {
+                        FIELD3 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD4"))
+                    {
+                        FIELD4 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD5"))
+                    {
+                        FIELD5 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD6"))
+                    {
+                        string S_fieldValue = fieldValue;
+                        string[] parts = S_fieldValue.Split('@');
 
+                        // 如果分割後的部分數量大於等於1，取第一部分
+                        if (parts.Length >= 1)
+                        {
+                            FIELD6 = parts[0];
+                        }
+                    }
+                    else if (fieldId.Equals("FIELD7"))
+                    {
+                        string S_fieldValue = fieldValue;
+                        string[] parts = S_fieldValue.Split('@');
+
+                        // 如果分割後的部分數量大於等於1，取第一部分
+                        if (parts.Length >= 1)
+                        {
+                            FIELD7 = parts[0];
+                        }
+                    }
+                    else if (fieldId.Equals("FIELD8"))
+                    {
+                        FIELD8 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD9"))
+                    {
+                        FIELD9 = fieldValue;
+                        FIELD9 = FIELD9.Replace("@", "、");
+                    }
+                    else if (fieldId.Equals("FIELD10"))
+                    {
+                        FIELD10 = fieldValue;
+                        FIELD10 = FIELD10.Replace("@", "、");
+                    }
+                    else if (fieldId.Equals("FIELD11"))
+                    {
+                        FIELD11 = fieldValue;
+                        FIELD11 = FIELD11.Replace("@", "、");
+                    }
+                    else if (fieldId.Equals("FIELD12"))
+                    {
+                        FIELD12 = fieldValue;
+                        FIELD12 = FIELD12.Replace("@", "、");
+                    }
+                    else if (fieldId.Equals("FIELD13"))
+                    {
+                        FIELD13 = fieldValue;
+                        FIELD13 = FIELD13.Replace("@", "、");
+                    }
+                    else if (fieldId.Equals("FIELD14"))
+                    {
+                        FIELD14 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD15"))
+                    {
+                        FIELD15 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD16"))
+                    {
+                        FIELD16 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD17"))
+                    {
+                        FIELD17 = fieldValue;
+                    }
+                    else if (fieldId.Equals("FIELD18"))
+                    {
+                        FIELD18 = fieldValue;
+                    }                  
+                    else if (fieldId.Equals("FIELD21"))
+                    {
+                        FIELD21 = fieldValue;
+                    }
                 }
 
                 //var dataGrids = doc.Descendants("DataGrid");
@@ -48089,7 +48216,26 @@ namespace TKSCHEDULEUOF
                 ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
                                             DOC_NBR
                                             , FIELD1
-                                          
+                                            , FIELD2
+                                            , FIELD3
+                                            , FIELD4
+                                            , FIELD5
+                                            , FIELD6
+                                            , FIELD7
+                                            , FIELD8
+                                            , FIELD9
+                                            , FIELD10
+                                            , FIELD11
+                                            , FIELD12
+                                            , FIELD13
+                                            , FIELD14
+                                            , FIELD15
+                                            , FIELD16
+                                            , FIELD17
+                                            , FIELD18
+                                            , FIELD19
+                                            , FIELD20
+                                            , FIELD21
                                             );
             }
         }
@@ -48163,7 +48309,27 @@ namespace TKSCHEDULEUOF
 
         public void ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
             string DOC_NBR
-            ,string  FIELD1
+            ,string FIELD1
+            ,string FIELD2 
+            ,string FIELD3
+            ,string FIELD4 
+            ,string FIELD5 
+            ,string FIELD6 
+            ,string FIELD7 
+            ,string FIELD8
+            ,string FIELD9 
+            ,string FIELD10 
+            ,string FIELD11 
+            ,string FIELD12 
+            ,string FIELD13
+            ,string FIELD14 
+            ,string FIELD15 
+            ,string FIELD16 
+            ,string FIELD17 
+            ,string FIELD18 
+            ,string FIELD19
+            ,string FIELD20 
+            ,string FIELD21 
 
             )
         {
@@ -48192,19 +48358,79 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"                                    
                                     INSERT INTO [TKMK].[dbo].[TBSTOREDAILY_MORNING]
                                     (
-                                    [DOC_NBR]
+                                    [DOC_NBR]                            
                                     ,[FIELD1]
+                                    ,[FIELD2]
+                                    ,[FIELD3]
+                                    ,[FIELD4]
+                                    ,[FIELD5]
+                                    ,[FIELD6]
+                                    ,[FIELD7]
+                                    ,[FIELD8]
+                                    ,[FIELD9]
+                                    ,[FIELD10]
+                                    ,[FIELD11]
+                                    ,[FIELD12]
+                                    ,[FIELD13]
+                                    ,[FIELD14]
+                                    ,[FIELD15]
+                                    ,[FIELD16]
+                                    ,[FIELD17]
+                                    ,[FIELD18]
+                                    ,[FIELD19]
+                                    ,[FIELD20]
+                                    ,[FIELD21]
+
                                     )
                                     VALUES
                                     (
                                     '{0}'
                                     ,'{1}'
+                                    ,'{2}'
+                                    ,'{3}'
+                                    ,'{4}'
+                                    ,'{5}'
+                                    ,'{6}'
+                                    ,'{7}'
+                                    ,'{8}'
+                                    ,'{9}'
+                                    ,'{10}'
+                                    ,'{11}'
+                                    ,'{12}'
+                                    ,'{13}'
+                                    ,'{14}'
+                                    ,'{15}'
+                                    ,'{16}'
+                                    ,'{17}'
+                                    ,'{18}'
+                                    ,'{19}'
+                                    ,'{20}'
+                                    ,'{21}'
                                    
                                     )
 
                                     ", DOC_NBR
                                    ,   FIELD1
-
+                                   ,FIELD2
+,FIELD3
+,FIELD4
+,FIELD5
+,FIELD6
+,FIELD7
+,FIELD8
+,FIELD9
+,FIELD10
+,FIELD11
+,FIELD12
+,FIELD13
+,FIELD14
+,FIELD15
+,FIELD16
+,FIELD17
+,FIELD18
+,FIELD19
+,FIELD20
+,FIELD21
 
                                     );
 
