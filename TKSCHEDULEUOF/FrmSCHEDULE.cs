@@ -48031,6 +48031,14 @@ namespace TKSCHEDULEUOF
                     else if (fieldId.Equals("FIELD1"))
                     {
                         FIELD1 = fieldValue;
+                        string[] parts = FIELD1.Split('@');
+
+                        // 如果分割後的部分數量大於等於1，取第一部分
+                        if (parts.Length >= 1)
+                        {
+                            FIELD1 = parts[0];
+                            
+                        }
                     }
                   
 
