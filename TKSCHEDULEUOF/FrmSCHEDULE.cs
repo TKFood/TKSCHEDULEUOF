@@ -2129,13 +2129,13 @@ namespace TKSCHEDULEUOF
             DataTable DT = SEARCHPURTAPURTB(TA001, TA002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["TA012"].ToString());
 
-            string account = DT.Rows[0]["TA012"].ToString();
-            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+            string account = DT.Rows[0]["TA012"].ToString();         
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
             string fillerName = DT.Rows[0]["MV002"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+            string groupId = DTUPFDEP.Rows[0]["GROUP_ID"].ToString();
 
             if (DTUPFDEP.Rows.Count>=1)
             {
