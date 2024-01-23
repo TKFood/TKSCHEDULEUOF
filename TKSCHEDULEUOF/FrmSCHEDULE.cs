@@ -2132,11 +2132,28 @@ namespace TKSCHEDULEUOF
             string account = DT.Rows[0]["TA012"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName= DT.Rows[0]["MV002"].ToString();
+            string fillerName = DT.Rows[0]["MV002"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
-
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+            if (DTUPFDEP.Rows.Count>=1)
+            {
+                foreach(DataRow DR in DTUPFDEP.Rows)
+                {
+                    if(DR["GROUP_CODE"].ToString().Equals(DT.Rows[0]["TA004"].ToString()))
+                    {
+                        groupId = DR["GROUP_ID"].ToString();
+                        DEPNAME = DR["DEPNAME"].ToString();
+                        DEPNO = DR["DEPNO"].ToString();
+                        
+                    }
+                }
+
+            }
+           
+
+          
 
             string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim() ;
 
@@ -2584,7 +2601,7 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"  
-                                   SELECT CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,MV002,UDF03 QC
+                                   SELECT CREATOR,TA001,TA002,TA003,TA004,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,MV002,UDF03 QC
                                     ,USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
@@ -2611,7 +2628,7 @@ namespace TKSCHEDULEUOF
                                     ) AS 'LASTTH'
                                     FROM 
                                     (
-                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010,PURTA.UDF03
+                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA004,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010,PURTA.UDF03
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TB010) AS 'MA002'
@@ -2817,12 +2834,14 @@ namespace TKSCHEDULEUOF
                                     ,[TITLE_ID]     
                                     ,[GROUP_NAME]
                                     ,[GROUP_CODE]
+                                    ,[TB_EB_EMPL_DEP].ORDERS
                                     FROM [192.168.1.223].[{0}].[dbo].[TB_EB_USER],[192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[{0}].[dbo].[TB_EB_GROUP]
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
                                     AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
                                     AND [ACCOUNT]='{1}'
-                              
+                                    ORDER BY [TB_EB_EMPL_DEP].ORDERS
+
                                     ", DBNAME, ACCOUNT);
 
 
