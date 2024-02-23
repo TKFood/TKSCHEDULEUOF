@@ -48536,6 +48536,7 @@ namespace TKSCHEDULEUOF
                             ORDER BY TD005,TD012
 
 
+                            
                             INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
                             (
                             [NAMES]
@@ -48544,6 +48545,9 @@ namespace TKSCHEDULEUOF
                             ,[PAYKINDS]
                             ,[CREATEDATES]
                             ,[COMMENTS]
+                            ,[MB001]
+                            ,[MB002]
+                            ,[TOTALNUMS]
                             )
                             SELECT 
                             TD005 AS NAMES
@@ -48552,11 +48556,13 @@ namespace TKSCHEDULEUOF
                             ,'改版未收版費' AS PAYKINDS
                             ,TD012 AS CREATEDATES
                             ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
+                            ,TD004 MB001
+                            ,TD005 MB002
+                            ,TD015 TOTALNUMS
                             FROM [TK].dbo.PURTC,[TK].dbo.PURTD
                             WHERE TD001=TD001 AND TC002=TD002
                             AND (TD014 LIKE '%美工%' OR TD014 LIKE '%改版%')
                             AND TC014='Y'
-                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
                             ORDER BY TD005,TD012
                             ");
 
