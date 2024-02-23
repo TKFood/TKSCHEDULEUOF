@@ -48496,7 +48496,7 @@ namespace TKSCHEDULEUOF
                             ,[COMMENTS]
                             )
                             SELECT 
-                            TC003 AS NAMES
+                            TD005 AS NAMES
                             ,TD011 AS BACKMONEYS
                             ,'N' AS  ISCLOSE
                             ,'預付版費' AS PAYKINDS
@@ -48521,7 +48521,7 @@ namespace TKSCHEDULEUOF
                             ,[COMMENTS]
                             )
                             SELECT 
-                            TC003 AS NAMES
+                            TD005 AS NAMES
                             ,TD011 AS BACKMONEYS
                             ,'N' AS  ISCLOSE
                             ,'版費' AS PAYKINDS
