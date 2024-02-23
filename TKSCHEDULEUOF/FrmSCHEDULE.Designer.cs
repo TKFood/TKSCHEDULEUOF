@@ -100,6 +100,7 @@
             this.button62 = new System.Windows.Forms.Button();
             this.button66 = new System.Windows.Forms.Button();
             this.button70 = new System.Windows.Forms.Button();
+            this.button71 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button63 = new System.Windows.Forms.Button();
@@ -111,7 +112,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button71 = new System.Windows.Forms.Button();
+            this.button72 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -982,6 +983,16 @@
             this.button70.UseVisualStyleBackColor = true;
             this.button70.Click += new System.EventHandler(this.button70_Click);
             // 
+            // button71
+            // 
+            this.button71.Location = new System.Drawing.Point(123, 123);
+            this.button71.Name = "button71";
+            this.button71.Size = new System.Drawing.Size(194, 34);
+            this.button71.TabIndex = 43;
+            this.button71.Text = "門市-門市營業日誌-早午班";
+            this.button71.UseVisualStyleBackColor = true;
+            this.button71.Click += new System.EventHandler(this.button71_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.tableLayoutPanel3);
@@ -1010,6 +1021,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button68, 3, 1);
             this.tableLayoutPanel3.Controls.Add(this.button67, 3, 2);
             this.tableLayoutPanel3.Controls.Add(this.button69, 5, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button72, 5, 2);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1111,15 +1123,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button71
+            // button72
             // 
-            this.button71.Location = new System.Drawing.Point(123, 123);
-            this.button71.Name = "button71";
-            this.button71.Size = new System.Drawing.Size(194, 34);
-            this.button71.TabIndex = 43;
-            this.button71.Text = "門市-門市營業日誌-早午班";
-            this.button71.UseVisualStyleBackColor = true;
-            this.button71.Click += new System.EventHandler(this.button71_Click);
+            this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button72.Location = new System.Drawing.Point(603, 86);
+            this.button72.Name = "button72";
+            this.button72.Size = new System.Drawing.Size(129, 34);
+            this.button72.TabIndex = 70;
+            this.button72.Text = "ERP版費轉入TKPUR";
+            this.button72.UseVisualStyleBackColor = true;
+            this.button72.Click += new System.EventHandler(this.button72_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1228,5 +1241,6 @@
         private System.Windows.Forms.Button button70;
         private System.Windows.Forms.Timer timer3;
         private System.Windows.Forms.Button button71;
+        private System.Windows.Forms.Button button72;
     }
 }
