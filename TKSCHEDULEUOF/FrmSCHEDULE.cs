@@ -13906,7 +13906,13 @@ namespace TKSCHEDULEUOF
                                     TEMP.CREATOR
                                     ,TA001,TA002,TA003,TA005,TA006
                                     ,TB003,TB004,TB010,TB004MB002,TB004MB003,BOMTBUDF06 
-                                    ,TC004,TC005,TC008,TC009,TC010,TC005MB002,TC005MB003
+                                    ,TC004
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005 ELSE '' END) TC005
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC008 ELSE 0 END) TC008
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC009 ELSE 0 END) TC009
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC010 ELSE 0 END) TC010
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005MB002 ELSE '' END) TC005MB002
+                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005MB003 ELSE '' END) TC005MB003
                                     ,TB008
                                     ,TEMP.USER_GUID
                                     ,TEMP.NAME
