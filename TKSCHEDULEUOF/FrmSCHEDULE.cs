@@ -13947,7 +13947,7 @@ namespace TKSCHEDULEUOF
                                     ) AS TEMP
                                     LEFT JOIN [TK].dbo.BOMMC ON MC001=TB004
                                     LEFT JOIN [TK].dbo.BOMMD ON MD001=TB004 AND BOMMD.MD003=TC005
-
+                                    ORDER BY TA001,TA002,TB004
                               
                               
                                     ", TA001, TA002);
