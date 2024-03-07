@@ -48507,7 +48507,7 @@ namespace TKSCHEDULEUOF
                             ,'N' AS  ISCLOSE
                             ,'預付版費' AS PAYKINDS
                             ,TD012 AS CREATEDATES
-                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009 AS COMMENTS
+                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
                             FROM [TK].dbo.PURTC,[TK].dbo.PURTD
                             WHERE TD001=TD001 AND TC002=TD002
                             AND TD004 IN ('299990001','299990007')
@@ -48532,7 +48532,7 @@ namespace TKSCHEDULEUOF
                             ,'N' AS  ISCLOSE
                             ,'版費' AS PAYKINDS
                             ,TD012 AS CREATEDATES
-                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009 AS COMMENTS
+                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
                             FROM [TK].dbo.PURTC,[TK].dbo.PURTD
                             WHERE TD001=TD001 AND TC002=TD002
                             AND TD004 IN ('299990001','299990007')
