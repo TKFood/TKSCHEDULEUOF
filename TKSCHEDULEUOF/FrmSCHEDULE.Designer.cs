@@ -109,10 +109,11 @@
             this.button68 = new System.Windows.Forms.Button();
             this.button67 = new System.Windows.Forms.Button();
             this.button69 = new System.Windows.Forms.Button();
+            this.button72 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button72 = new System.Windows.Forms.Button();
+            this.button73 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1022,6 +1023,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button67, 3, 2);
             this.tableLayoutPanel3.Controls.Add(this.button69, 5, 1);
             this.tableLayoutPanel3.Controls.Add(this.button72, 5, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button73, 5, 3);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1111,6 +1113,17 @@
             this.button69.UseVisualStyleBackColor = true;
             this.button69.Click += new System.EventHandler(this.button69_Click);
             // 
+            // button72
+            // 
+            this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button72.Location = new System.Drawing.Point(603, 86);
+            this.button72.Name = "button72";
+            this.button72.Size = new System.Drawing.Size(129, 34);
+            this.button72.TabIndex = 70;
+            this.button72.Text = "ERP版費轉入TKPUR";
+            this.button72.UseVisualStyleBackColor = true;
+            this.button72.Click += new System.EventHandler(this.button72_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1123,16 +1136,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button72
+            // button73
             // 
-            this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button72.Location = new System.Drawing.Point(603, 86);
-            this.button72.Name = "button72";
-            this.button72.Size = new System.Drawing.Size(129, 34);
-            this.button72.TabIndex = 70;
-            this.button72.Text = "ERP版費轉入TKPUR";
-            this.button72.UseVisualStyleBackColor = true;
-            this.button72.Click += new System.EventHandler(this.button72_Click);
+            this.button73.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button73.Location = new System.Drawing.Point(603, 138);
+            this.button73.Name = "button73";
+            this.button73.Size = new System.Drawing.Size(129, 34);
+            this.button73.TabIndex = 71;
+            this.button73.Text = "ERP模具費轉入TKPUR";
+            this.button73.UseVisualStyleBackColor = true;
+            this.button73.Click += new System.EventHandler(this.button73_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1242,5 +1255,6 @@
         private System.Windows.Forms.Timer timer3;
         private System.Windows.Forms.Button button71;
         private System.Windows.Forms.Button button72;
+        private System.Windows.Forms.Button button73;
     }
 }

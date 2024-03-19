@@ -147,6 +147,19 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //ADD_TKPUR_PURVERSIONSNUMS 更新版費
+            try
+            {
+                ADD_TKPUR_PURVERSIONSNUMS();
+            }
+            catch { }
+            //ADD_TKPUR_PURMODELSNUMS() 更新模具費
+            try
+            {
+                ADD_TKPUR_PURMODELSNUMS();
+            }
+            catch { }
+
             //UOF簽核後，產生活動代號到暫存的[TK].[dbo].[Z_POSSET]，再由[TK].[dbo].[Z_POSSET]去更新POS機資料
             try
             {
@@ -48492,7 +48505,7 @@ namespace TKSCHEDULEUOF
             SQL.Clear();
 
             SQL.AppendFormat(@"                            
-                            INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
+                            INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]                            
                             (
                             [NAMES]
                             ,[BACKMONEYS]
@@ -48569,6 +48582,7 @@ namespace TKSCHEDULEUOF
                             WHERE TD001=TD001 AND TC002=TD002
                             AND (TD014 LIKE '%美工%' OR TD014 LIKE '%改版%')
                             AND TC014='Y'
+                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
                             ORDER BY TD005,TD012
                             ");
 
@@ -48609,6 +48623,113 @@ namespace TKSCHEDULEUOF
                 {
                     tran.Commit();      //執行交易  
                    
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
+        public void ADD_TKPUR_PURMODELSNUMS()
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            SQL.AppendFormat(@"                            
+                            INSERT INTO [TKPUR].[dbo].[PURMODELSNUMS]                            
+                            (
+                            [NAMES]
+                            ,[BACKMONEYS]
+                            ,[ISCLOSE]
+                            ,[PAYKINDS]
+                            ,[CREATEDATES]
+                            ,[COMMENTS]
+                            )
+                            SELECT 
+                            TD005 AS NAMES
+                            ,TD011 AS BACKMONEYS
+                            ,'N' AS  ISCLOSE
+                            ,'模具費(預付)' AS PAYKINDS
+                            ,TD012 AS CREATEDATES
+                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
+                            FROM [TK].dbo.PURTC,[TK].dbo.PURTD
+                            WHERE TD001=TD001 AND TC002=TD002
+                            AND TD004 IN ('299990006')
+                            AND TC014='Y'
+                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURMODELSNUMS]) 
+                            ORDER BY TD005,TD012
+
+
+                            INSERT INTO [TKPUR].[dbo].[PURMODELSNUMS]   
+                            (
+                            [NAMES]
+                            ,[BACKMONEYS]
+                            ,[ISCLOSE]
+                            ,[PAYKINDS]
+                            ,[CREATEDATES]
+                            ,[COMMENTS]
+                            )
+                            SELECT 
+                            TD005 AS NAMES
+                            ,TD011 AS BACKMONEYS
+                            ,'N' AS  ISCLOSE
+                            ,'模具費(物料)' AS PAYKINDS
+                            ,TD012 AS CREATEDATES
+                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
+                            FROM [TK].dbo.PURTC,[TK].dbo.PURTD
+                            WHERE TD001=TD001 AND TC002=TD002
+                            AND TD004 IN ('299990010')
+                            AND TC014='Y'
+                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURMODELSNUMS]) 
+                            ORDER BY TD005,TD012
+                            ");
+
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+
 
                 }
 
@@ -48994,6 +49115,10 @@ namespace TKSCHEDULEUOF
         private void button72_Click(object sender, EventArgs e)
         {
             ADD_TKPUR_PURVERSIONSNUMS();
+        }
+        private void button73_Click(object sender, EventArgs e)
+        {
+            ADD_TKPUR_PURMODELSNUMS();
         }
         #endregion
 
