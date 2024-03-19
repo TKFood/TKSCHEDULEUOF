@@ -147,6 +147,12 @@ namespace TKSCHEDULEUOF
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            //ADD_TK_ZINVMBBAKING ERP烘培品號轉入簽核
+            try
+            {
+                ADD_TK_ZINVMBBAKING();
+            }
+            catch { }
             //ADD_TKPUR_PURVERSIONSNUMS 更新版費
             try
             {
@@ -48745,6 +48751,76 @@ namespace TKSCHEDULEUOF
             }
 
         }
+
+        public void ADD_TK_ZINVMBBAKING()
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            SQL.AppendFormat(@"                            
+                            INSERT INTO [TK].[dbo].[ZINVMBBAKING]
+                            (
+                            [MB001]
+                            ,[MB002]
+                            )
+                            SELECT MB001,MB002
+                            FROM [TK].dbo.INVMB
+                            WHERE (MB001 LIKE '408%' OR MB001 LIKE '409%' )
+                            AND MB001 NOT IN (SELECT  [MB001] FROM [TK].[dbo].[ZINVMBBAKING])
+                            ");
+
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
         #endregion
 
         #region BUTTON
@@ -49119,6 +49195,10 @@ namespace TKSCHEDULEUOF
         private void button73_Click(object sender, EventArgs e)
         {
             ADD_TKPUR_PURMODELSNUMS();
+        }
+        private void button74_Click(object sender, EventArgs e)
+        {
+            ADD_TK_ZINVMBBAKING();
         }
         #endregion
 
