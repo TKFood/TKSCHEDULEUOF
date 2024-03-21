@@ -13926,19 +13926,24 @@ namespace TKSCHEDULEUOF
                                     ,TA001,TA002,TA003,TA005,TA006
                                     ,TB003,TB004,TB010,TB004MB002,TB004MB003,BOMTBUDF06 
                                     ,TC004
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005 ELSE '' END) TC005
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC008 ELSE 0 END) TC008
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC009 ELSE 0 END) TC009
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC010 ELSE 0 END) TC010
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005MB002 ELSE '' END) TC005MB002
-                                    ,(CASE WHEN ISNULL(OLDMB001,'')='' THEN  TC005MB003 ELSE '' END) TC005MB003
+                                    ,ISNULL(TC005,'') TC005 
+                                    ,TC008
+                                    ,TC009
+                                    ,TC010
+                                    ,ISNULL(TC005MB002,'') TC005MB002
+                                    ,ISNULL(TC005MB003,'') TC005MB003 
                                     ,TB008
                                     ,TEMP.USER_GUID
                                     ,TEMP.NAME
                                     ,MV002
                                     ,MC004 AS 'OLDMC004'
                                     ,BOMTBUDF03,BOMTBUDF04,BOMTBUDF05
-                                    ,OLDMB001,OLDMB002,OLDMB003,OLDMD006,OLDMD007,OLDMD008
+                                    ,ISNULL(OLDMB001,'') OLDMB001  
+                                    ,ISNULL(OLDMB002,'') OLDMB002 
+                                    ,ISNULL(OLDMB003,'') OLDMB003 
+                                    ,ISNULL(OLDMD006,0) OLDMD006
+                                    ,ISNULL(OLDMD007,0) OLDMD007
+                                    ,ISNULL(OLDMD008,0) OLDMD008
                                     ,BOMMC.MC010
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
