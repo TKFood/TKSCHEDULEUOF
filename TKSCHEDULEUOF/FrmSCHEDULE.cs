@@ -435,6 +435,7 @@ namespace TKSCHEDULEUOF
 
         }
 
+        //每天執行1次
         private void timer3_Tick(object sender, EventArgs e)
         {
 
