@@ -49156,9 +49156,9 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //只查現在到上個月，CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
-                //不存在已成功發出草稿的請購單+品名，[EXTERNAL_FORM_NBR_fieldValue]+[GG002_fieldValue]
-                //View_TB_WKF_TASK_APPLYBUY_MERGE，保留已申請成功+申請中
+                //只查 現在到上個月，CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
+                //過濾 已成功發出草稿的請購單+品名，[EXTERNAL_FORM_NBR_fieldValue]+[GG002_fieldValue]
+                //View_TB_WKF_TASK_APPLYBUY_MERGE，會記錄  已申請成功+申請中
                 sbSql.AppendFormat(@"  
                                    SELECT GG004_fieldValue
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
