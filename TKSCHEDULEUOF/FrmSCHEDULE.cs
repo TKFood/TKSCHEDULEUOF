@@ -49052,7 +49052,7 @@ namespace TKSCHEDULEUOF
                     string GA007 = ds1.Tables["ds1"].Rows[0]["GG009_fieldValue"].ToString();
                     string GA008 = ds1.Tables["ds1"].Rows[0]["GG005_fieldValue"].ToString();
                     string GA009 = "";
-                    string GA010 = ds1.Tables["ds1"].Rows[0]["GG010_fieldValue"].ToString();
+                    string GA010 = "";
                     string GA011 = ds1.Tables["ds1"].Rows[0]["GG004_fieldValue"].ToString();
                     string GA012 = "";
                     string GA013 = "";
@@ -49060,6 +49060,7 @@ namespace TKSCHEDULEUOF
                     string GA015 = "";
                     string GA016 = "";
                     string GA017 = "";
+                    string GA019 = ds1.Tables["ds1"].Rows[0]["GG010_fieldValue"].ToString();
                     string GA098 = "";
                     string GA099 = "";
                     string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
