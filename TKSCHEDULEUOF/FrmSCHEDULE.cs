@@ -49138,6 +49138,7 @@ namespace TKSCHEDULEUOF
         private void button43_Click(object sender, EventArgs e)
         {
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+            //將請購單，分品項都各自建立1張採購單給總務
             ADD_UOF_FORM_GRAFFIRS_1005();
         }
 
