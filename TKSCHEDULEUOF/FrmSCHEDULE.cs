@@ -49117,6 +49117,95 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL()
+        {
+            DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003_GG004_NOT_NULL();
+
+            if (DT1003 != null && DT1003.Rows.Count >= 1)
+            {
+                foreach (DataRow dr in DT1003.Rows)
+                {
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(dr["GG004_fieldValue"].ToString());
+                }
+            }
+        }
+
+        public DataTable SEARCH_UOF_GRAFFIRS_1003_GG004_NOT_NULL()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+                //AND DOC_NBR = 'GA1003240700088'
+                sbSql.AppendFormat(@"  
+                                   SELECT GG004_fieldValue
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
+                                    WHERE 1=1
+                                    AND CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
+                                    AND REPLACE([View_TB_WKF_TASK_APPLYBUY].DOC_NBR+[GG002_fieldValue],' ','' ) NOT IN
+                                    (
+                                    SELECT REPLACE([EXTERNAL_FORM_NBR_fieldValue]+[GG002_fieldValue],' ','')
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
+                                    )
+                                    AND ISNULL(GG004_fieldValue,'')<>''
+                                    GROUP BY GG004_fieldValue
+                                    ORDER BY GG004_fieldValue
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(string GG004_fieldValue)
+        {
+
+        }
 
         #endregion
 
@@ -49356,6 +49445,7 @@ namespace TKSCHEDULEUOF
             //請購單的廠商是未指定=空白
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
             //會依請購單的廠商有指定，合併採購單
+            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
 
         }
 
