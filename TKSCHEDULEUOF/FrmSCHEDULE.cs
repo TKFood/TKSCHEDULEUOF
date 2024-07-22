@@ -49170,7 +49170,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND GG004_fieldValue='東昇'
+                                    AND GG004_fieldValue='大福'
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
@@ -49246,7 +49246,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND GG004_fieldValue='東昇'
+                                    AND GG004_fieldValue='大福'
                               
                                     ", GG004_fieldValue);
 
