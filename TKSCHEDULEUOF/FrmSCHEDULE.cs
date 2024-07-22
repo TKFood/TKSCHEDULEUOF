@@ -48947,7 +48947,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-
+                //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                 //AND DOC_NBR = 'GA1003240700088'
                 sbSql.AppendFormat(@"  
                                    SELECT [View_TB_WKF_TASK_APPLYBUY].DOC_NBR,GG004_fieldValue,*
