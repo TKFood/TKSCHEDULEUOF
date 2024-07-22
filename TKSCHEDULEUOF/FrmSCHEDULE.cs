@@ -48907,6 +48907,216 @@ namespace TKSCHEDULEUOF
             }
 
         }
+
+        //
+        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL()
+        {
+            DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003_GG004_NULL();
+
+            if (DT1003 != null && DT1003.Rows.Count >= 1)
+            {
+                foreach (DataRow dr in DT1003.Rows)
+                {
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString());
+                }
+            }
+        }
+        public DataTable SEARCH_UOF_GRAFFIRS_1003_GG004_NULL()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+                //AND DOC_NBR = 'GA1003240700088'
+                sbSql.AppendFormat(@"  
+                                   SELECT [View_TB_WKF_TASK_APPLYBUY].DOC_NBR,GG004_fieldValue,*
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
+                                    WHERE 1=1
+                                    AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR  IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+                                    AND ISNULL(GG004_fieldValue,'')=''
+                                    AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR='GA1003240700088'
+                        
+                                    ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            int ROWS = 0;
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"                                   
+                                    SELECT DOC_NBR,GG004_fieldValue,*
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
+                                    WHERE 1=1
+                                    AND ISNULL(GG004_fieldValue,'')=''
+                                    AND DOC_NBR='GA1003240700088'
+                              
+                                    ", DOC_NBR);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+                    string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
+
+
+                    string GA001 = ds1.Tables["ds1"].Rows[0]["GA005_fieldValue"].ToString();
+                    string GA002 = "";
+                    string GA003 = ds1.Tables["ds1"].Rows[0]["GA006_fieldValue"].ToString();
+                    string GA004 = ds1.Tables["ds1"].Rows[0]["GA007_fieldValue"].ToString();
+                    string GA005 = ds1.Tables["ds1"].Rows[0]["GG002_fieldValue"].ToString();
+                    string GA006 = ds1.Tables["ds1"].Rows[0]["GG003_fieldValue"].ToString();
+                    string GA007 = ds1.Tables["ds1"].Rows[0]["GG009_fieldValue"].ToString();
+                    string GA008 = ds1.Tables["ds1"].Rows[0]["GG005_fieldValue"].ToString();
+                    string GA009 = "";
+                    string GA010 = ds1.Tables["ds1"].Rows[0]["GG010_fieldValue"].ToString();
+                    string GA011 = ds1.Tables["ds1"].Rows[0]["GG004_fieldValue"].ToString();
+                    string GA012 = "";
+                    string GA013 = "";
+                    string GA014 = "";
+                    string GA015 = "";
+                    string GA016 = "";
+                    string GA017 = "";
+                    string GA098 = "";
+                    string GA099 = "";
+                    string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
+                    string GG010 = "";
+
+                    string TEMP = ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString();
+                    string NAMES = TEMP.Substring(0, 3);
+                    DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
+
+                    if (DT != null && DT.Rows.Count >= 1)
+                    {
+                        USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
+                    }
+
+
+
+                    ROWS = ROWS + 1;
+                    GA002 = DOC_NBR;
+                    GA017 = DOC_NBR + '-' + ROWS;
+
+                    ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(USER_GUID, DOC_NBR
+                                                    , GA001
+                                                    , GA002
+                                                    , GA003
+                                                    , GA004
+                                                    , GA005
+                                                    , GA006
+                                                    , GA007
+                                                    , GA008
+                                                    , GA009
+                                                    , GA010
+                                                    , GA011
+                                                    , GA012
+                                                    , GA013
+                                                    , GA014
+                                                    , GA015
+                                                    , GA016
+                                                    , GA017
+                                                    , GA098
+                                                    , GA099
+                                                    , GA999
+                                                    , GG010
+                                                    );
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -49139,7 +49349,13 @@ namespace TKSCHEDULEUOF
         {
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
             //將請購單，分品項都各自建立1張採購單給總務
-            ADD_UOF_FORM_GRAFFIRS_1005();
+            //ADD_UOF_FORM_GRAFFIRS_1005();
+
+            //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+            //請購單的廠商是未指定=空白
+            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
+            //會依請購單的廠商有指定，合併採購單
+
         }
 
         private void button44_Click(object sender, EventArgs e)
