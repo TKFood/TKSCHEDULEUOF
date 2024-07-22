@@ -49415,7 +49415,7 @@ namespace TKSCHEDULEUOF
             //GA003	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["GA006_fieldValue"].ToString());
+            FieldItem.SetAttribute("fieldValue", fillerName+"("+ account + ")");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
