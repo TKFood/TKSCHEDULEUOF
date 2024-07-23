@@ -48979,7 +48979,7 @@ namespace TKSCHEDULEUOF
                                     WHERE 1=1
                                     AND ISNULL(GG004_fieldValue,'')=''
                                     AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
-
+                                    AND [DOC_NBR]>='GA1003240700096'
                         
                                     ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
                                     ");
@@ -49048,7 +49048,7 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
                                     WHERE 1=1
                                     AND ISNULL(GG004_fieldValue,'')=''
-                                    AND DOC_NBR='GA1003240700088'
+                                    AND DOC_NBR='{0}'
                               
                                     ", DOC_NBR);
 
@@ -49185,7 +49185,7 @@ namespace TKSCHEDULEUOF
                 //View_TB_WKF_TASK_APPLYBUY_MERGE，會記錄  已申請成功+申請中
                 // --AND GG004_fieldValue = '東昇'
                 sbSql.AppendFormat(@"  
-                                   SELECT GG004_fieldValue
+                                    SELECT GG004_fieldValue
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
                                     WHERE 1=1
                                     AND CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
@@ -49195,7 +49195,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND [DOC_NBR]>='GA1005240700121'
+                                    AND [DOC_NBR]>='GA1003240700096'
                                    
 
                                     GROUP BY GG004_fieldValue
@@ -49272,7 +49272,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND [DOC_NBR]>='GA1005240700121'
+                                    AND [DOC_NBR]>='GA1003240700096'
                                     AND GG004_fieldValue='{0}'
                               
                                     ", GG004_fieldValue);
