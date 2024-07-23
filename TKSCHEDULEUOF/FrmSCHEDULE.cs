@@ -109,7 +109,11 @@ namespace TKSCHEDULEUOF
             timer3.Interval = 1000 * 60;
             timer3.Start();
         }
-
+        /// <summary>
+        /// 每分鐘檢查1次，但每天指定時間執行1次
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
             label2.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
@@ -144,7 +148,11 @@ namespace TKSCHEDULEUOF
                 ADDtb_COMPANY();
             }
         }
-
+        /// <summary>
+        /// 每分鐘執行1次，並每分鐘執行1次
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
             // ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS(); 將ERP的品號匯入到TKMOC的生產說明中
@@ -435,10 +443,20 @@ namespace TKSCHEDULEUOF
 
         }
 
-        //每天執行1次
+        /// <summary>
+        /// 每分鐘檢查1次，但每天指定時間執行1次
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
+            string RUNTIME = DateTime.Now.ToString("HHmm");
+            string HHmm = "0930";
 
+            if (RUNTIME.Equals(HHmm))
+            {
+
+            }
         }
 
         #region FUNCTION
@@ -49161,6 +49179,7 @@ namespace TKSCHEDULEUOF
                 //只查 現在到上個月，CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
                 //過濾 已成功發出草稿的請購單+品名，[EXTERNAL_FORM_NBR_fieldValue]+[GG002_fieldValue]
                 //View_TB_WKF_TASK_APPLYBUY_MERGE，會記錄  已申請成功+申請中
+                // --AND GG004_fieldValue = '東昇'
                 sbSql.AppendFormat(@"  
                                    SELECT GG004_fieldValue
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
@@ -49172,7 +49191,8 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND GG004_fieldValue='東昇'
+                                    AND [DOC_NBR]>='GA1005240700121'
+                                   
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
@@ -49248,7 +49268,8 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND GG004_fieldValue='大福'
+                                    AND [DOC_NBR]>='GA1005240700121'
+                                    AND GG004_fieldValue='{0}'
                               
                                     ", GG004_fieldValue);
 
