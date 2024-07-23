@@ -49170,7 +49170,7 @@ namespace TKSCHEDULEUOF
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
-                                    AND GG004_fieldValue='大福'
+                                    AND GG004_fieldValue='東昇'
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
@@ -49293,10 +49293,17 @@ namespace TKSCHEDULEUOF
 
         public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID,DataTable DT)
         {
-
+            //吳德明
+            //USER_GUID = "d3679881-68b1-477e-a2c6-b4ebe42482a3";
+            //何翔鈞
+            //USER_GUID = "192f1ddd-f6ef-4725-81e0-dc15c15a10cf";
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
-            DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut();
-            
+            //何翔鈞
+            DataTable DTUSERDEP_DEFAULT = FIND_Z_UOF_FORM1005_DEFAULT_PERSON();
+            //總務部人員
+            DataTable DT_Z_UOF_FORM1005_FLOW = FIND_Z_UOF_FORM1005_FLOW();
+
+
             string account = "";
             string groupId = "";
             string jobTitleId = "";
@@ -49306,29 +49313,53 @@ namespace TKSCHEDULEUOF
             string DEPNAME = "";
             string DEPNO = "";
 
-            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1)
+            //表單申請人要在總務部中
+            //如果不在總務部，就改成何翔鈞
+            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1&& DT_Z_UOF_FORM1005_FLOW!=null && DT_Z_UOF_FORM1005_FLOW.Rows.Count>=1)
             {
-                account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
-                groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
-                jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
-                fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
-                fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+                foreach(DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
+                {
+                    foreach(DataRow DATAROW_DT_Z_UOF_FORM1005_FLOW in DT_Z_UOF_FORM1005_FLOW.Rows)
+                    {
+                        string SOURCE_account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
+                        string TARGET_account = DATAROW_DT_Z_UOF_FORM1005_FLOW["ID"].ToString();
 
-                DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
-                DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
+                        if(SOURCE_account.Equals(TARGET_account))
+                        {
+                            account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
+                            groupId = DATAROW_DTUSERDEP["GROUP_ID"].ToString();
+                            jobTitleId = DATAROW_DTUSERDEP["TITLE_ID"].ToString();
+                            fillerName = DATAROW_DTUSERDEP["NAME"].ToString();
+                            fillerUserGuid = DATAROW_DTUSERDEP["USER_GUID"].ToString();
+
+                            DEPNAME = DATAROW_DTUSERDEP["DEPNAME"].ToString();
+                            DEPNO = DATAROW_DTUSERDEP["DEPNO"].ToString();
+                        }
+                        else
+                        {
+                            account = DTUSERDEP_DEFAULT.Rows[0]["ACCOUNT"].ToString();
+                            groupId = DTUSERDEP_DEFAULT.Rows[0]["GROUP_ID"].ToString();
+                            jobTitleId = DTUSERDEP_DEFAULT.Rows[0]["TITLE_ID"].ToString();
+                            fillerName = DTUSERDEP_DEFAULT.Rows[0]["NAME"].ToString();
+                            fillerUserGuid = DTUSERDEP_DEFAULT.Rows[0]["USER_GUID"].ToString();
+
+                            DEPNAME = DTUSERDEP_DEFAULT.Rows[0]["DEPNAME"].ToString();
+                            DEPNO = DTUSERDEP_DEFAULT.Rows[0]["DEPNO"].ToString();
+                        }
+                    }
+                }
+                
 
             }
-            else
-            {
-                account = DTUSERDEP_Defalut.Rows[0]["ACCOUNT"].ToString();
-                groupId = DTUSERDEP_Defalut.Rows[0]["GROUP_ID"].ToString();
-                jobTitleId = DTUSERDEP_Defalut.Rows[0]["TITLE_ID"].ToString();
-                fillerName = DTUSERDEP_Defalut.Rows[0]["NAME"].ToString();
-                fillerUserGuid = DTUSERDEP_Defalut.Rows[0]["USER_GUID"].ToString();
 
-                DEPNAME = DTUSERDEP_Defalut.Rows[0]["DEPNAME"].ToString();
-                DEPNO = DTUSERDEP_Defalut.Rows[0]["DEPNO"].ToString();
-            }
+            //account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
+            //groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
+            //jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
+            //fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
+            //fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+
+            //DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
+            //DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
 
             string EXTERNAL_FORM_NBR = "MERGE1003";
 
@@ -49619,7 +49650,7 @@ namespace TKSCHEDULEUOF
             //GA999	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString());
+            FieldItem.SetAttribute("fieldValue", fillerName);           
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -49849,6 +49880,150 @@ namespace TKSCHEDULEUOF
             finally
             {
 
+            }
+        }
+
+        public DataTable FIND_Z_UOF_FORM1005_FLOW()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //只查 現在到上個月，CONVERT(datetime,[GA005_fieldValue])>=DATEADD(MONTH, -1,  GETDATE())
+                //過濾 已成功發出草稿的請購單+品名，[EXTERNAL_FORM_NBR_fieldValue]+[GG002_fieldValue]
+                //View_TB_WKF_TASK_APPLYBUY_MERGE，會記錄  已申請成功+申請中
+                sbSql.AppendFormat(@"  
+                                   SELECT 
+                                    [ID]
+                                    ,[NAMES]
+                                    FROM [UOF].[dbo].[Z_UOF_FORM1005_FLOW]
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable FIND_Z_UOF_FORM1005_DEFAULT_PERSON()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //何翔鈞
+                string ACCOUNT = "190041";
+
+                sbSql.AppendFormat(@"  
+                                   SELECT 
+                                    [GROUP_NAME] AS 'DEPNAME'
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]+','+[GROUP_NAME]+',False' AS 'DEPNO'
+                                    ,[TB_EB_USER].[USER_GUID]
+                                    ,[ACCOUNT]
+                                    ,[NAME]
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]
+                                    ,[TITLE_ID]     
+                                    ,[GROUP_NAME]
+                                    ,[GROUP_CODE]
+                                    FROM [UOF].[dbo].[TB_EB_USER],[UOF].[dbo].[TB_EB_EMPL_DEP],[UOF].[dbo].[TB_EB_GROUP]
+                                    WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
+                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
+                                    AND TB_EB_EMPL_DEP.ORDERS=0
+                                    AND ACCOUNT='{0}'
+                                    ", ACCOUNT);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
             }
         }
 
