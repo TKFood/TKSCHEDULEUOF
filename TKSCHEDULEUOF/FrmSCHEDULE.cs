@@ -269,7 +269,7 @@ namespace TKSCHEDULEUOF
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
             try
             {
-                ADD_UOF_FORM_GRAFFIRS_1005();
+                //ADD_UOF_FORM_GRAFFIRS_1005();
             }
             catch { }
             
@@ -48950,12 +48950,14 @@ namespace TKSCHEDULEUOF
                 //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                 //AND DOC_NBR = 'GA1003240700088'
                 sbSql.AppendFormat(@"  
-                                   SELECT [View_TB_WKF_TASK_APPLYBUY].DOC_NBR,GG004_fieldValue,*
+                                   SELECT 
+                                    DOC_NBR,GG004_fieldValue,*
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
                                     WHERE 1=1
-                                    AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR  IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                                     AND ISNULL(GG004_fieldValue,'')=''
-                                    AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR='GA1003240700088'
+                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
+
                         
                                     ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
                                     ");
@@ -50263,7 +50265,7 @@ namespace TKSCHEDULEUOF
 
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
             //請購單的廠商是未指定=空白
-            //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
+            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
             //會依請購單的廠商有指定，合併採購單
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
 
