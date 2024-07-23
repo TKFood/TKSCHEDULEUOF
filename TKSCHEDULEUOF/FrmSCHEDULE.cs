@@ -445,21 +445,22 @@ namespace TKSCHEDULEUOF
 
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
+        /// 0801
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0930";
+            string HHmm = "0801";
 
             if (RUNTIME.Equals(HHmm))
             {
-                ////把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
-                ////請購單的廠商是未指定=空白
-                //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
-                ////會依請購單的廠商有指定，合併採購單
-                //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
+                //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+                //請購單的廠商是未指定=空白
+                ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
+                //會依請購單的廠商有指定，合併採購單
+                ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
             }
         }
 
