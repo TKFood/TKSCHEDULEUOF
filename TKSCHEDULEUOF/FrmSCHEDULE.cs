@@ -155,6 +155,13 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
+            // 轉入1004.總務修繕單
+            //ADD_UOFGAFIXSNEW();
+            try
+            {
+                ADD_UOFGAFIXSNEW();
+            }
+            catch { }
             // ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS(); 將ERP的品號匯入到TKMOC的生產說明中
             try
             {
@@ -50057,6 +50064,87 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_UOFGAFIXSNEW()
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            SQL.AppendFormat(@" 
+                            INSERT INTO [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
+                            (
+                            [DOC_NBR]
+                            ,[GAFrm004SN]
+                            ,[GAFrm004SI]
+                            ,[GAFrm004SD]
+                            ,[GAFrm004Applydates]
+                            ,[GAFrm004DN]
+                            ,[GAFrm004ER]
+                            )
+                            SELECT 
+                             [DOC_NBR]
+                            ,[GAFrm004SN]
+                            ,[GAFrm004SI]
+                            ,[GAFrm004SD]
+                            ,[GAFrm004Applydates]
+                            ,[GAFrm004DN]
+                            ,[GAFrm004ER]
+                            FROM [192.168.1.223].[UOF].[dbo].[View_UOFGAFIXSNEW]
+                            WHERE 1=1 
+                            AND [DOC_NBR] COLLATE Chinese_Taiwan_Stroke_BIN  NOT IN (SELECT [DOC_NBR] FROM [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW] )
+                       
+                            ");
+
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -50447,6 +50535,10 @@ namespace TKSCHEDULEUOF
         private void button75_Click(object sender, EventArgs e)
         {
             ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS();
+        }
+        private void button76_Click(object sender, EventArgs e)
+        {
+            ADD_UOFGAFIXSNEW();
         }
         #endregion
 
