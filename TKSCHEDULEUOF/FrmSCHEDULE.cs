@@ -46014,7 +46014,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-
+                //只查同月的請購變更單
                 sbSql.AppendFormat(@"  
                                     SELECT 
                                     [TA001]
@@ -46031,6 +46031,8 @@ namespace TKSCHEDULEUOF
                                     GROUP BY SUBSTRING(UDF01,1,LEN(UDF01)-4)
                                     )
                                     AND TA002>='20240823009'
+                                    AND TA002>=CONVERT(NVARCHAR,YEAR(GETDATE()))+CONVERT(NVARCHAR,RIGHT('00' + CAST(MONTH(GETDATE()) AS VARCHAR(2)), 2))+'01001'
+
                                     GROUP BY TA001, TA002, VERSIONS
                                     ORDER BY [TA002]
 
