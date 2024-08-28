@@ -45978,7 +45978,7 @@ namespace TKSCHEDULEUOF
                             MESS.AppendFormat(@" 採購變更單:" + DR["TE001"].ToString() + " " + DR["TE002"].ToString() + "" + "變更版次:" + DR["TE003"].ToString() + " 沒有核準 ");
                         }
 
-                        MessageBox.Show(MESS.ToString());
+                        //MessageBox.Show(MESS.ToString());
                     }
 
                 }
@@ -46030,7 +46030,7 @@ namespace TKSCHEDULEUOF
 
                                     GROUP BY SUBSTRING(UDF01,1,LEN(UDF01)-4)
                                     )
-                                    AND TA002>='20231207001'
+                                    AND TA002>='20240823009'
                                     GROUP BY TA001, TA002, VERSIONS
                                     ORDER BY [TA002]
 
