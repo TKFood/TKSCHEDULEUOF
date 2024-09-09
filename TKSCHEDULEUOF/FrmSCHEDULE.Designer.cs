@@ -101,22 +101,22 @@
             this.button66 = new System.Windows.Forms.Button();
             this.button70 = new System.Windows.Forms.Button();
             this.button71 = new System.Windows.Forms.Button();
+            this.button76 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button63 = new System.Windows.Forms.Button();
             this.button65 = new System.Windows.Forms.Button();
             this.button68 = new System.Windows.Forms.Button();
             this.button67 = new System.Windows.Forms.Button();
-            this.button69 = new System.Windows.Forms.Button();
-            this.button72 = new System.Windows.Forms.Button();
-            this.button73 = new System.Windows.Forms.Button();
             this.button64 = new System.Windows.Forms.Button();
             this.button74 = new System.Windows.Forms.Button();
             this.button75 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button76 = new System.Windows.Forms.Button();
+            this.button73 = new System.Windows.Forms.Button();
+            this.button72 = new System.Windows.Forms.Button();
+            this.button69 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -998,6 +998,16 @@
             this.button71.UseVisualStyleBackColor = true;
             this.button71.Click += new System.EventHandler(this.button71_Click);
             // 
+            // button76
+            // 
+            this.button76.Location = new System.Drawing.Point(363, 363);
+            this.button76.Name = "button76";
+            this.button76.Size = new System.Drawing.Size(192, 34);
+            this.button76.TabIndex = 44;
+            this.button76.Text = "轉入1004.總務修繕單";
+            this.button76.UseVisualStyleBackColor = true;
+            this.button76.Click += new System.EventHandler(this.button76_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.tableLayoutPanel3);
@@ -1011,34 +1021,33 @@
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.BackColor = System.Drawing.Color.LightGreen;
-            this.tableLayoutPanel3.ColumnCount = 8;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 176F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 64F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 194F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 46F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 135F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 105F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tableLayoutPanel3.Controls.Add(this.button63, 1, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button65, 1, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button68, 3, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button67, 3, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button69, 5, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button72, 5, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button73, 5, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button64, 1, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button74, 1, 6);
-            this.tableLayoutPanel3.Controls.Add(this.button75, 1, 8);
+            this.tableLayoutPanel3.ColumnCount = 7;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.Controls.Add(this.button68, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button67, 0, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button63, 0, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button65, 0, 5);
+            this.tableLayoutPanel3.Controls.Add(this.button69, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button72, 1, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button73, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button64, 2, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button74, 2, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button75, 2, 2);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 16;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 47F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 17F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
@@ -1056,9 +1065,9 @@
             // button63
             // 
             this.button63.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button63.Location = new System.Drawing.Point(123, 43);
+            this.button63.Location = new System.Drawing.Point(3, 163);
             this.button63.Name = "button63";
-            this.button63.Size = new System.Drawing.Size(170, 34);
+            this.button63.Size = new System.Drawing.Size(154, 34);
             this.button63.TabIndex = 37;
             this.button63.Text = "更新官網訂單宅配";
             this.button63.UseVisualStyleBackColor = true;
@@ -1067,9 +1076,9 @@
             // button65
             // 
             this.button65.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button65.Location = new System.Drawing.Point(123, 86);
+            this.button65.Location = new System.Drawing.Point(3, 203);
             this.button65.Name = "button65";
-            this.button65.Size = new System.Drawing.Size(170, 34);
+            this.button65.Size = new System.Drawing.Size(154, 34);
             this.button65.TabIndex = 39;
             this.button65.Text = "更新銷貨代收貨款 ";
             this.button65.UseVisualStyleBackColor = true;
@@ -1078,64 +1087,31 @@
             // button68
             // 
             this.button68.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button68.Location = new System.Drawing.Point(363, 43);
+            this.button68.Location = new System.Drawing.Point(3, 43);
             this.button68.Name = "button68";
-            this.button68.Size = new System.Drawing.Size(188, 34);
+            this.button68.Size = new System.Drawing.Size(154, 34);
             this.button68.TabIndex = 68;
-            this.button68.Text = "ERP客戶轉UOF表單-1001客戶基本資料表";
+            this.button68.Text = "ERP客戶轉-1001客戶基本資料表";
             this.button68.UseVisualStyleBackColor = true;
             this.button68.Click += new System.EventHandler(this.button68_Click);
             // 
             // button67
             // 
             this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button67.Location = new System.Drawing.Point(363, 83);
+            this.button67.Location = new System.Drawing.Point(3, 83);
             this.button67.Name = "button67";
-            this.button67.Size = new System.Drawing.Size(188, 41);
+            this.button67.Size = new System.Drawing.Size(154, 34);
             this.button67.TabIndex = 67;
-            this.button67.Text = "ERP客戶轉UOF表單-100A客戶基本資料表";
+            this.button67.Text = "ERP客戶轉-100A客戶基本資料表";
             this.button67.UseVisualStyleBackColor = true;
             this.button67.Click += new System.EventHandler(this.button67_Click);
-            // 
-            // button69
-            // 
-            this.button69.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button69.Location = new System.Drawing.Point(603, 43);
-            this.button69.Name = "button69";
-            this.button69.Size = new System.Drawing.Size(129, 34);
-            this.button69.TabIndex = 69;
-            this.button69.Text = "產生採購變更單";
-            this.button69.UseVisualStyleBackColor = true;
-            this.button69.Click += new System.EventHandler(this.button69_Click);
-            // 
-            // button72
-            // 
-            this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button72.Location = new System.Drawing.Point(603, 86);
-            this.button72.Name = "button72";
-            this.button72.Size = new System.Drawing.Size(129, 34);
-            this.button72.TabIndex = 70;
-            this.button72.Text = "ERP版費轉入TKPUR";
-            this.button72.UseVisualStyleBackColor = true;
-            this.button72.Click += new System.EventHandler(this.button72_Click);
-            // 
-            // button73
-            // 
-            this.button73.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button73.Location = new System.Drawing.Point(603, 138);
-            this.button73.Name = "button73";
-            this.button73.Size = new System.Drawing.Size(129, 34);
-            this.button73.TabIndex = 71;
-            this.button73.Text = "ERP模具費轉入TKPUR";
-            this.button73.UseVisualStyleBackColor = true;
-            this.button73.Click += new System.EventHandler(this.button73_Click);
             // 
             // button64
             // 
             this.button64.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button64.Location = new System.Drawing.Point(123, 203);
+            this.button64.Location = new System.Drawing.Point(323, 43);
             this.button64.Name = "button64";
-            this.button64.Size = new System.Drawing.Size(170, 34);
+            this.button64.Size = new System.Drawing.Size(154, 34);
             this.button64.TabIndex = 38;
             this.button64.Text = "更新工程品號基本資料檔";
             this.button64.UseVisualStyleBackColor = true;
@@ -1144,9 +1120,9 @@
             // button74
             // 
             this.button74.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button74.Location = new System.Drawing.Point(123, 243);
+            this.button74.Location = new System.Drawing.Point(323, 123);
             this.button74.Name = "button74";
-            this.button74.Size = new System.Drawing.Size(170, 34);
+            this.button74.Size = new System.Drawing.Size(154, 34);
             this.button74.TabIndex = 72;
             this.button74.Text = "ERP烘培品號轉入簽核";
             this.button74.UseVisualStyleBackColor = true;
@@ -1155,9 +1131,9 @@
             // button75
             // 
             this.button75.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button75.Location = new System.Drawing.Point(123, 323);
+            this.button75.Location = new System.Drawing.Point(323, 83);
             this.button75.Name = "button75";
-            this.button75.Size = new System.Drawing.Size(170, 34);
+            this.button75.Size = new System.Drawing.Size(154, 34);
             this.button75.TabIndex = 73;
             this.button75.Text = "ERP品號匯入生產說明";
             this.button75.UseVisualStyleBackColor = true;
@@ -1175,15 +1151,38 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button76
+            // button73
             // 
-            this.button76.Location = new System.Drawing.Point(363, 363);
-            this.button76.Name = "button76";
-            this.button76.Size = new System.Drawing.Size(192, 34);
-            this.button76.TabIndex = 44;
-            this.button76.Text = "轉入1004.總務修繕單";
-            this.button76.UseVisualStyleBackColor = true;
-            this.button76.Click += new System.EventHandler(this.button76_Click);
+            this.button73.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button73.Location = new System.Drawing.Point(163, 123);
+            this.button73.Name = "button73";
+            this.button73.Size = new System.Drawing.Size(154, 34);
+            this.button73.TabIndex = 71;
+            this.button73.Text = "ERP模具費轉入TKPUR";
+            this.button73.UseVisualStyleBackColor = true;
+            this.button73.Click += new System.EventHandler(this.button73_Click);
+            // 
+            // button72
+            // 
+            this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button72.Location = new System.Drawing.Point(163, 83);
+            this.button72.Name = "button72";
+            this.button72.Size = new System.Drawing.Size(154, 34);
+            this.button72.TabIndex = 70;
+            this.button72.Text = "ERP版費轉入TKPUR";
+            this.button72.UseVisualStyleBackColor = true;
+            this.button72.Click += new System.EventHandler(this.button72_Click);
+            // 
+            // button69
+            // 
+            this.button69.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button69.Location = new System.Drawing.Point(163, 43);
+            this.button69.Name = "button69";
+            this.button69.Size = new System.Drawing.Size(154, 34);
+            this.button69.TabIndex = 69;
+            this.button69.Text = "產生採購變更單";
+            this.button69.UseVisualStyleBackColor = true;
+            this.button69.Click += new System.EventHandler(this.button69_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1288,14 +1287,14 @@
         private System.Windows.Forms.Button button66;
         private System.Windows.Forms.Button button67;
         private System.Windows.Forms.Button button68;
-        private System.Windows.Forms.Button button69;
         private System.Windows.Forms.Button button70;
         private System.Windows.Forms.Timer timer3;
         private System.Windows.Forms.Button button71;
-        private System.Windows.Forms.Button button72;
-        private System.Windows.Forms.Button button73;
         private System.Windows.Forms.Button button74;
         private System.Windows.Forms.Button button75;
         private System.Windows.Forms.Button button76;
+        private System.Windows.Forms.Button button72;
+        private System.Windows.Forms.Button button69;
+        private System.Windows.Forms.Button button73;
     }
 }
