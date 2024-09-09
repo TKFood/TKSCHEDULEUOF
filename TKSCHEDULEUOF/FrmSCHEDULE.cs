@@ -50282,7 +50282,7 @@ namespace TKSCHEDULEUOF
 
                         //20210902密
             Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
             //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
@@ -50294,10 +50294,18 @@ namespace TKSCHEDULEUOF
             StringBuilder queryString = new StringBuilder();
             queryString.AppendFormat(@"                                   
                                         UPDATE [TK].dbo.ASTMB
-                                        SET MB047=@MB047,MB048=@MB048
-                                        ,MB042=@MB042,MB043=@MB043
-                                        ,MB039=@MB039,MB050=@MB050
-                                        ,FLAG=FLAG+1,COMPANY=@COMPANY,MODIFIER=@MODIFIER,MODI_DATE=@MODI_DATE,MODI_TIME=@MODI_TIME
+                                        SET 
+                                        MB047=@MB047
+                                        ,MB048=@MB048                                        
+                                        ,MB042=@MB042
+                                        ,MB043=@MB043                                        
+                                        ,MB039=@MB039
+                                        ,MB050=@MB050                                        
+                                        ,FLAG=FLAG+1
+                                        ,COMPANY=@COMPANY
+                                        ,MODIFIER=@MODIFIER
+                                        ,MODI_DATE=@MODI_DATE
+                                        ,MODI_TIME=@MODI_TIME
                                         ,UDF02=@UDF02
                                         WHERE MB001=@MB001
 
