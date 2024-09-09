@@ -117,6 +117,7 @@
             this.button73 = new System.Windows.Forms.Button();
             this.button72 = new System.Windows.Forms.Button();
             this.button69 = new System.Windows.Forms.Button();
+            this.button77 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1039,6 +1040,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button64, 2, 1);
             this.tableLayoutPanel3.Controls.Add(this.button74, 2, 3);
             this.tableLayoutPanel3.Controls.Add(this.button75, 2, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button77, 3, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1184,6 +1186,17 @@
             this.button69.UseVisualStyleBackColor = true;
             this.button69.Click += new System.EventHandler(this.button69_Click);
             // 
+            // button77
+            // 
+            this.button77.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button77.Location = new System.Drawing.Point(483, 43);
+            this.button77.Name = "button77";
+            this.button77.Size = new System.Drawing.Size(154, 34);
+            this.button77.TabIndex = 74;
+            this.button77.Text = "ERP-ASTI02資產建立";
+            this.button77.UseVisualStyleBackColor = true;
+            this.button77.Click += new System.EventHandler(this.button77_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1296,5 +1309,6 @@
         private System.Windows.Forms.Button button72;
         private System.Windows.Forms.Button button69;
         private System.Windows.Forms.Button button73;
+        private System.Windows.Forms.Button button77;
     }
 }
