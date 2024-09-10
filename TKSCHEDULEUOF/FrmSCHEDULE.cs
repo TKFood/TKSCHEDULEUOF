@@ -50685,7 +50685,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATEPURTGUDF01();
+            UPDATE_PUR_MOCTH_UDF01();
         }
 
         public DataTable SEARCH_ERP_MOCTH_MOCTI(string TH001, string TH002)
@@ -50934,6 +50934,7 @@ namespace TKSCHEDULEUOF
                                     ,[MOCTI].[UDF10]  AS 'MOCTIUDF10'
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTH.CREATOR) AS 'MV002'
+                                    ,PURMA.MA002
 
                                     FROM [TK].dbo.PURMA,[TK].dbo.MOCTH,[TK].dbo.MOCTI
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= MOCTI.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
@@ -51048,7 +51049,7 @@ namespace TKSCHEDULEUOF
             //TG003	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG003"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH003"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -51061,7 +51062,7 @@ namespace TKSCHEDULEUOF
             //TG005	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG005");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG005"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH005"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -51074,7 +51075,7 @@ namespace TKSCHEDULEUOF
             //TG021	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG021");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG021"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MA002"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -51087,7 +51088,7 @@ namespace TKSCHEDULEUOF
             //TG001	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG001"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH001"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -51100,7 +51101,7 @@ namespace TKSCHEDULEUOF
             //TG002	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TG002"].ToString());
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH002"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -51142,7 +51143,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH003
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH003");
-                Cell.SetAttribute("fieldValue", od["TH003"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI003"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51152,7 +51153,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH004
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH004");
-                Cell.SetAttribute("fieldValue", od["TH004"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI004"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51162,7 +51163,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH005
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH005");
-                Cell.SetAttribute("fieldValue", od["TH005"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI005"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51172,7 +51173,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH006
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH006");
-                Cell.SetAttribute("fieldValue", od["TH006"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI006"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51182,7 +51183,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH007
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH007");
-                Cell.SetAttribute("fieldValue", od["TH007"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI007"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51192,7 +51193,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH008
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH008");
-                Cell.SetAttribute("fieldValue", od["TH008"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI008"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51202,7 +51203,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH010
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH010");
-                Cell.SetAttribute("fieldValue", od["TH010"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI010"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51212,7 +51213,7 @@ namespace TKSCHEDULEUOF
                 //Row	TH015
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH015");
-                Cell.SetAttribute("fieldValue", od["TH015"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI019"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51299,7 +51300,7 @@ namespace TKSCHEDULEUOF
                 //TH036 有效日期
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH036");
-                Cell.SetAttribute("fieldValue", od["TH036"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI011"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51311,7 +51312,7 @@ namespace TKSCHEDULEUOF
                 //TH117 製造日期
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TH117");
-                Cell.SetAttribute("fieldValue", od["TH117"].ToString());
+                Cell.SetAttribute("fieldValue", od["TI061"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
@@ -51383,6 +51384,64 @@ namespace TKSCHEDULEUOF
             finally
             {
 
+            }
+        }
+
+        public void UPDATE_PUR_MOCTH_UDF01()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql.AppendFormat(@"
+                                    UPDATE   [TK].dbo.MOCTH
+                                    SET UDF01 = 'UOF'
+                                    WHERE  UDF01 IN ('Y','y')
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
             }
         }
 
