@@ -50685,7 +50685,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            UPDATE_PUR_MOCTH_UDF01();
+            //UPDATE_PUR_MOCTH_UDF01();
         }
 
         public DataTable SEARCH_ERP_MOCTH_MOCTI(string TH001, string TH002)
