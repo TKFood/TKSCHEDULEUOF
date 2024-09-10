@@ -119,6 +119,7 @@
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.button78 = new System.Windows.Forms.Button();
+            this.button79 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -191,17 +192,12 @@
             this.tableLayoutPanel1.Controls.Add(this.button16, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.button19, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this.button20, 1, 7);
-            this.tableLayoutPanel1.Controls.Add(this.button38, 1, 8);
-            this.tableLayoutPanel1.Controls.Add(this.button18, 1, 9);
-            this.tableLayoutPanel1.Controls.Add(this.button45, 1, 10);
             this.tableLayoutPanel1.Controls.Add(this.button46, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.button47, 2, 4);
-            this.tableLayoutPanel1.Controls.Add(this.button48, 1, 12);
             this.tableLayoutPanel1.Controls.Add(this.button52, 2, 6);
             this.tableLayoutPanel1.Controls.Add(this.button53, 2, 7);
             this.tableLayoutPanel1.Controls.Add(this.button54, 2, 8);
             this.tableLayoutPanel1.Controls.Add(this.button57, 2, 9);
-            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 13);
             this.tableLayoutPanel1.Controls.Add(this.button60, 0, 13);
             this.tableLayoutPanel1.Controls.Add(this.button61, 2, 10);
             this.tableLayoutPanel1.Controls.Add(this.button24, 2, 11);
@@ -216,6 +212,12 @@
             this.tableLayoutPanel1.Controls.Add(this.button59, 3, 6);
             this.tableLayoutPanel1.Controls.Add(this.button51, 3, 5);
             this.tableLayoutPanel1.Controls.Add(this.button39, 0, 12);
+            this.tableLayoutPanel1.Controls.Add(this.button18, 1, 15);
+            this.tableLayoutPanel1.Controls.Add(this.button48, 1, 12);
+            this.tableLayoutPanel1.Controls.Add(this.button49, 1, 13);
+            this.tableLayoutPanel1.Controls.Add(this.button45, 1, 11);
+            this.tableLayoutPanel1.Controls.Add(this.button38, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button79, 1, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -558,18 +560,18 @@
             // button18
             // 
             this.button18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button18.Location = new System.Drawing.Point(166, 363);
+            this.button18.Location = new System.Drawing.Point(166, 616);
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(174, 34);
             this.button18.TabIndex = 28;
-            this.button18.Text = "轉入進貨單到品保檢";
+            this.button18.Text = "停用-轉入進貨單到品保檢";
             this.button18.UseVisualStyleBackColor = true;
             this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
             // button45
             // 
             this.button45.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button45.Location = new System.Drawing.Point(166, 403);
+            this.button45.Location = new System.Drawing.Point(166, 443);
             this.button45.Name = "button45";
             this.button45.Size = new System.Drawing.Size(174, 34);
             this.button45.TabIndex = 52;
@@ -1210,6 +1212,17 @@
             this.button78.UseVisualStyleBackColor = true;
             this.button78.Click += new System.EventHandler(this.button78_Click);
             // 
+            // button79
+            // 
+            this.button79.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button79.Location = new System.Drawing.Point(166, 363);
+            this.button79.Name = "button79";
+            this.button79.Size = new System.Drawing.Size(174, 34);
+            this.button79.TabIndex = 66;
+            this.button79.Text = "ERP託外進貨>轉入UOF簽核";
+            this.button79.UseVisualStyleBackColor = true;
+            this.button79.Click += new System.EventHandler(this.button79_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1324,5 +1337,6 @@
         private System.Windows.Forms.Button button73;
         private System.Windows.Forms.Button button77;
         private System.Windows.Forms.Button button78;
+        private System.Windows.Forms.Button button79;
     }
 }
