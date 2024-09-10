@@ -86,7 +86,7 @@ namespace TKSCHEDULEUOF
         /// 製二線稼動率時數 BASELIMITHRS2
         /// 手工線稼動率時數 BASELIMITHRS3
         /// </summary>
-        decimal BASELIMITHRSBAR1 =0;
+        decimal BASELIMITHRSBAR1 = 0;
         decimal BASELIMITHRSBAR2 = 0;
         decimal BASELIMITHRS1 = 0;
         decimal BASELIMITHRS2 = 0;
@@ -98,7 +98,7 @@ namespace TKSCHEDULEUOF
             InitializeComponent();
 
             timer1.Enabled = true;
-            timer1.Interval = 1000*60 ;
+            timer1.Interval = 1000 * 60;
             timer1.Start();
 
             timer2.Enabled = true;
@@ -193,17 +193,17 @@ namespace TKSCHEDULEUOF
                 NEW_POSET();
             }
             catch { }
-           
+
             //請購變更單，UOF核準後，自動判斷是否有採購單，如果有就產生採購變購單
             try
             {
                 NEWPURTEPURTF_ERP();
             }
-            catch { }           
+            catch { }
             //ERP客戶轉UOF表單-1001客戶基本資料表
             try
             {
-                ADD_UOF_COPMA_1001(); 
+                ADD_UOF_COPMA_1001();
             }
             catch { }
             //轉入1006委外送驗申請單
@@ -212,7 +212,7 @@ namespace TKSCHEDULEUOF
                 NEWUOFQC1006();
             }
             catch { }
-          
+
             //更新銷貨代收貨款 
             try
             {
@@ -232,14 +232,14 @@ namespace TKSCHEDULEUOF
                 COPTC_TC010_TC011_UPDATE();
             }
             catch { }
-           
+
             //轉入  行銷廣告的活動成效記錄表
             try
             {
                 ADD_TBPROMOTIONNFEE();
             }
             catch { }
-           
+
             //轉入ERP的品到EBOM中
             try
             {
@@ -254,14 +254,14 @@ namespace TKSCHEDULEUOF
             }
             catch { }
 
-           
+
             //轉入BOM表
             try
             {
                 NEW_BOMMC_BOMMD();
             }
             catch { }
-           
+
             //轉入10.行企類表單 1002.產品設計申請
             try
             {
@@ -269,7 +269,7 @@ namespace TKSCHEDULEUOF
             }
             catch { }
 
-           
+
             //轉入13.研發類表單:1002.設計需求內容清單
             try
             {
@@ -287,7 +287,7 @@ namespace TKSCHEDULEUOF
                 //ADD_UOF_FORM_GRAFFIRS_1005();
             }
             catch { }
-            
+
 
             //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
             try
@@ -295,7 +295,7 @@ namespace TKSCHEDULEUOF
                 ADD_TKGAFFAIRS_BUYITEMREPORTS();
             }
             catch { }
-           
+
 
 
             //品保1002轉到1001
@@ -304,7 +304,7 @@ namespace TKSCHEDULEUOF
                 ADD_TO_UOF_QC1001();
             }
             catch { }
-            
+
 
             //MOCI02.製令單 
             try
@@ -312,7 +312,7 @@ namespace TKSCHEDULEUOF
                 ADDUOFMOCTAMOCTB();
             }
             catch { }
-           
+
 
             //ASTI02.資產資料建立作業
             try
@@ -328,7 +328,7 @@ namespace TKSCHEDULEUOF
             //    ADDCOPMACOPMBCOPMC();
             //}
             //catch { }
-           
+
 
             //ERP請購單
             try
@@ -338,7 +338,7 @@ namespace TKSCHEDULEUOF
                 ADDTOUOFOURTAB();
             }
             catch { }
-           
+
 
             //門市督導單
             try
@@ -372,7 +372,7 @@ namespace TKSCHEDULEUOF
                 NEWTBUOFQC1002();
             }
             catch { }
-            
+
 
             //採購單
             try
@@ -380,7 +380,7 @@ namespace TKSCHEDULEUOF
                 NEWPURTCPURTD();
             }
             catch { }
-           
+
 
             //採購變更單
             try
@@ -388,7 +388,7 @@ namespace TKSCHEDULEUOF
                 NEWPURTEPURTF();
             }
             catch { }
-           
+
 
             //採購核價單
             try
@@ -396,7 +396,7 @@ namespace TKSCHEDULEUOF
                 NEWPURTLPURTMPURTN();
             }
             catch { }
-           
+
 
             //轉入品保檢驗
             try
@@ -404,7 +404,7 @@ namespace TKSCHEDULEUOF
                 ADDTKQCQCPURTH();
             }
             catch { }
-           
+
 
             //轉品保UOF驗收表單
             try
@@ -412,7 +412,7 @@ namespace TKSCHEDULEUOF
                 NEWPURTGPURTH();
             }
             catch { }
-            
+
 
             //轉BOM表變更單
             try
@@ -420,7 +420,7 @@ namespace TKSCHEDULEUOF
                 NEWBOMTABOMTBBOMTC();
             }
             catch { }
-           
+
 
             //轉入品保的進貨檢驗單
             try
@@ -428,7 +428,7 @@ namespace TKSCHEDULEUOF
                 ADDTKQCUOFQCPURTGPURTH();
             }
             catch { }
-          
+
 
             //A11A客供入料單同進貨單跑進貨驗收流程
             try
@@ -444,7 +444,7 @@ namespace TKSCHEDULEUOF
             //}
             //catch { }
 
-      
+
 
             //UPDATE_TB_WKF_TASK_TASK_RESULT();
 
@@ -974,7 +974,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-               
+
                 sbSql.AppendFormat(@" 
                                  SELECT [CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID]
                                  FROM (               
@@ -1077,7 +1077,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(" WHERE INVMB.MB001=MOCMANULINE.MB001 ");
                 sbSql.AppendFormat(" AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' ", DateTime.Now.ToString("yyyyMMdd"));
                 sbSql.AppendFormat(" AND [MOCMANULINE]. [MANU]='包裝線'");
-                sbSql.AppendFormat(" UNION");                
+                sbSql.AppendFormat(" UNION");
                 sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [CREATE_USER],[MOCMANULINE].[MANU]+[MOCMANULINE].[COPTD001]+'-'+[MOCMANULINE].[COPTD002]+'-'+[MOCMANULINE].[COPTD003]+'-'+INVMB.[MB002]+' '+CONVERT(NVARCHAR,CONVERT(INT,[MOCMANULINE].[NUM]))+INVMB.MB004+'-'+CONVERT(NVARCHAR,CONVERT(DECIMAL(14,2),[BAR]))+'桶數-'+CONVERT(nvarchar,CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0)))+'小時' AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[MANUDATE],112)+' '+CONVERT(varchar(100),GETDATE(),14) AS [START_TIME],[MOCMANULINE].[MANU]+[MOCMANULINE].[COPTD001]+'-'+[MOCMANULINE].[COPTD002]+'-'+[MOCMANULINE].[COPTD003]+'-'+INVMB.[MB002]+' '+CONVERT(NVARCHAR,CONVERT(INT,[MOCMANULINE].[NUM]))+INVMB.MB004+'-'+CONVERT(NVARCHAR,CONVERT(DECIMAL(14,2),[BAR]))+'桶數-'+CONVERT(nvarchar,CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0)))+'小時' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
                 sbSql.AppendFormat(" FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB");
                 sbSql.AppendFormat(" LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製一線%'");
@@ -1090,7 +1090,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(" LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製二線%'");
                 sbSql.AppendFormat(" WHERE INVMB.MB001=MOCMANULINE.MB001 ");
                 sbSql.AppendFormat(" AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' ", DateTime.Now.ToString("yyyyMMdd"));
-                sbSql.AppendFormat(" AND [MOCMANULINE]. [MANU]='製二線'");               
+                sbSql.AppendFormat(" AND [MOCMANULINE]. [MANU]='製二線'");
                 sbSql.AppendFormat(" UNION");
                 sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [CREATE_USER],[MOCMANULINE].[MANU]+[MOCMANULINE].[COPTD001]+'-'+[MOCMANULINE].[COPTD002]+'-'+[MOCMANULINE].[COPTD003]+'-'+INVMB.[MB002]+' '+CONVERT(NVARCHAR,CONVERT(INT,[MOCMANULINE].[NUM]))+INVMB.MB004+'-'+CONVERT(nvarchar,CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0)))+'小時' AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[MANUDATE],112)+' '+CONVERT(varchar(100),GETDATE(),14) AS [START_TIME],[MOCMANULINE].[MANU]+[MOCMANULINE].[COPTD001]+'-'+[MOCMANULINE].[COPTD002]+'-'+[MOCMANULINE].[COPTD003]+'-'+INVMB.[MB002]+' '+CONVERT(NVARCHAR,CONVERT(INT,[MOCMANULINE].[NUM]))+INVMB.MB004+'-'+CONVERT(nvarchar,CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0)))+'小時' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
                 sbSql.AppendFormat(" FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB");
@@ -1147,7 +1147,7 @@ namespace TKSCHEDULEUOF
 
             DataSet ds5 = new DataSet();
             ds5 = SEARCHMANULINE5(Sday);
-          
+
 
             try
             {
@@ -1170,7 +1170,7 @@ namespace TKSCHEDULEUOF
                 tran = sqlConn.BeginTransaction();
 
                 sbSql.Clear();
-        
+
                 //先刪除再新增
 
                 sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='701e642b-c4d5-43ce-8289-c7dffb7ba016'", Sday);
@@ -1188,7 +1188,7 @@ namespace TKSCHEDULEUOF
                     }
                 }
 
-             
+
 
 
 
@@ -1249,13 +1249,13 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(" WHERE TD004=MB001");
                 sbSql.AppendFormat(" AND TD016 IN ('N')");
                 sbSql.AppendFormat(" AND (TD004 LIKE '1%' OR TD004 LIKE '2%')");
-                sbSql.AppendFormat(" AND TD012>='{0}'",Sday);
+                sbSql.AppendFormat(" AND TD012>='{0}'", Sday);
                 sbSql.AppendFormat(" ORDER BY TD012");
                 sbSql.AppendFormat(" ");
 
                 adapter5 = new SqlDataAdapter(@"" + sbSql, sqlConn);
 
-                sqlCmdBuilder5= new SqlCommandBuilder(adapter5);
+                sqlCmdBuilder5 = new SqlCommandBuilder(adapter5);
                 sqlConn.Open();
                 ds5.Clear();
                 adapter5.Fill(ds5, "ds5");
@@ -1424,7 +1424,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(" AND TD004=MB001");
                 sbSql.AppendFormat(" AND TD016 IN ('N')");
                 sbSql.AppendFormat(" AND TD001 IN ('A221','A223','A227','A229')");
-                sbSql.AppendFormat(" AND TD013>='{0}'",Sday);
+                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
                 sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
                 sbSql.AppendFormat(" ");
                 sbSql.AppendFormat(" ");
@@ -1739,9 +1739,9 @@ namespace TKSCHEDULEUOF
         public void UPDATEtb_COMPANYSTATUS2()
         {
             DataSet dsCOMPASTOP = new DataSet();
-            dsCOMPASTOP=SERACHCOMPASTOP();
+            dsCOMPASTOP = SERACHCOMPASTOP();
 
-            if (dsCOMPASTOP.Tables[0].Rows.Count>0)
+            if (dsCOMPASTOP.Tables[0].Rows.Count > 0)
             {
                 try
                 {
@@ -1906,7 +1906,7 @@ namespace TKSCHEDULEUOF
 
                 //更新          
                 foreach (DataRow dr in dsCOPMA.Tables[0].Rows)
-                {                   
+                {
                     sbSql.AppendFormat(@" 
                                         INSERT INTO [HJ_BM_DB].[dbo].[tb_COMPANY]
                                         ([COMPANY_NAME],[ERPNO],[TAX_NUMBER],[PHONE],[FAX],[COUNTRY],[CITY],[TOWN],[ADDRESS],[OVERSEAS_ADDR]
@@ -1917,7 +1917,7 @@ namespace TKSCHEDULEUOF
                                         ,'{10}','{11}','{12}','{13}','{14}','{15}','{16}',{17},'{18}','{19}'
                                         ,'{20}','{21}','{22}','{23}','{24}','{25}')
                                         ", dr["COMPANY_NAME"].ToString(), dr["ERPNO"].ToString(), dr["TAX_NUMBER"].ToString(), dr["PHONE"].ToString(), dr["FAX"].ToString(), dr["COUNTRY"].ToString(), dr["CITY"].ToString(), dr["TOWN"].ToString(), dr["ADDRESS"].ToString(), dr["OVERSEAS_ADDR"].ToString()
-                                        , dr["EMAIL"].ToString(), dr["WEBSITE"].ToString(), dr["FACEBOOK"].ToString(), dr["INDUSTRY"].ToString(), dr["TURNOVER"].ToString(), dr["WORKER_NUMBER"].ToString(), dr["EST_DATE"].ToString(),"NULL", dr["UPDATE_DATETIME"].ToString(), dr["CREATE_DATETIME"].ToString()
+                                        , dr["EMAIL"].ToString(), dr["WEBSITE"].ToString(), dr["FACEBOOK"].ToString(), dr["INDUSTRY"].ToString(), dr["TURNOVER"].ToString(), dr["WORKER_NUMBER"].ToString(), dr["EST_DATE"].ToString(), "NULL", dr["UPDATE_DATETIME"].ToString(), dr["CREATE_DATETIME"].ToString()
                                         , dr["CREATE_USER_ID"].ToString(), dr["UPDATE_USER_ID"].ToString(), dr["NOTE"].ToString(), dr["OWNER_ID"].ToString(), dr["LAST_CONTACT_DATE"].ToString(), dr["STATUS"].ToString());
                 }
                 sbSql.AppendFormat(@" ");
@@ -1935,7 +1935,7 @@ namespace TKSCHEDULEUOF
                 else
                 {
                     tran.Commit();      //執行交易  
-                    
+
 
                 }
 
@@ -2185,7 +2185,7 @@ namespace TKSCHEDULEUOF
             DataTable DT = SEARCHPURTAPURTB(TA001, TA002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["TA012"].ToString());
 
-            string account = DT.Rows[0]["TA012"].ToString();         
+            string account = DT.Rows[0]["TA012"].ToString();
             string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
             string fillerName = DT.Rows[0]["MV002"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
@@ -2193,25 +2193,25 @@ namespace TKSCHEDULEUOF
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
             string groupId = DTUPFDEP.Rows[0]["GROUP_ID"].ToString();
 
-            if (DTUPFDEP.Rows.Count>=1)
+            if (DTUPFDEP.Rows.Count >= 1)
             {
-                foreach(DataRow DR in DTUPFDEP.Rows)
+                foreach (DataRow DR in DTUPFDEP.Rows)
                 {
-                    if(DR["GROUP_CODE"].ToString().Equals(DT.Rows[0]["TA004"].ToString()))
+                    if (DR["GROUP_CODE"].ToString().Equals(DT.Rows[0]["TA004"].ToString()))
                     {
                         groupId = DR["GROUP_ID"].ToString();
                         DEPNAME = DR["DEPNAME"].ToString();
                         DEPNO = DR["DEPNO"].ToString();
-                        
+
                     }
                 }
 
             }
-           
 
-          
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim() ;
+
+
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -2226,7 +2226,7 @@ namespace TKSCHEDULEUOF
             {
                 Form.SetAttribute("formVersionId", PURID);
             }
-           
+
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -2397,7 +2397,7 @@ namespace TKSCHEDULEUOF
             XmlNode TB = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='TB']");
             TB.AppendChild(DataGrid);
 
-           
+
             foreach (DataRow od in DT.Rows)
             {
                 // 新增 Row
@@ -2628,7 +2628,7 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public DataTable SEARCHPURTAPURTB(string TA001,string TA002)
+        public DataTable SEARCHPURTAPURTB(string TA001, string TA002)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -2775,7 +2775,7 @@ namespace TKSCHEDULEUOF
                     {
                         ADDTB_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
                     }
-                        
+
 
                     //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
                 }
@@ -2820,7 +2820,7 @@ namespace TKSCHEDULEUOF
                 tran = sqlConn.BeginTransaction();
 
                 sbSql.Clear();
-                              
+
                 sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.PURTA  
                                     SET UDF01 = 'UOF',TA016='N'
@@ -2999,7 +2999,7 @@ namespace TKSCHEDULEUOF
             UPDATECOPTCUDF02();
         }
 
-        public void ADDTB_WKF_EXTERNAL_TASK_COPTCCOPTD(string TC001,string TC002)
+        public void ADDTB_WKF_EXTERNAL_TASK_COPTCCOPTD(string TC001, string TC002)
         {
 
             DataTable DT = SEARCHCOPTCCOPTD(TC001, TC002);
@@ -3026,7 +3026,7 @@ namespace TKSCHEDULEUOF
 
             foreach (DataRow od in DT.Rows)
             {
-                if(od["COPTDUDF01"].ToString().Equals("Y"))
+                if (od["COPTDUDF01"].ToString().Equals("Y"))
                 {
                     COPTCUDF01 = "Y";
                     break;
@@ -3037,7 +3037,7 @@ namespace TKSCHEDULEUOF
                 }
             }
 
-                XmlDocument xmlDoc = new XmlDocument();
+            XmlDocument xmlDoc = new XmlDocument();
             //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
 
@@ -3048,7 +3048,7 @@ namespace TKSCHEDULEUOF
             {
                 Form.SetAttribute("formVersionId", COPID);
             }
-                       
+
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -3198,7 +3198,7 @@ namespace TKSCHEDULEUOF
             //TC006 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TC006");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString()+"("+DT.Rows[0]["TC006"].ToString()+")");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["NAME"].ToString() + "(" + DT.Rows[0]["TC006"].ToString() + ")");
             FieldItem.SetAttribute("realValue", xElement.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3235,7 +3235,7 @@ namespace TKSCHEDULEUOF
             //BA 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "BA");
-            FieldItem.SetAttribute("fieldValue",BANAME + "(" + BA + ")");
+            FieldItem.SetAttribute("fieldValue", BANAME + "(" + BA + ")");
             FieldItem.SetAttribute("realValue", xElement_BA.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -3743,7 +3743,7 @@ namespace TKSCHEDULEUOF
             XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
             DETAILS.AppendChild(DataGrid);
 
-           
+
 
             foreach (DataRow od in DT.Rows)
             {
@@ -3841,7 +3841,7 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-               
+
                 //Row	TD010
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TD010");
@@ -3881,7 +3881,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
-             
+
 
                 //Row	TD013
                 Cell = xmlDoc.CreateElement("Cell");
@@ -4274,7 +4274,7 @@ namespace TKSCHEDULEUOF
             UPDATECOPTEUDF01();
         }
 
-        public void ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(string TE001, string TE002,string TE003)
+        public void ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(string TE001, string TE002, string TE003)
         {
 
             DataTable DT = SEARCHCOPTECOPTF(TE001, TE002, TE003);
@@ -4323,7 +4323,7 @@ namespace TKSCHEDULEUOF
             {
                 Form.SetAttribute("formVersionId", COPCHANGEID);
             }
-          
+
 
             Form.SetAttribute("urgentLevel", "2");
             //加入節點底下
@@ -4688,7 +4688,7 @@ namespace TKSCHEDULEUOF
             //TE009 	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TE009");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["CMSMV002A"].ToString() +"("+ DT.Rows[0]["TE009"].ToString()+")");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["CMSMV002A"].ToString() + "(" + DT.Rows[0]["TE009"].ToString() + ")");
             FieldItem.SetAttribute("realValue", xElement.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -4905,7 +4905,7 @@ namespace TKSCHEDULEUOF
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", (rowscounts).ToString());
 
-         
+
                 //Row	TF004
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TF004");
@@ -5246,7 +5246,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public DataTable SEARCHCOPTECOPTF(string TE001, string TE002,string TE003)
+        public DataTable SEARCHCOPTECOPTF(string TE001, string TE002, string TE003)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -5394,7 +5394,7 @@ namespace TKSCHEDULEUOF
                                     AND TE001='{1}' AND TE002='{2}' AND TE003='{3}'
                                     ) AS TEMP   
                               
-                                    ", DBNAME, TE001, TE002,TE003);
+                                    ", DBNAME, TE001, TE002, TE003);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -5520,9 +5520,9 @@ namespace TKSCHEDULEUOF
                 query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
             }
 
-           
-            
-            if(query2.Count()>0)
+
+
+            if (query2.Count() > 0)
             {
                 //差集集合
                 DataTable dt3 = query2.CopyToDataTable();
@@ -5532,8 +5532,8 @@ namespace TKSCHEDULEUOF
                     SEARCHUOFTB_WKF_TASK(dr["DOC_NBR"].ToString());
                 }
             }
-            
-                
+
+
         }
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
@@ -5733,13 +5733,13 @@ namespace TKSCHEDULEUOF
                 }
                 else
                 {
-                    
+
                 }
 
             }
             catch
             {
-               
+
             }
             finally
             {
@@ -5793,7 +5793,7 @@ namespace TKSCHEDULEUOF
                                         , string STORE42
                                         , string STORE43
                                         , string STORE44
-                                        ,string NAME
+                                        , string NAME
                                             )
         {
             try
@@ -6002,7 +6002,7 @@ namespace TKSCHEDULEUOF
 
             string THISYEARS = DateTime.Now.ToString("yyyy");
             //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2,2);
+            THISYEARS = THISYEARS.Substring(2, 2);
 
             try
             {
@@ -6066,7 +6066,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-    
+
         public DataTable SEARCHTKMKTBSTORESCHECK()
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -6728,7 +6728,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void  CHECKADDTOUOFFORMEDUCATION()
+        public void CHECKADDTOUOFFORMEDUCATION()
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -6795,13 +6795,13 @@ namespace TKSCHEDULEUOF
                 }
                 else
                 {
-                    
+
                 }
 
             }
             catch
             {
-                
+
             }
             finally
             {
@@ -6878,7 +6878,7 @@ namespace TKSCHEDULEUOF
 
                     string account = ds1.Tables["ds1"].Rows[0]["APPLICANT"].ToString().Trim();
                     string groupId = ds1.Tables["ds1"].Rows[0]["GROUP_ID"].ToString().Trim();
-                    
+
                     string jobTitleId = ds1.Tables["ds1"].Rows[0]["TITLE_ID"].ToString().Trim();
                     string fillerName = ds1.Tables["ds1"].Rows[0]["NAME"].ToString().Trim();
                     string fillerUserGuid = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString().Trim();
@@ -7373,7 +7373,7 @@ namespace TKSCHEDULEUOF
             }
 
 
-                    
+
 
         }
 
@@ -7528,23 +7528,23 @@ namespace TKSCHEDULEUOF
 
                 try
                 {
-                        KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                    KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
                 }
                 catch
                 {
-                    
+
                 }
                 try
                 {
-                        KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
+                    KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
                 }
                 catch
                 {
 
                 }
-                
 
-                
+
+
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
@@ -7562,7 +7562,7 @@ namespace TKSCHEDULEUOF
                     string jobTitleId = ds1.Tables["ds1"].Rows[0]["TITLE_ID"].ToString().Trim();
                     string fillerName = ds1.Tables["ds1"].Rows[0]["NAME"].ToString().Trim();
                     string fillerUserGuid = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString().Trim();
-               
+
                     string EXTERNAL_FORM_NBR = DOC_NBR;
 
                     int rowscounts = 0;
@@ -7570,11 +7570,11 @@ namespace TKSCHEDULEUOF
                     xmlDocqQuery.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
                     //string LeaveType = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
                     string APPLICANT = ds1.Tables["ds1"].Rows[0]["APPLICANT"].ToString();
-                                    
+
 
                     //A01-01-009-01-A 出差報告單
                     //BTripUserName
-                    string BTripUserName = fillerName + "(" + account + ")";                    
+                    string BTripUserName = fillerName + "(" + account + ")";
                     //部門(BTripUserDept) fieldValue
                     string BTripUserDeptfieldValue = xmlDocqQuery.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='KY002']").Attributes["fieldValue"].Value;
                     //部門(TBTripUserDept) realValue
@@ -7600,7 +7600,7 @@ namespace TKSCHEDULEUOF
                     string BTripPurpose = ds1.Tables["ds1"].Rows[0]["REMARK"].ToString();
                     //BTripContent
                     string BTripContent = "";
-                    
+
 
 
                     //建立userset子節點
@@ -7918,7 +7918,7 @@ namespace TKSCHEDULEUOF
 
         public void TEST()
         {
-            
+
 
 
 
@@ -7987,7 +7987,7 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
 
-             
+
                 //核準過TASK_RESULT='0'
                 //AND DOC_NBR  LIKE 'QC1002{0}%'
 
@@ -8349,7 +8349,7 @@ namespace TKSCHEDULEUOF
                     try
                     {
                         QCFrm002Abns = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["fieldValue"].Value;
-                        QCFrm002Abns = QCFrm002Abns+xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["customValue"].Value;
+                        QCFrm002Abns = QCFrm002Abns + xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Abns']").Attributes["customValue"].Value;
 
                         QCFrm002Abns = QCFrm002Abns.Replace("others", "");
                     }
@@ -8469,7 +8469,7 @@ namespace TKSCHEDULEUOF
                     {
 
                     }
-                   
+
 
                     //string QCFrm002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
                     //string QCFrm002Date = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Date']").Attributes["fieldValue"].Value;
@@ -8827,7 +8827,7 @@ namespace TKSCHEDULEUOF
             UPDATEPURTCUDF01();
         }
 
-        public void ADD_PURTCPURTD_TB_WKF_EXTERNAL_TASK(string TC001,string TC002)
+        public void ADD_PURTCPURTD_TB_WKF_EXTERNAL_TASK(string TC001, string TC002)
         {
 
             DataTable DT = SEARCHPURTCPURTD(TC001, TC002);
@@ -9337,7 +9337,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
-                Row.AppendChild(Cell);               
+                Row.AppendChild(Cell);
 
                 //Row	TD028
                 Cell = xmlDoc.CreateElement("Cell");
@@ -9850,7 +9850,7 @@ namespace TKSCHEDULEUOF
             UPDATEPURTEUDF01();
         }
 
-        public void ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(string TE001,string TE002,string TE003)
+        public void ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(string TE001, string TE002, string TE003)
         {
 
             DataTable DT = SEARCHPURTEPURTF(TE001, TE002, TE003);
@@ -10567,7 +10567,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable SEARCHPURTEPURTF(string TE001,string TE002,string TE003)
+        public DataTable SEARCHPURTEPURTF(string TE001, string TE002, string TE003)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -10943,7 +10943,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void  ADDTOERPTKMOCUE()
+        public void ADDTOERPTKMOCUE()
         {
             try
             {
@@ -11277,7 +11277,7 @@ namespace TKSCHEDULEUOF
                     {
                         ADD_PURTLPURTMPURTN_TB_WKF_EXTERNAL_TASK(dr["TL001"].ToString().Trim(), dr["TL002"].ToString().Trim());
                     }
-                    
+
                 }
                 else
                 {
@@ -11297,7 +11297,7 @@ namespace TKSCHEDULEUOF
             UPDATEPURTLUDF01();
         }
 
-      
+
 
         public void ADD_PURTLPURTMPURTN_TB_WKF_EXTERNAL_TASK(string TL001, string TL002)
         {
@@ -13400,7 +13400,7 @@ namespace TKSCHEDULEUOF
             UPDATEBOMTAUDF01();
         }
 
-        public void ADD_BOMTABOMTBBOMTC_TB_WKF_EXTERNAL_TASK(string TA001,string TA002)
+        public void ADD_BOMTABOMTBBOMTC_TB_WKF_EXTERNAL_TASK(string TA001, string TA002)
         {
             DataTable DT = SEARCHBOMTABOMTBBOMTC(TA001, TA002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
@@ -13566,7 +13566,7 @@ namespace TKSCHEDULEUOF
 
             foreach (DataRow od in DT.Rows)
             {
-                
+
 
                 // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
@@ -13584,7 +13584,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TB004
                 //如果變更主件重覆，就只顯示在第1筆
-                if(!CHECK_TB004.Equals(od["TB004"].ToString()))
+                if (!CHECK_TB004.Equals(od["TB004"].ToString()))
                 {
                     CHECK_TB004 = od["TB004"].ToString();
                     TB004 = od["TB004"].ToString();
@@ -13593,7 +13593,7 @@ namespace TKSCHEDULEUOF
                 {
                     TB004 = "";
                 }
-               
+
 
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TB004");
@@ -13956,7 +13956,7 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-               
+
                 sbSql.AppendFormat(@"  
                                    SELECT 
                                     TEMP.CREATOR
@@ -14363,15 +14363,15 @@ namespace TKSCHEDULEUOF
 
                         try
                         {
-                             TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
+                            TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
                         }
                         catch
-                        {                          
-                        }                        
+                        {
+                        }
                         try
                         {
                             TH004 = node.SelectSingleNode("./Cell[@fieldId='TH004']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         {
@@ -14379,7 +14379,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH005 = node.SelectSingleNode("./Cell[@fieldId='TH005']").Attributes["fieldValue"].Value;
-                            
+
 
                         }
                         catch
@@ -14388,7 +14388,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH006 = node.SelectSingleNode("./Cell[@fieldId='TH006']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         {
@@ -14396,7 +14396,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH007 = node.SelectSingleNode("./Cell[@fieldId='TH007']").Attributes["fieldValue"].Value;
-                           
+
                         }
                         catch
                         {
@@ -14404,7 +14404,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH008 = node.SelectSingleNode("./Cell[@fieldId='TH008']").Attributes["fieldValue"].Value;
-                           
+
                         }
                         catch
                         {
@@ -14412,7 +14412,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH010 = node.SelectSingleNode("./Cell[@fieldId='TH010']").Attributes["fieldValue"].Value;
-                           
+
                         }
                         catch
                         {
@@ -14420,7 +14420,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             TH015 = node.SelectSingleNode("./Cell[@fieldId='TH015']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         {
@@ -14428,7 +14428,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             CHECK = node.SelectSingleNode("./Cell[@fieldId='CHECK']").Attributes["fieldValue"].Value;
-                          
+
                         }
                         catch
                         {
@@ -14436,7 +14436,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             DETAIL01 = node.SelectSingleNode("./Cell[@fieldId='DETAIL01']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         {
@@ -14444,7 +14444,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             DETAIL02 = node.SelectSingleNode("./Cell[@fieldId='DETAIL02']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         {
@@ -14452,7 +14452,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             //DETAIL03 = node.SelectSingleNode("./Cell[@fieldId='DETAIL03']").Attributes["fieldValue"].Value;
-                          
+
                         }
                         catch
                         {
@@ -14460,7 +14460,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             DETAIL04 = node.SelectSingleNode("./Cell[@fieldId='DETAIL04']").Attributes["fieldValue"].Value;
-                          
+
                         }
                         catch
                         {
@@ -14468,7 +14468,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             DETAIL05 = node.SelectSingleNode("./Cell[@fieldId='DETAIL05']").Attributes["fieldValue"].Value;
-                          
+
                         }
                         catch
                         {
@@ -14480,7 +14480,7 @@ namespace TKSCHEDULEUOF
                         catch
                         {
                         }
-                        
+
 
 
 
@@ -14511,7 +14511,7 @@ namespace TKSCHEDULEUOF
 
                         //更新第1站的簽核人當Applicantname
                         UPDATE_UOFQCPURTGPURTH_Applicantname();
-                        
+
                         //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
                     }
                     //string OK = "";
@@ -15552,7 +15552,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_MOCTOMOCTP_TB_WKF_EXTERNAL_TASK(string TO001,string TO002)
+        public void ADD_MOCTOMOCTP_TB_WKF_EXTERNAL_TASK(string TO001, string TO002)
         {
             DataTable DT = SEARCHMOCTOMOCTP(TO001, TO002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
@@ -19571,7 +19571,7 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
-         
+
 
 
 
@@ -20234,7 +20234,7 @@ namespace TKSCHEDULEUOF
             //TG005	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TG005");
-            FieldItem.SetAttribute("fieldValue","客供");
+            FieldItem.SetAttribute("fieldValue", "客供");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -20688,7 +20688,7 @@ namespace TKSCHEDULEUOF
                     {
                         ADD_COPTACOPTBCOPTC_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
                     }
-                   
+
                 }
                 else
                 {
@@ -22170,23 +22170,23 @@ namespace TKSCHEDULEUOF
         {
             DataTable DT_UOF_QC1002 = FIND_UOF_QC1002();
 
-            if(DT_UOF_QC1002!= null && DT_UOF_QC1002.Rows.Count>0)
+            if (DT_UOF_QC1002 != null && DT_UOF_QC1002.Rows.Count > 0)
             {
-                foreach(DataRow DR in DT_UOF_QC1002.Rows)
+                foreach (DataRow DR in DT_UOF_QC1002.Rows)
                 {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
 
                     DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
 
-                    if(UOF_TB_EB_USER != null && UOF_TB_EB_USER.Rows.Count>0)
+                    if (UOF_TB_EB_USER != null && UOF_TB_EB_USER.Rows.Count > 0)
                     {
                         string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
                         if (QCFrm002QCC.Equals("成立"))
                         {
                             NEW_UOF_QC1001(xmlDoc, UOF_TB_EB_USER);
                         }
-                    }                                       
+                    }
                 }
 
                 //ADD_TO_TBUOFQC1002HCECK(DT_UOF_QC1002);
@@ -22280,7 +22280,7 @@ namespace TKSCHEDULEUOF
 
         //找出表單建立者
         public DataTable FIND_TB_EB_USER(string USER_GUID)
-        {       
+        {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
@@ -22352,7 +22352,7 @@ namespace TKSCHEDULEUOF
             }
         }
         //新增到品保1001表單
-        public void NEW_UOF_QC1001(XmlDocument xmlDocSOURCES,DataTable DT)
+        public void NEW_UOF_QC1001(XmlDocument xmlDocSOURCES, DataTable DT)
         {
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -22364,7 +22364,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = DT.Rows[0]["GROUP_NAME"].ToString();
             string DEPNO = DT.Rows[0]["GROUP_CODE"].ToString();
 
-            string QCFrm002SN= xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
+            string QCFrm002SN = xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
             string EXTERNAL_FORM_NBR = QCFrm002SN;
 
             int rowscounts = 0;
@@ -22403,7 +22403,7 @@ namespace TKSCHEDULEUOF
             //建立節點 FormFieldValue
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
             //加入至節點底下
-            Form.AppendChild(FormFieldValue);           
+            Form.AppendChild(FormFieldValue);
 
             //建立節點FieldItem
             //QCFrm001SN 表單編號	
@@ -22743,7 +22743,7 @@ namespace TKSCHEDULEUOF
         //DOC_NBR新增到[TKQC].[dbo].[TBUOFQC1002HCECK]
         public void ADD_TO_TBUOFQC1002HCECK(DataTable DT)
         {
-           
+
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -22984,7 +22984,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-     
+
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
@@ -23251,7 +23251,7 @@ namespace TKSCHEDULEUOF
         {
             DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003();
 
-            if(DT1003!=null && DT1003.Rows.Count>=1)
+            if (DT1003 != null && DT1003.Rows.Count >= 1)
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
@@ -23267,7 +23267,7 @@ namespace TKSCHEDULEUOF
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
-          
+
 
             try
             {
@@ -23288,7 +23288,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-               
+
                 //AND DOC_NBR = 'GA1003230300113'
                 sbSql.AppendFormat(@"  
                                     SELECT DOC_NBR
@@ -23382,7 +23382,7 @@ namespace TKSCHEDULEUOF
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
-                    string USER_GUID= ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
+                    string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
 
                     XmlDocument xmlDoc = new XmlDocument();
 
@@ -23433,7 +23433,7 @@ namespace TKSCHEDULEUOF
                     {
                         string TEMP_GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
 
-                        GA999=FIND_TKGAFFAIRS_TBASSINGS(TEMP_GA999);
+                        GA999 = FIND_TKGAFFAIRS_TBASSINGS(TEMP_GA999);
 
                         //if(TEMP_GA999.Equals("何翔鈞(190041)"))
                         //{
@@ -23474,7 +23474,7 @@ namespace TKSCHEDULEUOF
                     }
                     catch { }
 
-                   
+
 
 
                     foreach (XmlNode nodeDataGrid in XNODES)
@@ -23505,7 +23505,7 @@ namespace TKSCHEDULEUOF
 
                         }
                         catch
-                        { }                     
+                        { }
                         try
                         {
                             GA011 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG004']").Attributes["fieldValue"].Value;
@@ -23516,7 +23516,7 @@ namespace TKSCHEDULEUOF
                         try
                         {
                             GG010 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG010']").Attributes["fieldValue"].Value;
-                            
+
                         }
                         catch
                         { }
@@ -23642,8 +23642,8 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(string USER_GUID,string DOC_NBR
-            ,string GA001
+        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(string USER_GUID, string DOC_NBR
+            , string GA001
             , string GA002
             , string GA003
             , string GA004
@@ -23669,7 +23669,7 @@ namespace TKSCHEDULEUOF
 
             //DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
             //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
-            
+
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
             DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut();
             //DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
@@ -23686,7 +23686,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = "";
             string DEPNO = "";
 
-            if (DTUSERDEP!=null&& DTUSERDEP.Rows.Count>=1)
+            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1)
             {
                 account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
                 groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
@@ -23710,9 +23710,9 @@ namespace TKSCHEDULEUOF
                 DEPNO = DTUSERDEP_Defalut.Rows[0]["DEPNO"].ToString();
             }
 
-            string  EXTERNAL_FORM_NBR = DOC_NBR;
+            string EXTERNAL_FORM_NBR = DOC_NBR;
 
-            
+
 
 
             int rowscounts = 0;
@@ -24348,7 +24348,7 @@ namespace TKSCHEDULEUOF
                     {
                         GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
 
-                    
+
                     }
                     catch { }
                     try
@@ -24785,7 +24785,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK(string TC001,string TC002)
+        public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK(string TC001, string TC002)
         {
 
             DataTable DT = SEARCH_ASTTC(TC001, TC002);
@@ -24800,7 +24800,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TC001"].ToString().Trim()+ DT.Rows[0]["TC002"].ToString().Trim();
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["TC001"].ToString().Trim() + DT.Rows[0]["TC002"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -24952,8 +24952,8 @@ namespace TKSCHEDULEUOF
             {
                 // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());              
-                
+                Row.SetAttribute("order", (rowscounts).ToString());
+
 
                 //Row	TC003
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
@@ -25011,7 +25011,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
-                Row.AppendChild(Cell);               
+                Row.AppendChild(Cell);
 
                 //Row	TC009
                 Cell = xmlDoc.CreateElement("Cell");
@@ -25214,7 +25214,7 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public DataTable SEARCH_ASTTC(string TC001,string TC002)
+        public DataTable SEARCH_ASTTC(string TC001, string TC002)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -25771,7 +25771,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
-               
+
 
 
 
@@ -26433,7 +26433,7 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
             //建立節點FieldItem
-            
+
 
 
             //DataGrid
@@ -26493,7 +26493,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
-                Row.AppendChild(Cell);           
+                Row.AppendChild(Cell);
 
                 //Row	TD008
                 Cell = xmlDoc.CreateElement("Cell");
@@ -30252,7 +30252,7 @@ namespace TKSCHEDULEUOF
             {
                 // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());       
+                Row.SetAttribute("order", (rowscounts).ToString());
 
                 //Row	TJ003
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
@@ -31297,7 +31297,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
-                Row.AppendChild(Cell);               
+                Row.AppendChild(Cell);
 
 
 
@@ -34491,13 +34491,13 @@ namespace TKSCHEDULEUOF
                 }
                 else
                 {
-                   
+
                 }
 
             }
             catch
             {
-               
+
             }
             finally
             {
@@ -34572,7 +34572,7 @@ namespace TKSCHEDULEUOF
                     string QCFrm001Range = "";
                     string QCFrm001HB = "";
                     string QCFrm001RCA = "";
-                    string QCFrm001RCAU = "";                    
+                    string QCFrm001RCAU = "";
                     string QCFrm001Cmf = "";
                     string QCFrm001Comp = "";
                     string QCFrm001Cmf1 = "";
@@ -34593,7 +34593,7 @@ namespace TKSCHEDULEUOF
                     {
                         QCFrm001SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001SN']").Attributes["fieldValue"].Value;
                     }
-                    catch {}
+                    catch { }
                     try
                     {
                         QCFrm001ASN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm001ASN']").Attributes["fieldValue"].Value;
@@ -34958,35 +34958,35 @@ namespace TKSCHEDULEUOF
                                     ,'{27}'
                                     ,'{28}'
                                     )
-                                    ",QCFrm001SN
-                                    ,QCFrm001ASN
-                                    ,QCFrm001Date
-                                    ,QCFrm001User
-                                    ,QCFrm001Dept
-                                    ,QCFrm001Rank
-                                    ,QCFrm001CUST
-                                    ,QCFrm001PNO
-                                    ,QCFrm001CN
-                                    ,QCFrm001PRD
-                                    ,QCFrm001RDate
-                                    ,QCFrm001MD
-                                    ,QCFrm001ND
-                                    ,QCFrm002Cmf
-                                    ,QCFrm002Abn
-                                    ,QCFrm002Abns
-                                    ,QCFrm001Range
-                                    ,QCFrm001HB
-                                    ,QCFrm001RCA
-                                    ,QCFrm001RCAU
-                                    ,QCFrm001PA
-                                    ,QCFrm001QA
-                                    ,QCFrm001PA2
-                                    ,QCFrm001QA2
-                                    ,QCFrm001PA3
-                                    ,QCFrm001QA3
-                                    ,QCFrm001Cmf
-                                    ,QCFrm001Comp
-                                    ,QCFrm001Cmf1);
+                                    ", QCFrm001SN
+                                    , QCFrm001ASN
+                                    , QCFrm001Date
+                                    , QCFrm001User
+                                    , QCFrm001Dept
+                                    , QCFrm001Rank
+                                    , QCFrm001CUST
+                                    , QCFrm001PNO
+                                    , QCFrm001CN
+                                    , QCFrm001PRD
+                                    , QCFrm001RDate
+                                    , QCFrm001MD
+                                    , QCFrm001ND
+                                    , QCFrm002Cmf
+                                    , QCFrm002Abn
+                                    , QCFrm002Abns
+                                    , QCFrm001Range
+                                    , QCFrm001HB
+                                    , QCFrm001RCA
+                                    , QCFrm001RCAU
+                                    , QCFrm001PA
+                                    , QCFrm001QA
+                                    , QCFrm001PA2
+                                    , QCFrm001QA2
+                                    , QCFrm001PA3
+                                    , QCFrm001QA3
+                                    , QCFrm001Cmf
+                                    , QCFrm001Comp
+                                    , QCFrm001Cmf1);
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
@@ -35314,7 +35314,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("fieldValue", od["TK004"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");         
+                Cell.SetAttribute("enableSearch", "True");
                 Row.AppendChild(Cell);
                 //Row
 
@@ -35407,7 +35407,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("enableSearch", "True");
                 Row.AppendChild(Cell);
                 //Row
-                
+
 
 
 
@@ -36754,7 +36754,7 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
             FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");            
+            FieldItem.SetAttribute("fillSiteId", "");
             FormFieldValue.AppendChild(FieldItem);
             //加入至members節點底下
             //建立節點FieldItem
@@ -36883,7 +36883,7 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillSiteId", "");
             FormFieldValue.AppendChild(FieldItem);
             //加入至members節點底下
-            
+
 
             //DataGrid
             //建立節點FieldItem
@@ -38216,7 +38216,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {                   
+                {
                     string RDF1002SN = "";
                     string NAME = "";
                     string RDFrm1002DATE1 = "";
@@ -38233,10 +38233,10 @@ namespace TKSCHEDULEUOF
                     string RDFrm1002G7T4 = "";
                     string RDFrm1002G7T5 = "";
                     string RDFrm1002G5T6 = "";
-                  
 
 
-                    XmlDocument xmlDoc = new XmlDocument();              
+
+                    XmlDocument xmlDoc = new XmlDocument();
 
                     xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
 
@@ -38283,7 +38283,7 @@ namespace TKSCHEDULEUOF
                     {
                         RDFrm1002ST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002ST']").Attributes["fieldValue"].Value;
                     }
-                    catch { }                
+                    catch { }
 
                     try
                     {
@@ -38380,20 +38380,20 @@ namespace TKSCHEDULEUOF
                     //string OK = "";
                     ADD_TK_UOF_RESEARCH_1002(
                                              RDF1002SN
-                                            ,  NAME
-                                            ,  RDFrm1002DATE1
-                                            ,  RDFrm1002DATE2
-                                            ,  RDFrm1002CS
-                                            ,  RDFrm1002DP
-                                            ,  RDFrm1002PD
-                                            ,  RDFrm1002ST
-                                            ,  RDFrm1002G7T1
-                                            ,  RDFrm1002G7T2
-                                            ,  RDFrm1002G7T3
-                                            ,  RDFrm1002G7T4
-                                            ,  RDFrm1002G7T5
-                                            ,  RDFrm1002G5T6
-                                            ,  RDFrm1002DS
+                                            , NAME
+                                            , RDFrm1002DATE1
+                                            , RDFrm1002DATE2
+                                            , RDFrm1002CS
+                                            , RDFrm1002DP
+                                            , RDFrm1002PD
+                                            , RDFrm1002ST
+                                            , RDFrm1002G7T1
+                                            , RDFrm1002G7T2
+                                            , RDFrm1002G7T3
+                                            , RDFrm1002G7T4
+                                            , RDFrm1002G7T5
+                                            , RDFrm1002G5T6
+                                            , RDFrm1002DS
                                            );
 
 
@@ -38493,20 +38493,20 @@ namespace TKSCHEDULEUOF
                                     ,'{14}'
                                     )
                                     ", RDF1002SN
-                                    ,NAME
-                                    ,RDFrm1002DATE1
-                                    ,RDFrm1002DATE2
-                                    ,RDFrm1002CS
-                                    ,RDFrm1002DP
-                                    ,RDFrm1002PD
-                                    ,RDFrm1002ST
-                                    ,RDFrm1002G7T1
-                                    ,RDFrm1002G7T2
-                                    ,RDFrm1002G7T3
-                                    ,RDFrm1002G7T4
-                                    ,RDFrm1002G7T5
-                                    ,RDFrm1002G5T6
-                                    ,RDFrm1002DS);
+                                    , NAME
+                                    , RDFrm1002DATE1
+                                    , RDFrm1002DATE2
+                                    , RDFrm1002CS
+                                    , RDFrm1002DP
+                                    , RDFrm1002PD
+                                    , RDFrm1002ST
+                                    , RDFrm1002G7T1
+                                    , RDFrm1002G7T2
+                                    , RDFrm1002G7T3
+                                    , RDFrm1002G7T4
+                                    , RDFrm1002G7T5
+                                    , RDFrm1002G5T6
+                                    , RDFrm1002DS);
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
@@ -38765,18 +38765,18 @@ namespace TKSCHEDULEUOF
                     //string OK = "";
                     ADD_TK_UOF_DESIGN_1002(
                                               FIELDS1
-                                            ,  FIELDS2
-                                            ,  FIELDS3
-                                            ,  FIELDS4
-                                            ,  FIELDS5
-                                            ,  FIELDS6
-                                            ,  FIELDS7
-                                            ,  FIELDS8
-                                            ,  FIELDS9
-                                            ,  FIELDS10
-                                            ,  FIELDS11
-                                            ,  FIELDS12
-                                            ,  FIELDS13
+                                            , FIELDS2
+                                            , FIELDS3
+                                            , FIELDS4
+                                            , FIELDS5
+                                            , FIELDS6
+                                            , FIELDS7
+                                            , FIELDS8
+                                            , FIELDS9
+                                            , FIELDS10
+                                            , FIELDS11
+                                            , FIELDS12
+                                            , FIELDS13
 
                                            );
 
@@ -38884,7 +38884,7 @@ namespace TKSCHEDULEUOF
                                     , FIELDS10
                                     , FIELDS11
                                     , FIELDS12
-                                    , FIELDS13 );
+                                    , FIELDS13);
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
@@ -39170,7 +39170,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("fieldValue", od["TE003"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");  
+                Cell.SetAttribute("enableSearch", "True");
                 Row.AppendChild(Cell);
 
                 //Row	TE004
@@ -39865,7 +39865,7 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
 
                 //Row	MD003
-                 Cell = xmlDoc.CreateElement("Cell");
+                Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "MD003");
                 Cell.SetAttribute("fieldValue", od["MD003"].ToString());
                 Cell.SetAttribute("realValue", "");
@@ -39935,7 +39935,7 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
                 Row.AppendChild(Cell);
-                
+
 
 
                 rowscounts = rowscounts + 1;
@@ -41660,7 +41660,7 @@ namespace TKSCHEDULEUOF
             string NAMES = "";
             string ACTIONS = "";
 
-            if(DT!=null && DT.Rows.Count>=1)
+            if (DT != null && DT.Rows.Count >= 1)
             {
                 foreach (DataRow dr in DT.Rows)
                 {
@@ -41683,15 +41683,15 @@ namespace TKSCHEDULEUOF
                     string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
                     Text = Text.Replace("&nbsp;", "").Replace("@u", "");
                     int Text_LEGTH = Text.Length;
-                    if(Text_LEGTH<=990)
+                    if (Text_LEGTH <= 990)
                     {
                         ACTIONS = Text;
                     }
-                    else if(Text_LEGTH>=990)
+                    else if (Text_LEGTH >= 990)
                     {
                         ACTIONS = Text.Substring(0, 990);
                     }
-                   
+
 
                     ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
                                                      DOC_NBR,
@@ -41704,8 +41704,8 @@ namespace TKSCHEDULEUOF
                                                     );
                 }
             }
-           
-            
+
+
         }
         public static string ExtractTextFromHtml(HtmlNode node)
         {
@@ -41820,7 +41820,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME,
             string TITLES,
             string SALES,
-            string NAMES ,
+            string NAMES,
             string ACTIONS
             )
         {
@@ -41905,7 +41905,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public string  FIND_TKGAFFAIRS_TBASSINGS(string ASSINGS)
+        public string FIND_TKGAFFAIRS_TBASSINGS(string ASSINGS)
         {
             DataTable DT = new DataTable();
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -42213,12 +42213,12 @@ namespace TKSCHEDULEUOF
         {
             DataTable DT = FIND_UOF_QC1006();
 
-            if (DT!=null&& DT.Rows.Count>=1)
+            if (DT != null && DT.Rows.Count >= 1)
             {
                 NEW_TO_TMQC_TBUOFQC1006(DT);
             }
 
-           // MessageBox.Show("完成");
+            // MessageBox.Show("完成");
         }
         public DataTable FIND_UOF_QC1006()
         {
@@ -42302,7 +42302,7 @@ namespace TKSCHEDULEUOF
         public void NEW_TO_TMQC_TBUOFQC1006(DataTable DT)
         {
             string xmlData = "";
-            string DOC_NBR = ""; 
+            string DOC_NBR = "";
             string QCFrm004SN = "";
             string QCFrm004Date = "";
             string QCFrm004UserLevel = "";
@@ -42345,13 +42345,13 @@ namespace TKSCHEDULEUOF
 
                 foreach (var fieldItem in fieldItems)
                 {
-                 
+
                     string fieldId = fieldItem.Attribute("fieldId").Value;
 
                     // 節點存在，取值       
                     string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
 
-                    if(fieldId.Equals("QCFrm004SN"))
+                    if (fieldId.Equals("QCFrm004SN"))
                     {
                         DOC_NBR = fieldValue;
                         QCFrm004SN = fieldValue;
@@ -42360,47 +42360,47 @@ namespace TKSCHEDULEUOF
                     {
                         QCFrm004Date = fieldValue;
                     }
-                    else if(fieldId.Equals("QCFrm004UserLevel"))
+                    else if (fieldId.Equals("QCFrm004UserLevel"))
                     {
                         QCFrm004UserLevel = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6001"))
+                    else if (fieldId.Equals("QC6001"))
                     {
                         QC6001 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6002"))
+                    else if (fieldId.Equals("QC6002"))
                     {
                         QC6002 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6012"))
+                    else if (fieldId.Equals("QC6012"))
                     {
                         QC6012 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6003"))
+                    else if (fieldId.Equals("QC6003"))
                     {
                         QC6003 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6004"))
+                    else if (fieldId.Equals("QC6004"))
                     {
                         QC6004 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6005"))
+                    else if (fieldId.Equals("QC6005"))
                     {
                         QC6005 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6006"))
+                    else if (fieldId.Equals("QC6006"))
                     {
                         QC6006 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6008"))
+                    else if (fieldId.Equals("QC6008"))
                     {
                         QC6008 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC6009"))
+                    else if (fieldId.Equals("QC6009"))
                     {
                         QC6009 = fieldValue;
                     }
-                    else if(fieldId.Equals("QC60010"))
+                    else if (fieldId.Equals("QC60010"))
                     {
                         QC60010 = fieldValue;
                     }
@@ -42420,25 +42420,25 @@ namespace TKSCHEDULEUOF
 
                         foreach (var cell in cells)
                         {
-                          
-                            string cellFieldId = cell.Attribute("fieldId")?.Value; 
-                            string cellFieldValue = cell.Attribute("fieldValue")?.Value; 
+
+                            string cellFieldId = cell.Attribute("fieldId")?.Value;
+                            string cellFieldValue = cell.Attribute("fieldValue")?.Value;
 
                             if (cellFieldId.Equals("QC60071"))
                             {
-                                QC6007 = QC6007+ cellFieldValue + "-";
+                                QC6007 = QC6007 + cellFieldValue + "-";
                             }
                             else if (cellFieldId.Equals("QC60072"))
                             {
                                 QC6007 = QC6007 + cellFieldValue + "、";
                             }
 
-                          
+
                         }
                         //去除+"、";
-                        if (QC6007.Length >=1)
+                        if (QC6007.Length >= 1)
                         {
-                            QC6007 = QC6007.Substring(0, QC6007.Length-1);
+                            QC6007 = QC6007.Substring(0, QC6007.Length - 1);
                         }
                         //
                         if (QC6007.Length >= 250)
@@ -42663,7 +42663,7 @@ namespace TKSCHEDULEUOF
             ADD_TB_UOF_COPMA_100A();
 
             DataTable dt = FIND_TB_UOF_COPMA_100A();
-            if(dt!=null&& dt.Rows.Count>=1)
+            if (dt != null && dt.Rows.Count >= 1)
             {
                 ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(dt);
             }
@@ -43135,7 +43135,7 @@ namespace TKSCHEDULEUOF
             int rowscounts = 0;
 
             //正式的id
-            string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("100A.客戶基本資料表");           
+            string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("100A.客戶基本資料表");
 
 
             foreach (DataRow DR in dt.Rows)
@@ -44170,7 +44170,7 @@ namespace TKSCHEDULEUOF
                 FieldItem.SetAttribute("fillSiteId", "");
                 //加入至members節點底下
                 FormFieldValue.AppendChild(FieldItem);
-               
+
                 //foreach (DataRow od in DT.Rows)
                 //{
                 //    // 新增 Row
@@ -44254,9 +44254,9 @@ namespace TKSCHEDULEUOF
                 }
             }
 
-            
 
-           
+
+
 
         }
 
@@ -44728,7 +44728,7 @@ namespace TKSCHEDULEUOF
 
             return dt;
         }
-       
+
         public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_1001(DataTable dt)
         {
             DataTable DT = dt;
@@ -45945,9 +45945,9 @@ namespace TKSCHEDULEUOF
             //查詢請購變更單已核，但是未產生採購變更單的明細
             DataTable DT_FIND_View_TB_WKF_TASK_PURTACHANGE = FIND_View_TB_WKF_TASK_PURTACHANGE();
 
-            if (DT_FIND_View_TB_WKF_TASK_PURTACHANGE!=null&& DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows.Count>=1)
+            if (DT_FIND_View_TB_WKF_TASK_PURTACHANGE != null && DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows.Count >= 1)
             {
-                foreach(DataRow DR_FIND_View_TB_WKF_TASK_PURTACHANGE in DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows)
+                foreach (DataRow DR_FIND_View_TB_WKF_TASK_PURTACHANGE in DT_FIND_View_TB_WKF_TASK_PURTACHANGE.Rows)
                 {
                     string TA001 = DR_FIND_View_TB_WKF_TASK_PURTACHANGE["TA001"].ToString();
                     string TA002 = DR_FIND_View_TB_WKF_TASK_PURTACHANGE["TA002"].ToString();
@@ -45975,7 +45975,7 @@ namespace TKSCHEDULEUOF
                             }
                         }
 
-                       
+
                     }
                     else
                     {
@@ -46953,7 +46953,7 @@ namespace TKSCHEDULEUOF
         public void NEW_POSET()
         {
             //找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
-            DataTable DT_FIND_POSETS = FIND_POSETS();           
+            DataTable DT_FIND_POSETS = FIND_POSETS();
 
             if (DT_FIND_POSETS != null && DT_FIND_POSETS.Rows.Count >= 1)
             {
@@ -47075,7 +47075,7 @@ namespace TKSCHEDULEUOF
                 DOC_NBR = dr["DOC_NBR"].ToString();
                 KINDS = dr["FIELD007"].ToString();
                 ID = dr["FIELD002"].ToString();
-                account= dr["account"].ToString();
+                account = dr["account"].ToString();
                 SQL.AppendFormat(@" 
                                 INSERT INTO [TK].[dbo].[Z_POSSET]
                                 ([DOC_NBR],[KINDS],[ID],[ADMINID])
@@ -47104,7 +47104,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
                 sqlConn.Open();
                 tran = sqlConn.BeginTransaction();
-                
+
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
@@ -47138,13 +47138,13 @@ namespace TKSCHEDULEUOF
 
         public void INSERT_UPDATE_LOG_POSM(DataTable DT)
         {
-          
+
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
 
-            if (DT!=null&& DT.Rows.Count>=1)
+            if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach(DataRow DR in DT.Rows)
+                foreach (DataRow DR in DT.Rows)
                 {
                     SQL.AppendFormat(@"
                                         --POSMB
@@ -48000,7 +48000,7 @@ namespace TKSCHEDULEUOF
             }
 
         }
-         //門市日誌-早班
+        //門市日誌-早班
         public void NEW_TBSTOREDAILY_MORNING()
         {
             DataTable DT = FIND_UOF_TBSTOREDAILY_MORNING();
@@ -48088,7 +48088,7 @@ namespace TKSCHEDULEUOF
         {
             string xmlData = "";
             string DOC_NBR = "";
-            string FIELD1 = "";           
+            string FIELD1 = "";
             string FIELD2 = "";
             string FIELD3 = "";
             string FIELD4 = "";
@@ -48153,7 +48153,7 @@ namespace TKSCHEDULEUOF
 
                     if (fieldId.Equals("ID"))
                     {
-                        DOC_NBR = fieldValue;                       
+                        DOC_NBR = fieldValue;
                     }
                     else if (fieldId.Equals("FIELD1"))
                     {
@@ -48163,10 +48163,10 @@ namespace TKSCHEDULEUOF
                         // 如果分割後的部分數量大於等於1，取第一部分
                         if (parts.Length >= 1)
                         {
-                            FIELD1 = parts[0];                            
+                            FIELD1 = parts[0];
                         }
                     }
-                    else if(fieldId.Equals("FIELD2"))
+                    else if (fieldId.Equals("FIELD2"))
                     {
                         FIELD2 = fieldValue;
                     }
@@ -48252,7 +48252,7 @@ namespace TKSCHEDULEUOF
                     else if (fieldId.Equals("FIELD18"))
                     {
                         FIELD18 = fieldValue;
-                    }                  
+                    }
                     else if (fieldId.Equals("FIELD21"))
                     {
                         FIELD21 = fieldValue;
@@ -48397,27 +48397,27 @@ namespace TKSCHEDULEUOF
 
         public void ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
             string DOC_NBR
-            ,string FIELD1
-            ,string FIELD2 
-            ,string FIELD3
-            ,string FIELD4 
-            ,string FIELD5 
-            ,string FIELD6 
-            ,string FIELD7 
-            ,string FIELD8
-            ,string FIELD9 
-            ,string FIELD10 
-            ,string FIELD11 
-            ,string FIELD12 
-            ,string FIELD13
-            ,string FIELD14 
-            ,string FIELD15 
-            ,string FIELD16 
-            ,string FIELD17 
-            ,string FIELD18 
-            ,string FIELD19
-            ,string FIELD20 
-            ,string FIELD21 
+            , string FIELD1
+            , string FIELD2
+            , string FIELD3
+            , string FIELD4
+            , string FIELD5
+            , string FIELD6
+            , string FIELD7
+            , string FIELD8
+            , string FIELD9
+            , string FIELD10
+            , string FIELD11
+            , string FIELD12
+            , string FIELD13
+            , string FIELD14
+            , string FIELD15
+            , string FIELD16
+            , string FIELD17
+            , string FIELD18
+            , string FIELD19
+            , string FIELD20
+            , string FIELD21
 
             )
         {
@@ -48498,27 +48498,27 @@ namespace TKSCHEDULEUOF
                                     )
 
                                     ", DOC_NBR
-                                   ,   FIELD1
-                                   ,FIELD2
-,FIELD3
-,FIELD4
-,FIELD5
-,FIELD6
-,FIELD7
-,FIELD8
-,FIELD9
-,FIELD10
-,FIELD11
-,FIELD12
-,FIELD13
-,FIELD14
-,FIELD15
-,FIELD16
-,FIELD17
-,FIELD18
-,FIELD19
-,FIELD20
-,FIELD21
+                                   , FIELD1
+                                   , FIELD2
+, FIELD3
+, FIELD4
+, FIELD5
+, FIELD6
+, FIELD7
+, FIELD8
+, FIELD9
+, FIELD10
+, FIELD11
+, FIELD12
+, FIELD13
+, FIELD14
+, FIELD15
+, FIELD16
+, FIELD17
+, FIELD18
+, FIELD19
+, FIELD20
+, FIELD21
 
                                     );
 
@@ -48672,7 +48672,7 @@ namespace TKSCHEDULEUOF
                 else
                 {
                     tran.Commit();      //執行交易  
-                   
+
 
                 }
 
@@ -49315,7 +49315,7 @@ namespace TKSCHEDULEUOF
 
 
 
-                   
+
 
             }
             catch
@@ -49328,7 +49328,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID,DataTable DT)
+        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID, DataTable DT)
         {
             //吳德明
             //USER_GUID = "d3679881-68b1-477e-a2c6-b4ebe42482a3";
@@ -49352,16 +49352,16 @@ namespace TKSCHEDULEUOF
 
             //表單申請人要在總務部中
             //如果不在總務部，就改成何翔鈞
-            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1&& DT_Z_UOF_FORM1005_FLOW!=null && DT_Z_UOF_FORM1005_FLOW.Rows.Count>=1)
+            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1 && DT_Z_UOF_FORM1005_FLOW != null && DT_Z_UOF_FORM1005_FLOW.Rows.Count >= 1)
             {
-                foreach(DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
+                foreach (DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
                 {
-                    foreach(DataRow DATAROW_DT_Z_UOF_FORM1005_FLOW in DT_Z_UOF_FORM1005_FLOW.Rows)
+                    foreach (DataRow DATAROW_DT_Z_UOF_FORM1005_FLOW in DT_Z_UOF_FORM1005_FLOW.Rows)
                     {
                         string SOURCE_account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
                         string TARGET_account = DATAROW_DT_Z_UOF_FORM1005_FLOW["ID"].ToString();
 
-                        if(SOURCE_account.Equals(TARGET_account))
+                        if (SOURCE_account.Equals(TARGET_account))
                         {
                             account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
                             groupId = DATAROW_DTUSERDEP["GROUP_ID"].ToString();
@@ -49385,7 +49385,7 @@ namespace TKSCHEDULEUOF
                         }
                     }
                 }
-                
+
 
             }
 
@@ -49483,7 +49483,7 @@ namespace TKSCHEDULEUOF
             //GA003	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA003");
-            FieldItem.SetAttribute("fieldValue", fillerName+"("+ account + ")");
+            FieldItem.SetAttribute("fieldValue", fillerName + "(" + account + ")");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -49687,7 +49687,7 @@ namespace TKSCHEDULEUOF
             //GA999	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", fillerName);           
+            FieldItem.SetAttribute("fieldValue", fillerName);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50148,15 +50148,15 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_ASTMB_ASTI02()
         {
-            string MB001="";
+            string MB001 = "";
             string DOC_NBR = "";
             string ACCOUNT = "";
             string TC002 = "";
             DataTable DT = FIND_UOF_ASTI02();
-            
-            if(DT!=null && DT.Rows.Count>=1)
+
+            if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach(DataRow  DR in DT.Rows)
+                foreach (DataRow DR in DT.Rows)
                 {
                     MB001 = DR["MB001_FieldValue"].ToString();
                     DOC_NBR = DR["DOC_NBR"].ToString();
@@ -50173,7 +50173,7 @@ namespace TKSCHEDULEUOF
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
-            
+
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -50265,9 +50265,9 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void UPDATE_ASTMB_ASTI02_EXE(string MB001,string DOC_NBR,string ACCOUNT,string TC002)
+        public void UPDATE_ASTMB_ASTI02_EXE(string MB001, string DOC_NBR, string ACCOUNT, string TC002)
         {
-            
+
             string MB016 = DateTime.Now.ToString("yyyyMMdd");
             string MB042 = "AC01";
             string MB043 = TC002;
@@ -50280,7 +50280,7 @@ namespace TKSCHEDULEUOF
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
             string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
 
-                        //20210902密
+            //20210902密
             Class1 TKID = new Class1();//用new 建立類別實體
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
@@ -50397,6 +50397,227 @@ namespace TKSCHEDULEUOF
 
             }
         }
+
+        public void UPDATE_ASTTC_ASTI06()
+        {
+
+            string TC001 = "";
+            string TC002 = "";
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+          
+            DataTable DT = FIND_UOF_ASTI06();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TC001 = DR["TC001_FieldValue"].ToString();
+                    TC002 = DR["TC002_FieldValue"].ToString();
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    ACCOUNT = DR["ACCOUNT"].ToString();                  
+
+                    UPDATE_ASTMB_ASTI06_EXE(TC001, TC002, DOC_NBR, ACCOUNT);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_ASTI06()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                        SELECT 
+                                            [FORM_NAME],
+                                            [DOC_NBR],
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001_FieldValue,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002_FieldValue,
+
+                                            TASK_ID,
+                                            TASK_STATUS,
+                                            TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'ASTI06.資產改良建立作業'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                    SELECT TEMP.*, 
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TC001_FieldValue+TC002_FieldValue,' ','') NOT IN
+                                    (
+                                        SELECT REPLACE(TC001+TC002,' ','')
+
+                                        FROM[TK].dbo.ASTTC
+                                       WHERE TC015 IN('N')
+                                    )
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_ASTMB_ASTI06_EXE(string TC001, string TC002, string DOC_NBR, string ACCOUNT)
+        {
+            string TC015 = "Y";
+            string TC032 = "N";
+            string TC003 = DateTime.Now.ToString("yyyyMMdd");
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODIFIER = ACCOUNT;
+            string FORMID = DOC_NBR;
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"  
+                                    UPDATE [TK].dbo.ASTTC
+                                    SET TC003=@TC003
+                                    ,TC015=@TC015
+                                    ,FLAG=FLAG+1
+                                    ,TC028=@TC028 
+                                    ,TC032='N'
+                                    ,UDF02=@UDF02
+                                    ,MODIFIER=@MODIFIER
+                                    ,MODI_DATE=MODI_DATE
+                                    ,MODI_TIME=MODI_TIME 
+                                    WHERE TC001=@TC001 AND TC002=@TC002
+
+                                    UPDATE [TK].dbo.ASTMB
+                                    set ASTMB.FLAG=ASTMB.FLAG+1
+                                    ,MB021=TC007
+                                    ,MB015=TC009+MB015
+                                    ,MB022=TC010
+                                    ,MB014=TC035+MB014
+                                    ,MB049=TC030
+                                    ,MB051=TC033 
+                                    ,MB041=TC038
+                                    ,MB074=TC076
+                                    ,MB069=TC073
+                                    ,MB068=TC074
+                                    ,MB077=TC078
+                                    ,MB063=TC038
+                                    ,MB062=TC037
+                                    ,MB064=TC039
+                                    ,MB066=TC079
+                                    ,MB065=TC030
+
+                                    ,MODIFIER=@MODIFIER 
+                                    ,MODI_DATE=@MODI_DATE 
+                                    ,MODI_TIME=@MODI_TIME 
+                                    FROM  [TK].dbo.ASTTC
+                                    WHERE MB001=TC004
+                                    AND TC001=@TC001 AND TC002=@TC002
+ 
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+                    command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
+                    command.Parameters.Add("@TC003", SqlDbType.NVarChar).Value = TC003;
+                    command.Parameters.Add("@TC015", SqlDbType.NVarChar).Value = TC015;
+                    command.Parameters.Add("@TC028", SqlDbType.NVarChar).Value = MODIFIER;
+
+                    command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = "TK";
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+                    
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -50799,6 +51020,14 @@ namespace TKSCHEDULEUOF
             //做資產的確認
 
             UPDATE_ASTMB_ASTI02();
+        }
+        private void button78_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.ASTI06.EndFormTrigger
+            //針對ERP的資產異動單做確認
+
+            UPDATE_ASTTC_ASTI06();
+
         }
         #endregion
 
