@@ -155,6 +155,23 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
+            
+            try
+            {
+                
+            }
+            catch { }
+           
+            try
+            {
+                //ERP託外進貨>轉入UOF簽核
+                //PURMOCA2.進貨-託外進貨品質驗收單
+
+                NEWPUR_MOCTH_MOCTI();
+            }
+            catch { }
+           
+
             // 轉入1004.總務修繕單
             //ADD_UOFGAFIXSNEW();
             try
@@ -50685,7 +50702,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
 
-            //UPDATE_PUR_MOCTH_UDF01();
+            UPDATE_PUR_MOCTH_UDF01();
         }
 
         public DataTable SEARCH_ERP_MOCTH_MOCTI(string TH001, string TH002)
