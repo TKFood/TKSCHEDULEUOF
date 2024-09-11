@@ -51048,7 +51048,7 @@ namespace TKSCHEDULEUOF
             //建立節點FieldItem
             //TG003	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG003");
+            FieldItem.SetAttribute("fieldId", "TH003");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH003"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51061,7 +51061,7 @@ namespace TKSCHEDULEUOF
 
             //TG005	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG005");
+            FieldItem.SetAttribute("fieldId", "TH005");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH005"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51074,7 +51074,7 @@ namespace TKSCHEDULEUOF
 
             //TG021	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG021");
+            FieldItem.SetAttribute("fieldId", "MA002");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MA002"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51087,7 +51087,7 @@ namespace TKSCHEDULEUOF
 
             //TG001	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG001");
+            FieldItem.SetAttribute("fieldId", "TH001");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH001"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51100,7 +51100,7 @@ namespace TKSCHEDULEUOF
 
             //TG002	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TG002");
+            FieldItem.SetAttribute("fieldId", "TH002");
             FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TH002"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51116,7 +51116,7 @@ namespace TKSCHEDULEUOF
             //建立節點FieldItem
             //PURTH
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "PURTH");
+            FieldItem.SetAttribute("fieldId", "MOCTI");
             FieldItem.SetAttribute("fieldValue", "");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
@@ -51130,7 +51130,7 @@ namespace TKSCHEDULEUOF
             //建立節點 DataGrid
             XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
             //DataGrid 加入至 TB 節點底下
-            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']");
+            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='MOCTI']");
             PURTD.AppendChild(DataGrid);
 
 
@@ -51142,7 +51142,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH003
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH003");
+                Cell.SetAttribute("fieldId", "TI003");
                 Cell.SetAttribute("fieldValue", od["TI003"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51152,7 +51152,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH004
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH004");
+                Cell.SetAttribute("fieldId", "TI004");
                 Cell.SetAttribute("fieldValue", od["TI004"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51162,7 +51162,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH005
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH005");
+                Cell.SetAttribute("fieldId", "TI005");
                 Cell.SetAttribute("fieldValue", od["TI005"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51172,7 +51172,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH006
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH006");
+                Cell.SetAttribute("fieldId", "TI006");
                 Cell.SetAttribute("fieldValue", od["TI006"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51182,7 +51182,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH007
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH007");
+                Cell.SetAttribute("fieldId", "TI007");
                 Cell.SetAttribute("fieldValue", od["TI007"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51192,7 +51192,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH008
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH008");
+                Cell.SetAttribute("fieldId", "TI008");
                 Cell.SetAttribute("fieldValue", od["TI008"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51202,7 +51202,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH010
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH010");
+                Cell.SetAttribute("fieldId", "TI010");
                 Cell.SetAttribute("fieldValue", od["TI010"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51212,7 +51212,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	TH015
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH015");
+                Cell.SetAttribute("fieldId", "TI019");
                 Cell.SetAttribute("fieldValue", od["TI019"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51299,7 +51299,7 @@ namespace TKSCHEDULEUOF
 
                 //TH036 有效日期
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH036");
+                Cell.SetAttribute("fieldId", "TI011");
                 Cell.SetAttribute("fieldValue", od["TI011"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51311,7 +51311,7 @@ namespace TKSCHEDULEUOF
 
                 //TH117 製造日期
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TH117");
+                Cell.SetAttribute("fieldId", "TI061");
                 Cell.SetAttribute("fieldValue", od["TI061"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -51323,7 +51323,7 @@ namespace TKSCHEDULEUOF
                 rowscounts = rowscounts + 1;
 
                 //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']/DataGrid");
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='MOCTI']/DataGrid");
                 DataGridS.AppendChild(Row);
 
             }
