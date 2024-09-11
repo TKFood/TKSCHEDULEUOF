@@ -50958,7 +50958,7 @@ namespace TKSCHEDULEUOF
                                     WHERE 1=1
                                     AND TH001=TI001 AND TH002=TI002
                                     AND MA001=TH005
-                                    AND TH001='A591' AND TH002='20240910001'
+                                    AND TH001='{0}' AND TH002='{1}'
 
                                     ) AS TEMP
                               
