@@ -61,17 +61,12 @@
             this.button16 = new System.Windows.Forms.Button();
             this.button19 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
-            this.button38 = new System.Windows.Forms.Button();
-            this.button18 = new System.Windows.Forms.Button();
-            this.button45 = new System.Windows.Forms.Button();
             this.button46 = new System.Windows.Forms.Button();
             this.button47 = new System.Windows.Forms.Button();
-            this.button48 = new System.Windows.Forms.Button();
             this.button52 = new System.Windows.Forms.Button();
             this.button53 = new System.Windows.Forms.Button();
             this.button54 = new System.Windows.Forms.Button();
             this.button57 = new System.Windows.Forms.Button();
-            this.button49 = new System.Windows.Forms.Button();
             this.button60 = new System.Windows.Forms.Button();
             this.button61 = new System.Windows.Forms.Button();
             this.button24 = new System.Windows.Forms.Button();
@@ -86,6 +81,12 @@
             this.button59 = new System.Windows.Forms.Button();
             this.button51 = new System.Windows.Forms.Button();
             this.button39 = new System.Windows.Forms.Button();
+            this.button18 = new System.Windows.Forms.Button();
+            this.button48 = new System.Windows.Forms.Button();
+            this.button49 = new System.Windows.Forms.Button();
+            this.button45 = new System.Windows.Forms.Button();
+            this.button38 = new System.Windows.Forms.Button();
+            this.button79 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -115,11 +116,11 @@
             this.button74 = new System.Windows.Forms.Button();
             this.button75 = new System.Windows.Forms.Button();
             this.button77 = new System.Windows.Forms.Button();
+            this.button78 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button78 = new System.Windows.Forms.Button();
-            this.button79 = new System.Windows.Forms.Button();
+            this.button80 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -546,39 +547,6 @@
             this.button20.UseVisualStyleBackColor = true;
             this.button20.Click += new System.EventHandler(this.button20_Click);
             // 
-            // button38
-            // 
-            this.button38.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button38.Location = new System.Drawing.Point(166, 323);
-            this.button38.Name = "button38";
-            this.button38.Size = new System.Drawing.Size(174, 34);
-            this.button38.TabIndex = 48;
-            this.button38.Text = "ERP客供>轉入UOF簽核";
-            this.button38.UseVisualStyleBackColor = true;
-            this.button38.Click += new System.EventHandler(this.button38_Click);
-            // 
-            // button18
-            // 
-            this.button18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button18.Location = new System.Drawing.Point(166, 616);
-            this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(174, 34);
-            this.button18.TabIndex = 28;
-            this.button18.Text = "停用-轉入進貨單到品保檢";
-            this.button18.UseVisualStyleBackColor = true;
-            this.button18.Click += new System.EventHandler(this.button18_Click);
-            // 
-            // button45
-            // 
-            this.button45.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button45.Location = new System.Drawing.Point(166, 443);
-            this.button45.Name = "button45";
-            this.button45.Size = new System.Drawing.Size(174, 34);
-            this.button45.TabIndex = 52;
-            this.button45.Text = "ERP PUR70.退貨單>轉入UOF簽核";
-            this.button45.UseVisualStyleBackColor = true;
-            this.button45.Click += new System.EventHandler(this.button45_Click);
-            // 
             // button46
             // 
             this.button46.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -600,17 +568,6 @@
             this.button47.Text = "ERP COP40.銷退單>轉入UOF簽核";
             this.button47.UseVisualStyleBackColor = true;
             this.button47.Click += new System.EventHandler(this.button47_Click);
-            // 
-            // button48
-            // 
-            this.button48.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button48.Location = new System.Drawing.Point(166, 483);
-            this.button48.Name = "button48";
-            this.button48.Size = new System.Drawing.Size(174, 34);
-            this.button48.TabIndex = 55;
-            this.button48.Text = "ERP-INVI05.庫存異動單>轉入UOF簽核";
-            this.button48.UseVisualStyleBackColor = true;
-            this.button48.Click += new System.EventHandler(this.button48_Click);
             // 
             // button52
             // 
@@ -655,17 +612,6 @@
             this.button57.Text = "ERP MOCI03.領料單>轉入UOF簽核";
             this.button57.UseVisualStyleBackColor = true;
             this.button57.Click += new System.EventHandler(this.button57_Click);
-            // 
-            // button49
-            // 
-            this.button49.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button49.Location = new System.Drawing.Point(166, 523);
-            this.button49.Name = "button49";
-            this.button49.Size = new System.Drawing.Size(174, 34);
-            this.button49.TabIndex = 56;
-            this.button49.Text = "ERP-IINVI08.轉撥單";
-            this.button49.UseVisualStyleBackColor = true;
-            this.button49.Click += new System.EventHandler(this.button49_Click);
             // 
             // button60
             // 
@@ -811,6 +757,72 @@
             this.button39.Text = "別用，改UOF送單，ERP報價單>轉入UOF簽核";
             this.button39.UseVisualStyleBackColor = true;
             this.button39.Click += new System.EventHandler(this.button39_Click);
+            // 
+            // button18
+            // 
+            this.button18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button18.Location = new System.Drawing.Point(166, 616);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(174, 34);
+            this.button18.TabIndex = 28;
+            this.button18.Text = "停用-轉入進貨單到品保檢";
+            this.button18.UseVisualStyleBackColor = true;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
+            // 
+            // button48
+            // 
+            this.button48.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button48.Location = new System.Drawing.Point(166, 483);
+            this.button48.Name = "button48";
+            this.button48.Size = new System.Drawing.Size(174, 34);
+            this.button48.TabIndex = 55;
+            this.button48.Text = "ERP-INVI05.庫存異動單>轉入UOF簽核";
+            this.button48.UseVisualStyleBackColor = true;
+            this.button48.Click += new System.EventHandler(this.button48_Click);
+            // 
+            // button49
+            // 
+            this.button49.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button49.Location = new System.Drawing.Point(166, 523);
+            this.button49.Name = "button49";
+            this.button49.Size = new System.Drawing.Size(174, 34);
+            this.button49.TabIndex = 56;
+            this.button49.Text = "ERP-IINVI08.轉撥單";
+            this.button49.UseVisualStyleBackColor = true;
+            this.button49.Click += new System.EventHandler(this.button49_Click);
+            // 
+            // button45
+            // 
+            this.button45.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button45.Location = new System.Drawing.Point(166, 443);
+            this.button45.Name = "button45";
+            this.button45.Size = new System.Drawing.Size(174, 34);
+            this.button45.TabIndex = 52;
+            this.button45.Text = "ERP PUR70.退貨單>轉入UOF簽核";
+            this.button45.UseVisualStyleBackColor = true;
+            this.button45.Click += new System.EventHandler(this.button45_Click);
+            // 
+            // button38
+            // 
+            this.button38.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button38.Location = new System.Drawing.Point(166, 323);
+            this.button38.Name = "button38";
+            this.button38.Size = new System.Drawing.Size(174, 34);
+            this.button38.TabIndex = 48;
+            this.button38.Text = "ERP客供>轉入UOF簽核";
+            this.button38.UseVisualStyleBackColor = true;
+            this.button38.Click += new System.EventHandler(this.button38_Click);
+            // 
+            // button79
+            // 
+            this.button79.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button79.Location = new System.Drawing.Point(166, 363);
+            this.button79.Name = "button79";
+            this.button79.Size = new System.Drawing.Size(174, 34);
+            this.button79.TabIndex = 66;
+            this.button79.Text = "ERP託外進貨>轉入UOF簽核";
+            this.button79.UseVisualStyleBackColor = true;
+            this.button79.Click += new System.EventHandler(this.button79_Click);
             // 
             // tabPage2
             // 
@@ -1045,6 +1057,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button75, 2, 2);
             this.tableLayoutPanel3.Controls.Add(this.button77, 3, 1);
             this.tableLayoutPanel3.Controls.Add(this.button78, 3, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button80, 3, 3);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1189,6 +1202,17 @@
             this.button77.UseVisualStyleBackColor = true;
             this.button77.Click += new System.EventHandler(this.button77_Click);
             // 
+            // button78
+            // 
+            this.button78.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button78.Location = new System.Drawing.Point(483, 83);
+            this.button78.Name = "button78";
+            this.button78.Size = new System.Drawing.Size(154, 34);
+            this.button78.TabIndex = 75;
+            this.button78.Text = "ERP-ASTI06.資產改良建立作業";
+            this.button78.UseVisualStyleBackColor = true;
+            this.button78.Click += new System.EventHandler(this.button78_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1201,27 +1225,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button78
+            // button80
             // 
-            this.button78.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button78.Location = new System.Drawing.Point(483, 83);
-            this.button78.Name = "button78";
-            this.button78.Size = new System.Drawing.Size(154, 34);
-            this.button78.TabIndex = 75;
-            this.button78.Text = "ERP-ASTI06.資產改良建立作業";
-            this.button78.UseVisualStyleBackColor = true;
-            this.button78.Click += new System.EventHandler(this.button78_Click);
-            // 
-            // button79
-            // 
-            this.button79.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button79.Location = new System.Drawing.Point(166, 363);
-            this.button79.Name = "button79";
-            this.button79.Size = new System.Drawing.Size(174, 34);
-            this.button79.TabIndex = 66;
-            this.button79.Text = "ERP託外進貨>轉入UOF簽核";
-            this.button79.UseVisualStyleBackColor = true;
-            this.button79.Click += new System.EventHandler(this.button79_Click);
+            this.button80.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button80.Location = new System.Drawing.Point(483, 123);
+            this.button80.Name = "button80";
+            this.button80.Size = new System.Drawing.Size(154, 34);
+            this.button80.TabIndex = 76;
+            this.button80.Text = "ERP-ASTI07.資產重估建立作業";
+            this.button80.UseVisualStyleBackColor = true;
+            this.button80.Click += new System.EventHandler(this.button80_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1338,5 +1351,6 @@
         private System.Windows.Forms.Button button77;
         private System.Windows.Forms.Button button78;
         private System.Windows.Forms.Button button79;
+        private System.Windows.Forms.Button button80;
     }
 }
