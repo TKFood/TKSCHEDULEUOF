@@ -51616,7 +51616,7 @@ namespace TKSCHEDULEUOF
                                     ,MODIFIER=@MODIFIER
                                     ,MODI_DATE=@MODI_DATE 
                                     ,MODI_TIME=@MODI_TIME
-                                    FROM [TK].dbo.ACTTC
+                                    FROM [TK].dbo.ASTTC
                                     WHERE TC004=MB001
                                     AND TC001=@TC001 AND TC002=@TC002
 
