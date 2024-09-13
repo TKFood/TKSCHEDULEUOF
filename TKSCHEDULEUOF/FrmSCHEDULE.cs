@@ -52666,6 +52666,235 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_ASTTC_ASTI12()
+        {
+            string TE001 = "";
+            string TE002 = "";
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+
+            DataTable DT = FIND_UOF_ASTI12();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TE001 = DR["TE001_FieldValue"].ToString();
+                    TE001 = DR["TE002_FieldValue"].ToString();
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    ACCOUNT = DR["ACCOUNT"].ToString();
+
+                    UPDATE_ASTMB_ASTI12_EXE(TE001, TE001, DOC_NBR, ACCOUNT);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_ASTI12()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE001_FieldValue,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE002_FieldValue,
+
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'ASTI12.資產移轉建立作業'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                    SELECT TEMP.*, 
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TE001_FieldValue+TE002_FieldValue,' ','') NOT IN
+                                        (
+                                            SELECT REPLACE(TE001+TE002,' ','')
+
+                                            FROM[TK].dbo.ASTTE
+                                           WHERE TE006 IN('Y')
+                                        )
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_ASTMB_ASTI12_EXE(string TE001, string TE002, string DOC_NBR, string ACCOUNT)
+        {
+            
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODIFIER = ACCOUNT;
+            string FORMID = DOC_NBR;
+
+            string TE006 = "Y";
+            string TE010 = "N";
+            string TE009 = MODIFIER;
+            string TF009 = "Y";
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"    
+                                     UPDATE [TK].dbo.ASTTE
+                                    SET
+                                    TE006=@TE006 
+                                    ,TE009=@TE009
+                                    ,TE010=@TE010
+                                    ,FLAG=FLAG+1
+                                    ,MODIFIER=@MODIFIER
+                                    ,MODI_DATE=@MODI_DATE
+                                    ,MODI_TIME=@MODI_TIME
+                                    ,UDF02=@UDF02
+                                    WHERE TE001=@TE001 AND TE002=@TE002
+
+                                    
+  
+                                    UPDATE [TK].dbo.ASTTF
+                                    SET
+                                    TF009=@TF009 
+                                    ,FLAG=FLAG+1
+                                    ,MODIFIER=@MODIFIER
+                                    ,MODI_DATE=@MODI_DATE
+                                    ,MODI_TIME=@MODI_TIME 
+                                    WHERE TF001=@TF001 AND TF002=@TF002
+
+                                    DELETE  [TK].dbo.ASTMC
+                                    WHERE Replace(MC001+MC002+MC003,' ','') IN (
+                                    SELECT Replace(TF003+TF004+TF005,' ','')
+                                    FROM [TK].dbo.ASTTF
+                                    WHERE TF001=@TF001 AND TF002=@TF002
+                                    )
+
+
+                                    INSERT INTO [TK].dbo.ASTMC
+                                    (MC001 ,MC002 ,MC003 ,MC004 ,MC005 ,MC006, 
+                                    COMPANY ,CREATOR ,USR_GROUP ,CREATE_DATE ,FLAG, 
+                                    CREATE_TIME, MODI_TIME, TRANS_TYPE, TRANS_NAME)
+                                    SELECT TF003,TF104,TF105,TF006,TF008,TF107
+                                    ,N'TK',TF105,MF007,CONVERT(nvarchar,GETDATE(),112),0,CONVERT(nvarchar,GETDATE(),108),N'',N'P004',N'ASTI12'
+                                    FROM [TK].dbo.ASTTF
+                                    LEFT JOIN [TK].dbo.ADMMF ON MF001=TF105
+                                    WHERE TF001=@TF001 AND TF002=@TF002
+            
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TE001", SqlDbType.NVarChar).Value = TE001;
+                    command.Parameters.Add("@TE002", SqlDbType.NVarChar).Value = TE002;
+
+                    command.Parameters.Add("@TE006", SqlDbType.NVarChar).Value = TE006;
+                    command.Parameters.Add("@TE009", SqlDbType.NVarChar).Value = TE009;
+                    command.Parameters.Add("@TE010", SqlDbType.NVarChar).Value = TE010;
+                    command.Parameters.Add("@TF009", SqlDbType.NVarChar).Value = TF009;
+
+                    command.Parameters.Add("@TF001", SqlDbType.NVarChar).Value = TE001;
+                    command.Parameters.Add("@TF002", SqlDbType.NVarChar).Value = TE002;
+
+
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
 
         #endregion
 
@@ -53122,6 +53351,13 @@ namespace TKSCHEDULEUOF
 
             UPDATE_ASTTC_ASTI11();
         }
+        private void button85_Click(object sender, EventArgs e)
+        {
+            //
+            //ERP-ASTI12資產移轉
+            UPDATE_ASTTC_ASTI12();
+        }
+
         #endregion
 
 
