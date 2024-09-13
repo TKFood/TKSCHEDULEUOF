@@ -117,10 +117,11 @@
             this.button75 = new System.Windows.Forms.Button();
             this.button77 = new System.Windows.Forms.Button();
             this.button78 = new System.Windows.Forms.Button();
+            this.button80 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button80 = new System.Windows.Forms.Button();
+            this.button81 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1058,6 +1059,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button77, 3, 1);
             this.tableLayoutPanel3.Controls.Add(this.button78, 3, 2);
             this.tableLayoutPanel3.Controls.Add(this.button80, 3, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button81, 3, 4);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1213,6 +1215,17 @@
             this.button78.UseVisualStyleBackColor = true;
             this.button78.Click += new System.EventHandler(this.button78_Click);
             // 
+            // button80
+            // 
+            this.button80.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button80.Location = new System.Drawing.Point(483, 123);
+            this.button80.Name = "button80";
+            this.button80.Size = new System.Drawing.Size(154, 34);
+            this.button80.TabIndex = 76;
+            this.button80.Text = "ERP-ASTI07.資產重估建立作業";
+            this.button80.UseVisualStyleBackColor = true;
+            this.button80.Click += new System.EventHandler(this.button80_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1225,16 +1238,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button80
+            // button81
             // 
-            this.button80.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button80.Location = new System.Drawing.Point(483, 123);
-            this.button80.Name = "button80";
-            this.button80.Size = new System.Drawing.Size(154, 34);
-            this.button80.TabIndex = 76;
-            this.button80.Text = "ERP-ASTI07.資產重估建立作業";
-            this.button80.UseVisualStyleBackColor = true;
-            this.button80.Click += new System.EventHandler(this.button80_Click);
+            this.button81.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button81.Location = new System.Drawing.Point(483, 163);
+            this.button81.Name = "button81";
+            this.button81.Size = new System.Drawing.Size(154, 34);
+            this.button81.TabIndex = 77;
+            this.button81.Text = "ERP-ACT08資產報廢";
+            this.button81.UseVisualStyleBackColor = true;
+            this.button81.Click += new System.EventHandler(this.button81_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1352,5 +1365,6 @@
         private System.Windows.Forms.Button button78;
         private System.Windows.Forms.Button button79;
         private System.Windows.Forms.Button button80;
+        private System.Windows.Forms.Button button81;
     }
 }
