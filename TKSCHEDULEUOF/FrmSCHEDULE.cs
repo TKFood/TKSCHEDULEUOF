@@ -53491,6 +53491,442 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_MOCTA_BOMTB_BOMTC()
+        {
+
+            string TA001 = "";
+            string TA002 = "";
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+
+            DataTable DT = FIND_UOF_MOCTA_BOMTB_BOMTC();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TA001 = DR["TA001_FieldValue"].ToString().Trim();
+                    TA002 = DR["TA002_FieldValue"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    ACCOUNT = DR["ACCOUNT"].ToString();
+
+                    FIND_UOF_MOCTA_BOMTB_BOMTC_EXE(TA001, TA002, DOC_NBR, ACCOUNT);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_MOCTA_BOMTB_BOMTC()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                            SELECT 
+                                                [FORM_NAME],
+                                                [DOC_NBR],
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001_FieldValue,
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002_FieldValue,
+
+                                                TASK_ID,
+                                                TASK_STATUS,
+                                                TASK_RESULT
+                                                FROM[UOF].[dbo].TB_WKF_TASK
+                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                                WHERE[FORM_NAME] = 'BOM10.BOM變更單'
+                                                AND TASK_STATUS = '2'
+                                                AND TASK_RESULT = '0'
+
+                                            )
+
+                                            SELECT TEMP.*, 
+                                            (
+                                                SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                                FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                                LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                                    ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                            WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                            ORDER BY FINISH_TIME DESC
+                                            ) AS ACCOUNT
+                                            FROM TEMP
+                                            WHERE 1=1
+                                            AND TA002_FieldValue>='20240901001'
+                                            AND REPLACE(TA001_FieldValue+TA002_FieldValue,' ','') NOT IN
+                                                (
+                                                    SELECT REPLACE(TA001+TA002,' ','')
+
+                                                    FROM[192.168.1.105].[TK].dbo.BOMTA
+                                                    WHERE TA007 IN ('Y')
+                                                )
+                                            
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void FIND_UOF_MOCTA_BOMTB_BOMTC_EXE(string TA001,string TA002, string DOC_NBR, string ACCOUNT)
+        {
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODIFIER = ACCOUNT;
+            string FORMID = DOC_NBR;
+            string TA010=ACCOUNT;
+
+            //string UDF01 = MODIFIER + "，已簽核:" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
+            //string UDF02 = FORMID;
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"    
+                                    
+                                        ");
+            DataTable dt = SEARCH_BOMTA_BOMTB_BOMTC(TA001, TA002);
+            foreach (DataRow DRDATA in dt.Rows)
+            {
+                queryString.AppendFormat(@"
+
+                                            UPDATE [TK].dbo.BOMMC
+                                            SET MC001=TB004
+                                            ,MC002=TB005
+                                            ,MC003=TB006
+                                            ,MC004=TB008
+                                            ,MC005=TB009
+                                            ,MC006=TB001
+                                            ,MC007=TB002
+                                            ,MC008=TB003
+                                            ,MC009=TB007
+                                            ,MC010=TB010
+                                            ,MODI_DATE=TA003
+                                            ,FLAG=FLAG+1 
+                                            ,COMPANY=TEMP.COMPANY
+                                            ,MODIFIER=TEMP.MODIFIER 
+                                            ,MODI_TIME=TEMP.MODI_TIME 
+                                            ,MC024=MB002 
+                                            ,MC025=MB003
+                                            FROM 
+                                            (
+                                            SELECT BOMTA.COMPANY,BOMTA.MODIFIER,BOMTA.MODI_TIME,TA001,TA002,TA003,TA005,TA006
+                                            ,TB001,TB002,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB104
+                                            ,MB002,MB003
+                                            FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB,[TK].dbo.INVMB
+                                            WHERE TA001=TB001 AND TA002=TB002 
+                                            AND TB004=MB001
+                                            AND TA001='{0}' AND TA002='{1}'
+                                            AND TB004='{2}'
+                                            )  AS TEMP 
+                                            WHERE MC001=TEMP.TB004
+                                            AND MC001='{2}'
+
+                                           
+                                            INSERT INTO [TK].dbo.BOMMD 
+                                            (MD001,MD002,MD003,MD004,MD005,MD006,MD007,MD008,MD009,MD010 
+                                            ,MD011,MD012,MD013,MD014,MD015,MD016,MD017,MD018,MD019,MD020
+                                            ,MD021,MD022,MD023,MD029,MD035,MD036
+                                            ,COMPANY ,CREATOR ,USR_GROUP ,CREATE_DATE ,FLAG, CREATE_TIME, MODI_TIME, TRANS_TYPE, TRANS_NAME ) 
+
+                                            SELECT 
+                                            TB004 MD001,TC004 MD002,TC005 MD003,TC006 MD004,TC007 MD005,TC008 MD006,TC009 MD007,TC010 MD008,TC011 MD009,TC012 MD010 
+                                            ,TC013 MD011,TC014 MD012,TC015 MD013,TC016 MD014,TC017 MD015,TC018 MD016,TC019 MD017,TC020 MD018,TC021 MD019,TC022 MD020
+                                            ,TC023 MD021,TC024 MD022,TC025 MD023,TC032 MD029,MB002 MD035,MB003 MD036
+                                            ,BOMTA.COMPANY ,BOMTA.CREATOR ,BOMTA.USR_GROUP ,BOMTA.CREATE_DATE ,BOMTA.FLAG, BOMTA.CREATE_TIME, BOMTA.MODI_TIME, 'P004' TRANS_TYPE, 'BOMI04' TRANS_NAME 
+
+                                            FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB,[TK].dbo.BOMTC
+                                            LEFT JOIN [TK].dbo.INVMB ON TC005=MB001
+                                            WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
+                                            AND TA001='{0}' AND TA002='{1}'
+                                            AND TB004='{2}'
+                                            AND TC004 NOT IN (SELECT MD002 FROM [TK].dbo.BOMMD WHERE  MD001='{2}')
+
+
+                                        
+                                            UPDATE [TK].dbo.BOMMD  
+                                            SET MD001=TB004 
+                                            ,MD002=TC004 
+                                            ,MD003=TC005
+                                            ,MD004=TC006
+                                            ,MD005=TC007
+                                            ,MD006=TC008 
+                                            ,MD007=TC009 
+                                            ,MD008=TC010
+                                            ,MD009=TC011
+                                            ,MD010=TC012
+                                            ,MD011=TC013
+                                            ,MD012=TC014
+                                            ,MD013=TC015
+                                            ,MD014=TC016
+                                            ,MD015=TC017
+                                            ,MD016=TC018
+                                            ,MD017=TC019
+                                            ,MD018=TC020
+                                            ,MD019=TC021
+                                            ,MD020=TC022
+                                            ,MD021=TC023
+                                            ,MD022=TC024
+                                            ,MD023=TC025
+                                            ,MD029=TC032
+                                            ,MD035=MB002
+                                            ,MD036=MB003  
+                                            ,FLAG=FLAG+1
+                                            ,COMPANY=TEMP.COMPANY
+                                            ,MODIFIER=TEMP.MODIFIER
+                                            ,MODI_DATE=TEMP.MODI_DATE  
+                                            ,MODI_TIME=TEMP.MODI_TIME 
+                                            FROM 
+                                            (
+                                            SELECT BOMTA.COMPANY,BOMTA.MODIFIER,BOMTA.MODI_DATE,BOMTA.MODI_TIME,TA001,TA002,TA003,TA005,TA006
+                                            ,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB104
+                                            ,TC004,TC005,TC006,TC007,TC008,TC009,TC010
+                                            ,TC011,TC012,TC013,TC014,TC015,TC016,TC017,TC018,TC019,TC020
+                                            ,TC021,TC022,TC023,TC024,TC025,TC032
+                                            ,TC104,TC105
+                                            ,MB002,MB003
+                                            FROM [TK].dbo.BOMMD,[TK].dbo.BOMTA,[TK].dbo.BOMTB,[TK].dbo.BOMTC
+                                            LEFT JOIN [TK].dbo.INVMB ON TC005=MB001
+                                            WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
+                                            AND MD001=TB004 AND MD002=TC004
+                                            AND ISNULL(TC005,'')<>''
+                                            AND TA001='{0}' AND TA002='{1}'
+                                            AND TB004='{2}'
+                                            ) AS TEMP
+                                            WHERE MD001=TEMP.TB004
+                                            AND MD002=TEMP.TC004
+                                            AND MD001='{2}'
+
+                                       
+                                            DELETE [TK].dbo.BOMMD
+                                            FROM (
+                                            SELECT TB004,TC004
+                                            FROM [TK].dbo.BOMMD,[TK].dbo.BOMTA,[TK].dbo.BOMTB,[TK].dbo.BOMTC
+                                            LEFT JOIN [TK].dbo.INVMB ON TC005=MB001
+                                            WHERE TA001=TB001 AND TA002=TB002 AND TA001=TC001 AND TA002=TC002 AND TB003=TC003
+                                            AND MD001=TB004 AND MD002=TC004
+                                            AND ISNULL(TC005,'')=''
+                                            AND TA001='{0}' AND TA002='{1}'
+                                            AND TB004='{2}'
+                                            ) AS TEMP
+                                            WHERE BOMMD.MD001=TEMP.TB004
+                                            AND BOMMD.MD002=TEMP.TC004
+                                            AND BOMMD.MD001='{2}'
+
+                                          
+
+
+                                        ", DRDATA["TA001"].ToString(), DRDATA["TA002"].ToString(), DRDATA["TB004"].ToString());
+            }
+
+
+            queryString.AppendFormat(@"
+
+                                        UPDATE [TK].dbo.BOMTA
+                                        SET TA007='Y',UDF02='{2}',TA010='{3}'
+                                        WHERE TA001='{0}' AND  TA002='{1}'
+
+                                        UPDATE [TK].dbo.BOMTB
+                                        SET TB012='Y'
+                                        WHERE TB001='{0}' AND  TB002='{1}'
+
+
+                                        UPDATE [TK].dbo.BOMMC
+                                        SET BOMMC.UDF03=BOMTBUDF03
+                                        FROM 
+                                        (
+                                        SELECT TA001,TA002,TB004,BOMTB.UDF03 AS 'BOMTBUDF03'
+                                        FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB
+                                        WHERE TA001=TB001 AND TA002=TB002
+                                        AND ISNULL(BOMTB.UDF03 ,'')<>''
+                                        AND TA001='{0}'AND TA002='{1}'
+
+                                        ) AS TEMP
+                                        WHERE TEMP.TB004=BOMMC.MC001
+
+
+                                        UPDATE [TK].dbo.BOMMC
+                                        SET BOMMC.UDF04=BOMTBUDF04
+                                        FROM 
+                                        (
+                                        SELECT TA001,TA002,TB004,BOMTB.UDF04 AS 'BOMTBUDF04'
+                                        FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB
+                                        WHERE TA001=TB001 AND TA002=TB002
+                                        AND ISNULL(BOMTB.UDF04 ,'')<>''
+                                        AND TA001='{0}'AND TA002='{1}'
+
+                                        ) AS TEMP
+                                        WHERE TEMP.TB004=BOMMC.MC001
+
+
+                                        UPDATE [TK].dbo.BOMMC
+                                        SET BOMMC.UDF05=BOMTBUDF05
+                                        FROM 
+                                        (
+                                        SELECT TA001,TA002,TB004,BOMTB.UDF05 AS 'BOMTBUDF05'
+                                        FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB
+                                        WHERE TA001=TB001 AND TA002=TB002
+                                        AND ISNULL(BOMTB.UDF05 ,'')<>''
+                                        AND TA001='{0}'AND TA002='{1}'
+
+                                        ) AS TEMP
+                                        WHERE TEMP.TB004=BOMMC.MC001
+
+                                        ", TA001, TA002, FORMID, TA010);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                   
+                
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+        public DataTable SEARCH_BOMTA_BOMTB_BOMTC(string TA001,string TA002)
+        {
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT TA001,TA002,TA003,TA005,TA006
+                                    ,TB001,TB002,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB104
+                                    ,MB002,MB003
+                                    FROM [TK].dbo.BOMTA,[TK].dbo.BOMTB,[TK].dbo.INVMB
+                                    WHERE TA001=TB001 AND TA002=TB002 
+                                    AND TB004=MB001
+                                    AND TA001='{0}' AND TA002='{1}'
+                              
+                                    ", TA001, TA002);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -53966,6 +54402,14 @@ namespace TKSCHEDULEUOF
             //ERP-BOMI11.EBOM表
 
             UPDATE_BOMMJ_BOMMK();
+        }
+        private void button88_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.BOMTATBTC.EndFormTrigger
+            //ERP-BOM變更單核準
+
+            UPDATE_MOCTA_BOMTB_BOMTC();
+
         }
         #endregion
 
