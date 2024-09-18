@@ -53577,9 +53577,10 @@ namespace TKSCHEDULEUOF
                                                 (
                                                     SELECT REPLACE(TA001+TA002,' ','')
 
-                                                    FROM[192.168.1.105].[TK].dbo.BOMTA
-                                                    WHERE TA007 IN ('Y')
+                                                    FROM [192.168.1.105].[TK].dbo.BOMTA
+		                                            WHERE TA007 IN ('Y')
                                                 )
+
                                             
 
                                     ");
@@ -53616,14 +53617,14 @@ namespace TKSCHEDULEUOF
 
         public void FIND_UOF_MOCTA_BOMTB_BOMTC_EXE(string TA001,string TA002, string DOC_NBR, string ACCOUNT)
         {
+            SqlConnection sqlConn = new SqlConnection();
 
             string COMPANY = "TK";
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
             string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
             string MODIFIER = ACCOUNT;
             string FORMID = DOC_NBR;
-            string TA010=ACCOUNT;
-
+            string TA010 = ACCOUNT;
             //string UDF01 = MODIFIER + "，已簽核:" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
             //string UDF02 = FORMID;
 
@@ -53639,11 +53640,13 @@ namespace TKSCHEDULEUOF
 
             String connectionString;
             sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"    
-                                    
+            queryString.AppendFormat(@"  
+
+            
                                         ");
+
             DataTable dt = SEARCH_BOMTA_BOMTB_BOMTC(TA001, TA002);
             foreach (DataRow DRDATA in dt.Rows)
             {
@@ -53833,14 +53836,15 @@ namespace TKSCHEDULEUOF
 
                                         ", TA001, TA002, FORMID, TA010);
 
+
+
             try
             {
                 using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
                 {
 
                     SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                   
-                
+               
 
                     command.Connection.Open();
 
@@ -53868,7 +53872,7 @@ namespace TKSCHEDULEUOF
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                //SqlConnection sqlConn = new SqlConnection();
 
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
