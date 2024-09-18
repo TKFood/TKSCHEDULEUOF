@@ -123,10 +123,11 @@
             this.button83 = new System.Windows.Forms.Button();
             this.button84 = new System.Windows.Forms.Button();
             this.button85 = new System.Windows.Forms.Button();
+            this.button86 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button86 = new System.Windows.Forms.Button();
+            this.button87 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1070,6 +1071,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button84, 3, 7);
             this.tableLayoutPanel3.Controls.Add(this.button85, 3, 8);
             this.tableLayoutPanel3.Controls.Add(this.button86, 3, 10);
+            this.tableLayoutPanel3.Controls.Add(this.button87, 3, 11);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1291,6 +1293,17 @@
             this.button85.UseVisualStyleBackColor = true;
             this.button85.Click += new System.EventHandler(this.button85_Click);
             // 
+            // button86
+            // 
+            this.button86.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button86.Location = new System.Drawing.Point(483, 403);
+            this.button86.Name = "button86";
+            this.button86.Size = new System.Drawing.Size(154, 34);
+            this.button86.TabIndex = 82;
+            this.button86.Text = "ERP-BOM02.BOM表";
+            this.button86.UseVisualStyleBackColor = true;
+            this.button86.Click += new System.EventHandler(this.button86_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1303,16 +1316,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button86
+            // button87
             // 
-            this.button86.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button86.Location = new System.Drawing.Point(483, 403);
-            this.button86.Name = "button86";
-            this.button86.Size = new System.Drawing.Size(154, 34);
-            this.button86.TabIndex = 82;
-            this.button86.Text = "ERP-BOM02.BOM表";
-            this.button86.UseVisualStyleBackColor = true;
-            this.button86.Click += new System.EventHandler(this.button86_Click);
+            this.button87.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button87.Location = new System.Drawing.Point(483, 443);
+            this.button87.Name = "button87";
+            this.button87.Size = new System.Drawing.Size(154, 34);
+            this.button87.TabIndex = 83;
+            this.button87.Text = "ERP-BOMI11.EBOM表";
+            this.button87.UseVisualStyleBackColor = true;
+            this.button87.Click += new System.EventHandler(this.button87_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1436,5 +1449,6 @@
         private System.Windows.Forms.Button button84;
         private System.Windows.Forms.Button button85;
         private System.Windows.Forms.Button button86;
+        private System.Windows.Forms.Button button87;
     }
 }
