@@ -53947,6 +53947,188 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_COMPA_1003()
+        {
+            string sd004 = "";
+            string sd010 = "";
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+
+            DataTable DT = FIND_UOF_COMPA_1003();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    sd004 = DR["sd004"].ToString().Trim();
+                    sd010 = DR["sd010"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    ACCOUNT = DR["ACCOUNT"].ToString();
+
+                    UPDATE_COMPA_1003_EXE(sd004, sd010, DOC_NBR, ACCOUNT);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_COMPA_1003()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                        SELECT 
+                                            [FORM_NAME],
+                                            [DOC_NBR],
+	                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""sd004""]/@fieldValue)[1]', 'NVARCHAR(100)') AS sd004,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""sd010""]/@fieldValue)[1]', 'NVARCHAR(100)') AS sd010,
+
+
+                                            TASK_ID,
+                                            TASK_STATUS,
+                                            TASK_RESULT
+                                            FROM[UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE[FORM_NAME] = '1003.客戶信用額度變更申請單'
+                                            AND TASK_STATUS = '2'
+                                            AND TASK_RESULT = '0'
+
+                                        )
+                                        SELECT TEMP.*,
+                                        (
+                                            SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                            FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                            LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                                ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                        WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                        ORDER BY FINISH_TIME DESC
+                                        ) AS ACCOUNT
+                                        , COPMA.MA001,COPMA.MA033
+                                        FROM TEMP
+                                        LEFT JOIN[192.168.1.105].[TK].dbo.COPMA ON MA001=sd004
+                                        WHERE 1=1
+                                        AND sd010<>MA033
+
+
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_COMPA_1003_EXE(string MA001,string MA033, string DOC_NBR, string ACCOUNT)
+        {
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODIFIER = ACCOUNT;
+            string FORMID = DOC_NBR;
+
+            string UDF01 = MODIFIER + "，已簽核:" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
+            string UDF02 = FORMID;
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"    
+                                    UPDATE [TK].dbo.COPMA
+                                    SET MA033=@MA033, FLAG=FLAG+1 ,MODI_DATE=@MODI_DATE, MODI_TIME=@MODI_TIME                                     
+                                    WHERE MA001=@MA001
+
+            
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@MA001", SqlDbType.NVarChar).Value = MA001;
+                    command.Parameters.Add("@MA033", SqlDbType.NVarChar).Value = MA033;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = MODI_DATE;
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = MODI_TIME;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -54431,6 +54613,13 @@ namespace TKSCHEDULEUOF
             UPDATE_MOCTA_BOMTB_BOMTC();
 
         }
+        private void button89_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.COPMA1003.EndFormTrigger
+            //1003.客戶信用額度變更申請單
+            UPDATE_COMPA_1003();
+        }
+
         #endregion
 
 
