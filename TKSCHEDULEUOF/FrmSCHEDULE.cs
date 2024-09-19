@@ -44683,6 +44683,9 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_TB_UOF_COPMA_1001()
         {
+            DateTime SDAY = DateTime.Now.AddMonths(-2);
+            string SDAYS = SDAY.ToString("yyyyMMdd");
+
             DataTable dt = new DataTable();
             DataTable DT = new DataTable();
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -44696,7 +44699,7 @@ namespace TKSCHEDULEUOF
 
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
@@ -44712,8 +44715,21 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
-                                    FROM [TKBUSINESS].[dbo].[UOF_COPMA1001]
-                                    ");
+                                    FROM [192.168.1.105].[TKBUSINESS].[dbo].[UOF_COPMA1001]
+                                    WHERE MA001 COLLATE Chinese_Taiwan_Stroke_CI_AS  NOT IN
+                                    (
+                                    SELECT  
+                                    EXTERNAL_FORM_NBR
+                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID=[TB_WKF_EXTERNAL_TASK].FORM_INFO.value('(/Form/@formVersionId)[1]', 'VARCHAR(50)')
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID=[TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE 1=1
+                                    AND STATUS IN ('1','2')
+                                    AND ISNULL(EXTERNAL_FORM_NBR,'')<>''
+                                    AND [TB_WKF_FORM].FORM_NAME='1001.客戶基本資料表'
+                                    AND MODIFY_TIME>='{0}'
+                                    )
+                                    ", SDAYS);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
