@@ -54014,6 +54014,7 @@ namespace TKSCHEDULEUOF
                                             WHERE[FORM_NAME] = '1003.客戶信用額度變更申請單'
                                             AND TASK_STATUS = '2'
                                             AND TASK_RESULT = '0'
+                                            AND TASK_RESULT = '0'
 
                                         )
                                         SELECT TEMP.*,
@@ -54128,6 +54129,255 @@ namespace TKSCHEDULEUOF
 
             }
         }
+
+        public void UPDATE_COPTA_COPTB()
+        {
+            string TA001 = "";
+            string TA002 = "";
+            string MB009 = "";
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+
+            DataTable DT = FIND_UOF_COPTA_COPTB();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TA001 = DR["TA001"].ToString().Trim();
+                    TA002 = DR["TA002"].ToString().Trim();
+                    MB009 = DR["TA003"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    ACCOUNT = DR["ACCOUNT"].ToString();
+
+                    UPDATE_COPTA_COPTB_EXE(TA001, TA002, MB009, DOC_NBR, ACCOUNT);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_COPTA_COPTB()
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA003,
+
+
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'COP01.報價單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TA001+TA002,',','')  IN
+                                    (
+                                    SELECT REPLACE(TA001+TA002,' ' ,'')
+                                    FROM[192.168.1.105].[TK].dbo.COPTA
+                                    WHERE TA019 IN('N')
+
+                                    )
+
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_COPTA_COPTB_EXE(string TA001, string TA002,string MB009, string DOC_NBR, string ACCOUNT)
+        {
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODIFIER = ACCOUNT;
+            string FORMID = DOC_NBR;
+
+            string TC027 = "Y";
+            string TC048 = "N";
+            string TD021 = "Y";           
+            string MB012 = "報價單" + TA001 + '-' + TA002;
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"    
+                                    UPDATE [TK].dbo.COPTB
+                                        SET TB011=@TB011
+                                        ,FLAG=FLAG+1,MODIFIER=@MODIFIER,MODI_DATE=@MODI_DATE,MODI_TIME=@MODI_TIME
+                                        WHERE TB001=@TB001 AND TB002=@TB002
+
+                                        UPDATE [TK].dbo.COPTA
+                                        SET TA016=@TA016,TA019=@TA019,TA029=@TA029,TA015=@TA015
+                                        ,FLAG=FLAG+1,MODIFIER=@MODIFIER,MODI_DATE=@MODI_DATE,MODI_TIME=@MODI_TIME
+                                        ,UDF02=@UDF02
+                                        WHERE TA001=@TA001 AND TA002=@TA002
+
+                                        INSERT INTO [TK].dbo.COPMB
+                                        (MB001, MB002, MB003, MB004, MB005, MB007, MB008, MB009,  MB010, MB012, MB013, MB014, MB015, MB016, MB017, MB018,  COMPANY ,CREATOR ,USR_GROUP ,CREATE_DATE ,FLAG) 
+                                        SELECT TA004 MB001,TB004 MB002,TB008 MB003,TA007 MB004,'' MB005,TB013 MB007,TB009 MB008,TA003 MB009,''  MB010,('報價單'+TA001+'-'+TA002) MB012,(CASE WHEN TA022='1' THEN 'Y' ELSE 'N' END) MB013,'' MB014,0 MB015,0 MB016,TB016 MB017,'' MB018,'TK'  COMPANY ,TA005 CREATOR ,MV004 USR_GROUP ,CONVERT(NVARCHAR,GETDATE(),112) CREATE_DATE ,1 FLAG
+                                        FROM [TK].dbo.COPTA,[TK].dbo.COPTB,[TK].dbo.CMSMV
+                                        WHERE 1=1
+                                        AND TA001=TB001 AND TA002=TB002
+                                        AND MV001=TA005
+                                        AND TA001=@TA001 AND TA002=@TA002
+                                        AND TA004+TB004+TB008+TA007+TB016 NOT IN 
+                                        (
+                                        SELECT LTRIM(RTRIM(MB001))+LTRIM(RTRIM(MB002))+LTRIM(RTRIM(MB003))+LTRIM(RTRIM(MB004))+LTRIM(RTRIM(MB017))
+                                        FROM [TK].dbo.COPMB
+                                        )
+
+                                        UPDATE [TK].dbo.COPMB
+                                        SET MB009=@MB009,MB012=@MB012
+                                        WHERE LTRIM(RTRIM(MB001))+LTRIM(RTRIM(MB002))+LTRIM(RTRIM(MB003))+LTRIM(RTRIM(MB004))+LTRIM(RTRIM(MB017)) IN 
+                                        (
+                                        SELECT TA004+TB004+TB008+TA007+TB016
+                                        FROM [TK].dbo.COPTA,[TK].dbo.COPTB,[TK].dbo.CMSMV
+                                        WHERE 1=1
+                                        AND TA001=TB001 AND TA002=TB002
+                                        AND MV001=TA005
+                                        AND TA001=@TA001 AND TA002=@TA002
+                                        )
+
+                                        INSERT INTO [TK].dbo.COPMC
+                                        (MC001, MC002, MC003, MC004, MC005, MC006, MC007, MC008, MC009,  COMPANY ,CREATOR ,USR_GROUP ,CREATE_DATE ,FLAG) 
+                                        SELECT TA004 MC001,TB004 MC002,TB008 MC003,TA007 MC004,TK004 MC005,TK006 MC006,'' MC007,TK005 MC008,TB016 MC009,'TK'  COMPANY ,TA005 CREATOR ,MV004 USR_GROUP ,CONVERT(NVARCHAR,GETDATE(),112) CREATE_DATE ,1 FLAG
+                                        FROM [TK].dbo.COPTA,[TK].dbo.COPTB,[TK].dbo.CMSMV,[TK].dbo.COPTK 
+                                        WHERE 1=1
+                                        AND TA001=TB001 AND TA002=TB002
+                                        AND MV001=TA005
+                                        AND TK001=TB001 AND TK002=TB002 AND TK003=TB003
+                                        AND TA001=@TA001 AND TA002=@TA002
+                                        AND TA004+TB004+TB008+TA007+TK004+TK006+TB016  NOT IN 
+                                        (
+                                        SELECT LTRIM(RTRIM(MC001))+LTRIM(RTRIM(MC002))+LTRIM(RTRIM(MC003))+LTRIM(RTRIM(MC004))+LTRIM(RTRIM(MC005))+LTRIM(RTRIM(MC009))
+                                        FROM [TK].dbo.COPMC
+                                        )
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                    command.Parameters.Add("@TA015", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@TB001", SqlDbType.NVarChar).Value = TA001;
+                    command.Parameters.Add("@TB002", SqlDbType.NVarChar).Value = TA002;
+                    command.Parameters.Add("@TB011", SqlDbType.NVarChar).Value = "Y";
+                    command.Parameters.Add("@TA016", SqlDbType.NVarChar).Value = "Y";
+                    command.Parameters.Add("@TA019", SqlDbType.NVarChar).Value = "Y";
+                    command.Parameters.Add("@TA029", SqlDbType.NVarChar).Value = "N";
+                    command.Parameters.Add("@MB009", SqlDbType.NVarChar).Value = MB009;
+                    command.Parameters.Add("@MB012", SqlDbType.NVarChar).Value = MB012;
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
 
         #endregion
 
@@ -54618,6 +54868,14 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.COPMA1003.EndFormTrigger
             //1003.客戶信用額度變更申請單
             UPDATE_COMPA_1003();
+        }
+        private void button90_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.COPTAB.EndFormTrigger
+            //ERP-COPTAB報價單簽核
+
+            UPDATE_COPTA_COPTB();
+
         }
 
         #endregion
