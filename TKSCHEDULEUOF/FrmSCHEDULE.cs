@@ -54413,7 +54413,7 @@ namespace TKSCHEDULEUOF
         public DataTable FIND_UOF_COPTC_COPTD()
         {
             string YYMM = DateTime.Now.ToString("yyyyMM");
-            YYMM = YYMM.Substring(1,4);
+            YYMM = YYMM.Substring(2,4);
 
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
