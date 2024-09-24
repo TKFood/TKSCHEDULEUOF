@@ -128,10 +128,11 @@
             this.button86 = new System.Windows.Forms.Button();
             this.button89 = new System.Windows.Forms.Button();
             this.button90 = new System.Windows.Forms.Button();
+            this.button91 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button91 = new System.Windows.Forms.Button();
+            this.button92 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1080,6 +1081,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button89, 2, 1);
             this.tableLayoutPanel3.Controls.Add(this.button90, 2, 2);
             this.tableLayoutPanel3.Controls.Add(this.button91, 2, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button92, 2, 4);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1356,6 +1358,17 @@
             this.button90.UseVisualStyleBackColor = true;
             this.button90.Click += new System.EventHandler(this.button90_Click);
             // 
+            // button91
+            // 
+            this.button91.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button91.Location = new System.Drawing.Point(323, 123);
+            this.button91.Name = "button91";
+            this.button91.Size = new System.Drawing.Size(154, 34);
+            this.button91.TabIndex = 87;
+            this.button91.Text = "ERP-COPTCD訂單主管簽核";
+            this.button91.UseVisualStyleBackColor = true;
+            this.button91.Click += new System.EventHandler(this.button91_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1368,16 +1381,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button91
+            // button92
             // 
-            this.button91.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button91.Location = new System.Drawing.Point(323, 123);
-            this.button91.Name = "button91";
-            this.button91.Size = new System.Drawing.Size(154, 34);
-            this.button91.TabIndex = 87;
-            this.button91.Text = "ERP-COPTCD訂單主管簽核";
-            this.button91.UseVisualStyleBackColor = true;
-            this.button91.Click += new System.EventHandler(this.button91_Click);
+            this.button92.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button92.Location = new System.Drawing.Point(323, 163);
+            this.button92.Name = "button92";
+            this.button92.Size = new System.Drawing.Size(154, 34);
+            this.button92.TabIndex = 88;
+            this.button92.Text = "ERP-COP訂單生管+採購簽核回寫備註";
+            this.button92.UseVisualStyleBackColor = true;
+            this.button92.Click += new System.EventHandler(this.button92_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1506,5 +1519,6 @@
         private System.Windows.Forms.Button button89;
         private System.Windows.Forms.Button button90;
         private System.Windows.Forms.Button button91;
+        private System.Windows.Forms.Button button92;
     }
 }
