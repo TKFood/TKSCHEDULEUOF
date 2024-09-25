@@ -54636,8 +54636,8 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_COPTC_MOC_PUR()
         {
-            string YYMM = DateTime.Now.ToString("yyyyMM");
-            YYMM = YYMM.Substring(2, 4);
+            string YY = DateTime.Now.ToString("yyyy");
+            YY = YY.Substring(2, 4);
 
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -54707,7 +54707,7 @@ namespace TKSCHEDULEUOF
 
 
 
-                                    ", YYMM);
+                                    ", YY);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -54838,6 +54838,7 @@ namespace TKSCHEDULEUOF
                     DOC_NBR = DR["DOC_NBR"].ToString().Trim();
                     ACCOUNT = DR["ACCOUNT"].ToString().Trim();
                     TE039 = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
 
                     UPDATE_COPTE_COPTF_EXE(TE001, TE002, TE003, DOC_NBR, MODIFIER, MOC, PUR, TE039);
                 }
