@@ -55323,6 +55323,13 @@ namespace TKSCHEDULEUOF
 
             UPDATE_COPTC_MOC_PUR();
         }
+        private void button93_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.COPTEF.EndFormTrigger
+            //ERP-COPTEF訂單變更主管簽核
+
+
+        }
 
         #endregion
 
