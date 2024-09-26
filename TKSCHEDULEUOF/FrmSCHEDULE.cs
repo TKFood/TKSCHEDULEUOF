@@ -55379,6 +55379,12 @@ namespace TKSCHEDULEUOF
 
             }
         }
+
+        public void ADD_TKRESEARCH_TBSAMPLE()
+        {
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -55905,6 +55911,13 @@ namespace TKSCHEDULEUOF
             //ERP-訂單變更生管+採購簽核回寫備註
 
             UPDATE_COPTE_MOC_PUR();
+        }
+        private void button95_Click(object sender, EventArgs e)
+        {
+            //TKUOF.TRIGGER.DEVSAMPLE.EndFormTrigger
+            //1004.無品號試吃製作申請單
+
+            ADD_TKRESEARCH_TBSAMPLE();
         }
 
         #endregion

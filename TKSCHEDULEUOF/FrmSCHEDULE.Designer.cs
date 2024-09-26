@@ -135,6 +135,7 @@
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.button94 = new System.Windows.Forms.Button();
+            this.button95 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1086,6 +1087,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button92, 2, 7);
             this.tableLayoutPanel3.Controls.Add(this.button93, 2, 4);
             this.tableLayoutPanel3.Controls.Add(this.button94, 2, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button95, 0, 7);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1380,7 +1382,7 @@
             this.button92.Name = "button92";
             this.button92.Size = new System.Drawing.Size(167, 34);
             this.button92.TabIndex = 88;
-            this.button92.Text = "ERP-COP訂單生管+採購簽核回寫備註";
+            this.button92.Text = "ERP-備註-訂單生管+採購簽核回寫備註";
             this.button92.UseVisualStyleBackColor = true;
             this.button92.Click += new System.EventHandler(this.button92_Click);
             // 
@@ -1414,9 +1416,20 @@
             this.button94.Name = "button94";
             this.button94.Size = new System.Drawing.Size(167, 34);
             this.button94.TabIndex = 90;
-            this.button94.Text = "ERP-訂單變更生管+採購簽核回寫備註";
+            this.button94.Text = "ERP-備註-訂單變更生管+採購簽核回寫備註";
             this.button94.UseVisualStyleBackColor = true;
             this.button94.Click += new System.EventHandler(this.button94_Click);
+            // 
+            // button95
+            // 
+            this.button95.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button95.Location = new System.Drawing.Point(3, 283);
+            this.button95.Name = "button95";
+            this.button95.Size = new System.Drawing.Size(154, 34);
+            this.button95.TabIndex = 91;
+            this.button95.Text = "研發類表單-1004.無品號試吃製作申請單";
+            this.button95.UseVisualStyleBackColor = true;
+            this.button95.Click += new System.EventHandler(this.button95_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1548,5 +1561,6 @@
         private System.Windows.Forms.Button button92;
         private System.Windows.Forms.Button button93;
         private System.Windows.Forms.Button button94;
+        private System.Windows.Forms.Button button95;
     }
 }
