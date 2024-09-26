@@ -55382,7 +55382,263 @@ namespace TKSCHEDULEUOF
 
         public void ADD_TKRESEARCH_TBSAMPLE()
         {
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
 
+            string FORMID;
+            string DV01;
+            string DV02;
+            string DV03;
+            string DV04;
+            string DV05;
+            string DV06;
+            string DV07;
+            string DV08;
+            string DV09;
+            string DV10;
+            string DVV01;
+            string DVV02;
+            string DVV03;
+            string DVV04;
+            string DVV05;
+            string DVV06;
+            string DVV07;
+            string DVV08;
+            string ISCLOSE;
+
+            DataTable DT = FIND_UOF_TKRESEARCH_TBSAMPLE();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    DV01 = DR["DV01"].ToString().Trim();
+                    DV02 = DR["DV02"].ToString().Trim();
+                    DV03 = DR["DV03"].ToString().Trim();
+                    DV04 = DR["DV04"].ToString().Trim();
+                    DV05 = DR["DV05"].ToString().Trim();
+                    DV06 = DR["DV06"].ToString().Trim();
+                    DV07 = DR["DV07"].ToString().Trim();
+                    DV08 = DR["DV08"].ToString().Trim();
+                    DV09 = DR["DV09"].ToString().Trim();
+                    DV10 = DR["DV10"].ToString().Trim();
+
+                    DVV01 = DR["DVV01_FieldValue"].ToString().Trim();
+                    DVV02 = DR["DVV02_FieldValue"].ToString().Trim();
+                    DVV03 = DR["DVV03_FieldValue"].ToString().Trim();
+                    DVV04 = DR["DVV04_FieldValue"].ToString().Trim();
+                    DVV05 = DR["DVV05_FieldValue"].ToString().Trim();
+                    DVV06 = DR["DVV06_FieldValue"].ToString().Trim();
+                    DVV07 = DR["DVV07_FieldValue"].ToString().Trim();
+                    DVV08 = DR["DVV08_FieldValue"].ToString().Trim();
+                  
+                    ISCLOSE = "N";
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    ADD_TKRESEARCH_TBSAMPLE_EXE(FORMID, DV01, DV02, DV03, DV04, DV05, DV06, DV07, DV08, DV09, DV10, DVV01, DVV02, DVV03, DVV04, DVV05, DVV06, DVV07, DVV08, ISCLOSE);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_TKRESEARCH_TBSAMPLE()
+        {
+            string YY = DateTime.Now.ToString("yyyy");
+            YY = YY.Substring(2, 2);
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                        SELECT 
+                                            [FORM_NAME],
+                                            [DOC_NBR],
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV01""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV01,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV02""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV02,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV03""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV03,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV04""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV04,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV05""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV05,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV06""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV06,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV07""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV07,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV08""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV08,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV09""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV09,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV10""]/@fieldValue)[1]', 'NVARCHAR(100)') AS DV10,
+
+                                            --展開 DETAILS DataGrid 中的每一行，並限制每個 Cell 只取第一個值
+                                            DETAILS.value('(Cell[@fieldId=""DVV01""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV01_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV02""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV02_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV03""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV03_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV04""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV04_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV05""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV05_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV06""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV06_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV07""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV07_FieldValue,
+                                            DETAILS.value('(Cell[@fieldId=""DVV08""]/@fieldValue)[1]', 'NVARCHAR(MAX)') AS DVV08_FieldValue,
+
+                                            TASK_ID,
+                                            TASK_STATUS,
+                                            TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS T(DETAILS)-- 展開每個 Row
+                                        WHERE[FORM_NAME] = '1004.無品號試吃製作申請單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+                                        AND[DOC_NBR] LIKE '%24%'
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE([DOC_NBR]+DVV01_FieldValue,' ','')  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                    (
+                                    SELECT REPLACE(FORMID+DVV01,' ','')
+                                    FROM[192.168.1.105].[TKRESEARCH].[dbo].[TBSAMPLE]
+                                    )
+                                                                        ", YY);
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void ADD_TKRESEARCH_TBSAMPLE_EXE(string FORMID, string DV01, string DV02, string DV03, string DV04, string DV05, string DV06, string DV07, string DV08, string DV09, string DV10, string DVV01, string DVV02, string DVV03, string DVV04, string DVV05, string DVV06, string DVV07, string DVV08, string ISCLOSE)
+        {
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"   
+                                     INSERT INTO [TKRESEARCH].[dbo].[TBSAMPLE]
+                                    ([FORMID]
+                                    ,[DV01],[DV02],[DV03],[DV04],[DV05],[DV06],[DV07],[DV08],[DV09],[DV10]
+                                    ,[DVV01],[DVV02],[DVV03],[DVV04],[DVV05],[DVV06],[DVV07],[DVV08]
+                                    ,[ISCLOSE])
+                                    VALUES 
+                                    (@FORMID
+                                    ,@DV01,@DV02,@DV03,@DV04,@DV05,@DV06,@DV07,@DV08,@DV09,@DV10
+                                    ,@DVV01,@DVV02,@DVV03,@DVV04,@DVV05,@DVV06,@DVV07,@DVV08
+                                    ,@ISCLOSE)
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
+                    command.Parameters.Add("@DV01", SqlDbType.NVarChar).Value = DV01;
+                    command.Parameters.Add("@DV02", SqlDbType.NVarChar).Value = DV02;
+                    command.Parameters.Add("@DV03", SqlDbType.NVarChar).Value = DV03;
+                    command.Parameters.Add("@DV04", SqlDbType.NVarChar).Value = DV04;
+                    command.Parameters.Add("@DV05", SqlDbType.NVarChar).Value = DV05;
+                    command.Parameters.Add("@DV06", SqlDbType.NVarChar).Value = DV06;
+                    command.Parameters.Add("@DV07", SqlDbType.NVarChar).Value = DV07;
+                    command.Parameters.Add("@DV08", SqlDbType.NVarChar).Value = DV08;
+                    command.Parameters.Add("@DV09", SqlDbType.NVarChar).Value = DV09;
+                    command.Parameters.Add("@DV10", SqlDbType.NVarChar).Value = DV10;
+                    command.Parameters.Add("@DVV01", SqlDbType.NVarChar).Value = DVV01;
+                    command.Parameters.Add("@DVV02", SqlDbType.NVarChar).Value = DVV02;
+                    command.Parameters.Add("@DVV03", SqlDbType.NVarChar).Value = DVV03;
+                    command.Parameters.Add("@DVV04", SqlDbType.NVarChar).Value = DVV04;
+                    command.Parameters.Add("@DVV05", SqlDbType.NVarChar).Value = DVV05;
+                    command.Parameters.Add("@DVV06", SqlDbType.NVarChar).Value = DVV06;
+                    command.Parameters.Add("@DVV07", SqlDbType.NVarChar).Value = DVV07;
+                    command.Parameters.Add("@DVV08", SqlDbType.NVarChar).Value = DVV08;
+                    command.Parameters.Add("@ISCLOSE", SqlDbType.NVarChar).Value = ISCLOSE;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
         }
 
         #endregion
@@ -55916,6 +56172,7 @@ namespace TKSCHEDULEUOF
         {
             //TKUOF.TRIGGER.DEVSAMPLE.EndFormTrigger
             //1004.無品號試吃製作申請單
+            //將1004.無品號試吃製作申請單轉到TKRESEARCH_TBSAMPLE中
 
             ADD_TKRESEARCH_TBSAMPLE();
         }
