@@ -22265,6 +22265,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                     WITH TEMP AS (
                                     SELECT 
+                                    [USER_GUID],
                                     [FORM_NAME],
                                     [DOC_NBR],
                                     [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC_FieldValue,
@@ -22751,6 +22752,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"  
                                     WITH TEMP AS (
                                         SELECT 
+                                        [USER_GUID],
                                         [FORM_NAME],
                                         [DOC_NBR],
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC,
@@ -22766,8 +22768,8 @@ namespace TKSCHEDULEUOF
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002PRD""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002PRD,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002RDate""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002RDate,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002MD""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002MD,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002EDQCFrm002ED""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002EDQCFrm002ED,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002CmfQCFrm002Cmf""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002CmfQCFrm002Cmf,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002ED""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002ED,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Cmf""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Cmf,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Abn""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Abn,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Abns""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Abns,
 
