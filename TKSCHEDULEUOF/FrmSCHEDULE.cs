@@ -22193,20 +22193,32 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow DR in DT_UOF_QC1002.Rows)
                 {
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
+                    string QCFrm002SN_FieldValue = DR["QCFrm002SN_FieldValue"].ToString();
 
                     DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
 
                     if (UOF_TB_EB_USER != null && UOF_TB_EB_USER.Rows.Count > 0)
                     {
-                        string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
-                        if (QCFrm002QCC.Equals("成立"))
-                        {
-                            NEW_UOF_QC1001(xmlDoc, UOF_TB_EB_USER);
-                        }
+                        NEW_UOF_QC1001(QCFrm002SN_FieldValue, UOF_TB_EB_USER);
                     }
                 }
+
+                //foreach (DataRow DR in DT_UOF_QC1002.Rows)
+                //{
+                //    XmlDocument xmlDoc = new XmlDocument();
+                //    xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
+
+                //    DataTable UOF_TB_EB_USER = FIND_TB_EB_USER(DR["USER_GUID"].ToString());
+
+                //    if (UOF_TB_EB_USER != null && UOF_TB_EB_USER.Rows.Count > 0)
+                //    {
+                //        string QCFrm002QCC = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002QCC']").Attributes["fieldValue"].Value;
+                //        if (QCFrm002QCC.Equals("成立"))
+                //        {
+                //            NEW_UOF_QC1001(xmlDoc, UOF_TB_EB_USER);
+                //        }
+                //    }
+                //}
 
                 //ADD_TO_TBUOFQC1002HCECK(DT_UOF_QC1002);
 
@@ -22251,22 +22263,32 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"  
-                                    SELECT CURRENT_DOC,*
-                                    FROM [UOF].[dbo].TB_WKF_TASK 
-                                    WHERE DOC_NBR LIKE 'QC%'
-                                    AND FORM_VERSION_ID IN 
-                                    (
+                                    WITH TEMP AS (
                                     SELECT 
-                                    [FORM_VERSION_ID]      
-                                    FROM [UOF].[dbo].[TB_WKF_FORM_VERSION],[UOF].[dbo].[TB_WKF_FORM]
-                                    WHERE [TB_WKF_FORM_VERSION].FORM_ID=[TB_WKF_FORM].FORM_ID
-                                    AND [FORM_NAME] IN ('1002.客訴異常處理單')
+                                    [FORM_NAME],
+                                    [DOC_NBR],
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC_FieldValue,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002SN""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002SN_FieldValue,
+
+                                    TASK_ID,
+                                    TASK_STATUS,
+                                    TASK_RESULT
+                                    FROM[UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE[FORM_NAME] = '1002.客訴異常處理單'
+                                    AND TASK_STATUS = '2'
+                                    AND TASK_RESULT = '0'
+
                                     )
-                                    AND DOC_NBR  COLLATE  Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM [UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
-                                    AND DOC_NBR>='QC1002230100001'
-                              
-                                    ORDER BY BEGIN_TIME
-                              
+
+                                    SELECT* FROM TEMP
+                                    WHERE 1 = 1
+                                    AND QCFrm002QCC_FieldValue = '成立'
+                                    --AND DOC_NBR  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM[UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR, '') <> '') 
+                                    AND DOC_NBR>= 'QC1002241000003'
+
+
                                     ");
 
 
@@ -22371,7 +22393,7 @@ namespace TKSCHEDULEUOF
             }
         }
         //新增到品保1001表單
-        public void NEW_UOF_QC1001(XmlDocument xmlDocSOURCES, DataTable DT)
+        public void NEW_UOF_QC1001(string QCFrm002SN_FieldValue, DataTable DT)
         {
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -22383,7 +22405,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = DT.Rows[0]["GROUP_NAME"].ToString();
             string DEPNO = DT.Rows[0]["GROUP_CODE"].ToString();
 
-            string QCFrm002SN = xmlDocSOURCES.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002SN']").Attributes["fieldValue"].Value;
+            string QCFrm002SN = QCFrm002SN_FieldValue;
             string EXTERNAL_FORM_NBR = QCFrm002SN;
 
             int rowscounts = 0;
@@ -22687,6 +22709,89 @@ namespace TKSCHEDULEUOF
 
             }
 
+        }
+
+        public DataTable FIND_QC1002_DETAILS(string DOC_NBR)
+        {
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    WITH TEMP AS (
+                                    SELECT 
+                                    [FORM_NAME],
+                                    [DOC_NBR],
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC_FieldValue,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002SN""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002SN_FieldValue,
+
+                                    TASK_ID,
+                                    TASK_STATUS,
+                                    TASK_RESULT
+                                    FROM[UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE[FORM_NAME] = '1002.客訴異常處理單'
+                                    AND TASK_STATUS = '2'
+                                    AND TASK_RESULT = '0'
+
+                                    )
+
+                                    SELECT* FROM TEMP
+                                    WHERE 1 = 1
+                                    AND QCFrm002QCC_FieldValue = '成立'
+                                    --AND DOC_NBR  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM[UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR, '') <> '') 
+                                    AND DOC_NBR>= 'QC1002241000003'
+
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
         /// <summary>
         /// 更新附件 ATTACH_ID 到 新QC1001中
@@ -55861,6 +55966,7 @@ namespace TKSCHEDULEUOF
 
         private void button41_Click(object sender, EventArgs e)
         {
+            //由客訴1002轉1001
             ADD_TO_UOF_QC1001();
         }
         private void button42_Click(object sender, EventArgs e)
