@@ -22738,36 +22738,48 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                
 
                 sbSql.AppendFormat(@"  
                                     WITH TEMP AS (
-                                    SELECT 
-                                    [FORM_NAME],
-                                    [DOC_NBR],
-                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC_FieldValue,
-                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002SN""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002SN_FieldValue,
+                                        SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002QCC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002QCC,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002SN""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002SN,
 
-                                    TASK_ID,
-                                    TASK_STATUS,
-                                    TASK_RESULT
-                                    FROM[UOF].[dbo].TB_WKF_TASK
-                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                    LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                    WHERE[FORM_NAME] = '1002.客訴異常處理單'
-                                    AND TASK_STATUS = '2'
-                                    AND TASK_RESULT = '0'
-
-                                    )
-
-                                    SELECT* FROM TEMP
-                                    WHERE 1 = 1
-                                    AND QCFrm002QCC_FieldValue = '成立'
-                                    --AND DOC_NBR  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM[UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR, '') <> '') 
-                                    AND DOC_NBR>= 'QC1002241000003'
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Date""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Date,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002User""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002User,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Dept""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Dept,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Rank""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Rank,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002CU""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002CU,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002PNO""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002PNO,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002CN""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002CN,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002PRD""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002PRD,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002RDate""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002RDate,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002MD""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002MD,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002EDQCFrm002ED""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002EDQCFrm002ED,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002CmfQCFrm002Cmf""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002CmfQCFrm002Cmf,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Abn""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Abn,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""QCFrm002Abns""]/@fieldValue)[1]', 'NVARCHAR(100)') AS QCFrm002Abns,
 
 
-                                    ");
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[DOC_NBR] = '{0}'
+
+                                        )
+
+                                        SELECT* FROM TEMP
+                                        WHERE 1 = 1
+
+
+
+                                    ", DOC_NBR);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);

@@ -439,7 +439,7 @@
             // 
             this.button41.Location = new System.Drawing.Point(713, 3);
             this.button41.Name = "button41";
-            this.button41.Size = new System.Drawing.Size(149, 34);
+            this.button41.Size = new System.Drawing.Size(171, 34);
             this.button41.TabIndex = 50;
             this.button41.Text = "客訴1002轉1001";
             this.button41.UseVisualStyleBackColor = true;
