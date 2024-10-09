@@ -22286,7 +22286,7 @@ namespace TKSCHEDULEUOF
                                     SELECT* FROM TEMP
                                     WHERE 1 = 1
                                     AND QCFrm002QCC_FieldValue = '成立'
-                                    --AND DOC_NBR  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM[UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR, '') <> '') 
+                                    AND DOC_NBR  COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  EXTERNAL_FORM_NBR  FROM[UOF].dbo.TB_WKF_EXTERNAL_TASK WHERE EXTERNAL_FORM_NBR LIKE 'QC1002%'AND ISNULL(EXTERNAL_FORM_NBR, '') <> '') 
                                     AND DOC_NBR>= 'QC1002241000003'
 
 
