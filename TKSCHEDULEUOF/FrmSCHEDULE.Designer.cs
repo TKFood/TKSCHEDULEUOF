@@ -136,6 +136,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.button96 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1088,6 +1089,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button93, 2, 4);
             this.tableLayoutPanel3.Controls.Add(this.button94, 2, 8);
             this.tableLayoutPanel3.Controls.Add(this.button95, 0, 7);
+            this.tableLayoutPanel3.Controls.Add(this.button96, 1, 5);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1431,6 +1433,17 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
+            // button96
+            // 
+            this.button96.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button96.Location = new System.Drawing.Point(163, 203);
+            this.button96.Name = "button96";
+            this.button96.Size = new System.Drawing.Size(154, 34);
+            this.button96.TabIndex = 92;
+            this.button96.Text = "ERP-MOCI02.製令單簽核";
+            this.button96.UseVisualStyleBackColor = true;
+            this.button96.Click += new System.EventHandler(this.button96_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1562,5 +1575,6 @@
         private System.Windows.Forms.Button button93;
         private System.Windows.Forms.Button button94;
         private System.Windows.Forms.Button button95;
+        private System.Windows.Forms.Button button96;
     }
 }
