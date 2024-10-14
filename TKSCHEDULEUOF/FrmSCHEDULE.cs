@@ -49262,10 +49262,13 @@ namespace TKSCHEDULEUOF
                     string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
                     string GG010 = "";
 
+                    //找出1003.雜項請購單 的指定採購人員(由總務填寫)	
                     string TEMP = ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString();
                     string NAMES = TEMP.Substring(0, 3);
                     DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
 
+                    //將 1003.雜項請購單 的指定採購人員(由總務填寫)	
+                    //轉成 1005.雜項採購單 的 起單人員
                     if (DT != null && DT.Rows.Count >= 1)
                     {
                         USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
