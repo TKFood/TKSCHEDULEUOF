@@ -56298,7 +56298,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void SEND__UOF_Z_UOF_FORMS_COMMENTS()
+        public void SEND_UOF_Z_UOF_FORMS_COMMENTS()
         {
 
         }
@@ -56853,7 +56853,7 @@ namespace TKSCHEDULEUOF
             //總經理簽核意見，轉MAIL給申請者及部門主管
             ADD_TO_UOF_Z_UOF_FORMS_COMMENTS();
             UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS();
-            SEND__UOF_Z_UOF_FORMS_COMMENTS();
+            SEND_UOF_Z_UOF_FORMS_COMMENTS();
         }
 
         #endregion
