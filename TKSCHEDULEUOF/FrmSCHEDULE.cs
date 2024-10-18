@@ -48986,6 +48986,7 @@ namespace TKSCHEDULEUOF
                 Class1 TKID = new Class1();//用new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
+
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
@@ -55983,6 +55984,123 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_TO_UOF_Z_UOF_FORMS_COMMENTS()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                // 總經理
+                // ACTUAL_SIGNER='c0150d00-8e36-4c1f-ba65-97ba28c32393'
+
+                sbSql.Clear();
+                sbSql.AppendFormat(@"
+                                    INSERT INTO  [UOF].[dbo].[Z_UOF_FORMS_COMMENTS]
+                                    (
+                                    [DOC_NBR]
+                                    ,[FORM_NAME]
+                                    ,[CURRENT_DOC]
+                                    ,[START_TIME]
+                                    ,[COMMENT]
+                                    ,[APPLY_USER_GUID]
+                                    ,[APPLY_NAME]
+                                    ,[APPLY_EMAIL]
+                                    ,[APPLY_GROUP_ID]
+                                    ,[APPLY_GROUP_NAME]
+                                    )
+
+                                    SELECT 
+                                    TB_WKF_TASK.DOC_NBR AS 'DOC_NBR',
+                                    TB_WKF_FORM.FORM_NAME AS 'FORM_NAME',
+                                    TB_WKF_TASK.CURRENT_DOC,
+                                    CONVERT(NVARCHAR,TB_WKF_TASK_NODE.START_TIME,112) AS 'START_TIME' ,
+                                    TB_WKF_TASK_NODE.COMMENT AS 'COMMENT',
+                                    TB_EB_USER.USER_GUID AS 'APPLY_USER_GUID',
+                                    TB_EB_USER.NAME AS 'APPLY_NAME',
+                                    TB_EB_USER.EMAIL AS 'APPLY_EMAIL',
+                                    TB_EB_EMPL_DEP.GROUP_ID AS 'APPLY_GROUP_ID',
+                                    TB_EB_GROUP.GROUP_NAME AS 'APPLY_GROUP_NAME'
+
+                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE  WITH(NOLOCK)
+                                    LEFT JOIN [UOF].[dbo].TB_WKF_TASK  WITH(NOLOCK) ON TB_WKF_TASK.TASK_ID=TB_WKF_TASK_NODE.TASK_ID
+                                    LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION ON TB_WKF_FORM_VERSION.FORM_VERSION_ID=TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].TB_WKF_FORM ON TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
+                                    LEFT JOIN [UOF].[dbo].TB_EB_USER ON TB_EB_USER.USER_GUID=TB_WKF_TASK.USER_GUID
+                                    LEFT JOIN [UOF].[dbo].TB_EB_EMPL_DEP ON TB_EB_EMPL_DEP.USER_GUID=TB_EB_USER.USER_GUID AND ORDERS=0
+                                    LEFT JOIN [UOF].[dbo].TB_EB_GROUP ON TB_EB_GROUP.GROUP_ID=TB_EB_EMPL_DEP.GROUP_ID
+
+                                    WHERE START_TIME>='2024/1/1'
+                                    AND ACTUAL_SIGNER IN 
+                                    (
+	                                    SELECT [ACTUAL_SIGNER] FROM [UOF].[dbo].[Z_UOF_FORMS_COMMENTS_ACTUAL_SIGNER]
+                                    )
+                                    AND ISNULL(CONVERT(NVARCHAR(MAX), COMMENT),'')<>''
+                                    AND TB_WKF_TASK.DOC_NBR NOT IN 
+                                    (
+                                    SELECT 
+                                    [DOC_NBR]
+                                    FROM  [UOF].[dbo].[Z_UOF_FORMS_COMMENTS]
+                                    )
+                                    ORDER BY 
+                                    CONVERT(NVARCHAR,TB_WKF_TASK_NODE.START_TIME,112)
+
+
+                                    ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+        public void UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS()
+        {
+
+        }
+        public void SEND__UOF_Z_UOF_FORMS_COMMENTS()
+        {
+
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -56526,6 +56644,13 @@ namespace TKSCHEDULEUOF
 
             UPDATE_MOCTA();
 
+        }
+        private void button97_Click(object sender, EventArgs e)
+        {
+            //總經理簽核意見，轉MAIL給申請者及部門主管
+            ADD_TO_UOF_Z_UOF_FORMS_COMMENTS();
+            UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS();
+            SEND__UOF_Z_UOF_FORMS_COMMENTS();
         }
 
         #endregion
