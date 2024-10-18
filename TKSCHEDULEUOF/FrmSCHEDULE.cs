@@ -56093,8 +56093,211 @@ namespace TKSCHEDULEUOF
         }
         public void UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS()
         {
+            try
+            {
+                // Decrypt connection string information
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@" 
+                                    SELECT 
+                                    [DOC_NBR]
+                                    ,[FORM_NAME]
+                                    ,[CURRENT_DOC]
+                                    ,[START_TIME]
+                                    ,[COMMENT]
+                                    ,[APPLY_USER_GUID]
+                                    ,[APPLY_NAME]
+                                    ,[APPLY_EMAIL]
+                                    ,[APPLY_GROUP_ID]
+                                    ,[APPLY_GROUP_NAME]
+                                    ,[MANAGERS_NAME]
+                                    ,[MANAGERS_EMAIL]
+                                    FROM [UOF].[dbo].[Z_UOF_FORMS_COMMENTS]
+                                    WHERE ISNULL(MANAGERS_NAME,'')=''
+                            ");
+
+                SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1 != null && ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS_EXE(ds1.Tables["ds1"]);
+                }
+                else
+                {
+                  
+                }
+            }
+            catch
+            {
+               
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
         }
+
+        public void UPDATE_UOF_Z_UOF_FORMS_COMMENTS_MANAGERS_EXE(DataTable DT)
+        {
+            StringBuilder SQL = new StringBuilder();
+            StringBuilder EXE_SQL = new StringBuilder();
+
+            foreach (DataRow DR in DT.Rows)
+            {
+                DataTable DT_FINS_UOF_View_DEP_ALL_MANAGERS = FINS_UOF_View_DEP_ALL_MANAGERS(DR["APPLY_GROUP_ID"].ToString().Trim(),0);
+                if(DT_FINS_UOF_View_DEP_ALL_MANAGERS!=null && DT_FINS_UOF_View_DEP_ALL_MANAGERS.Rows.Count>=1)
+                {
+                    SQL.AppendFormat(@"
+                                    UPDATE [UOF].[dbo].[Z_UOF_FORMS_COMMENTS]
+                                    SET [MANAGERS_NAME]='{1}',[MANAGERS_EMAIL]='{2}'
+                                    WHERE [DOC_NBR]='{0}'
+                                    ", DR["DOC_NBR"].ToString(), DT_FINS_UOF_View_DEP_ALL_MANAGERS.Rows[0]["NAME"].ToString(), DT_FINS_UOF_View_DEP_ALL_MANAGERS.Rows[0]["EMAIL"].ToString());
+                }
+                SQL.AppendFormat(@" ");
+                DT_FINS_UOF_View_DEP_ALL_MANAGERS.Clear();
+            }
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                EXE_SQL.Clear();
+
+                EXE_SQL = SQL;
+                
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = EXE_SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable FINS_UOF_View_DEP_ALL_MANAGERS(string GROUP_ID, int count = 0)
+        {
+            DataSet ds1 = new DataSet();
+
+            // Ensure recursion does not exceed 10 iterations
+            if (count > 10)
+            {
+                return null;
+            }
+
+            try
+            {
+                // Decrypt connection string information
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@" 
+                            SELECT 
+                             [GROUP_NAME]
+                            ,[GROUP_ID]
+                            ,[PARENT_GROUP_ID]
+                            ,[Level]
+                            ,[ACCOUNT]
+                            ,[USER_GUID]
+                            ,[NAME]
+                            ,[TITLE_NAME]
+                            ,[EMAIL]
+                            FROM [UOF].[dbo].[View_DEP_ALL_MANAGERS]
+                            WHERE [GROUP_ID]='{0}'
+                            ", GROUP_ID);
+
+                SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1 != null && ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    if (!string.IsNullOrEmpty(ds1.Tables["ds1"].Rows[0]["NAME"].ToString()))
+                    {
+                        return ds1.Tables["ds1"];
+                    }
+                    else
+                    {
+                        // Call recursively, passing the PARENT_GROUP_ID and incrementing the count
+                        return FINS_UOF_View_DEP_ALL_MANAGERS(ds1.Tables["ds1"].Rows[0]["PARENT_GROUP_ID"].ToString().Trim(), count + 1);
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         public void SEND__UOF_Z_UOF_FORMS_COMMENTS()
         {
 
