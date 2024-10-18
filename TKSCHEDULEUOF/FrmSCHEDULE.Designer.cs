@@ -137,7 +137,6 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button97 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1086,7 +1085,6 @@
             this.tableLayoutPanel3.Controls.Add(this.button93, 2, 4);
             this.tableLayoutPanel3.Controls.Add(this.button94, 2, 8);
             this.tableLayoutPanel3.Controls.Add(this.button96, 1, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button97, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.button67, 0, 3);
             this.tableLayoutPanel3.Controls.Add(this.button68, 0, 2);
             this.tableLayoutPanel3.Controls.Add(this.button65, 0, 6);
@@ -1446,17 +1444,6 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button97
-            // 
-            this.button97.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button97.Location = new System.Drawing.Point(3, 3);
-            this.button97.Name = "button97";
-            this.button97.Size = new System.Drawing.Size(154, 34);
-            this.button97.TabIndex = 93;
-            this.button97.Text = "總經理-簽核意見寄給主管";
-            this.button97.UseVisualStyleBackColor = true;
-            this.button97.Click += new System.EventHandler(this.button97_Click);
-            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1589,6 +1576,5 @@
         private System.Windows.Forms.Button button94;
         private System.Windows.Forms.Button button95;
         private System.Windows.Forms.Button button96;
-        private System.Windows.Forms.Button button97;
     }
 }
