@@ -56735,7 +56735,7 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.PURTAB.EndFormTrigger
             //ERP-PURTAB-請購單申請V2
 
-            UPDATE_PURTA_PORTB();
+            UPDATE_PURTA_PORTB(); 
         }
 
         #endregion
