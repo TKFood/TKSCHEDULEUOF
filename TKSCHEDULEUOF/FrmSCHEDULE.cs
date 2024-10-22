@@ -55984,7 +55984,11 @@ namespace TKSCHEDULEUOF
             }
         }
 
-       
+        public void UPDATE_PURTA_PORTB()
+        {
+
+        }
+
 
         #endregion
 
@@ -56530,7 +56534,11 @@ namespace TKSCHEDULEUOF
             UPDATE_MOCTA();
 
         }
-      
+
+        private void button97_Click(object sender, EventArgs e)
+        {
+            UPDATE_PURTA_PORTB();
+        }
 
         #endregion
 
