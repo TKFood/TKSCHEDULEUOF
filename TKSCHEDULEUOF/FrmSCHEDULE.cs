@@ -54823,7 +54823,10 @@ namespace TKSCHEDULEUOF
                                             FROM[UOF].[dbo].TB_WKF_TASK_NODE
                                             LEFT JOIN[UOF].[dbo].[TB_EB_USER]
                                                 ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                        WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                            
+                                            WHERE 1=1
+	                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                        AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
                                         ORDER BY FINISH_TIME DESC
                                         ) AS ACCOUNT
                                         FROM TEMP
