@@ -56318,7 +56318,7 @@ namespace TKSCHEDULEUOF
                                         WHERE [FORM_NAME] = 'PUR20.請購單變更單'
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
-                                        AND DOC_NBR >= 'PURTACHANGE202407000001'
+                                        AND DOC_NBR >= 'PURTACHANGE202410000001'
 
                                     )
                                     SELECT TEMP.*,
@@ -56432,7 +56432,7 @@ namespace TKSCHEDULEUOF
                                         WHERE[FORM_NAME] = 'PUR20.請購單變更單'
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
-                                        AND DOC_NBR >= 'PURTACHANGE202407000001'
+                                        AND DOC_NBR >= 'PURTACHANGE202410000001'
 
                                     )
                                     SELECT TEMP.*,
@@ -57289,6 +57289,8 @@ namespace TKSCHEDULEUOF
             //3在UOF簽核請購變更單
             //4ERP請購單依變更單修改
             //5在ERP採購單中檢查有沒有已建立的請購單，如果有同時建立採購變更單，並送簽
+
+            //NEWPURTEPURTF_ERP(); 是只檢核有沒有產生採購變更單而已 
 
             //TKUOF.TRIGGER.PURTABCHANGE.EndFormTrigger
             //PUR20.請購單變更單
