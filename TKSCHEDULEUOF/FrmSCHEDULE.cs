@@ -56081,6 +56081,7 @@ namespace TKSCHEDULEUOF
                                     AND REPLACE(TA001+TA002,',','')  IN
                                     (
                                         SELECT REPLACE(TA001+TA002,' ' ,'')
+                                        SELECT REPLACE(TA001+TA002,' ' ,'')
                                         FROM[192.168.1.105].[TK].dbo.PURTA
                                         WHERE TA007 IN('N')
                                     )                                   
@@ -56184,7 +56185,550 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_PURTA_PURTB_CHANGE()
+        {
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
 
+            string FORMID = null;
+            string TA001 = null;
+            string TA002 = null;
+            string VERSIONS = null;
+            string TA006 = null;
+            string TB003 = null;
+            string TB004 = null;
+            string TB007 = null;
+            string TB009 = null;
+            string TB011 = null;
+            string TB012 = null;
+            string ADDSQL = null;
+           
+            string TA014 = null;
+            
+            string ISCLOSE;
+
+            DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
+
+            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
+
+            //先新增/變更，請購變更的明細
+            if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT_DETAILS.Rows)
+                {
+                    TA001 = DR["TA001"].ToString().Trim();
+                    TA002 = DR["TA002"].ToString().Trim();
+                    VERSIONS = DR["VERSIONS"].ToString().Trim();
+                    TA006 = DR["TA006"].ToString().Trim();
+                    TB003 = DR["TB003"].ToString().Trim();
+                    TB004 = DR["TB004"].ToString().Trim();
+                    TB007 = DR["TB007"].ToString().Trim();
+                    TB009 = DR["TB009"].ToString().Trim();
+                    TB011 = DR["TB011"].ToString().Trim();
+                    TB012 = DR["TB012"].ToString().Trim();
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    if (!string.IsNullOrEmpty(FORMID) && !string.IsNullOrEmpty(TA001) && !string.IsNullOrEmpty(TA002))
+                    {
+                        ADDSQL = ADDSQL + SETPURTATBUOFCHANGE(FORMID, TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007);
+                        ADDSQL = ADDSQL + " ";
+                    }
+
+                    ADDPURTATBUOFCHANGE(FORMID, TA001, TA002, ADDSQL, TA014);                                      
+                }
+            }
+
+            //更新ERP請購單
+            //新增ERP採購變更單
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TA001 = DR["TA001"].ToString().Trim();
+                    TA002 = DR["TA002"].ToString().Trim();
+                    VERSIONS = DR["VERSIONS"].ToString().Trim();
+                    TA006 = DR["TA006"].ToString().Trim();
+                   
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+                  
+                    UPDATEPURTATB(FORMID, TA001, TA002, TA014);
+                    NEWPURTEPURTF(TA001, TA002, VERSIONS);
+
+                    //UPDATE_PURTA_PORTB_CHANGER_EXE(DOC_NBR, ACCOUNT, MODIFIER, FORMID, TA001, TA002, VERSIONS, TA006, TB003, TB004, TB007, TB009, TB011, TB012);
+                }
+            }
+
+
+        }
+
+        public DataTable FIND_UOF_PURTA_PORTB_CHANGE()
+        {
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                     WITH TEMP AS (
+	                                    SELECT 
+		                                    [FORM_NAME],
+		                                    [DOC_NBR],
+		                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA006""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA006,                                           
+
+                                            TASK_ID,
+                                            TASK_STATUS,
+                                            TASK_RESULT
+
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION]
+                                            ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM]
+                                            ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID                                        
+                                        WHERE [FORM_NAME] = 'PUR20.請購單變更單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+                                        AND DOC_NBR >= 'PURTACHANGE202407000001'
+
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+
+                                    WHERE 1=1
+                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                    AND[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                       ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
+                                    (
+                                        SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
+                                        FROM[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE]
+   
+                                    )                                   
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS()
+        {
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"  
+                                     WITH TEMP AS (
+	                                    SELECT 
+		                                    [FORM_NAME],
+		                                    [DOC_NBR],
+		                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS,
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA006""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA006,
+                                            TB.Row.value('(Cell[@fieldId=""TB003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB003, 
+                                            TB.Row.value('(Cell[@fieldId=""TB004""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB004, 
+                                            TB.Row.value('(Cell[@fieldId=""TB005""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB005, 
+                                            TB.Row.value('(Cell[@fieldId=""TB007""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB007,
+                                            TB.Row.value('(Cell[@fieldId=""TB009""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB009, 
+                                            TB.Row.value('(Cell[@fieldId=""TB011""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB011, 
+                                            TB.Row.value('(Cell[@fieldId=""TB012""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB012, 
+
+                                            TASK_ID,
+                                            TASK_STATUS,
+                                            TASK_RESULT
+
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION]
+                                            ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM]
+                                            ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
+                                        WHERE[FORM_NAME] = 'PUR20.請購單變更單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+                                        AND DOC_NBR >= 'PURTACHANGE202407000001'
+
+                                    )
+                                    SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+
+                                    WHERE 1=1
+                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                    AND[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                       ORDER BY FINISH_TIME DESC
+                                    ) AS ACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
+                                    (
+                                        SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
+                                        FROM[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE]
+   
+                                    )                                   
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_PURTA_PORTB_CHANGER_EXE(string DOC_NBR, string ACCOUNT, string MODIFIER, string FORMID, string TA001, string TA002, string VERSIONS, string TA006, string TB003, string TB004, string TB007, string TB009, string TB011, string TB012)
+        {
+            
+
+            //string COMPANY = "TK";
+            //string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            //string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+
+            ////20210902密
+            //Class1 TKID = new Class1();//用new 建立類別實體
+            //SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            ////資料庫使用者密碼解密
+            //sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            //sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            //String connectionString;
+            //sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            //StringBuilder queryString = new StringBuilder();
+            //queryString.AppendFormat(@"   
+
+
+            //                            ");
+
+            //try
+            //{
+            //    using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+            //    {
+
+            //        SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+            //        command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+
+
+            //        command.Connection.Open();
+
+            //        int count = command.ExecuteNonQuery();
+
+            //        connection.Close();
+            //        connection.Dispose();
+
+            //    }
+            //}
+            //catch
+            //{
+
+            //}
+            //finally
+            //{
+
+            //}
+        }
+
+        public string SETPURTATBUOFCHANGE(string FORMID, string TA001, string TA002, string TA006, string TB003, string TB004, string TB009, string TB011, string TB012, string TB007)
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.AppendFormat(@" 
+                                INSERT INTO [TKPUR].[dbo].[PURTATBUOFCHANGE]
+                                ([FORMID],[TA001],[TA002],[TA006],[TB003],[TB004],[TB009],[TB011],[TB012],[TB007])
+                                VALUES
+                                (@FORMID,'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}')
+
+                                ", TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007);
+
+            return SQL.ToString();
+        }
+
+        public void ADDPURTATBUOFCHANGE(string FORMID, string TA001, string TA002, string ADDSQL, string TA014)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["ERPconnectionstring"].ToString();
+
+            //StringBuilder queryString = new StringBuilder();
+            //queryString.AppendFormat(@"
+
+            //                            ", FORMID);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(ADDSQL.ToString(), connection);
+                    command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                   
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+
+        }
+
+        public void UPDATEPURTATB(string FORMID, string TA001, string TA002, string TA014)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["ERPconnectionstring"].ToString();
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"
+                                        UPDATE [TK].[dbo].[PURTA]
+                                        SET [PURTA].[TA006]=[PURTATBUOFCHANGE].[TA006], [PURTA].[UDF04]=@FORMID,[TA014]=@TA014
+                                        FROM [TKPUR].[dbo].[PURTATBUOFCHANGE]
+                                        WHERE [PURTA].TA001=@TA001 AND [PURTA].TA002=@TA002
+                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
+
+                                        UPDATE [TK].[dbo].[PURTB]
+                                        SET [PURTB].[TB004]=[PURTATBUOFCHANGE].[TB004],[PURTB].[TB009]=[PURTATBUOFCHANGE].[TB009],[PURTB].[TB011]=[PURTATBUOFCHANGE].[TB011],[PURTB].[TB012]=[PURTATBUOFCHANGE].[TB012]
+                                        ,[PURTB].[TB005]=INVMB.MB002
+                                        ,[PURTB].[TB006]=INVMB.MB003
+                                        ,[PURTB].[TB007]=PURTATBUOFCHANGE.TB007
+                                        ,[PURTB].[TB017]=INVMB.MB050 
+                                        ,[PURTB].[TB018]=(MB050*[PURTATBUOFCHANGE].[TB009]) 
+                                        ,[PURTB].[TB021]='N'
+                                        FROM [TKPUR].[dbo].[PURTATBUOFCHANGE],[TK].dbo.INVMB
+                                        WHERE [PURTATBUOFCHANGE].TB004=INVMB.MB001
+                                        AND [PURTB].TB003=[PURTATBUOFCHANGE].TB003
+                                        AND [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002
+                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
+
+                                        INSERT INTO [TK].[dbo].[PURTB]
+                                        (
+                                        [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],[MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],[DataUser],[DataGroup]
+                                        ,[TB001],[TB002],[TB003],[TB004],[TB005],[TB006],[TB007],[TB008],[TB009],[TB010]
+                                        ,[TB011],[TB012],[TB013],[TB014],[TB015],[TB016],[TB017],[TB018],[TB019],[TB020]
+                                        ,[TB021],[TB022],[TB023],[TB024],[TB025],[TB026],[TB027],[TB028],[TB029],[TB030]
+                                        ,[TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],[TB040]
+                                        ,[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],[TB049],[TB050]
+                                        ,[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],[TB058],[TB059],[TB060]
+                                        ,[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],[TB067],[TB068],[TB069],[TB070]
+                                        ,[TB071],[TB072],[TB073],[TB074],[TB075],[TB076],[TB077],[TB078],[TB079],[TB080]
+                                        ,[TB081],[TB082],[TB083],[TB084],[TB085],[TB086],[TB087],[TB088],[TB089],[TB090]
+                                        ,[TB091],[TB092],[TB093],[TB094],[TB095],[TB096],[TB097],[TB098],[TB099]
+                                        ,[UDF01],[UDF02],[UDF03],[UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
+                                        )
+                                        SELECT [PURTB].[COMPANY],[PURTB].[CREATOR],[PURTB].[USR_GROUP],[PURTB].[CREATE_DATE],[PURTB].[MODIFIER],[PURTB].[MODI_DATE],[PURTB].[FLAG],[PURTB].[CREATE_TIME],[PURTB].[MODI_TIME],[PURTB].[TRANS_TYPE],[PURTB].[TRANS_NAME],[PURTB].[sync_date],[PURTB].[sync_time],[PURTB].[sync_mark],[PURTB].[sync_count],[PURTB].[DataUser],[PURTB].[DataGroup]
+                                        ,[TB001],[TB002],[PURTATBUOFCHANGE].[TB003] TB003,[PURTATBUOFCHANGE].[TB004] TB004,INVMB.MB002 [TB005],INVMB.MB003 [TB006],[PURTATBUOFCHANGE].[TB007]  [TB007],[TB008],[PURTATBUOFCHANGE].[TB009] TB009,MB032 [TB010]
+                                        ,[PURTATBUOFCHANGE].[TB011] TB011,[PURTATBUOFCHANGE].[TB012] TB012,[TB013],[TB014],[TB015],[TB016],MB050 [TB017],(MB050*[PURTATBUOFCHANGE].[TB009]) [TB018], [TB019],[TB020]
+                                        ,[TB021],[TB022],[TB023],[TB024],'Y' [TB025],[TB026],[TB027],[TB028],[TB029],[TB030]
+                                        ,[TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],[TB040]
+                                        ,[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],[TB049],[TB050]
+                                        ,[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],[TB058],[TB059],[TB060]
+                                        ,[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],[TB067],[TB068],[TB069],[TB070]
+                                        ,[TB071],[TB072],[TB073],[TB074],[TB075],[TB076],[TB077],[TB078],[TB079],[TB080]
+                                        ,[TB081],[TB082],[TB083],[TB084],[TB085],[TB086],[TB087],[TB088],[TB089],[TB090]
+                                        ,[TB091],[TB092],[TB093],[TB094],[TB095],[TB096],[TB097],[TB098],[TB099]
+                                        ,[PURTB].[UDF01],[PURTB].[UDF02],[PURTB].[UDF03],[PURTB].[UDF04],[PURTB].[UDF05],[PURTB].[UDF06],[PURTB].[UDF07],[PURTB].[UDF08],[PURTB].[UDF09],[PURTB].[UDF10]
+                                        FROM [TK].[dbo].[PURTB],[TKPUR].[dbo].[PURTATBUOFCHANGE],[TK].dbo.INVMB
+                                        WHERE [PURTATBUOFCHANGE].TA001=[PURTB].TB001 AND [PURTATBUOFCHANGE].TA002=[PURTB].TB002  AND [PURTB].TB003=(SELECT TOP 1 TB003 FROM [TK].[dbo].[PURTB] WHERE  [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002)
+                                        AND [PURTATBUOFCHANGE].TB004=INVMB.MB001
+                                        AND [PURTATBUOFCHANGE].TB003 NOT IN (SELECT TB003 FROM [TK].[dbo].[PURTB] WHERE TB001=@TA001 AND TB002=@TA002)
+                                        AND [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002
+                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
+
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+
+                    command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
+                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                    command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = TA014;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+
+        }
+        public void NEWPURTEPURTF(string TA001, string TA002, string VERSIONS)
+        {
+            try
+            {
+                //檢查請購變更單的採購單，是否有採購變更單未核準
+                DataTable DTCHECKPURTEPURTF = CHECKPURTEPURTF(TA001, TA002, VERSIONS);
+
+                if (DTCHECKPURTEPURTF == null)
+                {
+                    //找出請購變更單有幾張採購單，要1對多
+                    DataTable DTPURTCPURTD = SEARCHPURTCPURTD(TA001, TA002, VERSIONS);
+                    //DataTable DTPURTCPURTD = SEARCHPURTCPURTD("A312", "20221116001", "2");
+                    DataTable DTOURTE = new DataTable();
+
+                    //找出採購單跟最大的版次
+                    if (DTPURTCPURTD != null && DTPURTCPURTD.Rows.Count > 0)
+                    {
+                        DTOURTE = FINDPURTE(DTPURTCPURTD);
+
+                        //新增採購變更單
+                        if (DTOURTE.Rows.Count > 0)
+                        {
+                            ADDTOPURTEPURTF(DTOURTE);
+                        }
+                    }
+
+
+
+                }
+                else
+                {
+                  
+                }
+            }
+            catch { }
+
+
+
+        }
         #endregion
 
         #region BUTTON
@@ -56738,6 +57282,19 @@ namespace TKSCHEDULEUOF
             UPDATE_PURTA_PORTB(); 
         }
 
+        private void button98_Click(object sender, EventArgs e)
+        {
+            //1要先有ERP的請購單
+            //2用ERP的請購單，在外做請購變更單．並送簽
+            //3在UOF簽核請購變更單
+            //4ERP請購單依變更單修改
+            //5在ERP採購單中檢查有沒有已建立的請購單，如果有同時建立採購變更單，並送簽
+
+            //TKUOF.TRIGGER.PURTABCHANGE.EndFormTrigger
+            //PUR20.請購單變更單
+
+            UPDATE_PURTA_PURTB_CHANGE();
+        }
         #endregion
 
 
