@@ -46126,7 +46126,7 @@ namespace TKSCHEDULEUOF
                         DataTable DTOURTE = new DataTable();
 
                         //找出採購單跟最大的版次
-                        if (DTPURTCPURTD.Rows.Count > 0)
+                        if (DTPURTCPURTD!=null && DTPURTCPURTD.Rows.Count > 0)
                         {
                             DTOURTE = FINDPURTE(DTPURTCPURTD);
 
@@ -56316,9 +56316,7 @@ namespace TKSCHEDULEUOF
                                         LEFT JOIN[UOF].[dbo].[TB_WKF_FORM]
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID                                        
                                         WHERE [FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-                                        AND DOC_NBR >= 'PURTACHANGE202410000001'
+                                        AND DOC_NBR = 'PURTACHANGE202410230006'
 
                                     )
                                     SELECT TEMP.*,
@@ -56338,7 +56336,7 @@ namespace TKSCHEDULEUOF
                                     AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
                                     (
                                         SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
-                                        FROM[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE]
+                                        FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
    
                                     )                                   
 
@@ -56430,9 +56428,7 @@ namespace TKSCHEDULEUOF
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                         CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
                                         WHERE[FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-                                        AND DOC_NBR >= 'PURTACHANGE202410000001'
+                                        AND DOC_NBR = 'PURTACHANGE202410230006'
 
                                     )
                                     SELECT TEMP.*,
@@ -56452,7 +56448,7 @@ namespace TKSCHEDULEUOF
                                     AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
                                     (
                                         SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
-                                        FROM[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE]
+                                        FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
    
                                     )                                   
 
@@ -56560,8 +56556,16 @@ namespace TKSCHEDULEUOF
         }
 
         public void ADDPURTATBUOFCHANGE(string FORMID, string TA001, string TA002, string ADDSQL, string TA014)
-        {
-            string connectionString = ConfigurationManager.ConnectionStrings["ERPconnectionstring"].ToString();
+        {    
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
             //StringBuilder queryString = new StringBuilder();
             //queryString.AppendFormat(@"
@@ -56570,7 +56574,7 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
                 {
 
                     SqlCommand command = new SqlCommand(ADDSQL.ToString(), connection);
@@ -56599,7 +56603,15 @@ namespace TKSCHEDULEUOF
 
         public void UPDATEPURTATB(string FORMID, string TA001, string TA002, string TA014)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["ERPconnectionstring"].ToString();
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
             StringBuilder queryString = new StringBuilder();
             queryString.AppendFormat(@"
@@ -56661,7 +56673,7 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
                 {
 
                     SqlCommand command = new SqlCommand(queryString.ToString(), connection);
@@ -56729,6 +56741,7 @@ namespace TKSCHEDULEUOF
 
 
         }
+
         #endregion
 
         #region BUTTON
