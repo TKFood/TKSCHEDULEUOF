@@ -56202,9 +56202,10 @@ namespace TKSCHEDULEUOF
             string TB009 = null;
             string TB011 = null;
             string TB012 = null;
+            string TA014 = null;
             string ADDSQL = null;
            
-            string TA014 = null;
+
             
             string ISCLOSE;
 
@@ -56253,7 +56254,8 @@ namespace TKSCHEDULEUOF
                     TA002 = DR["TA002"].ToString().Trim();
                     VERSIONS = DR["VERSIONS"].ToString().Trim();
                     TA006 = DR["TA006"].ToString().Trim();
-                   
+                    TA014 = DR["ACCOUNT"].ToString().Trim();
+
 
                     DOC_NBR = DR["DOC_NBR"].ToString().Trim();
                     ACCOUNT = DR["ACCOUNT"].ToString().Trim();
