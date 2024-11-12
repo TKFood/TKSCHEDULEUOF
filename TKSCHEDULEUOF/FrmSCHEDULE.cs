@@ -42803,10 +42803,10 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_UOF_COPMA_100A()
+        public void ADD_UOF_COPMA_100A(string MA001)
         {
             //新增客戶資料
-            ADD_TB_UOF_COPMA_100A();
+            ADD_TB_UOF_COPMA_100A(MA001);
 
             DataTable dt = FIND_TB_UOF_COPMA_100A();
             if (dt != null && dt.Rows.Count >= 1)
@@ -42815,8 +42815,8 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_TB_UOF_COPMA_100A()
-        {
+        public void ADD_TB_UOF_COPMA_100A(string MA001)
+        {            
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
@@ -43010,7 +43010,7 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
                                     LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
                                     WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND    MA001='2999999A' 
+                                    AND    MA001='{0}' 
 
                                     UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     SET [sd057]='3000萬以下(4分)'
@@ -43168,7 +43168,7 @@ namespace TKSCHEDULEUOF
                                     "
 
 
-                                    );
+                                   , MA001);
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
@@ -57089,16 +57089,27 @@ namespace TKSCHEDULEUOF
         }
         private void button67_Click(object sender, EventArgs e)
         {
-            //先產生[TB_WKF_EXTERNAL_TASK]的資料
-            //UOF一次拋轉表單5分鐘只能100筆，所以要分批拋轉
-            //更新STATUS='2',DOC_NBR=NULL,TASK_ID=NULL
-            //UOF要自動核單，到下一關
+            //指定MA001產生「100A.客戶基本資料表」，給會計師稽核
+            //產生到草稿後，等正式產生表單
+            //國外、國內的簽核人不同
+            //一律用IT代簽，把表單簽完成
 
-            //要重起UOF的才服務-Ede.Uof.Utlity.Task.Engine
+            //修改簽核人跟簽核時間
+            //TABLE:「TB_WKF_TASK_NODE」
+            //用「TASK_ID」找出簽核流程
+            //「ORIGINAL_SIGNER」=「ACTUAL_SIGNER」把簽核人都改回原簽核人
+            //「ASSIGN_USER_GUID, ASSIGN_START_TIME, ASSIGN_FINISH_TIME」清空
+            //「START_TIME, FINISH_TIME」，修改想要的日期
 
-            //不要有逾時[UOF].dbo.TB_WKF_TASK_NODE
-            //UPDATE[UOF].dbo.TB_WKF_TASK_NODE
-            ADD_UOF_COPMA_100A();
+            //修改表單申請時間、表單內時間
+            //TABLE:「TB_WKF_TASK」
+            //用「DOC_NBR」找出表單
+            //「BEGIN_TIME, END_TIME」，修改表單申請、完成時間
+            //「CURRENT_DOC」，修改表單內申請時間
+
+            string MA001 = "32311001";
+
+            ADD_UOF_COPMA_100A(MA001);
         }
         private void button68_Click(object sender, EventArgs e)
         {
