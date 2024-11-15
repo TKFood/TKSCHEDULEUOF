@@ -42813,6 +42813,7 @@ namespace TKSCHEDULEUOF
             {
                 ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(dt);
             }
+            MessageBox.Show("完成,到UOF 的拋轉暫時表、正式表單查看");
         }
 
         public void ADD_TB_UOF_COPMA_100A(string MA001)
@@ -42925,8 +42926,8 @@ namespace TKSCHEDULEUOF
                                     ,[sd083]
                                     )
 
-                                    SELECT   
-                                     MA001
+                                   SELECT   
+                                    MA001
                                     ,MA016
                                     ,'' AS  sd001
                                     ,CONVERT(NVARCHAR,CONVERT(DATETIME,GETDATE()),111) AS  sd002
@@ -42939,9 +42940,9 @@ namespace TKSCHEDULEUOF
                                     ,MA010 AS  sd008
                                     ,MA004 AS  sd009
                                     ,MA005 AS  sd010
-                                    ,'' AS  sd011
-                                    ,'' AS  sd012
-                                    ,'' AS  sd013
+                                    ,MA007 AS  sd011
+                                    ,MA079 AS  sd012
+                                    ,MA008 AS  sd013
                                     ,MA006 AS  sd014
                                     ,MA007 AS  sd015
                                     ,MA009 AS  sd016
@@ -42954,13 +42955,13 @@ namespace TKSCHEDULEUOF
                                     ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd023
                                     ,'' AS  sd024
                                     ,'自有' AS  sd025
-                                    ,'' AS  sd026
+                                    ,'0' AS  sd026
                                     ,'電子發票' AS  sd027
                                     ,(CASE WHEN MA041='1' THEN '現金'  WHEN MA041='2' THEN '電匯' WHEN MA041='3' THEN '支票' WHEN MA041='4' THEN '其他'END ) AS  sd028 
                                     ,'法人' AS  sd029
                                     ,COPMA.UDF02 AS  sd030
-                                    ,'' AS  sd031
-                                    ,'' AS  sd032
+                                    ,'0' AS  sd031
+                                    ,'無' AS  sd032
                                     ,'0' AS  sd033
                                     ,'25號' AS  sd034
                                     ,MO006 AS  sd035
@@ -42989,9 +42990,9 @@ namespace TKSCHEDULEUOF
                                     ,'3000萬以下（4分）' AS  sd064
                                     ,'4' AS  sd065
                                     ,'0' AS  sd066
-                                    ,'' AS  sd067
+                                    ,'0' AS  sd067
                                     ,'0' AS  sd068
-                                    ,'' AS  sd069
+                                    ,'0' AS  sd069
                                     ,'50萬以下(5分)' AS  sd070
                                     ,'5' AS  sd071
                                     ,'沒有(10分)' AS  sd072
@@ -43003,7 +43004,7 @@ namespace TKSCHEDULEUOF
                                     ,'5' AS  sd078
                                     ,'38' AS  sd079
                                     ,'0' AS  sd080
-                                    ,'' AS  sd081
+                                    ,'0' AS  sd081
                                     ,'38' AS  sd082
                                     ,'0' AS  sd083
                                     FROM [TK].dbo.COPMA
@@ -57107,7 +57108,7 @@ namespace TKSCHEDULEUOF
             //「BEGIN_TIME, END_TIME」，修改表單申請、完成時間
             //「CURRENT_DOC」，修改表單內申請時間
 
-            string MA001 = "32311001";
+            string MA001 = "A221400600";
 
             ADD_UOF_COPMA_100A(MA001);
         }
