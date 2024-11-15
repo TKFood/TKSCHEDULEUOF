@@ -57108,6 +57108,7 @@ namespace TKSCHEDULEUOF
             //「BEGIN_TIME, END_TIME」，修改表單申請、完成時間
             //「CURRENT_DOC」，修改表單內申請時間
 
+            //要指定客戶代號來產生「100A.客戶基本資料表」
             string MA001 = "A221400600";
 
             ADD_UOF_COPMA_100A(MA001);
