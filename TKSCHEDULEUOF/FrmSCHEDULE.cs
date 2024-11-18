@@ -56775,7 +56775,7 @@ namespace TKSCHEDULEUOF
                 if (DEP.Equals("國內"))
                 {
                     sbSql.AppendFormat(@" 
-                                        SELECT TOP 1 '國內' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        SELECT TOP 30 '國內' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
                                         FROM [TK].dbo.SASLA
                                         WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
                                         AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
@@ -56790,7 +56790,7 @@ namespace TKSCHEDULEUOF
                 else if (DEP.Equals("國外"))
                 {
                     sbSql.AppendFormat(@"                                     
-                                        SELECT TOP 1 '國外' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        SELECT TOP 30 '國外' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
                                         FROM [TK].dbo.SASLA
                                         WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
                                         AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
@@ -56804,7 +56804,7 @@ namespace TKSCHEDULEUOF
                 else if (DEP.Equals("張協"))
                 {
                     sbSql.AppendFormat(@"                                     
-                                        SELECT TOP 1 '張協'AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        SELECT TOP 30 '張協'AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
                                         FROM [TK].dbo.SASLA
                                         WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
                                         AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
