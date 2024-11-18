@@ -42813,7 +42813,8 @@ namespace TKSCHEDULEUOF
             {
                 ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(dt);
             }
-            MessageBox.Show("完成,到UOF 的拋轉暫時表、正式表單查看");
+
+            //MessageBox.Show("完成,到UOF 的拋轉暫時表、正式表單查看");
         }
 
         public void ADD_TB_UOF_COPMA_100A(string MA001)
@@ -56745,6 +56746,115 @@ namespace TKSCHEDULEUOF
 
         }
 
+        public DataTable FIND_SASLA_DEPT30(string DEP)
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //TL006='N' AND (UDF01 IN ('Y','y') ) 
+                if (DEP.Equals("國內"))
+                {
+                    sbSql.AppendFormat(@" 
+                                        SELECT TOP 1 '國內' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        FROM [TK].dbo.SASLA
+                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
+                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
+                                        AND ( LA006 LIKE '2%' OR LA006 LIKE 'A%')
+                                        AND LA007 LIKE '117700%'
+                                        GROUP BY LA006,LA041
+                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
+
+
+                                    ");
+                }
+                else if (DEP.Equals("國外"))
+                {
+                    sbSql.AppendFormat(@"                                     
+                                        SELECT TOP 1 '國外' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        FROM [TK].dbo.SASLA
+                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
+                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
+                                        AND ( LA006 LIKE '3%' OR LA006 LIKE 'B%')
+                                        AND LA007 LIKE '117800%'
+                                        GROUP BY LA006,LA041
+                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
+
+                                    ");
+                }
+                else if (DEP.Equals("張協"))
+                {
+                    sbSql.AppendFormat(@"                                     
+                                        SELECT TOP 1 '張協'AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
+                                        FROM [TK].dbo.SASLA
+                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
+                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
+                                        AND LA006 IN (
+                                        SELECT MA001
+                                        FROM [TK].dbo.COPMA
+                                        WHERE MA016 LIKE '200050%'
+                                        )
+
+                                        GROUP BY LA006,LA041
+                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
+
+
+                                    ");
+                }
+
+
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+           
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -57129,6 +57239,8 @@ namespace TKSCHEDULEUOF
         {
             //門市日誌-早班
             NEW_TBSTOREDAILY_MORNING();
+            NEW_TBSTOREDAILY_MORNING();
+            NEW_TBSTOREDAILY_MORNING();
             ///門市日誌-午班
             NEW_TBSTOREDAILY_AFTERMOON();
         }
@@ -57324,6 +57436,45 @@ namespace TKSCHEDULEUOF
             //PUR20.請購單變更單
 
             UPDATE_PURTA_PURTB_CHANGE();
+        }
+        private void button99_Click(object sender, EventArgs e)
+        {
+            string MA001 = null;
+
+            DataTable DT1 = FIND_SASLA_DEPT30("國內");
+            DataTable DT2 = FIND_SASLA_DEPT30("國外");
+            DataTable DT3 = FIND_SASLA_DEPT30("張協");
+
+            //國內
+            if (DT1!=null && DT1.Rows.Count>=1)
+            {
+                foreach(DataRow DR in DT1.Rows)
+                {
+                    MA001 = DR["LA006"].ToString();
+                    ADD_UOF_COPMA_100A(MA001);
+                }
+            }
+
+            //國外
+            if (DT2 != null && DT2.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT2.Rows)
+                {
+                    MA001 = DR["LA006"].ToString();
+                    ADD_UOF_COPMA_100A(MA001);
+                }
+            }
+
+            //張協
+            if (DT3 != null && DT3.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT3.Rows)
+                {
+                    MA001 = DR["LA006"].ToString();
+                    ADD_UOF_COPMA_100A(MA001);
+                }
+            }
+
         }
         #endregion
 

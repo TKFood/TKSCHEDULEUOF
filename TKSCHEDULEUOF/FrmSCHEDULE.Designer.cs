@@ -127,7 +127,6 @@
             this.button92 = new System.Windows.Forms.Button();
             this.button93 = new System.Windows.Forms.Button();
             this.button94 = new System.Windows.Forms.Button();
-            this.button67 = new System.Windows.Forms.Button();
             this.button68 = new System.Windows.Forms.Button();
             this.button65 = new System.Windows.Forms.Button();
             this.button63 = new System.Windows.Forms.Button();
@@ -136,9 +135,11 @@
             this.button97 = new System.Windows.Forms.Button();
             this.button98 = new System.Windows.Forms.Button();
             this.button69 = new System.Windows.Forms.Button();
+            this.button67 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.button99 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1063,8 +1064,6 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
-            this.tableLayoutPanel3.Controls.Add(this.button72, 1, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button73, 1, 3);
             this.tableLayoutPanel3.Controls.Add(this.button77, 3, 1);
             this.tableLayoutPanel3.Controls.Add(this.button78, 3, 2);
             this.tableLayoutPanel3.Controls.Add(this.button80, 3, 3);
@@ -1085,7 +1084,6 @@
             this.tableLayoutPanel3.Controls.Add(this.button92, 2, 7);
             this.tableLayoutPanel3.Controls.Add(this.button93, 2, 4);
             this.tableLayoutPanel3.Controls.Add(this.button94, 2, 8);
-            this.tableLayoutPanel3.Controls.Add(this.button68, 0, 2);
             this.tableLayoutPanel3.Controls.Add(this.button65, 0, 6);
             this.tableLayoutPanel3.Controls.Add(this.button63, 0, 5);
             this.tableLayoutPanel3.Controls.Add(this.button95, 0, 8);
@@ -1094,6 +1092,10 @@
             this.tableLayoutPanel3.Controls.Add(this.button98, 1, 6);
             this.tableLayoutPanel3.Controls.Add(this.button69, 1, 7);
             this.tableLayoutPanel3.Controls.Add(this.button67, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.button99, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.button73, 1, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button72, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button68, 0, 3);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1120,7 +1122,7 @@
             // button72
             // 
             this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button72.Location = new System.Drawing.Point(163, 83);
+            this.button72.Location = new System.Drawing.Point(163, 123);
             this.button72.Name = "button72";
             this.button72.Size = new System.Drawing.Size(154, 34);
             this.button72.TabIndex = 70;
@@ -1131,7 +1133,7 @@
             // button73
             // 
             this.button73.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button73.Location = new System.Drawing.Point(163, 123);
+            this.button73.Location = new System.Drawing.Point(163, 163);
             this.button73.Name = "button73";
             this.button73.Size = new System.Drawing.Size(154, 34);
             this.button73.TabIndex = 71;
@@ -1359,24 +1361,10 @@
             this.button94.UseVisualStyleBackColor = true;
             this.button94.Click += new System.EventHandler(this.button94_Click);
             // 
-            // button67
-            // 
-            this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel3.SetColumnSpan(this.button67, 2);
-            this.button67.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.button67.ForeColor = System.Drawing.Color.Blue;
-            this.button67.Location = new System.Drawing.Point(3, 3);
-            this.button67.Name = "button67";
-            this.button67.Size = new System.Drawing.Size(314, 34);
-            this.button67.TabIndex = 67;
-            this.button67.Text = "稽用-ERP客戶轉-100A客戶基本資料表";
-            this.button67.UseVisualStyleBackColor = true;
-            this.button67.Click += new System.EventHandler(this.button67_Click);
-            // 
             // button68
             // 
             this.button68.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button68.Location = new System.Drawing.Point(3, 83);
+            this.button68.Location = new System.Drawing.Point(3, 123);
             this.button68.Name = "button68";
             this.button68.Size = new System.Drawing.Size(154, 34);
             this.button68.TabIndex = 68;
@@ -1461,6 +1449,20 @@
             this.button69.UseVisualStyleBackColor = true;
             this.button69.Click += new System.EventHandler(this.button69_Click);
             // 
+            // button67
+            // 
+            this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel3.SetColumnSpan(this.button67, 2);
+            this.button67.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button67.ForeColor = System.Drawing.Color.Blue;
+            this.button67.Location = new System.Drawing.Point(3, 3);
+            this.button67.Name = "button67";
+            this.button67.Size = new System.Drawing.Size(314, 34);
+            this.button67.TabIndex = 67;
+            this.button67.Text = "單客戶-稽用-ERP客戶轉-100A客戶基本資料表";
+            this.button67.UseVisualStyleBackColor = true;
+            this.button67.Click += new System.EventHandler(this.button67_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1472,6 +1474,20 @@
             // timer3
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
+            // 
+            // button99
+            // 
+            this.button99.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel3.SetColumnSpan(this.button99, 2);
+            this.button99.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button99.ForeColor = System.Drawing.Color.Blue;
+            this.button99.Location = new System.Drawing.Point(3, 43);
+            this.button99.Name = "button99";
+            this.button99.Size = new System.Drawing.Size(314, 34);
+            this.button99.TabIndex = 95;
+            this.button99.Text = "各部門前30大-稽用-ERP客戶轉-100A客戶基本資料表";
+            this.button99.UseVisualStyleBackColor = true;
+            this.button99.Click += new System.EventHandler(this.button99_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1607,5 +1623,6 @@
         private System.Windows.Forms.Button button96;
         private System.Windows.Forms.Button button97;
         private System.Windows.Forms.Button button98;
+        private System.Windows.Forms.Button button99;
     }
 }
