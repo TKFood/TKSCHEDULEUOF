@@ -481,12 +481,34 @@ namespace TKSCHEDULEUOF
             string HHmm = "0801";
 
             if (RUNTIME.Equals(HHmm))
-            {
-                //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
-                //請購單的廠商是未指定=空白
-                ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
-                //會依請購單的廠商有指定，合併採購單
-                ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
+            {               
+
+                try
+                {
+                    //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+                    //請購單的廠商是未指定=空白
+                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();                    
+                }
+                catch { }
+                try
+                {
+                    //會依請購單的廠商有指定，合併採購單
+                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();                   
+                }
+                catch { }
+                try
+                {
+                    //當請購單的數量=0，手動結案
+                    UPDATE_PURTA_PURTB_TB039();                  
+                }
+                catch { }
+                try
+                {                    
+                    //當請購單的需求日，已過期1個月，請購數量=0，手動結案
+                    UPDATE_PURTA_PURTB_TB039_TB009();
+                }
+                catch { }
+
             }
         }
 
@@ -56854,6 +56876,121 @@ namespace TKSCHEDULEUOF
            
         }
 
+        //當請購單的數量=0，手動結案
+        public void UPDATE_PURTA_PURTB_TB039()
+        {
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"
+                                        UPDATE  [TK].dbo.PURTB
+                                        SET TB039='y'
+                                        WHERE  REPLACE(TB001+TB002+TB003,' ','') IN 
+                                        (
+                                        SELECT REPLACE(TB001+TB002+TB003,' ','')
+                                        FROM [TK].dbo.PURTB,[TK].dbo.PURTA
+                                        WHERE TA001=TB001 AND TA002=TB002
+                                        AND TA007 IN ('N')
+                                        AND TB009=0
+                                        AND TB039 NOT IN ('y')
+
+                                        )
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+
+                    //command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;                    
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
+        //當請購單的需求日，已過期1個月，請購數量=0，手動結案
+        public void UPDATE_PURTA_PURTB_TB039_TB009()
+        {
+            DateTime Lastmonths = DateTime.Now.AddMonths(-1);
+            string PUR_DATES = Lastmonths.ToString("yyyyMMdd");
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"
+                                        UPDATE  [TK].dbo.PURTB
+                                        SET TB039='y',TB009=0
+                                        WHERE  REPLACE(TB001+TB002+TB003,' ','') IN 
+                                        (
+                                        SELECT REPLACE(TB001+TB002+TB003,' ','')
+                                        FROM  [TK].dbo.PURTB,[TK].dbo.PURTA
+                                        WHERE TA001=TB001 AND TA002=TB002
+                                        AND TA007 IN ('N')
+                                        AND TB011<='{0}'
+                                        AND TB009>0
+
+                                        )
+                                        ", PUR_DATES);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+
+                    //command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;                    
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
 
         #endregion
 
@@ -57476,6 +57613,16 @@ namespace TKSCHEDULEUOF
             }
 
         }
+        private void button100_Click(object sender, EventArgs e)
+        {
+            //當請購單的數量=0，手動結案
+            UPDATE_PURTA_PURTB_TB039();
+            //當請購單的需求日，已過期1個月，請購數量=0，手動結案
+            UPDATE_PURTA_PURTB_TB039_TB009();
+
+            MessageBox.Show("OK");
+        }
+
         #endregion
 
 
