@@ -336,10 +336,10 @@ namespace TKSCHEDULEUOF
             //ASTI02.資產資料建立作業
             try
             {
-
+                ADDUOFASTMBASTMC();
             }
             catch { }
-            ADDUOFASTMBASTMC();
+           
 
             ////ERP報價單
             //try
