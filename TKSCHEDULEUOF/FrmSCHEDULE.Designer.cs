@@ -137,10 +137,11 @@
             this.button73 = new System.Windows.Forms.Button();
             this.button72 = new System.Windows.Forms.Button();
             this.button68 = new System.Windows.Forms.Button();
+            this.button100 = new System.Windows.Forms.Button();
+            this.button101 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button100 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1097,7 +1098,8 @@
             this.tableLayoutPanel3.Controls.Add(this.button73, 1, 4);
             this.tableLayoutPanel3.Controls.Add(this.button72, 1, 3);
             this.tableLayoutPanel3.Controls.Add(this.button68, 0, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button100, 1, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button100, 1, 2);
+            this.tableLayoutPanel3.Controls.Add(this.button101, 1, 8);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1479,6 +1481,28 @@
             this.button68.UseVisualStyleBackColor = true;
             this.button68.Click += new System.EventHandler(this.button68_Click);
             // 
+            // button100
+            // 
+            this.button100.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button100.Location = new System.Drawing.Point(163, 83);
+            this.button100.Name = "button100";
+            this.button100.Size = new System.Drawing.Size(154, 34);
+            this.button100.TabIndex = 96;
+            this.button100.Text = "請購單已過期需求日，數量=0，手動結案";
+            this.button100.UseVisualStyleBackColor = true;
+            this.button100.Click += new System.EventHandler(this.button100_Click);
+            // 
+            // button101
+            // 
+            this.button101.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button101.Location = new System.Drawing.Point(163, 323);
+            this.button101.Name = "button101";
+            this.button101.Size = new System.Drawing.Size(154, 34);
+            this.button101.TabIndex = 97;
+            this.button101.Text = "ERP-PURTC採購單簽核";
+            this.button101.UseVisualStyleBackColor = true;
+            this.button101.Click += new System.EventHandler(this.button101_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1490,17 +1514,6 @@
             // timer3
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
-            // 
-            // button100
-            // 
-            this.button100.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button100.Location = new System.Drawing.Point(163, 323);
-            this.button100.Name = "button100";
-            this.button100.Size = new System.Drawing.Size(154, 34);
-            this.button100.TabIndex = 96;
-            this.button100.Text = "請購單已過期需求日，數量=0，手動結案";
-            this.button100.UseVisualStyleBackColor = true;
-            this.button100.Click += new System.EventHandler(this.button100_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1638,5 +1651,6 @@
         private System.Windows.Forms.Button button98;
         private System.Windows.Forms.Button button99;
         private System.Windows.Forms.Button button100;
+        private System.Windows.Forms.Button button101;
     }
 }
