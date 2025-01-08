@@ -118,6 +118,8 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
+            //每天執行1次
+
             label2.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
 
             string RUNTIME = DateTime.Now.ToString("HHmm");
@@ -157,7 +159,8 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
-            
+            //每天鐘執行1次
+
             try
             {
                 
@@ -481,8 +484,12 @@ namespace TKSCHEDULEUOF
             string HHmm = "0801";
 
             if (RUNTIME.Equals(HHmm))
-            {               
-
+            {
+                try
+                {
+                   
+                }
+                catch { }
                 try
                 {
                     //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
@@ -57182,6 +57189,143 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_UOF_NOT_APPROVED_PURTC_PURTE()
+        {
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+
+            queryString.AppendFormat(@"   
+                                       
+                                        ---採購單檔
+                                        WITH TEMP AS (
+                                            SELECT * 
+	                                        FROM OPENQUERY
+		                                        (
+		                                        [192.168.1.223], 
+		                                        '
+		                                        SELECT 
+				                                        FORM_NAME,
+				                                        DOC_NBR,
+				                                        CURRENT_DOC.value(''(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]'', ''NVARCHAR(100)'') AS TC001,
+                                                        CURRENT_DOC.value(''(/ Form / FormFieldValue / FieldItem[@fieldId = ""TC002""] / @fieldValue)[1]'', ''NVARCHAR(100)'') AS TC002,
+                                                        TASK_ID,
+                                                        TASK_STATUS,
+                                                        TASK_RESULT
+
+                                                    FROM UOF.dbo.TB_WKF_TASK
+                                                    LEFT JOIN UOF.dbo.TB_WKF_FORM_VERSION ON TB_WKF_FORM_VERSION.FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                                    LEFT JOIN UOF.dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                                    WHERE FORM_NAME = ''PUR40.採購單''
+                                                        AND TASK_RESULT  IN(''2'')
+
+                                                    '
+                                                )
+
+                                            )
+
+
+                                        UPDATE[TK].dbo.PURTC
+                                        SET TC014 = 'V'
+                                        WHERE TC014 = 'N'
+                                        AND REPLACE(PURTC.TC001 + PURTC.TC002, ' ', '') IN
+                                            (
+                                                SELECT REPLACE(PURTC.TC001 + PURTC.TC002, ' ', '')    
+                                                FROM[TK].dbo.PURTC, TEMP    
+                                                WHERE PURTC.TC014 = 'N'    
+                                                AND REPLACE(PURTC.TC001 + PURTC.TC002, ' ', '') = REPLACE(TEMP.TC001 + TEMP.TC002, ' ', '') COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                            );
+
+                                       --採購變更單頭資料檔
+                                        WITH TEMP AS(
+                                            SELECT *
+                                                FROM OPENQUERY
+                                                    (
+
+                                                    [192.168.1.223],
+                                                    '
+
+                                                    SELECT
+
+                                                            FORM_NAME,
+                                                            DOC_NBR,
+                                                            CURRENT_DOC.value(''(/ Form / FormFieldValue / FieldItem[@fieldId = ""TE001""] / @fieldValue)[1]'', ''NVARCHAR(100)'') AS TE001,
+                                                            CURRENT_DOC.value(''(/ Form / FormFieldValue / FieldItem[@fieldId = ""TE002""] / @fieldValue)[1]'', ''NVARCHAR(100)'') AS TE002,
+                                                            TASK_ID,
+                                                            TASK_STATUS,
+                                                            TASK_RESULT
+                                                        FROM UOF.dbo.TB_WKF_TASK
+                                                        LEFT JOIN UOF.dbo.TB_WKF_FORM_VERSION ON TB_WKF_FORM_VERSION.FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                                        LEFT JOIN UOF.dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                                        WHERE FORM_NAME = ''PUR50.採購變更單''
+                                                            AND TASK_RESULT  IN(''2'')
+
+                                                        '
+                                                    )
+
+                                            )
+
+                                        UPDATE[TK].dbo.PURTE
+                                        SET TE017 = 'V'
+                                        WHERE TE017 = 'N'
+                                        AND REPLACE(PURTE.TE001 + PURTE.TE002, ' ', '') IN
+                                            (
+                                                SELECT REPLACE(PURTE.TE001 + PURTE.TE002, ' ', '')    
+                                                FROM[TK].dbo.PURTE, TEMP    
+                                                WHERE PURTE.TE017 = 'N'    
+                                                AND REPLACE(PURTE.TE001 + PURTE.TE002, ' ', '') = REPLACE(TEMP.TE001 + TEMP.TE002, ' ', '') COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                            )
+
+
+
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    //command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+                    //command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
+                    ////command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = MODIFIER;
+                    //command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
 
         #endregion
 
@@ -57819,6 +57963,14 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.PURTCPURTD.EndFormTrigger
 
             UPDATE_PURTC_PURTD();
+            MessageBox.Show("OK");
+        }
+        private void button102_Click(object sender, EventArgs e)
+        {
+            //UOF-採購及變更單作廢
+            //依UOF作廢的採購及變更單，修改ERP的採購及變更單作廢
+            UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
+            MessageBox.Show("OK");
         }
 
         #endregion

@@ -142,6 +142,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.button102 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1100,6 +1101,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button68, 0, 3);
             this.tableLayoutPanel3.Controls.Add(this.button100, 1, 2);
             this.tableLayoutPanel3.Controls.Add(this.button101, 1, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button102, 1, 9);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1515,6 +1517,17 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
+            // button102
+            // 
+            this.button102.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button102.Location = new System.Drawing.Point(163, 363);
+            this.button102.Name = "button102";
+            this.button102.Size = new System.Drawing.Size(154, 34);
+            this.button102.TabIndex = 98;
+            this.button102.Text = "UOF-採購及變更單作廢";
+            this.button102.UseVisualStyleBackColor = true;
+            this.button102.Click += new System.EventHandler(this.button102_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1652,5 +1665,6 @@
         private System.Windows.Forms.Button button99;
         private System.Windows.Forms.Button button100;
         private System.Windows.Forms.Button button101;
+        private System.Windows.Forms.Button button102;
     }
 }
