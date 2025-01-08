@@ -57298,7 +57298,16 @@ namespace TKSCHEDULEUOF
                                                 AND REPLACE(PURTE.TE001 + PURTE.TE002, ' ', '') = REPLACE(TEMP.TE001 + TEMP.TE002, ' ', '') COLLATE Chinese_Taiwan_Stroke_CI_AS
                                             )
 
-
+                                        --主採購已作廢，採購變更也要作廢
+                                        UPDATE [TK].dbo.PURTE
+                                        SET  TE017='V' 
+                                        WHERE TE017='N' 
+                                        AND TE001+TE002 IN 
+                                        (
+                                        SELECT TC001+TC002
+                                        FROM [TK].dbo.PURTC
+                                        WHERE TC014='V'
+)
 
                                         ");
 
