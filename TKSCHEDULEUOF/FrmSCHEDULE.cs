@@ -487,7 +487,14 @@ namespace TKSCHEDULEUOF
             {
                 try
                 {
-                   
+                  
+                }
+                catch { }
+                try
+                {
+                    //UOF-採購及變更單作廢
+                    //依UOF作廢的採購及變更單，修改ERP的採購及變更單作廢
+                    UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
                 }
                 catch { }
                 try
