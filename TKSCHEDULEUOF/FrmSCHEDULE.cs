@@ -153,7 +153,7 @@ namespace TKSCHEDULEUOF
             }
         }
         /// <summary>
-        /// 每分鐘執行1次，並每分鐘執行1次
+        /// 每分鐘檢查1次，並每分鐘執行1次
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -57367,7 +57367,7 @@ namespace TKSCHEDULEUOF
 
                     DOC_NBR = DR["DOC_NBR"].ToString().Trim();
                     ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
                     FORMID = DR["DOC_NBR"].ToString().Trim();
 
                     UPDATE_PURTE_PORTF_EXE(TE001, TE002, TE003, FORMID, MODIFIER);
@@ -57718,6 +57718,479 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_PURTL_PURTM_PURTN()
+        {
+
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
+
+            string FORMID;
+            string TL001;
+            string TL002;
+           
+
+            string ISCLOSE;
+
+            DataTable DT = FIND_UOF_PURTL_PORTM_PURTN();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TL001 = DR["TL001"].ToString().Trim();
+                    TL002 = DR["TL002"].ToString().Trim();
+                 
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    UPDATE_PURTL_PORTM_PURTN_EXE(TL001, TL002, FORMID, MODIFIER);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_PURTL_PORTM_PURTN()
+        {
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"                   
+                    
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TL001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TL001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TL002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TL002,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE[FORM_NAME] = 'PUR30..採購核價單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                     SELECT TEMP.*,
+                                    (
+                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+
+                                    WHERE 1=1
+                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+	                                    AND[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                        ORDER BY FINISH_TIME DESC
+                                    ) AS NOWACCOUNT
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TL001+TL002,',','')  IN
+                                    (
+                                        SELECT REPLACE(TL001+TL002,' ' ,'')
+                                        FROM[192.168.1.105].[TK].dbo.PURTL
+                                    WHERE TL006 IN('N')
+                                    )                 
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_PURTL_PORTM_PURTN_EXE(string TL001, string TL002, string FORMID, string MODIFIER)
+        {
+    
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+
+            queryString.AppendFormat(@"  
+
+                                    UPDATE [TK].dbo.PURTL
+                                    SET TL006='Y',UDF02=@UDF02
+                                    WHERE TL001=@TL001 AND TL002=@TL002
+
+                                    UPDATE [TK].dbo.PURTM
+                                    SET TM011='Y'
+                                    WHERE TM001=@TL001 AND TM002=@TL002
+
+                                    INSERT INTO  [TK].[dbo].[PURMB]
+                                    (
+
+                                    [COMPANY]
+                                    ,[CREATOR]
+                                    ,[USR_GROUP]
+                                    ,[CREATE_DATE]
+                                    ,[MODIFIER]
+                                    ,[MODI_DATE]
+                                    ,[FLAG]
+                                    ,[CREATE_TIME]
+                                    ,[MODI_TIME]
+                                    ,[TRANS_TYPE]
+                                    ,[TRANS_NAME]
+                                    ,[sync_date]
+                                    ,[sync_time]
+                                    ,[sync_mark]
+                                    ,[sync_count]
+                                    ,[DataUser]
+                                    ,[DataGroup]
+                                    ,[MB001]
+                                    ,[MB002]
+                                    ,[MB003]
+                                    ,[MB004]
+                                    ,[MB005]
+                                    ,[MB007]
+                                    ,[MB008]
+                                    ,[MB009]
+                                    ,[MB010]
+                                    ,[MB011]
+                                    ,[MB012]
+                                    ,[MB013]
+                                    ,[MB014]
+                                    ,[MB015]
+                                    ,[MB016]
+                                    ,[MB017]
+                                    ,[MB018]
+                                    ,[MB019]
+                                    ,[MB020]
+                                    ,[MB021]
+                                    ,[MB022]
+                                    ,[MB023]
+                                    ,[MB024]
+                                    ,[MB025]
+                                    ,[MB026]
+                                    ,[MB027]
+                                    ,[MB028]
+                                    ,[MB029]
+                                    ,[MB030]
+                                    ,[MB031]
+                                    ,[MB032]
+                                    ,[MB033]
+                                    ,[MB034]
+                                    ,[MB035]
+                                    ,[MB036]
+                                    ,[MB037]
+                                    ,[MB038]
+                                    ,[MB039]
+                                    ,[MB040]
+                                    ,[UDF01]
+                                    ,[UDF02]
+                                    ,[UDF03]
+                                    ,[UDF04]
+                                    ,[UDF05]
+                                    ,[UDF06]
+                                    ,[UDF07]
+                                    ,[UDF08]
+                                    ,[UDF09]
+                                    ,[UDF10]
+                                    )
+
+                                    SELECT 
+                                    PURTL.[COMPANY]  [COMPANY]
+                                    ,PURTL.[CREATOR]   [CREATOR]
+                                    ,PURTL.[USR_GROUP]   [USR_GROUP]
+                                    ,PURTL.[CREATE_DATE]   [CREATE_DATE]
+                                    ,PURTL.[MODIFIER]   [MODIFIER]
+                                    ,PURTL.[MODI_DATE]   [MODI_DATE]
+                                    ,PURTL.[FLAG]   [FLAG]
+                                    ,PURTL.[CREATE_TIME]   [CREATE_TIME]
+                                    ,PURTL.[MODI_TIME]   [MODI_TIME]
+                                    ,'P004'   [TRANS_TYPE]
+                                    ,'PURI03'   [TRANS_NAME]
+                                    ,PURTL.[sync_date]   [sync_date]
+                                    ,PURTL.[sync_time]   [sync_time]
+                                    ,PURTL.[sync_mark]   [sync_mark]
+                                    ,PURTL.[sync_count]   [sync_count]
+                                    ,PURTL.[DataUser]   [DataUser]
+                                    ,PURTL.[DataGroup]   [DataGroup]
+                                    ,TM004 [MB001]
+                                    ,TL004 [MB002]
+                                    ,TL005 [MB003]
+                                    ,TM009 [MB004]
+                                    ,'' [MB005]
+                                    ,TM007 [MB007]
+                                    ,TL003 [MB008]
+                                    ,'' [MB009]
+                                    ,TM008 [MB010]
+                                    ,TM010 [MB011]
+                                    ,TM012+TL001+TL002 [MB012]
+                                    ,TL008 [MB013]
+                                    ,TM014 [MB014]
+                                    ,TM015 [MB015]
+                                    ,TM016 [MB016]
+                                    ,'' [MB017]
+                                    ,'' [MB018]
+                                    ,'' [MB019]
+                                    ,'' [MB020]
+                                    ,'' [MB021]
+                                    ,'1' [MB022]
+                                    ,0 [MB023]
+                                    ,0 [MB024]
+                                    ,'' [MB025]
+                                    ,0[MB026]
+                                    ,'' [MB027]
+                                    ,'' [MB028]
+                                    ,'' [MB029]
+                                    ,0 [MB030]
+                                    ,0 [MB031]
+                                    ,0 [MB032]
+                                    ,0 [MB033]
+                                    ,0 [MB034]
+                                    ,'' [MB035]
+                                    ,'' [MB036]
+                                    ,'' [MB037]
+                                    ,'' [MB038]
+                                    ,'' [MB039]
+                                    ,'' [MB040]
+                                    ,'' [UDF01]
+                                    ,'' [UDF02]
+                                    ,'' [UDF03]
+                                    ,'' [UDF04]
+                                    ,'' [UDF05]
+                                    ,0 [UDF06]
+                                    ,0 [UDF07]
+                                    ,0 [UDF08]
+                                    ,0 [UDF09]
+                                    ,0 [UDF10]
+                                    FROM [TK].dbo.PURMA,[TK].dbo.PURTL,[TK].dbo.PURTM
+                                    WHERE 1=1
+                                    AND MA001=TL004
+                                    AND TL001=TM001 AND TL002=TM002                                      
+                                    AND LTRIM(RTRIM(TM004))+LTRIM(RTRIM(TL004))+LTRIM(RTRIM(TL005))+LTRIM(RTRIM(TM009))+LTRIM(RTRIM(TM014)) NOT IN (SELECT LTRIM(RTRIM(MB001))+LTRIM(RTRIM(MB002))+LTRIM(RTRIM(MB003))+LTRIM(RTRIM(MB004))+LTRIM(RTRIM(MB014)) FROM [TK].dbo.PURMB)
+                                        
+                                    AND TL001=@TL001 AND TL002=@TL002
+                                   
+                                    INSERT INTO [TK].[dbo].[PURMC]
+                                    (
+                                    [COMPANY]
+                                    ,[CREATOR]
+                                    ,[USR_GROUP]
+                                    ,[CREATE_DATE]
+                                    ,[MODIFIER]
+                                    ,[MODI_DATE]
+                                    ,[FLAG]
+                                    ,[CREATE_TIME]
+                                    ,[MODI_TIME]
+                                    ,[TRANS_TYPE]
+                                    ,[TRANS_NAME]
+                                    ,[sync_date]
+                                    ,[sync_time]
+                                    ,[sync_mark]
+                                    ,[sync_count]
+                                    ,[DataUser]
+                                    ,[DataGroup]
+                                    ,[MC001]
+                                    ,[MC002]
+                                    ,[MC003]
+                                    ,[MC004]
+                                    ,[MC005]
+                                    ,[MC006]
+                                    ,[MC007]
+                                    ,[MC008]
+                                    ,[MC009]
+                                    ,[MC010]
+                                    ,[MC011]
+                                    ,[MC012]
+                                    ,[MC013]
+                                    ,[MC014]
+                                    ,[MC015]
+                                    ,[MC016]
+                                    ,[MC017]
+                                    ,[MC018]
+                                    ,[MC019]
+                                    ,[MC020]
+                                    ,[MC021]
+                                    ,[MC022]
+                                    ,[MC023]
+                                    ,[MC024]
+                                    ,[MC025]
+                                    ,[MC026]
+                                    ,[MC027]
+                                    ,[MC028]
+                                    ,[MC029]
+                                    ,[MC030]
+                                    ,[UDF01]
+                                    ,[UDF02]
+                                    ,[UDF03]
+                                    ,[UDF04]
+                                    ,[UDF05]
+                                    ,[UDF06]
+                                    ,[UDF07]
+                                    ,[UDF08]
+                                    ,[UDF09]
+                                    ,[UDF10]
+                                    )
+
+
+                                    SELECT
+                                    PURTL.[COMPANY]  [COMPANY]
+                                    ,PURTL.[CREATOR]   [CREATOR]
+                                    ,PURTL.[USR_GROUP]   [USR_GROUP]
+                                    ,PURTL.[CREATE_DATE]   [CREATE_DATE]
+                                    ,PURTL.[MODIFIER]   [MODIFIER]
+                                    ,PURTL.[MODI_DATE]   [MODI_DATE]
+                                    ,PURTL.[FLAG]   [FLAG]
+                                    ,PURTL.[CREATE_TIME]   [CREATE_TIME]
+                                    ,PURTL.[MODI_TIME]   [MODI_TIME]
+                                    ,'P004'   [TRANS_TYPE]
+                                    ,'PURI03'   [TRANS_NAME]
+                                    ,PURTL.[sync_date]   [sync_date]
+                                    ,PURTL.[sync_time]   [sync_time]
+                                    ,PURTL.[sync_mark]   [sync_mark]
+                                    ,PURTL.[sync_count]   [sync_count]
+                                    ,PURTL.[DataUser]   [DataUser]
+                                    ,PURTL.[DataGroup]   [DataGroup]
+                                    ,TM004 [MC001]
+                                    ,TL004 [MC002]
+                                    ,TL005 [MC003]
+                                    ,TM009 [MC004]
+                                    ,TN007 [MC005]
+                                    ,TN008 [MC006]
+                                    ,TM012+TL001+TL002 [MC007]
+                                    ,TM014 [MC008]
+                                    ,'' [MC009]
+                                    ,'' [MC010]
+                                    ,'' [MC011]
+                                    ,'' [MC012]
+                                    ,'' [MC013]
+                                    ,'1' [MC014]
+                                    ,'' [MC015]
+                                    ,0 [MC016]
+                                    ,'' [MC017]
+                                    ,'' [MC018]
+                                    ,'' [MC019]
+                                    ,0 [MC020]
+                                    ,0 [MC021]
+                                    ,0 [MC022]
+                                    ,0 [MC023]
+                                    ,0 [MC024]
+                                    ,'' [MC025]
+                                    ,'' [MC026]
+                                    ,'' [MC027]
+                                    ,'' [MC028]
+                                    ,'' [MC029]
+                                    ,'' [MC030]
+                                    ,'' [UDF01]
+                                    ,'' [UDF02]
+                                    ,'' [UDF03]
+                                    ,'' [UDF04]
+                                    ,'' [UDF05]
+                                    ,0 [UDF06]
+                                    ,0 [UDF07]
+                                    ,0 [UDF08]
+                                    ,0 [UDF09]
+                                    ,0 [UDF10]
+                                    FROM [TK].dbo.PURMA,[TK].dbo.PURTL,[TK].dbo.PURTM
+                                    LEFT JOIN [TK].dbo.PURTN ON TM001=TN001 AND TM002=TN002 AND TM003=TN003
+                                    WHERE 1=1
+                                    AND MA001=TL004
+                                    AND TL001=TM001 AND TL002=TM002
+
+                                    AND LTRIM(RTRIM(TM004))+LTRIM(RTRIM(TL004))+LTRIM(RTRIM(TL005))+LTRIM(RTRIM(TM009))+LTRIM(RTRIM(CONVERT(NVARCHAR,TN007)))+LTRIM(RTRIM(TM014)) NOT IN (SELECT LTRIM(RTRIM(MC001))+LTRIM(RTRIM(MC002))+LTRIM(RTRIM(MC003))+LTRIM(RTRIM(MC004))+LTRIM(RTRIM(CONVERT(NVARCHAR,MC005)))+LTRIM(RTRIM(MC008)) FROM [TK].dbo.PURMC)
+                                        
+                                    AND TL001=@TL001 AND TL002=@TL002
+                                      
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TL001", SqlDbType.NVarChar).Value = TL001;
+                    command.Parameters.Add("@TL002", SqlDbType.NVarChar).Value = TL002;
+
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
 
         #endregion
 
@@ -58372,6 +58845,14 @@ namespace TKSCHEDULEUOF
             UPDATE_PURTE_PURTF();
             MessageBox.Show("OK");
 
+        }
+        private void button104_Click(object sender, EventArgs e)
+        {
+            //ERP-PURTLPURTMPURTN採購核價單
+            //TKUOF.TRIGGER.PURTLPURTMPURTN.EndFormTrigger
+
+            UPDATE_PURTL_PURTM_PURTN();
+            MessageBox.Show("OK");
         }
 
         #endregion
