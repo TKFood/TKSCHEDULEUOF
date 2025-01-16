@@ -58192,6 +58192,239 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        //PURA1.客供進貨-進貨品質驗收單
+        //ERP-QCINVTAINVTB-QC客供單進貨檢驗
+        //TKUOF.TRIGGER.QCINVTAINVTB.EndFormTrigger
+        public void UPDATE_INVTB_QC_CHECKS()
+        {
+            string DOC_NBR = "";
+            string ACCOUNT = "";
+            string MODIFIER = null;
+
+            string FORMID;
+            string TA001;
+            string TA002;
+            string TB003;
+            string TB007;
+            string CHECK;
+            string QCMAN;
+            string UDF01;
+
+            DataTable DT = FIND_UOF_INVTB_QC_CHECKS();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                foreach (DataRow DR in DT.Rows)
+                {
+                    TA001 = DR["TA001"].ToString().Trim();
+                    TA002 = DR["TA002"].ToString().Trim();
+                    TB003 = DR["TB003"].ToString().Trim();
+                    TB007 = DR["TH015"].ToString().Trim();
+                    CHECK = DR["CHECKS"].ToString().Trim();
+                    QCMAN = DR["NAME"].ToString().Trim();
+
+                    UDF01 = CHECK + ',' + QCMAN + '-' + DOC_NBR;
+
+                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
+                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
+                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"].ToString().Trim();
+
+                    UPDATE_INVTB_QC_CHECKS_EXE(TA001, TA002, TB003, TB007, UDF01);
+                }
+            }
+        }
+
+        public DataTable FIND_UOF_INVTB_QC_CHECKS()
+        {
+
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"    
+                                    --20250115 ERP-QCINVTAINVTB-QC客供單進貨檢驗
+
+                                    WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT,
+                                        X.TB003,
+                                        X.TH015,
+                                        X.CHECKS
+                                        FROM[UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+
+                                        OUTER APPLY(
+                                        SELECT
+                                            N_Row.Row.value('(Cell[@fieldId=""TB003""]/@fieldValue)[1]', 'VARCHAR(50)') AS TB003,
+                                            N_Row.Row.value('(Cell[@fieldId=""TH015""]/@fieldValue)[1]', 'VARCHAR(50)') AS TH015,
+                                            N_Row.Row.value('(Cell[@fieldId=""CHECK""]/@fieldValue)[1]', 'VARCHAR(50)') AS CHECKS
+                                        FROM CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""INVTB""]/DataGrid/Row') AS N_Row(Row)
+                                        ) AS X
+                                        WHERE[FORM_NAME] = 'PURA1.客供進貨-進貨品質驗收單'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
+
+                                    )
+                                   SELECT TEMP.*
+                                    ,(
+                                        --找出第2關簽核的品保人員
+                                        SELECT ACCOUNT
+	                                    FROM (
+		                                    SELECT [TB_EB_USER].ACCOUNT, 
+			                                       ROW_NUMBER() OVER (ORDER BY FINISH_TIME) AS RowNum
+		                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+		                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+			                                    ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+		                                    WHERE ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER, '') <> ''
+		                                      AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+	                                    ) AS RankedData
+	                                    WHERE RowNum = 2
+                                    ) AS NAME
+                                    ,(
+                                        SELECT NAME
+	                                    FROM (
+		                                    SELECT [TB_EB_USER].NAME, 
+			                                       ROW_NUMBER() OVER (ORDER BY FINISH_TIME) AS RowNum
+		                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+		                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+			                                    ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+		                                    WHERE ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER, '') <> ''
+		                                      AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+	                                    ) AS RankedData
+	                                    WHERE RowNum = 2
+                                    ) AS NAME
+                                    FROM TEMP
+                                    WHERE 1=1
+                                    AND REPLACE(TA001+TA002,',','')  IN
+                                    (
+                                        SELECT REPLACE(TA001+TA002,' ' ,'')
+                                        FROM[192.168.1.105].[TK].dbo.INVTA	
+	                                    WHERE TA001='A11A'
+	                                    AND TA006 IN ('N')
+                                    )  
+                                    ORDER BY  [DOC_NBR]  
+              
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                // 設置查詢的超時時間，以秒為單位
+                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void UPDATE_INVTB_QC_CHECKS_EXE(string TA001, string TA002, string TB003, string TB007, string UDF01)
+        {
+
+
+            string COMPANY = "TK";
+            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+            StringBuilder queryString = new StringBuilder();
+
+            queryString.AppendFormat(@"  
+                                        UPDATE[TK].dbo.INVTB
+                                        SET TB007 =@TB007,UDF01 = @UDF01
+                                        WHERE TB001 = @TA001 AND TB002 = @TA002 AND TB003 = @TB003
+                                        ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                    command.Parameters.Add("@TB003", SqlDbType.NVarChar).Value = TB003;
+                    command.Parameters.Add("@TB007", SqlDbType.NVarChar).Value = TB007;
+                    command.Parameters.Add("@UDF01", SqlDbType.NVarChar).Value = UDF01;
+
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -58852,6 +59085,25 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.PURTLPURTMPURTN.EndFormTrigger
 
             UPDATE_PURTL_PURTM_PURTN();
+            MessageBox.Show("OK");
+        }
+
+        private void button105_Click(object sender, EventArgs e)
+        {
+            //PURA1.客供進貨-進貨品質驗收單
+            //ERP-QCINVTAINVTB-QC客供單進貨檢驗
+            //TKUOF.TRIGGER.QCINVTAINVTB.EndFormTrigger
+
+            UPDATE_INVTB_QC_CHECKS();
+            MessageBox.Show("OK");
+        }
+
+        private void button106_Click(object sender, EventArgs e)
+        {
+            //ERP-QCPURTGPURTH品保檢驗進貨單明細
+            //TKUOF.TRIGGER.QCPURTGPURTH.EndFormTrigger
+
+
             MessageBox.Show("OK");
         }
 
