@@ -175,34 +175,43 @@ namespace TKSCHEDULEUOF
                 NEWPUR_MOCTH_MOCTI();
             }
             catch { }
-           
+
 
             // 轉入1004.總務修繕單
+            // 存到 [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
             //ADD_UOFGAFIXSNEW();
             try
             {
                 ADD_UOFGAFIXSNEW();
             }
             catch { }
+
             // ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS(); 將ERP的品號匯入到TKMOC的生產說明中
+            // 存到  [TKMOC].[dbo].[REPORTMOCBOMPROCESS]
             try
             {
                 ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS();
             }
             catch { }
-            //ADD_TK_ZINVMBBAKING ERP烘培品號轉入簽核
+
+            //ADD_TK_ZINVMBBAKING ERP烘培品號轉入簽核表
+            //存到 [TK].[dbo].[ZINVMBBAKING]
             try
             {
                 ADD_TK_ZINVMBBAKING();
             }
             catch { }
+
             //ADD_TKPUR_PURVERSIONSNUMS 更新版費
+            //採購更新版費
             try
             {
                 ADD_TKPUR_PURVERSIONSNUMS();
             }
             catch { }
+
             //ADD_TKPUR_PURMODELSNUMS() 更新模具費
+            //採購更新模具費
             try
             {
                 ADD_TKPUR_PURMODELSNUMS();
@@ -210,6 +219,7 @@ namespace TKSCHEDULEUOF
             catch { }
 
             //UOF簽核後，產生活動代號到暫存的[TK].[dbo].[Z_POSSET]，再由[TK].[dbo].[Z_POSSET]去更新POS機資料
+            //UOF簽核後，POS活動就更新到各台POS機，用 鼎新 的ERP機制
             try
             {
                 NEW_POSET();
@@ -217,31 +227,42 @@ namespace TKSCHEDULEUOF
             catch { }
 
             //請購變更單，UOF核準後，自動判斷是否有採購單，如果有就產生採購變購單
+            //採購要自動依請購變更單來產生採購變購單
+            //但是前題要先有該請購單的採購，而且採購變購單一次只能新增1張，避免饜照先後順序更改
             try
             {
                 NEWPURTEPURTF_ERP();
             }
             catch { }
+
             //ERP客戶轉UOF表單-1001客戶基本資料表
+            //定時將ERP的新客戶資料，拋到UOF的「1001.客戶基本資料表」，產生客戶基本資料，含「信用額度」
             try
             {
                 ADD_UOF_COPMA_1001();
             }
             catch { }
+
             //轉入1006委外送驗申請單
+            //將資料存到 [TKQC].[dbo].[TBUOFQC1006]
             try
             {
                 NEWUOFQC1006();
             }
             catch { }
 
-            //更新銷貨代收貨款 
+            //更新銷貨代收貨款
+            //COPTG的TG113<>TG045+TG046就更新
             try
             {
                 UPDATE_TK_COPTGTG113();
             }
             catch { }
+
             //更新 工程品號基本資料檔
+            //更新BOMMI
+            //當MI001 =MB001 AND MI004<> MB004
+            //MI001=MB001 AND MI002<> MB002
             try
             {
                 UPDATE_TK_BOMMI();
@@ -249,6 +270,7 @@ namespace TKSCHEDULEUOF
             catch { }
 
             //官網訂單，依TC054 收貨部門，更改TC010=3大超商的總倉地址 、TC011=指定收貨的門市地址 
+            //更新COPTG，用收貨部門更新成3大超商的總倉地址、指定收貨的門市地址 
             try
             {
                 COPTC_TC010_TC011_UPDATE();
@@ -256,6 +278,7 @@ namespace TKSCHEDULEUOF
             catch { }
 
             //轉入  行銷廣告的活動成效記錄表
+            //用UOF表單「年節/產品活動或價格事宜」，產生活動記錄
             try
             {
                 ADD_TBPROMOTIONNFEE();
