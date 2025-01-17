@@ -286,13 +286,15 @@ namespace TKSCHEDULEUOF
             catch { }
 
             //轉入ERP的品到EBOM中
+            //存到 [TK].[dbo].[BOMMI]
             try
             {
                 NEW_BOMMI();
             }
             catch { }
 
-            //轉入EBOM中
+            //轉出工程EBOM表
+            //送到UOF「BOM11.EBOM表」的表單簽核          
             try
             {
                 NEW_BOMMJ_BOMMK();
@@ -300,14 +302,16 @@ namespace TKSCHEDULEUOF
             catch { }
 
 
-            //轉入BOM表
+            //轉出BOM表
+            //送到UOF「BOM02.BOM表」的表單簽核        
             try
             {
                 NEW_BOMMC_BOMMD();
             }
             catch { }
 
-            //轉入10.行企類表單 1002.產品設計申請
+            //轉入10.行企類表單 1002.產品設計申請 的資料
+            //存到 [TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002]
             try
             {
                 NEW_TKRESEARCH_TK_UOF_DESIGN_1002();
@@ -316,6 +320,7 @@ namespace TKSCHEDULEUOF
 
 
             //轉入13.研發類表單:1002.設計需求內容清單
+            //存到  [TKRESEARCH].[dbo].[TK_UOF_RESEARCH_1002]
             try
             {
                 NEW_TKRESEARCH_TK_UOF_RESEARCH_1002();
@@ -327,14 +332,15 @@ namespace TKSCHEDULEUOF
             //NEWBUYITEM();
 
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
-            try
-            {
-                //ADD_UOF_FORM_GRAFFIRS_1005();
-            }
-            catch { }
+            //try
+            //{
+            //    //ADD_UOF_FORM_GRAFFIRS_1005();
+            //}
+            //catch { }
 
 
-            //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
+            //把UOF的1005.雜項採購單 ，在核成後
+            //轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
             try
             {
                 ADD_TKGAFFAIRS_BUYITEMREPORTS();
@@ -343,30 +349,34 @@ namespace TKSCHEDULEUOF
 
 
 
-            //品保1002轉到1001
+            //品保 「1002.客訴異常處理單 」 轉到 「1001.客訴品質異常處理單」
+            //需要「1002.客訴異常處理單」是成立的，且要生產部門持續改善的項目S
             try
             {
                 ADD_TO_UOF_QC1001();
             }
             catch { }
 
+            ////停用
+            ////MOCI02.製令單 
+            ////將製令單，轉到UOF「MOCI02.製令單」做簽核
+            //try
+            //{
+            //    ADDUOFMOCTAMOCTB();
+            //}
+            //catch { }
 
-            //MOCI02.製令單 
-            try
-            {
-                ADDUOFMOCTAMOCTB();
-            }
-            catch { }
+            ////停用
+            ////ASTI02.資產資料建立作業
+            ////將ASTI02.資產資料建立作業 資料轉到UOF「ASTI02.資產資料建立作業」做簽核
+            ////
+            //try
+            //{
+            //    ADDUOFASTMBASTMC();
+            //}
+            //catch { }
 
-
-            //ASTI02.資產資料建立作業
-            try
-            {
-                ADDUOFASTMBASTMC();
-            }
-            catch { }
-           
-
+            ////停用
             ////ERP報價單
             //try
             //{
@@ -376,6 +386,7 @@ namespace TKSCHEDULEUOF
 
 
             //ERP請購單
+            //將ERP的 請購資料，轉到UOF「PUR10.請購單申請」做簽核
             try
             {
                 ADDTOUOFOURTAB();
@@ -385,7 +396,8 @@ namespace TKSCHEDULEUOF
             catch { }
 
 
-            //門市督導單
+            //1001.門店督導表 
+            //將UOF的「1001.門店督導表 」，到 [TKMK].[dbo].[TBSTORESCHECK]
             try
             {
                 ADDTKMKdboTBSTORESCHECK();
@@ -412,6 +424,7 @@ namespace TKSCHEDULEUOF
 
 
             //1002.客訴異常處理單
+            //存到[TKQC].[dbo].[TBUOFQC1002]
             try
             {
                 NEWTBUOFQC1002();
@@ -420,6 +433,7 @@ namespace TKSCHEDULEUOF
 
 
             //採購單
+            //轉到UOF「PUR40.採購單」做簽核
             try
             {
                 NEWPURTCPURTD();
@@ -428,6 +442,7 @@ namespace TKSCHEDULEUOF
 
 
             //採購變更單
+            //轉到UOF「PUR50.採購變更單 」做簽核
             try
             {
                 NEWPURTEPURTF();
@@ -436,22 +451,25 @@ namespace TKSCHEDULEUOF
 
 
             //採購核價單
+            //轉到UOF「PUR30..採購核價單 」做簽核
             try
             {
                 NEWPURTLPURTMPURTN();
             }
             catch { }
 
-
-            //轉入品保檢驗
-            try
-            {
-                ADDTKQCQCPURTH();
-            }
-            catch { }
+            //20250117 停用
+            ////轉入品保檢驗
+            ////轉到 [TKQC].[dbo].[QCPURTH] 做記錄
+            //try
+            //{
+            //    ADDTKQCQCPURTH();
+            //}
+            //catch { }
 
 
             //轉品保UOF驗收表單
+            //將進貨單轉到UOF「PURA0.進貨-進貨品質驗收單」做簽核
             try
             {
                 NEWPURTGPURTH();
@@ -460,6 +478,7 @@ namespace TKSCHEDULEUOF
 
 
             //轉BOM表變更單
+            //將BOM表轉到UOF「BOM10.BOM變更單」做簽核
             try
             {
                 NEWBOMTABOMTBBOMTC();
@@ -468,6 +487,7 @@ namespace TKSCHEDULEUOF
 
 
             //轉入品保的進貨檢驗單
+            //存到[TKQC].[dbo].[UOFQCPURTGPURTH]做記錄
             try
             {
                 ADDTKQCUOFQCPURTGPURTH();
@@ -476,6 +496,7 @@ namespace TKSCHEDULEUOF
 
 
             //A11A客供入料單同進貨單跑進貨驗收流程
+            //轉到UOF「PURA1.客供進貨-進貨品質驗收單」做簽核
             try
             {
                 ADDUOFQCINVTAINVTB();
