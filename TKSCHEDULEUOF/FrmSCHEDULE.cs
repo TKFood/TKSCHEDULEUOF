@@ -124,7 +124,7 @@ namespace TKSCHEDULEUOF
             label2.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
 
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0900";
+            string HHmm = "0830";
 
             // DayOfWeek 0 開始 (表示星期日) 到 6 (表示星期六)
             string RUNDATE = DateTime.Now.DayOfWeek.ToString("d");//tmp2 = 4 
@@ -532,7 +532,17 @@ namespace TKSCHEDULEUOF
             {
                 try
                 {
-                  
+
+                }
+                catch { }
+                try
+                {
+
+                    //轉入資料來客-X:\kldatabase.db
+                    //要指定來客記錄的db的磁碟-X:\kldatabase.db
+                    //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
+
+                    ADDTKMKt_visitors();
                 }
                 catch { }
                 try
