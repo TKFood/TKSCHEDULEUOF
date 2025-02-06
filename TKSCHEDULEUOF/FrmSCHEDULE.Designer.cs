@@ -144,10 +144,11 @@
             this.button96 = new System.Windows.Forms.Button();
             this.button105 = new System.Windows.Forms.Button();
             this.button106 = new System.Windows.Forms.Button();
+            this.button107 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button107 = new System.Windows.Forms.Button();
+            this.button108 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1064,54 +1065,56 @@
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.BackColor = System.Drawing.Color.LightGreen;
-            this.tableLayoutPanel3.ColumnCount = 7;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 173F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 147F));
+            this.tableLayoutPanel3.ColumnCount = 8;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
-            this.tableLayoutPanel3.Controls.Add(this.button77, 3, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button78, 3, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button80, 3, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button81, 3, 4);
-            this.tableLayoutPanel3.Controls.Add(this.button82, 3, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button83, 3, 6);
-            this.tableLayoutPanel3.Controls.Add(this.button84, 3, 7);
-            this.tableLayoutPanel3.Controls.Add(this.button85, 3, 8);
-            this.tableLayoutPanel3.Controls.Add(this.button64, 4, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button75, 4, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button74, 4, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button88, 4, 7);
-            this.tableLayoutPanel3.Controls.Add(this.button87, 4, 6);
-            this.tableLayoutPanel3.Controls.Add(this.button86, 4, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button89, 2, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button90, 2, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button91, 2, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button92, 2, 7);
-            this.tableLayoutPanel3.Controls.Add(this.button93, 2, 4);
-            this.tableLayoutPanel3.Controls.Add(this.button94, 2, 8);
-            this.tableLayoutPanel3.Controls.Add(this.button65, 0, 6);
-            this.tableLayoutPanel3.Controls.Add(this.button63, 0, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button95, 0, 8);
-            this.tableLayoutPanel3.Controls.Add(this.button97, 1, 5);
-            this.tableLayoutPanel3.Controls.Add(this.button98, 1, 6);
-            this.tableLayoutPanel3.Controls.Add(this.button69, 1, 7);
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
             this.tableLayoutPanel3.Controls.Add(this.button67, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.button99, 0, 1);
-            this.tableLayoutPanel3.Controls.Add(this.button73, 1, 4);
-            this.tableLayoutPanel3.Controls.Add(this.button72, 1, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button68, 0, 3);
-            this.tableLayoutPanel3.Controls.Add(this.button100, 1, 2);
-            this.tableLayoutPanel3.Controls.Add(this.button101, 1, 8);
-            this.tableLayoutPanel3.Controls.Add(this.button102, 1, 13);
-            this.tableLayoutPanel3.Controls.Add(this.button103, 1, 9);
-            this.tableLayoutPanel3.Controls.Add(this.button104, 1, 10);
-            this.tableLayoutPanel3.Controls.Add(this.button96, 5, 9);
-            this.tableLayoutPanel3.Controls.Add(this.button105, 5, 11);
-            this.tableLayoutPanel3.Controls.Add(this.button106, 5, 12);
-            this.tableLayoutPanel3.Controls.Add(this.button107, 0, 11);
+            this.tableLayoutPanel3.Controls.Add(this.button63, 0, 10);
+            this.tableLayoutPanel3.Controls.Add(this.button94, 0, 9);
+            this.tableLayoutPanel3.Controls.Add(this.button92, 0, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button91, 0, 7);
+            this.tableLayoutPanel3.Controls.Add(this.button93, 0, 6);
+            this.tableLayoutPanel3.Controls.Add(this.button90, 0, 5);
+            this.tableLayoutPanel3.Controls.Add(this.button68, 0, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button89, 0, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button97, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button98, 1, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button69, 1, 5);
+            this.tableLayoutPanel3.Controls.Add(this.button101, 1, 6);
+            this.tableLayoutPanel3.Controls.Add(this.button103, 1, 7);
+            this.tableLayoutPanel3.Controls.Add(this.button104, 1, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button102, 1, 9);
+            this.tableLayoutPanel3.Controls.Add(this.button100, 1, 10);
+            this.tableLayoutPanel3.Controls.Add(this.button72, 1, 11);
+            this.tableLayoutPanel3.Controls.Add(this.button73, 1, 12);
+            this.tableLayoutPanel3.Controls.Add(this.button64, 2, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button75, 2, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button74, 2, 5);
+            this.tableLayoutPanel3.Controls.Add(this.button86, 2, 6);
+            this.tableLayoutPanel3.Controls.Add(this.button87, 2, 7);
+            this.tableLayoutPanel3.Controls.Add(this.button88, 2, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button95, 2, 9);
+            this.tableLayoutPanel3.Controls.Add(this.button82, 5, 7);
+            this.tableLayoutPanel3.Controls.Add(this.button83, 5, 8);
+            this.tableLayoutPanel3.Controls.Add(this.button84, 5, 9);
+            this.tableLayoutPanel3.Controls.Add(this.button81, 5, 6);
+            this.tableLayoutPanel3.Controls.Add(this.button80, 5, 5);
+            this.tableLayoutPanel3.Controls.Add(this.button78, 5, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button77, 5, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button96, 3, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button105, 4, 4);
+            this.tableLayoutPanel3.Controls.Add(this.button106, 4, 3);
+            this.tableLayoutPanel3.Controls.Add(this.button85, 5, 10);
+            this.tableLayoutPanel3.Controls.Add(this.button65, 0, 11);
+            this.tableLayoutPanel3.Controls.Add(this.button108, 0, 12);
+            this.tableLayoutPanel3.Controls.Add(this.button107, 0, 14);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1127,10 +1130,10 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 54F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 39F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(976, 672);
             this.tableLayoutPanel3.TabIndex = 1;
@@ -1138,9 +1141,9 @@
             // button77
             // 
             this.button77.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button77.Location = new System.Drawing.Point(496, 43);
+            this.button77.Location = new System.Drawing.Point(803, 123);
             this.button77.Name = "button77";
-            this.button77.Size = new System.Drawing.Size(141, 34);
+            this.button77.Size = new System.Drawing.Size(154, 34);
             this.button77.TabIndex = 74;
             this.button77.Text = "ERP-ASTI02資產建立";
             this.button77.UseVisualStyleBackColor = true;
@@ -1149,9 +1152,9 @@
             // button78
             // 
             this.button78.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button78.Location = new System.Drawing.Point(496, 83);
+            this.button78.Location = new System.Drawing.Point(803, 163);
             this.button78.Name = "button78";
-            this.button78.Size = new System.Drawing.Size(141, 34);
+            this.button78.Size = new System.Drawing.Size(154, 34);
             this.button78.TabIndex = 75;
             this.button78.Text = "ERP-ASTI06.資產改良建立作業";
             this.button78.UseVisualStyleBackColor = true;
@@ -1160,9 +1163,9 @@
             // button80
             // 
             this.button80.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button80.Location = new System.Drawing.Point(496, 123);
+            this.button80.Location = new System.Drawing.Point(803, 203);
             this.button80.Name = "button80";
-            this.button80.Size = new System.Drawing.Size(141, 34);
+            this.button80.Size = new System.Drawing.Size(154, 34);
             this.button80.TabIndex = 76;
             this.button80.Text = "ERP-ASTI07.資產重估建立作業";
             this.button80.UseVisualStyleBackColor = true;
@@ -1171,9 +1174,9 @@
             // button81
             // 
             this.button81.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button81.Location = new System.Drawing.Point(496, 163);
+            this.button81.Location = new System.Drawing.Point(803, 243);
             this.button81.Name = "button81";
-            this.button81.Size = new System.Drawing.Size(141, 34);
+            this.button81.Size = new System.Drawing.Size(154, 34);
             this.button81.TabIndex = 77;
             this.button81.Text = "ERP-ACT08資產報廢";
             this.button81.UseVisualStyleBackColor = true;
@@ -1182,9 +1185,9 @@
             // button82
             // 
             this.button82.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button82.Location = new System.Drawing.Point(496, 203);
+            this.button82.Location = new System.Drawing.Point(803, 283);
             this.button82.Name = "button82";
-            this.button82.Size = new System.Drawing.Size(141, 34);
+            this.button82.Size = new System.Drawing.Size(154, 34);
             this.button82.TabIndex = 78;
             this.button82.Text = "ERP-ACT09資產出售";
             this.button82.UseVisualStyleBackColor = true;
@@ -1193,9 +1196,9 @@
             // button83
             // 
             this.button83.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button83.Location = new System.Drawing.Point(496, 243);
+            this.button83.Location = new System.Drawing.Point(803, 323);
             this.button83.Name = "button83";
-            this.button83.Size = new System.Drawing.Size(141, 34);
+            this.button83.Size = new System.Drawing.Size(154, 34);
             this.button83.TabIndex = 79;
             this.button83.Text = "ERP-ASTI10資產調整建立作業";
             this.button83.UseVisualStyleBackColor = true;
@@ -1204,9 +1207,9 @@
             // button84
             // 
             this.button84.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button84.Location = new System.Drawing.Point(496, 283);
+            this.button84.Location = new System.Drawing.Point(803, 363);
             this.button84.Name = "button84";
-            this.button84.Size = new System.Drawing.Size(141, 34);
+            this.button84.Size = new System.Drawing.Size(154, 34);
             this.button84.TabIndex = 80;
             this.button84.Text = "ERP-ASTI11資產折舊";
             this.button84.UseVisualStyleBackColor = true;
@@ -1215,9 +1218,9 @@
             // button85
             // 
             this.button85.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button85.Location = new System.Drawing.Point(496, 323);
+            this.button85.Location = new System.Drawing.Point(803, 403);
             this.button85.Name = "button85";
-            this.button85.Size = new System.Drawing.Size(141, 34);
+            this.button85.Size = new System.Drawing.Size(154, 34);
             this.button85.TabIndex = 81;
             this.button85.Text = "ERP-ASTI12資產移轉";
             this.button85.UseVisualStyleBackColor = true;
@@ -1226,7 +1229,7 @@
             // button64
             // 
             this.button64.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button64.Location = new System.Drawing.Point(643, 43);
+            this.button64.Location = new System.Drawing.Point(323, 123);
             this.button64.Name = "button64";
             this.button64.Size = new System.Drawing.Size(154, 34);
             this.button64.TabIndex = 38;
@@ -1237,7 +1240,7 @@
             // button75
             // 
             this.button75.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button75.Location = new System.Drawing.Point(643, 83);
+            this.button75.Location = new System.Drawing.Point(323, 163);
             this.button75.Name = "button75";
             this.button75.Size = new System.Drawing.Size(154, 34);
             this.button75.TabIndex = 73;
@@ -1248,7 +1251,7 @@
             // button74
             // 
             this.button74.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button74.Location = new System.Drawing.Point(643, 123);
+            this.button74.Location = new System.Drawing.Point(323, 203);
             this.button74.Name = "button74";
             this.button74.Size = new System.Drawing.Size(154, 34);
             this.button74.TabIndex = 72;
@@ -1259,7 +1262,7 @@
             // button88
             // 
             this.button88.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button88.Location = new System.Drawing.Point(643, 283);
+            this.button88.Location = new System.Drawing.Point(323, 323);
             this.button88.Name = "button88";
             this.button88.Size = new System.Drawing.Size(154, 34);
             this.button88.TabIndex = 84;
@@ -1270,7 +1273,7 @@
             // button87
             // 
             this.button87.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button87.Location = new System.Drawing.Point(643, 243);
+            this.button87.Location = new System.Drawing.Point(323, 283);
             this.button87.Name = "button87";
             this.button87.Size = new System.Drawing.Size(154, 34);
             this.button87.TabIndex = 83;
@@ -1281,7 +1284,7 @@
             // button86
             // 
             this.button86.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button86.Location = new System.Drawing.Point(643, 203);
+            this.button86.Location = new System.Drawing.Point(323, 243);
             this.button86.Name = "button86";
             this.button86.Size = new System.Drawing.Size(154, 34);
             this.button86.TabIndex = 82;
@@ -1292,9 +1295,9 @@
             // button89
             // 
             this.button89.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button89.Location = new System.Drawing.Point(323, 43);
+            this.button89.Location = new System.Drawing.Point(3, 123);
             this.button89.Name = "button89";
-            this.button89.Size = new System.Drawing.Size(167, 34);
+            this.button89.Size = new System.Drawing.Size(154, 34);
             this.button89.TabIndex = 85;
             this.button89.Text = "ERP-客戶授信-信用額度";
             this.button89.UseVisualStyleBackColor = true;
@@ -1303,9 +1306,9 @@
             // button90
             // 
             this.button90.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button90.Location = new System.Drawing.Point(323, 83);
+            this.button90.Location = new System.Drawing.Point(3, 203);
             this.button90.Name = "button90";
-            this.button90.Size = new System.Drawing.Size(167, 34);
+            this.button90.Size = new System.Drawing.Size(154, 34);
             this.button90.TabIndex = 86;
             this.button90.Text = "ERP-COPTAB報價單簽核";
             this.button90.UseVisualStyleBackColor = true;
@@ -1314,9 +1317,9 @@
             // button91
             // 
             this.button91.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button91.Location = new System.Drawing.Point(323, 123);
+            this.button91.Location = new System.Drawing.Point(3, 283);
             this.button91.Name = "button91";
-            this.button91.Size = new System.Drawing.Size(167, 34);
+            this.button91.Size = new System.Drawing.Size(154, 34);
             this.button91.TabIndex = 87;
             this.button91.Text = "ERP-COPTCD訂單主管簽核";
             this.button91.UseVisualStyleBackColor = true;
@@ -1325,9 +1328,9 @@
             // button92
             // 
             this.button92.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button92.Location = new System.Drawing.Point(323, 283);
+            this.button92.Location = new System.Drawing.Point(3, 323);
             this.button92.Name = "button92";
-            this.button92.Size = new System.Drawing.Size(167, 34);
+            this.button92.Size = new System.Drawing.Size(154, 34);
             this.button92.TabIndex = 88;
             this.button92.Text = "ERP-備註-訂單生管+採購簽核回寫備註";
             this.button92.UseVisualStyleBackColor = true;
@@ -1336,9 +1339,9 @@
             // button93
             // 
             this.button93.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button93.Location = new System.Drawing.Point(323, 163);
+            this.button93.Location = new System.Drawing.Point(3, 243);
             this.button93.Name = "button93";
-            this.button93.Size = new System.Drawing.Size(167, 34);
+            this.button93.Size = new System.Drawing.Size(154, 34);
             this.button93.TabIndex = 89;
             this.button93.Text = "ERP-COPTEF訂單變更主管簽核";
             this.button93.UseVisualStyleBackColor = true;
@@ -1347,9 +1350,9 @@
             // button94
             // 
             this.button94.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button94.Location = new System.Drawing.Point(323, 323);
+            this.button94.Location = new System.Drawing.Point(3, 363);
             this.button94.Name = "button94";
-            this.button94.Size = new System.Drawing.Size(167, 34);
+            this.button94.Size = new System.Drawing.Size(154, 34);
             this.button94.TabIndex = 90;
             this.button94.Text = "ERP-備註-訂單變更生管+採購簽核回寫備註";
             this.button94.UseVisualStyleBackColor = true;
@@ -1358,7 +1361,7 @@
             // button65
             // 
             this.button65.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button65.Location = new System.Drawing.Point(3, 243);
+            this.button65.Location = new System.Drawing.Point(3, 443);
             this.button65.Name = "button65";
             this.button65.Size = new System.Drawing.Size(154, 34);
             this.button65.TabIndex = 39;
@@ -1369,7 +1372,7 @@
             // button63
             // 
             this.button63.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button63.Location = new System.Drawing.Point(3, 203);
+            this.button63.Location = new System.Drawing.Point(3, 403);
             this.button63.Name = "button63";
             this.button63.Size = new System.Drawing.Size(154, 34);
             this.button63.TabIndex = 37;
@@ -1380,7 +1383,7 @@
             // button95
             // 
             this.button95.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button95.Location = new System.Drawing.Point(3, 323);
+            this.button95.Location = new System.Drawing.Point(323, 363);
             this.button95.Name = "button95";
             this.button95.Size = new System.Drawing.Size(154, 34);
             this.button95.TabIndex = 91;
@@ -1391,7 +1394,7 @@
             // button97
             // 
             this.button97.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button97.Location = new System.Drawing.Point(163, 203);
+            this.button97.Location = new System.Drawing.Point(163, 123);
             this.button97.Name = "button97";
             this.button97.Size = new System.Drawing.Size(154, 34);
             this.button97.TabIndex = 93;
@@ -1402,7 +1405,7 @@
             // button98
             // 
             this.button98.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button98.Location = new System.Drawing.Point(163, 243);
+            this.button98.Location = new System.Drawing.Point(163, 163);
             this.button98.Name = "button98";
             this.button98.Size = new System.Drawing.Size(154, 34);
             this.button98.TabIndex = 94;
@@ -1413,7 +1416,7 @@
             // button69
             // 
             this.button69.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button69.Location = new System.Drawing.Point(163, 283);
+            this.button69.Location = new System.Drawing.Point(163, 203);
             this.button69.Name = "button69";
             this.button69.Size = new System.Drawing.Size(154, 34);
             this.button69.TabIndex = 69;
@@ -1452,7 +1455,7 @@
             // button73
             // 
             this.button73.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button73.Location = new System.Drawing.Point(163, 163);
+            this.button73.Location = new System.Drawing.Point(163, 483);
             this.button73.Name = "button73";
             this.button73.Size = new System.Drawing.Size(154, 34);
             this.button73.TabIndex = 71;
@@ -1463,7 +1466,7 @@
             // button72
             // 
             this.button72.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button72.Location = new System.Drawing.Point(163, 123);
+            this.button72.Location = new System.Drawing.Point(163, 443);
             this.button72.Name = "button72";
             this.button72.Size = new System.Drawing.Size(154, 34);
             this.button72.TabIndex = 70;
@@ -1474,7 +1477,7 @@
             // button68
             // 
             this.button68.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button68.Location = new System.Drawing.Point(3, 123);
+            this.button68.Location = new System.Drawing.Point(3, 163);
             this.button68.Name = "button68";
             this.button68.Size = new System.Drawing.Size(154, 34);
             this.button68.TabIndex = 68;
@@ -1485,7 +1488,7 @@
             // button100
             // 
             this.button100.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button100.Location = new System.Drawing.Point(163, 83);
+            this.button100.Location = new System.Drawing.Point(163, 403);
             this.button100.Name = "button100";
             this.button100.Size = new System.Drawing.Size(154, 34);
             this.button100.TabIndex = 96;
@@ -1496,7 +1499,7 @@
             // button101
             // 
             this.button101.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button101.Location = new System.Drawing.Point(163, 323);
+            this.button101.Location = new System.Drawing.Point(163, 243);
             this.button101.Name = "button101";
             this.button101.Size = new System.Drawing.Size(154, 34);
             this.button101.TabIndex = 97;
@@ -1507,7 +1510,7 @@
             // button102
             // 
             this.button102.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button102.Location = new System.Drawing.Point(163, 536);
+            this.button102.Location = new System.Drawing.Point(163, 363);
             this.button102.Name = "button102";
             this.button102.Size = new System.Drawing.Size(154, 34);
             this.button102.TabIndex = 98;
@@ -1518,7 +1521,7 @@
             // button103
             // 
             this.button103.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button103.Location = new System.Drawing.Point(163, 363);
+            this.button103.Location = new System.Drawing.Point(163, 283);
             this.button103.Name = "button103";
             this.button103.Size = new System.Drawing.Size(154, 34);
             this.button103.TabIndex = 99;
@@ -1529,7 +1532,7 @@
             // button104
             // 
             this.button104.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button104.Location = new System.Drawing.Point(163, 403);
+            this.button104.Location = new System.Drawing.Point(163, 323);
             this.button104.Name = "button104";
             this.button104.Size = new System.Drawing.Size(154, 34);
             this.button104.TabIndex = 100;
@@ -1540,7 +1543,7 @@
             // button96
             // 
             this.button96.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button96.Location = new System.Drawing.Point(803, 363);
+            this.button96.Location = new System.Drawing.Point(483, 123);
             this.button96.Name = "button96";
             this.button96.Size = new System.Drawing.Size(154, 34);
             this.button96.TabIndex = 92;
@@ -1551,7 +1554,7 @@
             // button105
             // 
             this.button105.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button105.Location = new System.Drawing.Point(803, 450);
+            this.button105.Location = new System.Drawing.Point(643, 163);
             this.button105.Name = "button105";
             this.button105.Size = new System.Drawing.Size(154, 34);
             this.button105.TabIndex = 101;
@@ -1562,13 +1565,25 @@
             // button106
             // 
             this.button106.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button106.Location = new System.Drawing.Point(803, 497);
+            this.button106.Location = new System.Drawing.Point(643, 123);
             this.button106.Name = "button106";
             this.button106.Size = new System.Drawing.Size(154, 33);
             this.button106.TabIndex = 102;
             this.button106.Text = "ERP-品保進貨單驗收";
             this.button106.UseVisualStyleBackColor = true;
             this.button106.Click += new System.EventHandler(this.button106_Click);
+            // 
+            // button107
+            // 
+            this.button107.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button107.Location = new System.Drawing.Point(4, 564);
+            this.button107.Margin = new System.Windows.Forms.Padding(4);
+            this.button107.Name = "button107";
+            this.button107.Size = new System.Drawing.Size(152, 32);
+            this.button107.TabIndex = 103;
+            this.button107.Text = "轉入資料來客-X:\\kldatabase.db";
+            this.button107.UseVisualStyleBackColor = true;
+            this.button107.Click += new System.EventHandler(this.button107_Click);
             // 
             // timer1
             // 
@@ -1582,17 +1597,16 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button107
+            // button108
             // 
-            this.button107.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button107.Location = new System.Drawing.Point(4, 445);
-            this.button107.Margin = new System.Windows.Forms.Padding(4);
-            this.button107.Name = "button107";
-            this.button107.Size = new System.Drawing.Size(152, 43);
-            this.button107.TabIndex = 103;
-            this.button107.Text = "轉入資料來客-X:\\kldatabase.db";
-            this.button107.UseVisualStyleBackColor = true;
-            this.button107.Click += new System.EventHandler(this.button107_Click);
+            this.button108.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button108.Location = new System.Drawing.Point(3, 483);
+            this.button108.Name = "button108";
+            this.button108.Size = new System.Drawing.Size(154, 34);
+            this.button108.TabIndex = 104;
+            this.button108.Text = "ERP-訂單明細補生產預設=N";
+            this.button108.UseVisualStyleBackColor = true;
+            this.button108.Click += new System.EventHandler(this.button108_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1737,5 +1751,6 @@
         private System.Windows.Forms.Button button105;
         private System.Windows.Forms.Button button106;
         private System.Windows.Forms.Button button107;
+        private System.Windows.Forms.Button button108;
     }
 }
