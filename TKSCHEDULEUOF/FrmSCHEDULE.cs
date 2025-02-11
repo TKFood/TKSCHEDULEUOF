@@ -239,9 +239,12 @@ namespace TKSCHEDULEUOF
             //請購變更單，UOF核準後，自動判斷是否有採購單，如果有就產生採購變購單
             //採購要自動依請購變更單來產生採購變購單
             //但是前題要先有該請購單的採購，而且採購變購單一次只能新增1張，避免饜照先後順序更改
+
             try
             {
-                NEWPURTEPURTF_ERP();
+                //已產生請購變更單並確認，但未產生採購變更單時，補產生採購變更單
+                //不用，因為有發生「請購單變更單已確認，但是請購變更資料是錯誤的，就不用產生對應的採購變更單」
+                //NEWPURTEPURTF_ERP();
             }
             catch { }
 
@@ -59460,7 +59463,9 @@ namespace TKSCHEDULEUOF
         }
         private void button69_Click(object sender, EventArgs e)
         {
-            NEWPURTEPURTF_ERP();
+            //已產生請購變更單並確認，但未產生採購變更單時，補產生採購變更單
+            //不用，因為有發生「請購單變更單已確認，但是請購變更資料是錯誤的，就不用產生對應的採購變更單」
+            //NEWPURTEPURTF_ERP();
         }
         private void button70_Click(object sender, EventArgs e)
         {
