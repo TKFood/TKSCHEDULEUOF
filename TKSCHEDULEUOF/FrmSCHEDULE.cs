@@ -46290,25 +46290,27 @@ namespace TKSCHEDULEUOF
 
                 //只查同月的請購變更單
                 sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    [TA001]
-                                    ,[TA002]
-                                    ,[VERSIONS]
-                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_PURTACHANGE]
+                                   SELECT 
+                                    [View_TB_WKF_TASK_PURTACHANGE].[TA001]
+                                    ,[View_TB_WKF_TASK_PURTACHANGE].[TA002]
+                                    ,[View_TB_WKF_TASK_PURTACHANGE].[VERSIONS]
+                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_PURTACHANGE],[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE]
                                     WHERE 1=1
-                                    AND ISNULL([TA002],'')<>''
-                                    AND [VERSIONS]+[TA001]+[TA002] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].TA001=[PURTATBCHAGE].TA001 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].TA002=[PURTATBCHAGE].TA002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].VERSIONS=[PURTATBCHAGE].VERSIONS 
+                                    AND ISNULL([View_TB_WKF_TASK_PURTACHANGE].[TA002],'')<>''
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].[VERSIONS]+[View_TB_WKF_TASK_PURTACHANGE].[TA001]+[View_TB_WKF_TASK_PURTACHANGE].[TA002] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
                                     (
-                                    SELECT SUBSTRING(UDF01,1,LEN(UDF01)-4) FROM [192.168.1.105].[TK].dbo.PURTF 
-                                    WHERE ISNULL(UDF01,'')<>''
-
-                                    GROUP BY SUBSTRING(UDF01,1,LEN(UDF01)-4)
+	                                    SELECT SUBSTRING(UDF01,1,LEN(UDF01)-4) FROM [192.168.1.105].[TK].dbo.PURTF 
+	                                    WHERE ISNULL(UDF01,'')<>''
+	                                    GROUP BY SUBSTRING(UDF01,1,LEN(UDF01)-4)
                                     )
-                                    AND TA002>='20240823009'
-                                    AND TA002>=CONVERT(NVARCHAR,YEAR(GETDATE()))+CONVERT(NVARCHAR,RIGHT('00' + CAST(MONTH(GETDATE()) AS VARCHAR(2)), 2))+'01001'
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].TA002>='20240823009'
+                                    AND [View_TB_WKF_TASK_PURTACHANGE].TA002>=CONVERT(NVARCHAR,YEAR(GETDATE()))+CONVERT(NVARCHAR,RIGHT('00' + CAST(MONTH(GETDATE()) AS VARCHAR(2)), 2))+'01001'
 
-                                    GROUP BY TA001, TA002, VERSIONS
-                                    ORDER BY [TA002]
+                                    GROUP BY [View_TB_WKF_TASK_PURTACHANGE].TA001, [View_TB_WKF_TASK_PURTACHANGE].TA002, [View_TB_WKF_TASK_PURTACHANGE].VERSIONS
+                                    ORDER BY [View_TB_WKF_TASK_PURTACHANGE].TA002
 
                                     ");
 
