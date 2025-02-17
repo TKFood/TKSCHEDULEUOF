@@ -589,6 +589,15 @@ namespace TKSCHEDULEUOF
                     UPDATE_PURTA_PURTB_TB039_TB009();
                 }
                 catch { }
+                try
+                {
+                    //作廢請購變更單不存在
+                    //UOF的請購變更單來源，已經不存在[PURTATBCHAGE]
+                    //經採購人員確認是多打的才會刪除，用TKPUR的「FrmPURTECHANGEDEL 」 採購變更刪除錯的請購變更
+
+                    UPDATE_UOF_PUR20_TASK_RESULT();
+                }
+                catch { }
 
             }
         }
