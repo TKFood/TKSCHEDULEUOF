@@ -628,6 +628,22 @@ namespace TKSCHEDULEUOF
 
             try
             {
+                //TKUOF.TRIGGER.COPTAB.EndFormTrigger
+                //ERP-COPTAB報價單簽核
+
+                UPDATE_COPTA_COPTB();
+            }
+            catch { }
+            try
+            {
+                //TKUOF.TRIGGER.COPTCD.EndFormTrigger
+                //ERP-COPTCD訂單主管簽核
+
+                UPDATE_COPTC_COPTD();
+            }
+            catch { }
+            try
+            {
                 //TKUOF.TRIGGER.COPTEF.EndFormTrigger
                 //ERP-COPTEF訂單變更主管簽核
 
@@ -700,22 +716,8 @@ namespace TKSCHEDULEUOF
                 UPDATE_PURTH_QC_CHECKS();
             }
             catch { }
-            try
-            {
-                //TKUOF.TRIGGER.COPTCD.EndFormTrigger
-                //ERP-COPTCD訂單主管簽核
-
-                UPDATE_COPTC_COPTD();
-            }
-            catch { }
-            try
-            {
-                 //TKUOF.TRIGGER.COPTAB.EndFormTrigger
-                 //ERP-COPTAB報價單簽核
-
-                UPDATE_COPTA_COPTB();
-            }
-            catch { }
+       
+           
 
             //TEST
             //MessageBox.Show($"執行任務: {DateTime.Now}");
