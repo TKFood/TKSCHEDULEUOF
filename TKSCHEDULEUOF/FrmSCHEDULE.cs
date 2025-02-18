@@ -96,10 +96,15 @@ namespace TKSCHEDULEUOF
         decimal BASELIMITHRS3 = 0;
         decimal BASELIMITHRS9 = 0;
 
+        
         public FrmSCHEDULE()
         {
             InitializeComponent();
 
+           
+        }
+        private void FrmSCHEDULE_Load(object sender, EventArgs e)
+        {
             timer1.Enabled = true;
             timer1.Interval = 1000 * 60;
             timer1.Start();
@@ -111,7 +116,14 @@ namespace TKSCHEDULEUOF
             timer3.Enabled = true;
             timer3.Interval = 1000 * 60;
             timer3.Start();
+
+            timer4.Enabled = true;
+            timer4.Interval = 300000; // 5 分鐘
+            timer4.Start();
         }
+
+
+
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
         /// </summary>
@@ -601,7 +613,16 @@ namespace TKSCHEDULEUOF
 
             }
         }
-
+        /// <summary>
+        /// 每5分執行1次
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer4_Tick(object sender, EventArgs e)
+        {
+            //TEST
+            //MessageBox.Show($"執行任務: {DateTime.Now}");
+        }
         #region FUNCTION
 
         //
@@ -59911,8 +59932,9 @@ namespace TKSCHEDULEUOF
             MessageBox.Show("OK");
 
         }
+
         #endregion
 
-
+       
     }
 }

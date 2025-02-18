@@ -146,10 +146,11 @@
             this.button65 = new System.Windows.Forms.Button();
             this.button108 = new System.Windows.Forms.Button();
             this.button107 = new System.Windows.Forms.Button();
+            this.button109 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
-            this.button109 = new System.Windows.Forms.Button();
+            this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1598,6 +1599,17 @@
             this.button107.UseVisualStyleBackColor = true;
             this.button107.Click += new System.EventHandler(this.button107_Click);
             // 
+            // button109
+            // 
+            this.button109.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button109.Location = new System.Drawing.Point(163, 523);
+            this.button109.Name = "button109";
+            this.button109.Size = new System.Drawing.Size(154, 34);
+            this.button109.TabIndex = 105;
+            this.button109.Text = "作廢請購變更單不存在";
+            this.button109.UseVisualStyleBackColor = true;
+            this.button109.Click += new System.EventHandler(this.button109_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1610,16 +1622,9 @@
             // 
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
-            // button109
+            // timer4
             // 
-            this.button109.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button109.Location = new System.Drawing.Point(163, 523);
-            this.button109.Name = "button109";
-            this.button109.Size = new System.Drawing.Size(154, 34);
-            this.button109.TabIndex = 105;
-            this.button109.Text = "作廢請購變更單不存在";
-            this.button109.UseVisualStyleBackColor = true;
-            this.button109.Click += new System.EventHandler(this.button109_Click);
+            this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
             // FrmSCHEDULE
             // 
@@ -1631,6 +1636,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrmSCHEDULE";
             this.Text = "FrmSCHEDULE";
+            this.Load += new System.EventHandler(this.FrmSCHEDULE_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -1766,5 +1772,6 @@
         private System.Windows.Forms.Button button107;
         private System.Windows.Forms.Button button108;
         private System.Windows.Forms.Button button109;
+        private System.Windows.Forms.Timer timer4;
     }
 }
