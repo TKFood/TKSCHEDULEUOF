@@ -620,6 +620,103 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer4_Tick(object sender, EventArgs e)
         {
+            try
+            {
+               
+            }
+            catch { }
+
+            try
+            {
+                //TKUOF.TRIGGER.COPTEF.EndFormTrigger
+                //ERP-COPTEF訂單變更主管簽核
+
+                UPDATE_COPTE_COPTF();
+            }
+            catch { }
+            try
+            {
+                //TKUOF.TRIGGER.DEVSAMPLE.EndFormTrigger
+                //1004.無品號試吃製作申請單
+                //將1004.無品號試吃製作申請單轉到TKRESEARCH_TBSAMPLE中
+
+                ADD_TKRESEARCH_TBSAMPLE();
+            }
+            catch { }
+            try
+            {
+                //TKUOF.TRIGGER.PURTAB.EndFormTrigger
+                //ERP-PURTAB-請購單申請V2
+
+                UPDATE_PURTA_PORTB();
+            }
+            catch { }
+            try
+            {
+                //TKUOF.TRIGGER.PURTABCHANGE.EndFormTrigger
+                //PUR20.請購單變更單
+
+                UPDATE_PURTA_PURTB_CHANGE();
+            }
+            catch { }
+            try
+            {
+                //ERP-PURTCPURTD採購單簽核
+                //TKUOF.TRIGGER.PURTCPURTD.EndFormTrigger
+
+                UPDATE_PURTC_PURTD();
+            }
+            catch { }
+            try
+            {
+                //ERP-PURTEPURTF採購變更單簽核
+                //TKUOF.TRIGGER.PURTEPURTF.EndFormTrigger
+
+                UPDATE_PURTE_PURTF();
+            }
+            catch { }
+            try
+            {
+                //ERP-PURTLPURTMPURTN採購核價單
+                //TKUOF.TRIGGER.PURTLPURTMPURTN.EndFormTrigger
+
+                UPDATE_PURTL_PURTM_PURTN();
+            }
+            catch { }
+            try
+            {
+                 //PURA1.客供進貨-進貨品質驗收單
+                //ERP-QCINVTAINVTB-QC客供單進貨檢驗
+                //TKUOF.TRIGGER.QCINVTAINVTB.EndFormTrigger
+
+                UPDATE_INVTB_QC_CHECKS();
+            }
+            catch { }
+            try
+            {
+                //ERP-QCPURTGPURTH品保檢驗進貨單明細
+                //TKUOF.TRIGGER.QCPURTGPURTH.EndFormTrigger
+
+                UPDATE_PURTH_QC_CHECKS();
+            }
+            catch { }
+            try
+            {
+                //TKUOF.TRIGGER.COPTCD.EndFormTrigger
+                //ERP-COPTCD訂單主管簽核
+
+                UPDATE_COPTC_COPTD();
+            }
+            catch { }
+            try
+            {
+                 //TKUOF.TRIGGER.COPTAB.EndFormTrigger
+                 //ERP-COPTAB報價單簽核
+
+                UPDATE_COPTA_COPTB();
+            }
+            catch { }
+
             //TEST
             //MessageBox.Show($"執行任務: {DateTime.Now}");
         }
@@ -56183,7 +56280,7 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
-                                     WITH TEMP AS (
+                                    WITH TEMP AS (
                                     SELECT 
                                         [FORM_NAME],
                                         [DOC_NBR],
@@ -56217,8 +56314,7 @@ namespace TKSCHEDULEUOF
                                     FROM TEMP
                                     WHERE 1=1
                                     AND REPLACE(TA001+TA002,',','')  IN
-                                    (
-                                        SELECT REPLACE(TA001+TA002,' ' ,'')
+                                    (                                      
                                         SELECT REPLACE(TA001+TA002,' ' ,'')
                                         FROM[192.168.1.105].[TK].dbo.PURTA
                                         WHERE TA007 IN('N')
