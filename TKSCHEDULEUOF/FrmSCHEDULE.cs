@@ -59319,7 +59319,90 @@ namespace TKSCHEDULEUOF
 
         public void ADD_ERP_INVMB_TO_UOF_9001()
         {
-            DataTable DT = SEARCH_INVMB_NEW();
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                sbSql.AppendFormat(@"                                     
+                                    SELECT 
+                                    CREATOR,
+                                    CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE',
+                                    MB001 AS '品號',
+                                    MB002 AS '品名',
+                                    MB003 AS '規格',
+                                    MB004 AS '庫存單位',
+                                    MB046 AS '標準進價' ,
+                                    MB047 AS '標準售價',
+                                    MB051 AS '零售價',
+                                    MB052 AS '零售價含稅',
+                                    MB053 AS 'IP價格',
+                                    MB054 AS 'DM價格',
+                                    MB055 AS '通路售價' ,
+                                    MB056 AS '售價定價四',
+                                    MB069 AS '售價定價五',
+                                    MB070 AS '售價定價六'        	
+
+                                    FROM [TK].dbo.INVMB
+                                    WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
+                                    AND CREATE_DATE='20250217'
+
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    {
+                        ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(dr["品號"].ToString().Trim());
+                    }
+
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+        public void ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(string MB001)
+        {
+            DataTable DT = SEARCH_INVMB_NEW(MB001);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -59387,10 +59470,10 @@ namespace TKSCHEDULEUOF
 
 
             //建立節點FieldItem
-            //MJ001	
+            //MB001	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MJ001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MJ001"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB001");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品號"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -59401,10 +59484,10 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MMB002	
+            //MB002	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MMB002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB002"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB002");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品名"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -59415,10 +59498,10 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MMB003	
+            //MB003	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MMB003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB003"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["規格"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -59429,10 +59512,10 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MMB004	
+            //MB004	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MMB004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MMB004"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["庫存單位"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -59443,10 +59526,10 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
 
             //建立節點FieldItem
-            //MJ004	
+            //MB046	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MJ004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MJ004"].ToString());
+            FieldItem.SetAttribute("fieldId", "MB046");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["標準進價"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -59456,25 +59539,133 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
             //加入至members節點底下
 
-
-
-
-            //DataGrid
             //建立節點FieldItem
-            //BOMMK
+            //MB047	
             FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "BOMMK");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldId", "MB047");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["標準售價"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
             FieldItem.SetAttribute("fillerAccount", account);
             FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
 
-            
+            //建立節點FieldItem
+            //MB051	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB051");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["零售價"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB052	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB052");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["零售價含稅"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB053	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB053");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["IP價格"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB054	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB054");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["DM價格"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB055	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB055");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["通路售價"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB056	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB056");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價四"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB069	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB069");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價五"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+            //建立節點FieldItem
+            //MB070	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB070");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價六"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
+
 
             ////用ADDTACK，直接啟動起單
             //ADDTACK(Form);
@@ -59534,7 +59725,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable SEARCH_INVMB_NEW()
+        public DataTable SEARCH_INVMB_NEW(string MB001)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -59580,9 +59771,9 @@ namespace TKSCHEDULEUOF
 
                                     FROM [TK].dbo.INVMB
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND CREATE_DATE='20250217'
+                                    AND MB001='{0}'
               
-                                    ");
+                                    ", MB001);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
