@@ -59316,6 +59316,12 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        public void ADD_ERP_INVMB_TO_UOF_9001()
+        {
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -60031,8 +60037,20 @@ namespace TKSCHEDULEUOF
 
         }
 
+        private void button110_Click(object sender, EventArgs e)
+        {
+            //ERP品號通知單
+            //此表單為研發建立商品品號時
+            //通知營銷、業務主管
+            //該品號在ERP設定的標準售價、零售價、IP價格、DM價格、通路售價
+
+            //如需修改，請通知研發在ERP上修改
+
+            ADD_ERP_INVMB_TO_UOF_9001();
+
+        }
         #endregion
 
-       
+
     }
 }
