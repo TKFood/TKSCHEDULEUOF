@@ -59414,7 +59414,7 @@ namespace TKSCHEDULEUOF
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["MJ001"].ToString().Trim();
+            string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -59767,9 +59767,14 @@ namespace TKSCHEDULEUOF
                                     MB055 AS '通路售價' ,
                                     MB056 AS '售價定價四',
                                     MB069 AS '售價定價五',
-                                    MB070 AS '售價定價六'        	
-
+                                    MB070 AS '售價定價六'     
+                                    ,[TB_EB_USER].USER_GUID   	
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
+                                    ,GROUP_ID  AS 'GROUP_ID'
+                                    ,TITLE_ID  AS 'TITLE_ID'
                                     FROM [TK].dbo.INVMB
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= INVMB.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
                                     AND MB001='{0}'
               
