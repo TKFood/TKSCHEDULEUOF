@@ -59366,7 +59366,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@"                                     
                                     SELECT 
                                     CREATOR,
-                                    CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE',
+                                    CREATE_DATE,
                                     MB001 AS '品號',
                                     MB002 AS '品名',
                                     MB003 AS '規格',
