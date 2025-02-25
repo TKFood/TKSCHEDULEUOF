@@ -558,7 +558,8 @@ namespace TKSCHEDULEUOF
                 {
 
                 }
-                catch { }
+                catch { }     
+
                 try
                 {
 
@@ -569,6 +570,21 @@ namespace TKSCHEDULEUOF
                     ADDTKMKt_visitors();
                 }
                 catch { }
+
+                try
+                {
+                    //ERP品號通知單
+                    //此表單為研發建立商品品號時
+                    //通知營銷、業務主管
+                    //該品號在ERP設定的標準售價、零售價、IP價格、DM價格、通路售價
+
+                    //如需修改，請通知研發在ERP上修改
+
+                    ADD_ERP_INVMB_TO_UOF_9001();
+
+                }
+                catch { }
+
                 try
                 {
                     //UOF-採購及變更單作廢
@@ -576,6 +592,7 @@ namespace TKSCHEDULEUOF
                     UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
                 }
                 catch { }
+
                 try
                 {
                     //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
@@ -583,24 +600,28 @@ namespace TKSCHEDULEUOF
                     ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();                    
                 }
                 catch { }
+
                 try
                 {
                     //會依請購單的廠商有指定，合併採購單
                     ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();                   
                 }
                 catch { }
+
                 try
                 {
                     //當請購單的數量=0，手動結案
                     UPDATE_PURTA_PURTB_TB039();                  
                 }
                 catch { }
+
                 try
                 {                    
                     //當請購單的需求日，已過期1個月，請購數量=0，手動結案
                     UPDATE_PURTA_PURTB_TB039_TB009();
                 }
                 catch { }
+
                 try
                 {
                     //作廢請購變更單不存在
@@ -59363,7 +59384,7 @@ namespace TKSCHEDULEUOF
 
                                     FROM [TK].dbo.INVMB
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND CREATE_DATE='20250217'
+                                    AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
 
 
                                     ");
