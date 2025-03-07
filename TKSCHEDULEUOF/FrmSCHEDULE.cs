@@ -59385,9 +59385,7 @@ namespace TKSCHEDULEUOF
 
                                     FROM [TK].dbo.INVMB
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    --AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
-                                    AND MB001='40501610180030'
-
+                                    AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
 
                                     ");
 
