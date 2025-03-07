@@ -59384,7 +59384,8 @@ namespace TKSCHEDULEUOF
 
                                     FROM [TK].dbo.INVMB
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
+                                    --AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
+                                    AND MB001='40501610180030'
 
 
                                     ");
@@ -59489,6 +59490,19 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //建立節點FieldItem
+            //UDF04	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "UDF04");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品號目的"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
 
             //建立節點FieldItem
             //MB001	
