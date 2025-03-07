@@ -59380,7 +59380,8 @@ namespace TKSCHEDULEUOF
                                     MB055 AS '通路售價' ,
                                     MB056 AS '售價定價四',
                                     MB069 AS '售價定價五',
-                                    MB070 AS '售價定價六'        	
+                                    MB070 AS '售價定價六',
+                                    UDF04 AS '品號目的'
 
                                     FROM [TK].dbo.INVMB
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
@@ -59802,7 +59803,9 @@ namespace TKSCHEDULEUOF
                                     MB055 AS '通路售價' ,
                                     MB056 AS '售價定價四',
                                     MB069 AS '售價定價五',
-                                    MB070 AS '售價定價六'     
+                                    MB070 AS '售價定價六',
+                                    UDF04 AS '品號目的'  
+ 
                                     ,[TB_EB_USER].USER_GUID   	
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
                                     ,GROUP_ID  AS 'GROUP_ID'
