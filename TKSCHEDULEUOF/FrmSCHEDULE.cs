@@ -12605,6 +12605,39 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //VALIDDAYS 原有效天數
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "VALIDDAYS");
+                Cell.SetAttribute("fieldValue", od["製造有效天數"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //STILLDAYS 剩餘有效天數
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "STILLDAYS");
+                Cell.SetAttribute("fieldValue", od["本日有效天數"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                //STILLPCTS 有效天數%
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "STILLPCTS");
+                Cell.SetAttribute("fieldValue", od["有效百分比"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
                 rowscounts = rowscounts + 1;
 
                 //DataGrid PURTM
@@ -13249,6 +13282,14 @@ namespace TKSCHEDULEUOF
                                     ,USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    , (CONVERT(NVARCHAR, CAST(
+                                        CASE 
+                                            WHEN 本日有效天數 > 0 AND 製造有效天數 > 0 
+                                            THEN 本日有效天數 * 100.0 / 製造有效天數 
+                                            ELSE 0 
+                                        END 
+                                    AS DECIMAL(10,2))) + '%') AS '有效百分比'
+
                                     FROM 
                                     (
                                     SELECT 
@@ -13502,7 +13543,9 @@ namespace TKSCHEDULEUOF
                                     ,[PURTH].[UDF10] AS 'PURTHUDF10'
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTH.CREATOR) AS 'MV002'
-
+                                    ,(CASE WHEN ISDATE(TH036)=1 AND ISDATE(TH117)=1 THEN DATEDIFF(DAY,TH117,TH036) ELSE 0 END) AS '製造有效天數'
+                                    ,(CASE WHEN ISDATE(TH036)=1 AND ISDATE(TH117)=1 THEN DATEDIFF(DAY,GETDATE(),TH036) ELSE 0 END) AS '本日有效天數'
+                                    
                                     FROM [TK].dbo.PURMA,[TK].dbo.PURTG,[TK].dbo.PURTH
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTH.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
