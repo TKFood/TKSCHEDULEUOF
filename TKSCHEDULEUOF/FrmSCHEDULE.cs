@@ -51154,7 +51154,8 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@" 
                                    SELECT TH001,TH002,UDF01
                                     FROM [TK].dbo.MOCTH
-                                   WHERE TH002='20250401001'
+                                    WHERE TH023='N'
+                                    AND UDF01 IN ('Y','y')
                                     ORDER BY TH001,TH002
 
 
