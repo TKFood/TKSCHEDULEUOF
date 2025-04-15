@@ -59490,8 +59490,8 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"                                     
                                     SELECT 
-                                    CREATOR,
-                                    CREATE_DATE,
+                                    INVMB.CREATOR,
+                                    INVMB.CREATE_DATE,
                                     MB001 AS '品號',
                                     MB002 AS '品名',
                                     MB003 AS '規格',
@@ -59506,11 +59506,14 @@ namespace TKSCHEDULEUOF
                                     MB056 AS '售價定價四',
                                     MB069 AS '售價定價五',
                                     MB070 AS '售價定價六',
-                                    UDF04 AS '品號目的'
+                                    INVMB.UDF04 AS '品號目的',
+                                    MA003 AS '會計類別'
 
-                                    FROM [TK].dbo.INVMB
+                                    FROM [TK].dbo.INVMB WITH(NOLOCK)
+                                    LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='1' AND MA002=MB005
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND CREATE_DATE=CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112)
+                                    AND MB001='511010001019'
+                              
 
                                     ");
 
@@ -59824,6 +59827,20 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
             //加入至members節點底下
 
+            //建立節點FieldItem
+            //MA003	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MA003");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["會計類別"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
 
 
             ////用ADDTACK，直接啟動起單
@@ -59911,7 +59928,7 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT 
-                                    CREATOR,
+                                    INVMB.CREATOR,
                                     CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE',
                                     MB001 AS '品號',
                                     MB002 AS '品名',
@@ -59927,7 +59944,8 @@ namespace TKSCHEDULEUOF
                                     MB056 AS '售價定價四',
                                     MB069 AS '售價定價五',
                                     MB070 AS '售價定價六',
-                                    UDF04 AS '品號目的'  
+                                    INVMB.UDF04 AS '品號目的',
+                                    MA003 AS '會計類別'
  
                                     ,[TB_EB_USER].USER_GUID   	
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
@@ -59936,6 +59954,7 @@ namespace TKSCHEDULEUOF
                                     FROM [TK].dbo.INVMB
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= INVMB.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
+                                    LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='1' AND MA002=MB005
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
                                     AND MB001='{0}'
               
