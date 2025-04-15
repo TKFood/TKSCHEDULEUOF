@@ -2566,6 +2566,20 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
 
             //建立節點FieldItem
+            //TA004 ME002	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "TA004");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["ME002"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
             //TA001 表單編號	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "TA001");
@@ -2934,6 +2948,8 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     ,TB010,MA002,SUMLA011
+                                    ,ME002
+
                                     ,(
                                     SELECT TOP 1 '請購日:'+TA003+' ，請購單:'+TB001+TB002+TB003+' ，請購數量:'+CONVERT(NVARCHAR,TB009)+' '+TB007+' ，廠商:'+MA002+' ，請購人:'+MV002
                                     FROM [TK].dbo.PURTA,[TK].dbo.PURTB,[TK].dbo.PURMA,[TK].dbo.CMSMV
@@ -2961,9 +2977,13 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TB010) AS 'MA002'
                                     ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TB004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
+                                    ,ME002
+
                                     FROM [TK].dbo.PURTB,[TK].dbo.PURTA
                                     LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    WHERE TA001=TB001 AND TA002=TB002
+                                    LEFT JOIN [TK].dbo.CMSME ON ME001=TA004
+
+                                    WHERE TA001=TB001 AND TA002=TB002                                    
                                     AND TA001='{1}' AND TA002='{2}'
                                     ) AS TEMP
                               
