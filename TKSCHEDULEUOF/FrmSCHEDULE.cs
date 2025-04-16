@@ -24662,6 +24662,7 @@ namespace TKSCHEDULEUOF
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
                                     AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
+                                    AND [GROUP_NAME] LIKE '%總務%'
                                     AND [TB_EB_USER].[USER_GUID]='{0}'
                               
                                     ", USER_GUID);
@@ -49733,7 +49734,7 @@ namespace TKSCHEDULEUOF
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
                                     AND [DOC_NBR]>='GA1003240700096'
-                                   
+                                 
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
@@ -49898,6 +49899,9 @@ namespace TKSCHEDULEUOF
 
                             DEPNAME = DATAROW_DTUSERDEP["DEPNAME"].ToString();
                             DEPNO = DATAROW_DTUSERDEP["DEPNO"].ToString();
+
+                            //找到就停止
+                            break;
                         }
                         else
                         {
@@ -49925,7 +49929,7 @@ namespace TKSCHEDULEUOF
             //DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
             //DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
 
-            string EXTERNAL_FORM_NBR = "MERGE1003";
+            string EXTERNAL_FORM_NBR = "MERGE1003-"+ DT.Rows[0]["DOC_NBR"].ToString();
 
 
 
