@@ -59489,6 +59489,7 @@ namespace TKSCHEDULEUOF
 
         public void ADD_ERP_INVMB_TO_UOF_9001()
         {
+            string YEATERDAY = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
@@ -59512,7 +59513,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(@"                                     
+                sbSql.AppendFormat(@"    
                                     SELECT 
                                     INVMB.CREATOR,
                                     INVMB.CREATE_DATE,
@@ -59532,14 +59533,14 @@ namespace TKSCHEDULEUOF
                                     MB070 AS '售價定價六',
                                     INVMB.UDF04 AS '品號目的',
                                     MA003 AS '會計類別'
+                                    ,CONVERT(NVARCHAR,MB023) +(CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END ) AS '效期'
 
                                     FROM [TK].dbo.INVMB WITH(NOLOCK)
                                     LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='1' AND MA002=MB005
                                     WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND MB001='511010001019'
-                              
+                                    AND INVMB.CREATE_DATE LIKE '{0}%'
 
-                                    ");
+                                    ", YEATERDAY);
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
 
@@ -59865,6 +59866,20 @@ namespace TKSCHEDULEUOF
             FormFieldValue.AppendChild(FieldItem);
             //加入至members節點底下
 
+            //建立節點FieldItem
+            //MB023
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "MB023");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["效期"].ToString());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            FormFieldValue.AppendChild(FieldItem);
+            //加入至members節點底下
+
 
 
             ////用ADDTACK，直接啟動起單
@@ -59952,25 +59967,25 @@ namespace TKSCHEDULEUOF
 
                 sbSql.AppendFormat(@"  
                                     SELECT 
-                                    INVMB.CREATOR,
-                                    CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE',
-                                    MB001 AS '品號',
-                                    MB002 AS '品名',
-                                    MB003 AS '規格',
-                                    MB004 AS '庫存單位',
-                                    MB046 AS '標準進價' ,
-                                    MB047 AS '標準售價',
-                                    MB051 AS '零售價',
-                                    MB052 AS '零售價含稅',
-                                    MB053 AS 'IP價格',
-                                    MB054 AS 'DM價格',
-                                    MB055 AS '通路售價' ,
-                                    MB056 AS '售價定價四',
-                                    MB069 AS '售價定價五',
-                                    MB070 AS '售價定價六',
-                                    INVMB.UDF04 AS '品號目的',
-                                    MA003 AS '會計類別'
- 
+                                    INVMB.CREATOR
+                                    ,CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE'
+                                    ,MB001 AS '品號'
+                                    ,MB002 AS '品名'
+                                    ,MB003 AS '規格'
+                                    ,MB004 AS '庫存單位'
+                                    ,MB046 AS '標準進價' 
+                                    ,MB047 AS '標準售價'
+                                    ,MB051 AS '零售價'
+                                    ,MB052 AS '零售價含稅'
+                                    ,MB053 AS 'IP價格'
+                                    ,MB054 AS 'DM價格'
+                                    ,MB055 AS '通路售價' 
+                                    ,MB056 AS '售價定價四'
+                                    ,MB069 AS '售價定價五'
+                                    ,MB070 AS '售價定價六'
+                                    ,INVMB.UDF04 AS '品號目的'
+                                    ,MA003 AS '會計類別'
+                                    ,CONVERT(NVARCHAR,MB023) +(CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END ) AS '效期'
                                     ,[TB_EB_USER].USER_GUID   	
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
                                     ,GROUP_ID  AS 'GROUP_ID'
