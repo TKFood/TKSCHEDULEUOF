@@ -104,6 +104,7 @@
             this.button70 = new System.Windows.Forms.Button();
             this.button71 = new System.Windows.Forms.Button();
             this.button76 = new System.Windows.Forms.Button();
+            this.button111 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.button67 = new System.Windows.Forms.Button();
@@ -152,7 +153,7 @@
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
-            this.button111 = new System.Windows.Forms.Button();
+            this.button112 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -252,6 +253,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button58, 3, 10);
             this.tableLayoutPanel1.Controls.Add(this.button21, 3, 11);
             this.tableLayoutPanel1.Controls.Add(this.button110, 3, 12);
+            this.tableLayoutPanel1.Controls.Add(this.button112, 3, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -1068,6 +1070,16 @@
             this.button76.UseVisualStyleBackColor = true;
             this.button76.Click += new System.EventHandler(this.button76_Click);
             // 
+            // button111
+            // 
+            this.button111.Location = new System.Drawing.Point(603, 43);
+            this.button111.Name = "button111";
+            this.button111.Size = new System.Drawing.Size(166, 34);
+            this.button111.TabIndex = 45;
+            this.button111.Text = "轉入2001.產品開發+包裝設計申請單";
+            this.button111.UseVisualStyleBackColor = true;
+            this.button111.Click += new System.EventHandler(this.button111_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.tableLayoutPanel3);
@@ -1640,15 +1652,15 @@
             // 
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
-            // button111
+            // button112
             // 
-            this.button111.Location = new System.Drawing.Point(603, 43);
-            this.button111.Name = "button111";
-            this.button111.Size = new System.Drawing.Size(166, 34);
-            this.button111.TabIndex = 45;
-            this.button111.Text = "轉入2001.產品開發+包裝設計申請單";
-            this.button111.UseVisualStyleBackColor = true;
-            this.button111.Click += new System.EventHandler(this.button111_Click);
+            this.button112.Location = new System.Drawing.Point(517, 523);
+            this.button112.Name = "button112";
+            this.button112.Size = new System.Drawing.Size(155, 34);
+            this.button112.TabIndex = 68;
+            this.button112.Text = "ERP品號變更通知單";
+            this.button112.UseVisualStyleBackColor = true;
+            this.button112.Click += new System.EventHandler(this.button112_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1799,5 +1811,6 @@
         private System.Windows.Forms.Timer timer4;
         private System.Windows.Forms.Button button110;
         private System.Windows.Forms.Button button111;
+        private System.Windows.Forms.Button button112;
     }
 }
