@@ -558,8 +558,15 @@ namespace TKSCHEDULEUOF
                 {
 
                 }
-                catch { }     
+                catch { }
 
+                try
+                {
+                    //ERP品號變更通知單
+                    ADD_ERP_INVMB_TO_UOF_9002();
+                }
+                catch { }
+              
                 try
                 {
 
