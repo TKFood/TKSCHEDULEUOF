@@ -60211,7 +60211,7 @@ namespace TKSCHEDULEUOF
 
                 //Row	UDF01
                 XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "UDF01");
+                Cell.SetAttribute("fieldId", "TL005");
                 Cell.SetAttribute("fieldValue", od["變更日期"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -60282,7 +60282,7 @@ namespace TKSCHEDULEUOF
 
                 //Row
                 Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TM005");
+                Cell.SetAttribute("fieldId", "TM006");
                 Cell.SetAttribute("fieldValue", od["新值"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
