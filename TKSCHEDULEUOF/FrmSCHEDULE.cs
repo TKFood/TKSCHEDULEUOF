@@ -60076,7 +60076,7 @@ namespace TKSCHEDULEUOF
                                     ,TM006 AS '新值'
                                     ,(CASE WHEN TM007<>TM006 THEN TM007 ELSE ''END) AS '舊值'
                                     FROM [TK].dbo.INVTL
-                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TM004 IN (
+                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 AND TM004 IN (
                                     'MB023'
                                     ,'MB003'
                                     ,'MB047'
@@ -60418,7 +60418,7 @@ namespace TKSCHEDULEUOF
                                     ,GROUP_ID  AS 'GROUP_ID'
                                     ,TITLE_ID  AS 'TITLE_ID'
                                     FROM [TK].dbo.INVTL
-                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TM004 IN (
+                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 AND TM004 IN (
                                     'MB023'
                                     ,'MB003'
                                     ,'MB047'
