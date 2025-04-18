@@ -60065,7 +60065,7 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"                                      
-                                    SELECT 
+                                   SELECT 
                                     TL005 AS '變更日期'
                                     ,TL001 AS '品號'
                                     ,TL007 AS '新品名'
@@ -60076,15 +60076,13 @@ namespace TKSCHEDULEUOF
                                     ,TM006 AS '新值'
                                     ,(CASE WHEN TM007<>TM006 THEN TM007 ELSE ''END) AS '舊值'
                                     FROM [TK].dbo.INVTL
-                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 AND TM004 IN (
-                                    'MB023'
-                                    ,'MB003'
-                                    ,'MB047'
-                                    ,'MB051'
-                                    ,'MB053'
-                                    ,'MB054'
-                                    )
+                                    LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 
                                     WHERE (TL001 LIKE '4%' OR TL001 LIKE '5%')
+                                    AND TM004 IN (
+	                                    SELECT 
+	                                    [TM004]
+	                                    FROM [TKRESEARCH].[dbo].[TB_INVTM_SETS]
+                                    )
                                     AND TL005 LIKE '{0}%'
                                     ORDER BY TL005,TL001,TM004
                                     ", YEATERDAY);
