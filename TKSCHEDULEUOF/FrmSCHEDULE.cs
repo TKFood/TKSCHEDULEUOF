@@ -60472,6 +60472,7 @@ namespace TKSCHEDULEUOF
             if (DT_FIND_FORM != null && DT_FIND_FORM.Rows.Count >= 1)
             {
                 ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DT_FIND_FORM);
+                UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO();
             }
         }
         public DataTable FIND_FORM_2001()
@@ -60580,6 +60581,91 @@ namespace TKSCHEDULEUOF
 
             }
 
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
+        public void UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO()
+        {
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            //NO的規格=西元年4碼+月份2碼+流水號2碼
+            SQL.AppendFormat(@" 
+                                DECLARE @Prefix VARCHAR(6) = CONVERT(VARCHAR(6), GETDATE(), 112); -- 例：202504
+                                DECLARE @StartSeq INT;
+
+                                -- 找出該年月中已存在的最大流水號
+                                SELECT @StartSeq = 
+                                MAX(CAST(RIGHT([NO], 2) AS INT))
+                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                WHERE [NO] LIKE @Prefix + '%'
+
+                                -- 若沒找到，就從 0 開始（接下來會 +1）
+                                IF @StartSeq IS NULL
+                                SET @StartSeq = 0;
+
+                                -- 用 CTE 給 NO 為空的資料編流水號
+                                WITH CTE AS (
+                                SELECT 
+                                    ID,
+                                    ROW_NUMBER() OVER (ORDER BY ID ASC) AS RowNum
+                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                WHERE ISNULL([NO], '') = ''  -- 僅限 NO 為空
+                                )
+                                UPDATE T
+                                SET NO = @Prefix + RIGHT('00' + CAST(@StartSeq + C.RowNum AS VARCHAR), 2)
+                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] T
+                                JOIN CTE C ON T.ID = C.ID
+                                WHERE ISNULL(T.NO, '') = '';  -- 再次保險：僅更新空值
+                                ");
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
