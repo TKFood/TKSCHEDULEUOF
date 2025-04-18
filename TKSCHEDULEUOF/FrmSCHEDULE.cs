@@ -60464,6 +60464,173 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void NEW_TO_TKRESEARCH_TB_PROJECTS_PRODUCTS()
+        {
+            //找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
+            DataTable DT_FIND_FORM = FIND_FORM_2001();
+
+            if (DT_FIND_FORM != null && DT_FIND_FORM.Rows.Count >= 1)
+            {
+                ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DT_FIND_FORM);
+            }
+        }
+        public DataTable FIND_FORM_2001()
+        {
+            DataTable DT = new DataTable();
+            SqlDataAdapter adapter1 = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            DataSet ds1 = new DataSet();
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+
+                sbSql.AppendFormat(@"  
+                                    SELECT *
+                                    FROM 
+                                    (
+                                    SELECT DOC_NBR
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS ID
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD4
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD3
+                                    , TB_WKF_FORM.FORM_NAME
+                                  
+
+                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
+                                    --AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
+
+                                    ) AS TEMP
+                                    WHERE 1 = 1
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT DOC_NBR FROM[192.168.1.105]. [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] WHERE ISNULL(DOC_NBR, '') <> '')
+
+                                    ");
+
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+                sqlConn.Close();
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+
+
+            return DT;
+        }
+
+        public void ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DataTable DT)
+        {
+            string DOC_NBR = null;
+            string PROJECTNAMES = null;
+
+            StringBuilder SQL = new StringBuilder();
+            SQL.Clear();
+
+            foreach (DataRow dr in DT.Rows)
+            {
+                DOC_NBR = dr["DOC_NBR"].ToString();
+                PROJECTNAMES = dr["FIELD4"].ToString();
+               
+                SQL.AppendFormat(@" 
+                                INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                ([DOC_NBR],[PROJECTNAMES])
+                                VALUES
+                                ('{0}','{1}')
+                                ", DOC_NBR, PROJECTNAMES);
+
+            }
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = SQL.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
+
+                }
+
+            }
+            catch
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -61194,6 +61361,7 @@ namespace TKSCHEDULEUOF
         private void button111_Click(object sender, EventArgs e)
         {
             //2001.產品開發+包裝設計申請單
+            NEW_TO_TKRESEARCH_TB_PROJECTS_PRODUCTS();
 
         }
         private void button112_Click(object sender, EventArgs e)
