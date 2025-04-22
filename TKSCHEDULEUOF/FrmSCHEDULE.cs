@@ -60064,6 +60064,8 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
+                //YEATERDAY = "20250422";
+
                 sbSql.AppendFormat(@"                                      
                                    SELECT 
                                     TL005 AS '變更日期'
@@ -60075,6 +60077,10 @@ namespace TKSCHEDULEUOF
                                     ,TM005 AS '欄位名稱'
                                     ,TM006 AS '新值'
                                     ,(CASE WHEN TM007<>TM006 THEN TM007 ELSE ''END) AS '舊值'
+                                    ,TL010 AS '單頭備註'
+                                    ,TM012 AS '單身備註'
+                                    ,TL004 AS '變更版次'
+
                                     FROM [TK].dbo.INVTL
                                     LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 
                                     WHERE (TL001 LIKE '4%' OR TL001 LIKE '5%')
@@ -60130,7 +60136,7 @@ namespace TKSCHEDULEUOF
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
             //string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
-            string EXTERNAL_FORM_NBR = YEATERDAY;
+            string EXTERNAL_FORM_NBR = YEATERDAY +"-"+ DT.Rows[0]["品號"].ToString().Trim() + "-" + DT.Rows[0]["變更版次"].ToString().Trim();
 
             int rowscounts = 0;
 
@@ -60295,7 +60301,7 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
-                //Row	UDF01
+                //Row	
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "TM007");
                 Cell.SetAttribute("fieldValue", od["舊值"].ToString());
@@ -60305,6 +60311,35 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TL010");
+                Cell.SetAttribute("fieldValue", od["單頭備註"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TM012");
+                Cell.SetAttribute("fieldValue", od["單身備註"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "TL004");
+                Cell.SetAttribute("fieldValue", od["變更版次"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
 
 
 
@@ -60411,6 +60446,9 @@ namespace TKSCHEDULEUOF
                                     ,TM005 AS '欄位名稱'
                                     ,TM006 AS '新值'
                                     ,(CASE WHEN TM007<>TM006 THEN TM007 ELSE ''END) AS '舊值'
+                                    ,TL010 AS '單頭備註'
+                                    ,TM012 AS '單身備註'
+                                    ,TL004 AS '變更版次'
                                     ,[TB_EB_USER].USER_GUID   	
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVTL.CREATOR) AS 'MV002'
                                     ,GROUP_ID  AS 'GROUP_ID'
