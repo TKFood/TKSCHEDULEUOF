@@ -656,6 +656,13 @@ namespace TKSCHEDULEUOF
 
             try
             {
+                //2001.產品開發+包裝設計申請單
+                NEW_TO_TKRESEARCH_TB_PROJECTS_PRODUCTS();
+            }
+            catch { }           
+
+            try
+            {
                 //TKUOF.TRIGGER.COPTAB.EndFormTrigger
                 //ERP-COPTAB報價單簽核
 
@@ -60608,7 +60615,7 @@ namespace TKSCHEDULEUOF
             foreach (DataRow dr in DT.Rows)
             {
                 DOC_NBR = dr["DOC_NBR"].ToString();
-                PROJECTNAMES = dr["FIELD4"].ToString();
+                PROJECTNAMES = dr["FIELD3"].ToString();
                 OWNER = dr["NAMES"].ToString();
                 KINDS = dr["FIELD6"].ToString();
 
@@ -60616,7 +60623,7 @@ namespace TKSCHEDULEUOF
                                 INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
                                 ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED])
                                 VALUES
-                                ('{0}','{1}','{2}','{3}','{4}','{5}')
+                                ('{0}','{1}',N'{2}','{3}','{4}','{5}')
                                 ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED);
 
             }
