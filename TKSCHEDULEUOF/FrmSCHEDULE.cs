@@ -60455,12 +60455,9 @@ namespace TKSCHEDULEUOF
                                     ,TITLE_ID  AS 'TITLE_ID'
                                     FROM [TK].dbo.INVTL
                                     LEFT JOIN [TK].dbo.INVTM ON TL001=TM001 AND TL004=TM002 AND TM004 IN (
-                                    'MB023'
-                                    ,'MB003'
-                                    ,'MB047'
-                                    ,'MB051'
-                                    ,'MB053'
-                                    ,'MB054'
+                                    	SELECT  
+	                                    [TM004]      
+	                                    FROM [TKRESEARCH].[dbo].[TB_INVTM_SETS]
                                     )
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= INVTL.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
