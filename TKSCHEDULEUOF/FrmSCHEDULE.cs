@@ -49529,7 +49529,8 @@ namespace TKSCHEDULEUOF
                                     AND ISNULL(GG004_fieldValue,'')=''
                                     AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                                     AND [DOC_NBR]>='GA1003240700096'
-                        
+                                   
+
                                     ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
                                     ");
 
@@ -49637,6 +49638,11 @@ namespace TKSCHEDULEUOF
                     string GA098 = "";
                     string GA099 = "";
                     string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
+                    //採購單的「負責採購人員」是空白，預設GA999
+                    if (string.IsNullOrEmpty(GA999))
+                    {
+                        GA999 = "王嘩芝";
+                    }
                     string GG010 = "";
 
                     //找出1003.雜項請購單 的指定採購人員(由總務填寫)	
