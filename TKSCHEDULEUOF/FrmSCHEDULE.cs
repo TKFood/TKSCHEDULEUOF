@@ -60534,27 +60534,26 @@ namespace TKSCHEDULEUOF
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                sbSqlQuery.Clear();               
 
                 sbSql.AppendFormat(@"  
                                     SELECT *
                                     FROM 
-                                    (
+                                    (                                    
                                     SELECT DOC_NBR
-                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS ID
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD4
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD3
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS 'ID'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD4'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD3'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD6'
                                     , TB_WKF_FORM.FORM_NAME
-                                  
+                                    , (SELECT TOP 1 NAME FROM[UOF].dbo.TB_EB_USER WHERE TB_EB_USER.USER_GUID = TB_WKF_TASK.USER_GUID) AS 'NAMES'
 
                                     FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
                                     WHERE 1 = 1
                                     AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
-                                    --AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
+                                    AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
 
                                     ) AS TEMP
                                     WHERE 1 = 1
@@ -60598,6 +60597,10 @@ namespace TKSCHEDULEUOF
         {
             string DOC_NBR = null;
             string PROJECTNAMES = null;
+            string OWNER = null;
+            string KINDS = null;
+            string STAGES = "進行中";
+            string ISCLOSED = "N";
 
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
@@ -60606,13 +60609,15 @@ namespace TKSCHEDULEUOF
             {
                 DOC_NBR = dr["DOC_NBR"].ToString();
                 PROJECTNAMES = dr["FIELD4"].ToString();
-               
+                OWNER = dr["NAMES"].ToString();
+                KINDS = dr["FIELD6"].ToString();
+
                 SQL.AppendFormat(@" 
                                 INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                ([DOC_NBR],[PROJECTNAMES])
+                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED])
                                 VALUES
-                                ('{0}','{1}')
-                                ", DOC_NBR, PROJECTNAMES);
+                                ('{0}','{1}','{2}','{3}','{4}','{5}')
+                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED);
 
             }
 
