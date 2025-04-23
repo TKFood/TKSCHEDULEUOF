@@ -49488,7 +49488,7 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString());
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString(), dr["GG004_fieldValue"].ToString(), dr["GG002_fieldValue"].ToString(), dr["GG005_fieldValue"].ToString());
                 }
             }
         }
@@ -49520,16 +49520,19 @@ namespace TKSCHEDULEUOF
 
                 //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                 //AND DOC_NBR = 'GA1003240700088'
-                sbSql.AppendFormat(@"  
-                                   SELECT 
-                                    DOC_NBR,GG004_fieldValue,*
+                sbSql.AppendFormat(@"
+                                    SELECT 
+                                    DOC_NBR
+                                    ,GG004_fieldValue
+                                    ,GG002_fieldValue
+                                    ,GG005_fieldValue
+                                    ,*
                                     FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
                                     LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
                                     WHERE 1=1
                                     AND ISNULL(GG004_fieldValue,'')=''
                                     AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
-                                    AND [DOC_NBR]>='GA1003240700096'
-                                   
+                                    AND [DOC_NBR]>='GA1003240700096'                                    
 
                                     ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
                                     ");
@@ -49563,7 +49566,12 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(string DOC_NBR)
+        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(
+            string DOC_NBR,
+            string GG004_fieldValue,
+            string GG002_fieldValue,
+            string GG005_fieldValue
+            )
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -49599,8 +49607,11 @@ namespace TKSCHEDULEUOF
                                     WHERE 1=1
                                     AND ISNULL(GG004_fieldValue,'')=''
                                     AND DOC_NBR='{0}'
+                                    AND GG004_fieldValue='{1}'
+                                    AND GG002_fieldValue='{2}'
+                                    AND GG005_fieldValue='{3}'
                               
-                                    ", DOC_NBR);
+                                    ", DOC_NBR, GG004_fieldValue, GG002_fieldValue, GG005_fieldValue);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -49611,7 +49622,7 @@ namespace TKSCHEDULEUOF
                 adapter1.Fill(ds1, "ds1");
                 sqlConn.Close();
 
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                if (ds1 !=null && ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
                     string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
@@ -49687,7 +49698,9 @@ namespace TKSCHEDULEUOF
                                                     , GA019
                                                     );
 
-                }
+              
+
+            }                    
 
             }
             catch
