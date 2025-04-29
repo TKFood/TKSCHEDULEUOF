@@ -60568,6 +60568,8 @@ namespace TKSCHEDULEUOF
                                     (                                    
                                     SELECT DOC_NBR
                                     ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS 'ID'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD4'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD3'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD6'
@@ -60583,6 +60585,7 @@ namespace TKSCHEDULEUOF
 
                                     ) AS TEMP
                                     WHERE 1 = 1
+                                  
                                     AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT DOC_NBR FROM[192.168.1.105]. [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] WHERE ISNULL(DOC_NBR, '') <> '')
 
                                     ");
@@ -60627,6 +60630,7 @@ namespace TKSCHEDULEUOF
             string KINDS = null;
             string STAGES = "進行中";
             string ISCLOSED = "N";
+            string DESIGNER = "";
 
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
@@ -60637,13 +60641,19 @@ namespace TKSCHEDULEUOF
                 PROJECTNAMES = dr["FIELD3"].ToString();
                 OWNER = dr["NAMES"].ToString();
                 KINDS = dr["FIELD6"].ToString();
+                DESIGNER = dr["FIELD41"].ToString();
+
+                //正規表達式（Regex）取出名字
+                string original = DESIGNER;
+                string nameOnly = Regex.Match(original, @"^(.*?)\(").Groups[1].Value;
+                DESIGNER = nameOnly;
 
                 SQL.AppendFormat(@" 
                                 INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED])
+                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED],[DESIGNER])
                                 VALUES
-                                ('{0}','{1}',N'{2}','{3}','{4}','{5}')
-                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED);
+                                ('{0}','{1}',N'{2}','{3}','{4}','{5}','{6}')
+                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED, DESIGNER);
 
             }
 
