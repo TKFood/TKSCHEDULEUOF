@@ -60115,6 +60115,11 @@ namespace TKSCHEDULEUOF
 	                                    [TM004]
 	                                    FROM [TKRESEARCH].[dbo].[TB_INVTM_SETS]
                                     )
+                                    AND TL010 NOT IN (
+	                                    SELECT 
+	                                    [TL010]
+	                                    FROM [TKSCHEDULEUOF].[dbo].[TBINVMBTL010]
+	                                    )
                                     AND TL005 LIKE '{0}%'
                                     ORDER BY TL005,TL001,TM004
                                     ", YEATERDAY);
@@ -60488,6 +60493,11 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= INVTL.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
                                     WHERE (TL001 LIKE '4%' OR TL001 LIKE '5%')
+                                    AND TL010 NOT IN (
+	                                    SELECT 
+	                                    [TL010]
+	                                    FROM [TKSCHEDULEUOF].[dbo].[TBINVMBTL010]
+	                                    )
                                     AND TL005 LIKE '{0}%'
                                     ORDER BY TL005,TL001,TM004
 
