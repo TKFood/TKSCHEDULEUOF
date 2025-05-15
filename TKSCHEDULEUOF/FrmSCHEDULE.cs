@@ -60802,6 +60802,106 @@ namespace TKSCHEDULEUOF
             }
 
         }
+        public void ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+                
+
+                sbSql.AppendFormat(@"                                      
+                                   SELECT 
+                                    DOC_NBR AS 'DOC_NBR'
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FA""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FA'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD2""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD2'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD3'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD4'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD5""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD5'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD6'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD7""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD7'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD9""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD9'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD10""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD10'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD12""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD12'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD14""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD14'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD20""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD20'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD21""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD21'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD23""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD23'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD26""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD26'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD27""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD27'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD30""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD30'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD33""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD33'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD34'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD35""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD35'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD36'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD37""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD37'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD38""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD38'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@realValue)[1]', 'nvarchar(max)') AS 'FIELD41realValue'
+                                    , TB_WKF_FORM.FORM_NAME
+                                    , (SELECT TOP 1 NAME FROM[UOF].dbo.TB_EB_USER WHERE TB_EB_USER.USER_GUID = TB_WKF_TASK.USER_GUID) AS 'NAMES'
+
+                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
+                                    AND TASK_RESULT NOT IN('1','2')
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    FIND_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK();
+                }
+                else
+                {
+
+                }
+
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void FIND_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK()
+        {
+            
+        }
 
         #endregion
 
@@ -61543,8 +61643,15 @@ namespace TKSCHEDULEUOF
             ADD_ERP_INVMB_TO_UOF_9002();
         }
 
-        #endregion
+        private void button113_Click(object sender, EventArgs e)
+        {
+            //2001A.產品開發+包裝設計申請單(行企專用)
+            //原始來源=2001.產品開發+包裝設計申請單
+            //當行企主管必需，先指定「指定設計人員(由行企主管指定)」
+            ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS();
+        }
 
+        #endregion
 
     }
 }
