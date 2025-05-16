@@ -60868,6 +60868,14 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
                                     AND TASK_RESULT NOT IN('1','2')
+                                    AND DOC_NBR NOT IN
+                                    (
+                                        SELECT EXTERNAL_FORM_NBR
+
+                                        FROM[UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                                        WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
+                                    )
+                                    AND DOC_NBR = 'NEWDESIGN250500009'
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
