@@ -60859,23 +60859,29 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@realValue)[1]', 'nvarchar(max)') AS 'FIELD41realValue'
-                                    , TB_WKF_FORM.FORM_NAME
-                                    , (SELECT TOP 1 NAME FROM[UOF].dbo.TB_EB_USER WHERE TB_EB_USER.USER_GUID = TB_WKF_TASK.USER_GUID) AS 'NAMES'
+                                   , TB_WKF_FORM.FORM_NAME
+                                    , [TB_EB_USER].NAME AS 'NAME'
+                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
+                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
+                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
+                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
 
-                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    FROM[UOF].dbo.TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
+                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
                                     WHERE 1 = 1
                                     AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
                                     AND TASK_RESULT NOT IN('1','2')
-                                    AND DOC_NBR NOT IN
+                                    AND DOC_NBR NOT IN 
                                     (
-                                        SELECT EXTERNAL_FORM_NBR
-
-                                        FROM[UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
-                                        WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
+	                                    SELECT EXTERNAL_FORM_NBR
+	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
                                     )
-                                    AND DOC_NBR = 'NEWDESIGN250500009'
+                                    AND DOC_NBR='NEWDESIGN250500009'
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -60887,8 +60893,15 @@ namespace TKSCHEDULEUOF
 
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    FIND_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK();
+                {                   
+                    foreach(DataRow DR in ds1.Tables["ds1"].Rows)
+                    {
+                        string DOC_NBR = DR["DOC_NBR"].ToString();
+                        if (!string.IsNullOrEmpty(DOC_NBR))
+                        {
+                            ADD_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK(DOC_NBR);
+                        }
+                    }
                 }
                 else
                 {
@@ -60906,9 +60919,269 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void FIND_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK()
+        public void ADD_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK(string DOC_NBR)
         {
-            
+            DataTable DT = SEARCH_UOF_FORM_2001A(DOC_NBR);
+            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["ACCOUNT"].ToString());
+
+            string account = DT.Rows[0]["ACCOUNT"].ToString();
+            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+            string fillerName = DT.Rows[0]["NAME"].ToString();
+            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+
+            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+            //string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
+            string EXTERNAL_FORM_NBR =  DT.Rows[0]["DOC_NBR"].ToString().Trim();
+
+            int rowscounts = 0;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            //建立根節點
+            XmlElement Form = xmlDoc.CreateElement("Form");
+
+            //正式的id
+            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("2001A.產品開發+包裝設計申請單(行企專用)");
+
+            if (!string.IsNullOrEmpty(FORM_ID))
+            {
+                Form.SetAttribute("formVersionId", FORM_ID);
+            }
+
+
+            Form.SetAttribute("urgentLevel", "2");
+            //加入節點底下
+            xmlDoc.AppendChild(Form);
+
+            ////建立節點Applicant
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            //加入節點底下
+            Form.AppendChild(Applicant);
+
+            //建立節點 Comment
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            //加入至節點底下
+            Applicant.AppendChild(Comment);
+
+            //建立節點 FormFieldValue
+            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            //加入至節點底下
+            Form.AppendChild(FormFieldValue);
+
+            //建立節點FieldItem
+            //ID 表單編號	
+            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "ID");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //SDOC_NBR
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "SDOC_NBR");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["DOC_NBR"].ToString().Trim());
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點FieldItem
+            //FIELD41
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "FIELD41");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD41"].ToString().Trim());
+            FieldItem.SetAttribute("realValue", DT.Rows[0]["FIELD41realValue"].ToString().Trim());
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+
+            ////用ADDTACK，直接啟動起單
+            //ADDTACK(Form);
+
+            //ADD TO DB
+            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
+
+            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+            //sqlConn = new SqlConnection(connectionString);
+
+            //20210902密
+            Class1 TKID = new Class1();//用new 建立類別實體
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+            //資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            String connectionString;
+            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            connectionString = sqlConn.ConnectionString.ToString();
+
+            StringBuilder queryString = new StringBuilder();
+
+
+
+
+            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
+                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(),@XML,2,'{1}')
+                                        ", DBNAME, EXTERNAL_FORM_NBR);
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+
+                    command.Connection.Open();
+
+                    int count = command.ExecuteNonQuery();
+
+                    connection.Close();
+                    connection.Dispose();
+
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+        public DataTable SEARCH_UOF_FORM_2001A(string DOC_NBR)
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                sbSql.AppendFormat(@"                                      
+                                   SELECT 
+                                    DOC_NBR AS 'DOC_NBR'
+                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FA""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FA'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD2""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD2'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD3'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD4'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD5""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD5'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD6'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD7""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD7'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD9""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD9'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD10""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD10'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD12""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD12'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD14""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD14'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD20""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD20'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD21""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD21'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD23""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD23'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD26""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD26'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD27""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD27'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD30""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD30'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD33""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD33'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD34'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD35""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD35'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD36'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD37""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD37'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD38""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD38'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@realValue)[1]', 'nvarchar(max)') AS 'FIELD41realValue'
+                                   , TB_WKF_FORM.FORM_NAME
+                                    , [TB_EB_USER].NAME AS 'NAME'
+                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
+                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
+                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
+                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+
+                                    FROM[UOF].dbo.TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
+                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
+                                    AND TASK_RESULT NOT IN('1','2')
+                                    AND DOC_NBR NOT IN 
+                                    (
+	                                    SELECT EXTERNAL_FORM_NBR
+	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
+                                    )
+                                    AND DOC_NBR='{0}'
+                                    ",DOC_NBR);
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
         }
 
         #endregion
