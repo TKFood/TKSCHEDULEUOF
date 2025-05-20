@@ -60883,7 +60883,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@realValue)[1]', 'nvarchar(max)') AS 'FIELD41realValue'
+
                                    , TB_WKF_FORM.FORM_NAME
                                     , [TB_EB_USER].NAME AS 'NAME'
                                     , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
@@ -61027,12 +61027,60 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //先找出第1個設計人員 
+            //張璟瑩(220058)、黃量懋(240022)、嚴佳雯(240026)
+            string FIELD41_fieldValue = "";
+            string ACCOUNT = "";
+            string FIELD41_realValue = "";
+            // 找出第一個「、」的位置
+            int index = DT.Rows[0]["FIELD41"].ToString().Trim().IndexOf('、');
+            if (index > 0)
+            {
+                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString().Trim().Substring(0, index);                
+            }
+            else
+            {
+                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString();
+            }
+            //找出第1個設計人員的USER_GUID
+            //使用正則表達式擷取括號中的數字ACCOUNT
+            Match match = Regex.Match(FIELD41_fieldValue.Trim(), @"\((\d+)\)");           
+            if (match.Success)
+            {
+                ACCOUNT = match.Groups[1].Value;
+                DataTable DTS = FIND_UOF_TB_EB_USER_ACCOUNT(ACCOUNT);
+                if(DTS!=null && DTS.Rows.Count>=1)
+                {
+                    FIELD41_realValue = DTS.Rows[0]["USER_GUID"].ToString();
+                }
+                //Console.WriteLine($"第一筆 ID 是: {id}");
+            }
+            else
+            {
+                //找不到設計人員 ACCOUNT 就不繼續
+                return;
+            }
+            //先組出USERSET的XML
+            XmlDocument doc = new XmlDocument();
+            // 建立根節點 <UserSet>
+            XmlElement root = doc.CreateElement("UserSet");
+            doc.AppendChild(root);
+            // 建立 <Element type='user'>
+            XmlElement element = doc.CreateElement("Element");
+            element.SetAttribute("type", "user");
+            // 建立 <userId> 並設定內容
+            XmlElement userId = doc.CreateElement("userId");
+            userId.InnerText = FIELD41_realValue;
+            // 組裝節點
+            element.AppendChild(userId);
+            root.AppendChild(element);
+
             //建立節點FieldItem
             //FIELD41
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "FIELD41");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD41"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", DT.Rows[0]["FIELD41realValue"].ToString().Trim());
+            FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
+            FieldItem.SetAttribute("realValue", root.ToString());
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
@@ -61469,7 +61517,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@realValue)[1]', 'nvarchar(max)') AS 'FIELD41realValue'
+
                                    , TB_WKF_FORM.FORM_NAME
                                     , [TB_EB_USER].NAME AS 'NAME'
                                     , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
@@ -61522,7 +61570,67 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+        public DataTable FIND_UOF_TB_EB_USER_ACCOUNT(string ACCOUNT)
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
 
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                sbSql.AppendFormat(@"                                      
+                                    SELECT 
+                                    ACCOUNT,NAME,USER_GUID
+                                    FROM [UOF].[dbo].[TB_EB_USER]
+                                    WHERE ACCOUNT='{0}'
+                                    ", ACCOUNT);
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
         #endregion
 
         #region BUTTON
