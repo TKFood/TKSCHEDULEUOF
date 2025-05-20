@@ -27,7 +27,7 @@ namespace TKSCHEDULEUOF
 {
     public partial class FrmSCHEDULE : Form
     {
-        int TIMEOUT_LIMITS = 240;
+        int TIMEOUT_LIMITS = 240;      
 
         //測試ID = "";
         //正式ID =""
@@ -106,23 +106,27 @@ namespace TKSCHEDULEUOF
         private void FrmSCHEDULE_Load(object sender, EventArgs e)
         {
             timer1.Enabled = true;
-            timer1.Interval = 1000 * 60;
+            timer1.Interval = 1000 * 60; // 1 分鐘
             timer1.Start();
 
             timer2.Enabled = true;
-            timer2.Interval = 1000 * 60;
+            timer2.Interval = 1000 * 60; // 1 分鐘
             timer2.Start();
 
             timer3.Enabled = true;
-            timer3.Interval = 1000 * 60;
+            timer3.Interval = 1000 * 60; // 1 分鐘
             timer3.Start();
 
             timer4.Enabled = true;
-            timer4.Interval = 300000; // 5 分鐘
+            timer4.Interval = 1000 * 60*5; // 5 分鐘
             timer4.Start();
+
+            timer5.Enabled = true;
+            timer5.Interval = 1000 * 60 * 60; // 1 小時
+            timer5.Start();
         }
 
-
+        
 
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
@@ -650,7 +654,7 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-               
+
             }
             catch { }
 
@@ -756,6 +760,27 @@ namespace TKSCHEDULEUOF
 
             //TEST
             //MessageBox.Show($"執行任務: {DateTime.Now}");
+        }
+        /// <summary>
+        /// 每1小時執行
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer5_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+               
+            }
+            catch { }
+            try
+            {
+                //2001A.產品開發+包裝設計申請單(行企專用)
+                //原始來源=2001.產品開發+包裝設計申請單
+                //當行企主管必需，先指定「指定設計人員(由行企主管指定)」
+                ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS();
+            }
+            catch { }
         }
         #region FUNCTION
 
@@ -60881,7 +60906,7 @@ namespace TKSCHEDULEUOF
 	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
 	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
                                     )
-                                    AND DOC_NBR='NEWDESIGN250500009'
+                                  
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -62248,5 +62273,6 @@ namespace TKSCHEDULEUOF
 
         #endregion
 
+      
     }
 }
