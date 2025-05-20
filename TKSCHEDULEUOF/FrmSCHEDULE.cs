@@ -61080,7 +61080,7 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "FIELD41");
             FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
-            FieldItem.SetAttribute("realValue", root.ToString());
+            FieldItem.SetAttribute("realValue", root.OuterXml);
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
