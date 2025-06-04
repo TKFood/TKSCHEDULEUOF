@@ -61063,7 +61063,7 @@ namespace TKSCHEDULEUOF
             else
             {
                 //找不到設計人員 ACCOUNT 就不繼續
-                return;
+                //return;
             }
             //先組出USERSET的XML
             XmlDocument doc = new XmlDocument();
@@ -61085,7 +61085,8 @@ namespace TKSCHEDULEUOF
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "FIELD41");
             FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
-            FieldItem.SetAttribute("realValue", root.OuterXml);
+            FieldItem.SetAttribute("realValue", "");
+            //FieldItem.SetAttribute("realValue", root.OuterXml);
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
