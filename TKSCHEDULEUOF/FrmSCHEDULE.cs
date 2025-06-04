@@ -60562,7 +60562,7 @@ namespace TKSCHEDULEUOF
 
         public void NEW_TO_TKRESEARCH_TB_PROJECTS_PRODUCTS()
         {
-            //找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
+            
             DataTable DT_FIND_FORM = FIND_FORM_2001();
 
             if (DT_FIND_FORM != null && DT_FIND_FORM.Rows.Count >= 1)
@@ -60570,6 +60570,9 @@ namespace TKSCHEDULEUOF
                 ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DT_FIND_FORM);
                 UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO();
             }
+
+            //更新設計人員
+
         }
         public DataTable FIND_FORM_2001()
         {
