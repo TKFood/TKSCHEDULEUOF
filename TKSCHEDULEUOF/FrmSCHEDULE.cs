@@ -60604,7 +60604,7 @@ namespace TKSCHEDULEUOF
                                     SELECT DOC_NBR
                                     ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS 'ID'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+                                    
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD4'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD3'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD6'
@@ -60677,7 +60677,7 @@ namespace TKSCHEDULEUOF
                 PROJECTNAMES = dr["FIELD3"].ToString();
                 OWNER = dr["NAMES"].ToString();
                 KINDS = dr["FIELD6"].ToString();
-                DESIGNER = dr["FIELD41"].ToString();
+                //DESIGNER = dr["FIELD41"].ToString();
 
                 //正規表達式（Regex）取出名字
                 string original = DESIGNER;
@@ -60686,10 +60686,10 @@ namespace TKSCHEDULEUOF
 
                 SQL.AppendFormat(@" 
                                 INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED],[DESIGNER])
+                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED])
                                 VALUES
                                 ('{0}','{1}',N'{2}','{3}','{4}','{5}','{6}')
-                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED, DESIGNER);
+                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED);
 
             }
 
@@ -60883,7 +60883,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD38""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD38'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+                                    
 
                                    , TB_WKF_FORM.FORM_NAME
                                     , [TB_EB_USER].NAME AS 'NAME'
@@ -61028,60 +61028,62 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
-            //先找出第1個設計人員 
-            //張璟瑩(220058)、黃量懋(240022)、嚴佳雯(240026)
-            string FIELD41_fieldValue = "";
-            string ACCOUNT = "";
-            string FIELD41_realValue = "";
-            // 找出第一個「、」的位置
-            int index = DT.Rows[0]["FIELD41"].ToString().Trim().IndexOf('、');
-            if (index > 0)
-            {
-                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString().Trim().Substring(0, index);                
-            }
-            else
-            {
-                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString();
-            }
-            //找出第1個設計人員的USER_GUID
-            //使用正則表達式擷取括號中的數字ACCOUNT
-            Match match = Regex.Match(FIELD41_fieldValue.Trim(), @"\((\d+)\)");           
-            if (match.Success)
-            {
-                ACCOUNT = match.Groups[1].Value;
-                DataTable DTS = FIND_UOF_TB_EB_USER_ACCOUNT(ACCOUNT);
-                if(DTS!=null && DTS.Rows.Count>=1)
-                {
-                    FIELD41_realValue = DTS.Rows[0]["USER_GUID"].ToString();
-                }
-                //Console.WriteLine($"第一筆 ID 是: {id}");
-            }
-            else
-            {
-                //找不到設計人員 ACCOUNT 就不繼續
-                return;
-            }
-            //先組出USERSET的XML
-            XmlDocument doc = new XmlDocument();
-            // 建立根節點 <UserSet>
-            XmlElement root = doc.CreateElement("UserSet");
-            doc.AppendChild(root);
-            // 建立 <Element type='user'>
-            XmlElement element = doc.CreateElement("Element");
-            element.SetAttribute("type", "user");
-            // 建立 <userId> 並設定內容
-            XmlElement userId = doc.CreateElement("userId");
-            userId.InnerText = FIELD41_realValue;
-            // 組裝節點
-            element.AppendChild(userId);
-            root.AppendChild(element);
+            ////先找出第1個設計人員 
+            ////張璟瑩(220058)、黃量懋(240022)、嚴佳雯(240026)
+            //string FIELD41_fieldValue = "";
+            //string ACCOUNT = "";
+            //string FIELD41_realValue = "";
+            //// 找出第一個「、」的位置
+            //int index = DT.Rows[0]["FIELD41"].ToString().Trim().IndexOf('、');
+            //if (index > 0)
+            //{
+            //    FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString().Trim().Substring(0, index);                
+            //}
+            //else
+            //{
+            //    FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString();
+            //}
+            ////找出第1個設計人員的USER_GUID
+            ////使用正則表達式擷取括號中的數字ACCOUNT
+            //Match match = Regex.Match(FIELD41_fieldValue.Trim(), @"\((\d+)\)");           
+            //if (match.Success)
+            //{
+            //    ACCOUNT = match.Groups[1].Value;
+            //    DataTable DTS = FIND_UOF_TB_EB_USER_ACCOUNT(ACCOUNT);
+            //    if(DTS!=null && DTS.Rows.Count>=1)
+            //    {
+            //        FIELD41_realValue = DTS.Rows[0]["USER_GUID"].ToString();
+            //    }
+            //    //Console.WriteLine($"第一筆 ID 是: {id}");
+            //}
+            //else
+            //{
+            //    //找不到設計人員 ACCOUNT 就不繼續
+            //    return;
+            //}
+            ////先組出USERSET的XML
+            //XmlDocument doc = new XmlDocument();
+            //// 建立根節點 <UserSet>
+            //XmlElement root = doc.CreateElement("UserSet");
+            //doc.AppendChild(root);
+            //// 建立 <Element type='user'>
+            //XmlElement element = doc.CreateElement("Element");
+            //element.SetAttribute("type", "user");
+            //// 建立 <userId> 並設定內容
+            //XmlElement userId = doc.CreateElement("userId");
+            //userId.InnerText = FIELD41_realValue;
+            //// 組裝節點
+            //element.AppendChild(userId);
+            //root.AppendChild(element);
 
             //建立節點FieldItem
             //FIELD41
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "FIELD41");
-            FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
-            FieldItem.SetAttribute("realValue", root.OuterXml);
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            //FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
+            //FieldItem.SetAttribute("realValue", root.OuterXml);
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
             FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
