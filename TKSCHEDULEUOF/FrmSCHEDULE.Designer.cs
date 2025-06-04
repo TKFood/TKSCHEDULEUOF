@@ -156,6 +156,7 @@
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
+            this.button114 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -930,6 +931,7 @@
             this.tableLayoutPanel2.Controls.Add(this.button71, 1, 3);
             this.tableLayoutPanel2.Controls.Add(this.button76, 3, 9);
             this.tableLayoutPanel2.Controls.Add(this.button111, 5, 1);
+            this.tableLayoutPanel2.Controls.Add(this.button114, 5, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -1679,6 +1681,16 @@
             // 
             this.timer5.Tick += new System.EventHandler(this.timer5_Tick);
             // 
+            // button114
+            // 
+            this.button114.Location = new System.Drawing.Point(603, 83);
+            this.button114.Name = "button114";
+            this.button114.Size = new System.Drawing.Size(166, 34);
+            this.button114.TabIndex = 46;
+            this.button114.Text = "更新2001.產品開發+包裝設計申請單的設計人員";
+            this.button114.UseVisualStyleBackColor = true;
+            this.button114.Click += new System.EventHandler(this.button114_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1831,5 +1843,6 @@
         private System.Windows.Forms.Button button112;
         private System.Windows.Forms.Button button113;
         private System.Windows.Forms.Timer timer5;
+        private System.Windows.Forms.Button button114;
     }
 }

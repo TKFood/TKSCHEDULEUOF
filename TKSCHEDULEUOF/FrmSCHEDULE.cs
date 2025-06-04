@@ -60569,9 +60569,7 @@ namespace TKSCHEDULEUOF
             {
                 ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DT_FIND_FORM);
                 UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO();
-            }
-
-            //更新設計人員
+            }           
 
         }
         public DataTable FIND_FORM_2001()
@@ -61637,6 +61635,191 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
+        public void UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER()
+        {
+            DataTable DT = FIND_TB_PROJECTS_PRODUCTS_DESIGNER();
+
+            if(DT!=null && DT.Rows.Count>=1)
+            {
+                UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER_EXE(DT);
+            }
+        }
+        public void UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER_EXE(DataTable DT)
+        {
+            string DOC_NBR = "";
+            string FirstNameFIELD41 = "";
+
+            StringBuilder SQLEXE = new StringBuilder();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+               foreach(DataRow DR in DT.Rows)
+                {
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    FirstNameFIELD41 = DR["FirstNameFIELD41"].ToString();
+
+                    SQLEXE.AppendFormat(@"
+                                        UPDATE [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                        SET [DESIGNER]='{1}'
+                                        WHERE [DOC_NBR]='{0}'
+
+                                        ", DOC_NBR,FirstNameFIELD41);
+                }
+            }
+
+
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+
+                sbSql = SQLEXE;
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public DataTable FIND_TB_PROJECTS_PRODUCTS_DESIGNER()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                sbSql.AppendFormat(@"                                      
+                                   SELECT 
+                                    [TB_PROJECTS_PRODUCTS].DOC_NBR
+                                    ,[TB_PROJECTS_PRODUCTS].[DESIGNER]
+                                    ,SDOC_NBR
+                                    ,FIELD41
+                                    ,LEFT(FIELD41, CHARINDEX('(', FIELD41) - 1) AS FirstNameFIELD41
+                                    FROM 
+                                    (
+	                                    SELECT 
+	                                    TB_WKF_TASK.DOC_NBR AS 'DOC_NBR'
+	                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""SDOC_NBR""]/@fieldValue)[1]', 'nvarchar(max)') AS 'SDOC_NBR'                 
+                                        , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+
+                                        , TB_WKF_FORM.FORM_NAME
+                                        , [TB_EB_USER].NAME AS 'NAME'
+                                        , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
+                                        , [TB_EB_USER].USER_GUID AS 'USER_GUID'
+                                        , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
+                                        , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+
+
+                                        FROM[UOF].dbo.TB_WKF_TASK
+
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
+
+                                        LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
+                                        ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+
+                                        WHERE 1 = 1
+
+                                        AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+
+                                        AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+
+                                        AND TB_WKF_FORM.FORM_NAME IN('2001A.產品開發+包裝設計申請單(行企專用)')
+                                    )  AS TEMP
+                                    ,[192.168.1.105].[TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                            WHERE[TB_PROJECTS_PRODUCTS].[DOC_NBR]=TEMP.SDOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                    AND ISNULL([TB_PROJECTS_PRODUCTS].[DESIGNER],'')=''
+                                    AND ISNULL(FIELD41,'')<>''
+                      
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -62384,9 +62567,14 @@ namespace TKSCHEDULEUOF
             //當行企主管必需，先指定「指定設計人員(由行企主管指定)」
             ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS();
         }
+        private void button114_Click(object sender, EventArgs e)
+        {
+            //更新 2001A.產品開發+包裝設計申請單(行企專用)
+            UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER();
+        }
 
         #endregion
 
-      
+
     }
 }
