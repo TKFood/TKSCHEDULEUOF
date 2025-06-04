@@ -775,6 +775,12 @@ namespace TKSCHEDULEUOF
             catch { }
             try
             {
+                //更新 2001A.產品開發+包裝設計申請單(行企專用)
+                UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER();
+            }
+            catch { }
+            try
+            {
                 //2001A.產品開發+包裝設計申請單(行企專用)
                 //原始來源=2001.產品開發+包裝設計申請單
                 //當行企主管必需，先指定「指定設計人員(由行企主管指定)」
@@ -61638,6 +61644,7 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER()
         {
+            //因為是linked server，所以要分段查詢+更新
             DataTable DT = FIND_TB_PROJECTS_PRODUCTS_DESIGNER();
 
             if(DT!=null && DT.Rows.Count>=1)
