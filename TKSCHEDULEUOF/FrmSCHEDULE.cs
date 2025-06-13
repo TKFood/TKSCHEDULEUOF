@@ -615,7 +615,7 @@ namespace TKSCHEDULEUOF
                 try
                 {
                     //會依請購單的廠商有指定，合併採購單
-                    string ACCOUNT = "150010";
+                    string ACCOUNT = "000002";
                     ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);                   
                 }
                 catch { }
@@ -62065,7 +62065,7 @@ namespace TKSCHEDULEUOF
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
             //會依請購單的廠商有指定，合併採購單
             //預設總務的請購人=150010 
-            string ACCOUNT = "150010";
+            string ACCOUNT = "000002";
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);
 
         }
