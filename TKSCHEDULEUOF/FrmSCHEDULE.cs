@@ -24707,8 +24707,7 @@ namespace TKSCHEDULEUOF
                                     FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER],[192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[UOF].[dbo].[TB_EB_GROUP]
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
-                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
-                                    AND [GROUP_NAME] LIKE '%總務%'
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''                                   
                                     AND [TB_EB_USER].[USER_GUID]='{0}'
                               
                                     ", USER_GUID);
