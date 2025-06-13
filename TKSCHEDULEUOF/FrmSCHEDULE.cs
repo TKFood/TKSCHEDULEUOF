@@ -615,7 +615,8 @@ namespace TKSCHEDULEUOF
                 try
                 {
                     //會依請購單的廠商有指定，合併採購單
-                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();                   
+                    string ACCOUNT = "150010";
+                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);                   
                 }
                 catch { }
 
@@ -49743,7 +49744,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL()
+        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(string ACCOUNT)
         {
             DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003_GG004_NOT_NULL();
 
@@ -49751,7 +49752,7 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(dr["GG004_fieldValue"].ToString());
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(dr["GG004_fieldValue"].ToString(), ACCOUNT);
                 }
             }
         }
@@ -49833,7 +49834,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(string GG004_fieldValue)
+        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(string GG004_fieldValue,string ACCOUNT)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -49902,7 +49903,7 @@ namespace TKSCHEDULEUOF
                         USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
                     }
 
-                    ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(USER_GUID, ds1.Tables["ds1"]);
+                    ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(USER_GUID, ds1.Tables["ds1"], ACCOUNT);
                 }
 
 
@@ -49920,15 +49921,15 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID, DataTable DT)
+        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID, DataTable DT,string ACCOUNT)
         {
-            //吳德明
-            //USER_GUID = "d3679881-68b1-477e-a2c6-b4ebe42482a3";
-            //何翔鈞
-            //USER_GUID = "192f1ddd-f6ef-4725-81e0-dc15c15a10cf";
+            //請購人原本的部門
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
-            //何翔鈞
-            DataTable DTUSERDEP_DEFAULT = FIND_Z_UOF_FORM1005_DEFAULT_PERSON();
+
+            //預設總務請購人
+            //ACCOUNT
+            //何順誠
+            DataTable DTUSERDEP_DEFAULT = FIND_Z_UOF_FORM1005_DEFAULT_PERSON(ACCOUNT);
             //總務部人員
             DataTable DT_Z_UOF_FORM1005_FLOW = FIND_Z_UOF_FORM1005_FLOW();
 
@@ -49943,7 +49944,7 @@ namespace TKSCHEDULEUOF
             string DEPNO = "";
 
             //表單申請人要在總務部中
-            //如果不在總務部，就改成何翔鈞
+            //如果不在總務部，就改成 何順誠 DTUSERDEP_DEFAULT
             if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1 && DT_Z_UOF_FORM1005_FLOW != null && DT_Z_UOF_FORM1005_FLOW.Rows.Count >= 1)
             {
                 foreach (DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
@@ -50581,7 +50582,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable FIND_Z_UOF_FORM1005_DEFAULT_PERSON()
+        public DataTable FIND_Z_UOF_FORM1005_DEFAULT_PERSON(string ACCOUNT)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -50607,8 +50608,6 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //何翔鈞
-                string ACCOUNT = "190041";
 
                 sbSql.AppendFormat(@"  
                                    SELECT 
@@ -62066,7 +62065,9 @@ namespace TKSCHEDULEUOF
             //請購單的廠商是未指定=空白
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
             //會依請購單的廠商有指定，合併採購單
-            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL();
+            //預設總務的請購人=150010 
+            string ACCOUNT = "150010";
+            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);
 
         }
 
