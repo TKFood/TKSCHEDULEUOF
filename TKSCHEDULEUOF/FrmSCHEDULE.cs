@@ -49678,7 +49678,7 @@ namespace TKSCHEDULEUOF
                     string GA017 = "";
                     string GA019 = ds1.Tables["ds1"].Rows[0]["GG010_fieldValue"].ToString();
                     string GA098 = "";
-                    string GA099 = "";
+                    string GA099 = ds1.Tables["ds1"].Rows[0]["GA009_fieldValue"].ToString();
                     string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
                     //採購單的「負責採購人員」是空白，預設GA999
                     if (string.IsNullOrEmpty(GA999))
@@ -50282,7 +50282,7 @@ namespace TKSCHEDULEUOF
             //GA999	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", fillerName);
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["GA009_fieldValue"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
