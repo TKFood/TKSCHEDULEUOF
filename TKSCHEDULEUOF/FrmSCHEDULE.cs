@@ -49818,7 +49818,7 @@ namespace TKSCHEDULEUOF
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
                                     AND [DOC_NBR]>='GA1003240700096'
-                                    AND [DOC_NBR]='GA1003250600059'
+                                   
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
