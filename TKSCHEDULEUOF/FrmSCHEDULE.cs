@@ -49818,7 +49818,7 @@ namespace TKSCHEDULEUOF
                                     )
                                     AND ISNULL(GG004_fieldValue,'')<>''
                                     AND [DOC_NBR]>='GA1003240700096'
-                                 
+                                    AND [DOC_NBR]='GA1003250600059'
 
                                     GROUP BY GG004_fieldValue
                                     ORDER BY GG004_fieldValue
@@ -50289,7 +50289,7 @@ namespace TKSCHEDULEUOF
             //GA099	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA099");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["GA009_fieldValue"].ToString());
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50301,7 +50301,7 @@ namespace TKSCHEDULEUOF
             //GA999	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["GA009_fieldValue"].ToString());
+            FieldItem.SetAttribute("fieldValue", fillerName);
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
