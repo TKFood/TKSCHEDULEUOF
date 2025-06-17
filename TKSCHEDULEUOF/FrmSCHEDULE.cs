@@ -24694,6 +24694,7 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
+                                    --先找是 總務
                                     SELECT 
                                     [GROUP_NAME] AS 'DEPNAME'
                                     ,[TB_EB_EMPL_DEP].[GROUP_ID]+','+[GROUP_NAME]+',False' AS 'DEPNO'
@@ -24707,7 +24708,26 @@ namespace TKSCHEDULEUOF
                                     FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER],[192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[UOF].[dbo].[TB_EB_GROUP]
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
-                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''                                   
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''                      
+                                    AND [GROUP_NAME] LIKE '%總務%'             
+                                    AND [TB_EB_USER].[USER_GUID]='{0}'
+                                    UNION ALL
+                                    --再找不是 總務
+                                    SELECT 
+                                    [GROUP_NAME] AS 'DEPNAME'
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]+','+[GROUP_NAME]+',False' AS 'DEPNO'
+                                    ,[TB_EB_USER].[USER_GUID]
+                                    ,[ACCOUNT]
+                                    ,[NAME]
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]
+                                    ,[TITLE_ID]     
+                                    ,[GROUP_NAME]
+                                    ,[GROUP_CODE]
+                                    FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER],[192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[UOF].[dbo].[TB_EB_GROUP]
+                                    WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
+                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''                      
+                                    AND [GROUP_NAME] NOT LIKE '%總務%'             
                                     AND [TB_EB_USER].[USER_GUID]='{0}'
                               
                                     ", USER_GUID);
@@ -49927,7 +49947,6 @@ namespace TKSCHEDULEUOF
 
             //預設總務請購人
             //ACCOUNT
-            //何順誠
             DataTable DTUSERDEP_DEFAULT = FIND_Z_UOF_FORM1005_DEFAULT_PERSON(ACCOUNT);
             //總務部人員
             DataTable DT_Z_UOF_FORM1005_FLOW = FIND_Z_UOF_FORM1005_FLOW();
@@ -49943,7 +49962,7 @@ namespace TKSCHEDULEUOF
             string DEPNO = "";
 
             //表單申請人要在總務部中
-            //如果不在總務部，就改成 何順誠 DTUSERDEP_DEFAULT
+            //如果不在總務部，就改成  DTUSERDEP_DEFAULT
             if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1 && DT_Z_UOF_FORM1005_FLOW != null && DT_Z_UOF_FORM1005_FLOW.Rows.Count >= 1)
             {
                 foreach (DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
@@ -50623,7 +50642,7 @@ namespace TKSCHEDULEUOF
                                     WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
                                     AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
                                     AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
-                                    AND TB_EB_EMPL_DEP.ORDERS=0
+                                    AND [GROUP_NAME] LIKE '%總務%'  
                                     AND ACCOUNT='{0}'
                                     ", ACCOUNT);
 
@@ -62067,6 +62086,8 @@ namespace TKSCHEDULEUOF
             //預設總務的請購人=150010 
             string ACCOUNT = "000002";
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);
+
+            MessageBox.Show("完成");
 
         }
 
