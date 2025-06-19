@@ -49388,7 +49388,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND[DOC_NBR] >= 'GA1003250600080'
                                     AND TB_WKF_FORM.FORM_NAME IN('1003.雜項請購單')
-                                    --AND TASK_RESULT IN('0')
+                                    AND TASK_RESULT IN('0')
                                     AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') = ''
                                     AND DOC_NBR NOT IN
                                     (
@@ -49397,7 +49397,7 @@ namespace TKSCHEDULEUOF
                                         WHERE STATUS IN('1', '2')
                                         AND ISNULL(EXTERNAL_FORM_NBR, '') <> ''
                                     )
-                                    AND DOC_NBR='GA1003250600088'
+                                    
                                     ORDER BY DOC_NBR
                                     ");
 
@@ -49778,7 +49778,7 @@ namespace TKSCHEDULEUOF
                                         )
                                     ) AS T
                                     WHERE 1=1
-                                    AND GG004='SGS'
+                                   
                                     GROUP BY GG004
                                     ORDER BY GG004
 
