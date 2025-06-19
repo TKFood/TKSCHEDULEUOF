@@ -49575,8 +49575,9 @@ namespace TKSCHEDULEUOF
                     if(!string.IsNullOrEmpty(TEMP))
                     {
                         string NAMES = TEMP.Substring(0, 3);
-                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
+                        GA999 = NAMES;
 
+                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
                         if (DT != null && DT.Rows.Count >= 1)
                         {
                             USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
@@ -49585,6 +49586,7 @@ namespace TKSCHEDULEUOF
                     else
                     {
                         DataTable DT = SEARCH_UOF_TB_EB_USER(DEFAUL_NAME);
+                        GA999 = DEFAUL_NAME;
 
                         if (DT != null && DT.Rows.Count >= 1)
                         {
