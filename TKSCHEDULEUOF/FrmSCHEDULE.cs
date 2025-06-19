@@ -608,7 +608,8 @@ namespace TKSCHEDULEUOF
                 {
                     //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
                     //請購單的廠商是未指定=空白
-                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();                    
+                    string DEFAUL_NAME = "王嘩芝";
+                    ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL(DEFAUL_NAME);                    
                 }
                 catch { }
 
@@ -23794,20 +23795,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-
-        public void ADD_UOF_FORM_GRAFFIRS_1005()
-        {
-            DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003();
-
-            if (DT1003 != null && DT1003.Rows.Count >= 1)
-            {
-                foreach (DataRow dr in DT1003.Rows)
-                {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_V2(dr["DOC_NBR"].ToString());
-                }
-            }
-
-        }
+             
 
         public DataTable SEARCH_UOF_GRAFFIRS_1003()
         {
@@ -23881,248 +23869,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_V2(string DOC_NBR)
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            int ROWS = 0;
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
-                    string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
-
-                    XmlDocument xmlDoc = new XmlDocument();
-
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-
-                    string GA001 = "";
-                    string GA002 = "";
-                    string GA003 = "";
-                    string GA004 = "";
-                    string GA005 = "";
-                    string GA006 = "";
-                    string GA007 = "";
-                    string GA008 = "";
-                    string GA009 = "";
-                    string GA010 = "";
-                    string GA011 = "";
-                    string GA012 = "";
-                    string GA013 = "";
-                    string GA014 = "";
-                    string GA015 = "";
-                    string GA016 = "";
-                    string GA017 = "";
-                    string GA098 = "";
-                    string GA099 = "";
-                    string GA999 = "";
-                    string GG010 = "";
-
-                    XmlNode XNODES = null;
-
-                    try
-                    {
-                        GA001 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA005']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA006']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA004 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA007']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        string TEMP_GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
-
-                        GA999 = FIND_TKGAFFAIRS_TBASSINGS(TEMP_GA999);
-
-                        //if(TEMP_GA999.Equals("何翔鈞(190041)"))
-                        //{
-                        //    GA999 = "何翔鈞";
-                        //}
-                        //else if (TEMP_GA999.Equals("吳德明(230034)"))
-                        //{
-                        //    GA999 = "吳德明";
-                        //}
-                        //else if (TEMP_GA999.Equals("邱筠軒(190029)"))
-                        //{
-                        //    GA999 = "邱筠軒";
-                        //}
-                        //else
-                        //{
-                        //    GA999 = "何翔鈞";
-                        //}
-                    }
-                    catch { }
-                    try
-                    {
-                        string TEMP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
-
-                        string NAMES = TEMP.Substring(0, 3);
-                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
-
-                        if (DT != null && DT.Rows.Count >= 1)
-                        {
-                            USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
-                        }
-
-                    }
-                    catch { }
-                    try
-                    {
-                        XNODES = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA008']/DataGrid");
-
-                    }
-                    catch { }
-
-
-
-
-                    foreach (XmlNode nodeDataGrid in XNODES)
-                    {
-                        try
-                        {
-                            GA005 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG002']").Attributes["fieldValue"].Value;
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GA006 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG003']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GA007 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG009']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GA008 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG005']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GA011 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG004']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GG010 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG010']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-
-
-                        ROWS = ROWS + 1;
-                        GA002 = DOC_NBR;
-                        GA017 = DOC_NBR + '-' + ROWS;
-
-                        ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(USER_GUID, DOC_NBR
-                                                        , GA001
-                                                        , GA002
-                                                        , GA003
-                                                        , GA004
-                                                        , GA005
-                                                        , GA006
-                                                        , GA007
-                                                        , GA008
-                                                        , GA009
-                                                        , GA010
-                                                        , GA011
-                                                        , GA012
-                                                        , GA013
-                                                        , GA014
-                                                        , GA015
-                                                        , GA016
-                                                        , GA017
-                                                        , GA098
-                                                        , GA099
-                                                        , GA999
-                                                        , GG010
-                                                        );
-
-
-                    }
-
-                    //string OK = "";
-
-
-
-
-
-                }
-                else
-                {
-
-                }
-
-            }
-            catch
-            {
-
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
+      
 
         public DataTable SEARCH_UOF_TB_EB_USER(string NAME)
         {
@@ -24212,6 +23959,7 @@ namespace TKSCHEDULEUOF
             , string GA099
             , string GA999
             , string GA019
+            , string DEFAUL_NAME
             )
         {
 
@@ -24219,7 +23967,7 @@ namespace TKSCHEDULEUOF
             //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
 
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
-            DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut();
+            DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut(DEFAUL_NAME);
             //DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
             //string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
             //string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
@@ -24761,7 +24509,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public DataTable SEARCHUOFUSERDEP_Defalut()
+        public DataTable SEARCHUOFUSERDEP_Defalut(string DEFAUL_NAME)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -24787,17 +24535,25 @@ namespace TKSCHEDULEUOF
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    [ACCOUNT]
-                                    ,[GROUP_ID]
-                                    ,[TITLE_ID]
+                                   SELECT 
+                                    [GROUP_NAME] AS 'DEPNAME'
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]+','+[GROUP_NAME]+',False' AS 'DEPNO'
+                                    ,[TB_EB_USER].[USER_GUID]
+                                    ,[ACCOUNT]
                                     ,[NAME]
-                                    ,[USER_GUID]
-                                    ,[DEPNAME]
-                                    ,[DEPNO]
-                                    FROM [TKGAFFAIRS].[dbo].[UOF1005DEFALUT]
+                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]
+                                    ,[TITLE_ID]     
+                                    ,[GROUP_NAME]
+                                    ,[GROUP_CODE]
+                                    ,*
+                                    FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER],[192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[UOF].[dbo].[TB_EB_GROUP]
+                                    WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
+                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''     
+                                    AND ORDERS=0             
+                                    AND [NAME]='{0}'
                               
-                                    ");
+                                    ", DEFAUL_NAME);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -49531,7 +49287,7 @@ namespace TKSCHEDULEUOF
         }
 
         //
-        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL()
+        public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL(string DEFAUL_NAME)
         {
             DataTable DT1003 = SEARCH_UOF_GRAFFIRS_1003_GG004_NULL();
 
@@ -49539,7 +49295,7 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString(), dr["GG004_fieldValue"].ToString(), dr["GG002_fieldValue"].ToString(), dr["GG005_fieldValue"].ToString());
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString(), dr["GG004"].ToString(), dr["GG002"].ToString(), dr["GG005"].ToString(),DEFAUL_NAME);
                 }
             }
         }
@@ -49571,21 +49327,68 @@ namespace TKSCHEDULEUOF
 
                 //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                 //AND DOC_NBR = 'GA1003240700088'
-                sbSql.AppendFormat(@"
+                sbSql.AppendFormat(@"                                   
                                     SELECT 
-                                    DOC_NBR
-                                    ,GG004_fieldValue
-                                    ,GG002_fieldValue
-                                    ,GG005_fieldValue
-                                    ,*
-                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
-                                    WHERE 1=1
-                                    AND ISNULL(GG004_fieldValue,'')=''
-                                    AND DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
-                                    AND [DOC_NBR]>='GA1003240700096'                                    
+                                    DOC_NBR AS 'DOC_NBR'
+                                    ,CURRENT_DOC
+                                    ,CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(50)') AS GA005
+                                    , GG002.value('@fieldValue', 'nvarchar(100)') AS GG002
+                                    , GG010.value('@fieldValue', 'nvarchar(200)') AS GG010
+                                    , GG003.value('@fieldValue', 'nvarchar(200)') AS GG003
+                                    , GG004.value('@fieldValue', 'nvarchar(200)') AS GG004
+                                    , GG005.value('@fieldValue', 'nvarchar(200)') AS GG005
+                                    , GG009.value('@fieldValue', 'nvarchar(200)') AS GG009
+                                    , GG006.value('@fieldValue', 'nvarchar(200)') AS GG006
+                                    , GG007.value('@fieldValue', 'nvarchar(200)') AS GG007
+                                    , GG008.value('@fieldValue', 'nvarchar(200)') AS GG008
 
-                                    ORDER BY [View_TB_WKF_TASK_APPLYBUY].DOC_NBR
+                                    , TASK_RESULT
+                                    , TB_WKF_FORM.FORM_NAME
+                                    , [TB_EB_USER].NAME AS 'NAME'
+                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
+                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
+                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
+                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+
+                                    FROM[UOF].dbo.TB_WKF_TASK
+                                    CROSS APPLY
+                                        CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""
+                                        RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004(GG004)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005(GG005)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009(GG009)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006(GG006)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007(GG007)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008(GG008)
+                                    LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
+                                    LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
+                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    AND[DOC_NBR] >= 'GA1003250600080'
+                                    AND TB_WKF_FORM.FORM_NAME IN('1003.雜項請購單')
+                                    --AND TASK_RESULT IN('0', '2')
+                                    AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') = ''
+                                    AND DOC_NBR NOT IN
+                                    (
+                                        SELECT  EXTERNAL_FORM_NBR
+                                        FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                                        WHERE STATUS IN('1', '2')
+                                        AND ISNULL(EXTERNAL_FORM_NBR, '') <> ''
+                                    )
+
+                                    ORDER BY DOC_NBR
                                     ");
 
 
@@ -49619,9 +49422,10 @@ namespace TKSCHEDULEUOF
         }
         public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(
             string DOC_NBR,
-            string GG004_fieldValue,
-            string GG002_fieldValue,
-            string GG005_fieldValue
+            string GG004,
+            string GG002,
+            string GG005,
+            string DEFAUL_NAME
             )
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -49652,17 +49456,70 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"                                   
-                                    SELECT DOC_NBR,GG004_fieldValue,*
-                                    FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY]
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=[View_TB_WKF_TASK_APPLYBUY].USER_GUID
-                                    WHERE 1=1
-                                    AND ISNULL(GG004_fieldValue,'')=''
+                                   SELECT 
+                                    DOC_NBR AS 'DOC_NBR'
+                                    ,CURRENT_DOC
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009
+                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
+
+                                    , GG002.value('@fieldValue', 'nvarchar(100)') AS GG002
+                                    , GG010.value('@fieldValue', 'nvarchar(200)') AS GG010
+                                    , GG003.value('@fieldValue', 'nvarchar(200)') AS GG003
+                                    , GG004.value('@fieldValue', 'nvarchar(200)') AS GG004
+                                    , GG005.value('@fieldValue', 'nvarchar(200)') AS GG005
+                                    , GG009.value('@fieldValue', 'nvarchar(200)') AS GG009
+                                    , GG006.value('@fieldValue', 'nvarchar(200)') AS GG006
+                                    , GG007.value('@fieldValue', 'nvarchar(200)') AS GG007
+                                    , GG008.value('@fieldValue', 'nvarchar(200)') AS GG008
+
+                                    , TASK_RESULT
+                                    , TB_WKF_FORM.FORM_NAME
+                                    , [TB_EB_USER].NAME AS 'NAME'
+                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
+                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
+                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
+                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+
+                                    FROM[UOF].dbo.TB_WKF_TASK
+                                    CROSS APPLY
+                                        CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""
+                                        RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004(GG004)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005(GG005)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009(GG009)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006(GG006)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007(GG007)
+                                    OUTER APPLY
+                                        RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008(GG008)
+                                    LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
+                                    LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
+                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
+                                    WHERE 1 = 1
+                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND DOC_NBR='{0}'
-                                    AND GG004_fieldValue='{1}'
-                                    AND GG002_fieldValue='{2}'
-                                    AND GG005_fieldValue='{3}'
+                                    AND GG004.value('@fieldValue', 'nvarchar(200)')='{1}'
+                                    AND GG002.value('@fieldValue', 'nvarchar(100)')='{2}'
+                                    AND GG005.value('@fieldValue', 'nvarchar(200)')='{3}'
                               
-                                    ", DOC_NBR, GG004_fieldValue, GG002_fieldValue, GG005_fieldValue);
+                                    ", DOC_NBR, GG004, GG002, GG005);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -49679,47 +49536,61 @@ namespace TKSCHEDULEUOF
                     string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
 
 
-                    string GA001 = ds1.Tables["ds1"].Rows[0]["GA005_fieldValue"].ToString();
+                    string GA001 = ds1.Tables["ds1"].Rows[0]["GA005"].ToString();
                     string GA002 = "";
-                    string GA003 = ds1.Tables["ds1"].Rows[0]["GA006_fieldValue"].ToString();
-                    string GA004 = ds1.Tables["ds1"].Rows[0]["GA007_fieldValue"].ToString();
-                    string GA005 = ds1.Tables["ds1"].Rows[0]["GG002_fieldValue"].ToString();
-                    string GA006 = ds1.Tables["ds1"].Rows[0]["GG003_fieldValue"].ToString();
-                    string GA007 = ds1.Tables["ds1"].Rows[0]["GG009_fieldValue"].ToString();
-                    string GA008 = ds1.Tables["ds1"].Rows[0]["GG005_fieldValue"].ToString();
+                    string GA003 = ds1.Tables["ds1"].Rows[0]["GA006"].ToString();
+                    string GA004 = ds1.Tables["ds1"].Rows[0]["GA007"].ToString();
+                    string GA005 = ds1.Tables["ds1"].Rows[0]["GG002"].ToString();
+                    string GA006 = ds1.Tables["ds1"].Rows[0]["GG003"].ToString();
+                    string GA007 = ds1.Tables["ds1"].Rows[0]["GG009"].ToString();
+                    string GA008 = ds1.Tables["ds1"].Rows[0]["GG005"].ToString();
                     string GA009 = "";
                     string GA010 = "";
-                    string GA011 = ds1.Tables["ds1"].Rows[0]["GG004_fieldValue"].ToString();
+                    string GA011 = ds1.Tables["ds1"].Rows[0]["GG004"].ToString();
                     string GA012 = "";
                     string GA013 = "";
                     string GA014 = "";
                     string GA015 = "";
                     string GA016 = "";
                     string GA017 = "";
-                    string GA019 = ds1.Tables["ds1"].Rows[0]["GG010_fieldValue"].ToString();
+                    string GA019 = ds1.Tables["ds1"].Rows[0]["GG010"].ToString();
                     string GA098 = "";
-                    string GA099 = ds1.Tables["ds1"].Rows[0]["GA009_fieldValue"].ToString();
-                    string GA999 = FIND_TKGAFFAIRS_TBASSINGS(ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString());
+                    string GA099 = ds1.Tables["ds1"].Rows[0]["GA009"].ToString();
+                    string GA999 = ds1.Tables["ds1"].Rows[0]["GA010"].ToString().Trim();
+                    string GG010 = "";
+
                     //採購單的「負責採購人員」是空白，預設GA999
                     if (string.IsNullOrEmpty(GA999))
                     {
-                        GA999 = "王嘩芝";
+                        GA999 = DEFAUL_NAME;
                     }
-                    string GG010 = "";
 
                     //找出1003.雜項請購單 的指定採購人員(由總務填寫)	
-                    string TEMP = ds1.Tables["ds1"].Rows[0]["GA010_fieldValue"].ToString();
-                    string NAMES = TEMP.Substring(0, 3);
-                    DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
-
-                    //將 1003.雜項請購單 的指定採購人員(由總務填寫)	
                     //轉成 1005.雜項採購單 的 起單人員
-                    if (DT != null && DT.Rows.Count >= 1)
+                    //有指定就用指定人
+                    //沒有指定人用 DEFAUL_NAME
+                    string TEMP = ds1.Tables["ds1"].Rows[0]["GA010"].ToString();          
+                    if(!string.IsNullOrEmpty(TEMP))
                     {
-                        USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
+                        string NAMES = TEMP.Substring(0, 3);
+                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
+
+                        if (DT != null && DT.Rows.Count >= 1)
+                        {
+                            USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
+                        }
                     }
+                    else
+                    {
+                        DataTable DT = SEARCH_UOF_TB_EB_USER(DEFAUL_NAME);
 
-
+                        if (DT != null && DT.Rows.Count >= 1)
+                        {
+                            USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
+                        }
+                    }
+                    
+                    
 
                     ROWS = ROWS + 1;
                     GA002 = DOC_NBR;
@@ -49747,6 +49618,7 @@ namespace TKSCHEDULEUOF
                                                     , GA099
                                                     , GA999
                                                     , GA019
+                                                    , DEFAUL_NAME
                                                     );
 
               
@@ -62081,11 +61953,12 @@ namespace TKSCHEDULEUOF
 
             //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
             //請購單的廠商是未指定=空白
-            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL();
+            string DEFAUL_NAME = "王嘩芝";
+            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL(DEFAUL_NAME);
             //會依請購單的廠商有指定，合併採購單
             //預設總務的請購人=150010 
             string ACCOUNT = "000002";
-            ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);
+            //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT);
 
             MessageBox.Show("完成");
 
