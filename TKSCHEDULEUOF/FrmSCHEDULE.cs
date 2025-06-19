@@ -49354,7 +49354,8 @@ namespace TKSCHEDULEUOF
                                     CROSS APPLY
                                         CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
                                     OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""
+                                        RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002(GG002)
+                                    OUTER APPLY
                                         RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
                                     OUTER APPLY
                                         RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
@@ -49378,7 +49379,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND[DOC_NBR] >= 'GA1003250600080'
                                     AND TB_WKF_FORM.FORM_NAME IN('1003.雜項請購單')
-                                    --AND TASK_RESULT IN('0', '2')
+                                    --AND TASK_RESULT IN('0')
                                     AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') = ''
                                     AND DOC_NBR NOT IN
                                     (
@@ -49387,7 +49388,7 @@ namespace TKSCHEDULEUOF
                                         WHERE STATUS IN('1', '2')
                                         AND ISNULL(EXTERNAL_FORM_NBR, '') <> ''
                                     )
-
+                                    AND DOC_NBR='GA1003250600088'
                                     ORDER BY DOC_NBR
                                     ");
 
@@ -49411,7 +49412,7 @@ namespace TKSCHEDULEUOF
                 }
 
             }
-            catch
+            catch (Exception EX)
             {
                 return null;
             }
@@ -49492,7 +49493,8 @@ namespace TKSCHEDULEUOF
                                     CROSS APPLY
                                         CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
                                     OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""
+                                        RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002(GG002)
+                                    OUTER APPLY
                                         RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
                                     OUTER APPLY
                                         RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
@@ -49626,7 +49628,7 @@ namespace TKSCHEDULEUOF
             }                    
 
             }
-            catch
+            catch (Exception EX)
             {
 
             }
