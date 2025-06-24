@@ -61872,12 +61872,12 @@ namespace TKSCHEDULEUOF
 
             if (DT!=null && DT.Rows.Count>=1)
             {
-                SB_SQL_EXE.Append(" TA001 + TA002 IN (");
+                SB_SQL_EXE.Append(" TG001 + TG002 IN (");
 
                 for (int i = 0; i < DT.Rows.Count; i++)
                 {
-                    string ta001 = DT.Rows[i]["TA001"].ToString().Trim();
-                    string ta002 = DT.Rows[i]["TA002"].ToString().Trim();
+                    string ta001 = DT.Rows[i]["TG001"].ToString().Trim();
+                    string ta002 = DT.Rows[i]["TG002"].ToString().Trim();
 
                     SB_SQL_EXE.AppendFormat("'{0}{1}'", ta001, ta002);
 
@@ -61975,7 +61975,7 @@ namespace TKSCHEDULEUOF
 
 
                 sbSql.AppendFormat(@"                                      
-                                   SELECT 
+                                    SELECT 
                                     TG001,TG002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
                                     FROM [192.168.1.105].[TK].dbo.PURTG
                                     LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TG001+TG002 COLLATE Chinese_Taiwan_Stroke_BIN
@@ -62778,6 +62778,8 @@ namespace TKSCHEDULEUOF
             //因為UOF從資料庫起單，有時會因UOF排程失敗，所以每1小時檢查起單失敗的進貨單，重發
             //更新UDF01=Y，就可以用  NEWPURTGPURTH() 重新起單
             NEWPURTGPURTH_AGAIN_APPLY();
+
+            MessageBox.Show("OK");
         }
         #endregion
 
