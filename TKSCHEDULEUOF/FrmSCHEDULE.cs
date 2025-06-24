@@ -777,7 +777,10 @@ namespace TKSCHEDULEUOF
             catch { }
             try
             {
-               
+                //(重發)ERP進貨>轉入UOF
+                //因為UOF從資料庫起單，有時會因UOF排程失敗，所以每1小時檢查起單失敗的進貨單，重發
+                //更新UDF01=Y，就可以用  NEWPURTGPURTH() 重新起單
+                NEWPURTGPURTH_AGAIN_APPLY();
             }
             catch { }
             try
@@ -61981,7 +61984,7 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TG001+TG002 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE UDF01 IN ('UOF')
                                     AND STATUS  IN ('0')
-                                    --AND TG013 IN ('N')                     
+                                    AND TG013 IN ('N')                     
 
                                     ");
 
