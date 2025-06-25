@@ -772,6 +772,20 @@ namespace TKSCHEDULEUOF
         {
             try
             {
+                
+
+            }
+            catch { }
+            try
+            {
+                //客供重起單
+                ADDUOFQCINVTAINVTB_AGAIN_APPLY();
+            }
+            catch { }
+            try
+            {
+                //託外進貨重起單
+                NEWPUR_MOCTH_MOCTI_AGAIN_APPLY();
 
             }
             catch { }
@@ -61893,60 +61907,65 @@ namespace TKSCHEDULEUOF
                 SB_SQL_EXE.Append(")");
             }
 
-            try
+            if (DT != null && DT.Rows.Count >= 1)
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                try
+                {
+                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                    //sqlConn = new SqlConnection(connectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                    //20210902密
+                    Class1 TKID = new Class1();//用new 建立類別實體
+                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                    //資料庫使用者密碼解密
+                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                    String connectionString;
+                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
 
-                sbSql.Clear();
+                    sbSql.Clear();
 
-                sbSql.AppendFormat(@"
+                    sbSql.AppendFormat(@"
                                     UPDATE [TK].dbo.PURTG
                                     SET UDF01='Y'
                                     WHERE 1=1
                                     AND {0}
                                         ", SB_SQL_EXE.ToString());
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
 
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    tran.Commit();      //執行交易  
+
                 }
 
+                finally
+                {
+                    sqlConn.Close();
+                }
             }
-            catch (Exception ex)
-            {
 
-            }
-
-            finally
-            {
-                sqlConn.Close();
-            }
+            
 
         }
 
@@ -62017,6 +62036,311 @@ namespace TKSCHEDULEUOF
 
             
         }
+
+        public void ADDUOFQCINVTAINVTB_AGAIN_APPLY()
+        {
+            DataTable DT = FIND_ADDUOFQCINVTAINVTB_AGAIN_APPLY();
+            StringBuilder SB_SQL_EXE = new StringBuilder();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                SB_SQL_EXE.Append(" TA001 + TA002 IN (");
+
+                for (int i = 0; i < DT.Rows.Count; i++)
+                {
+                    string ta001 = DT.Rows[i]["TA001"].ToString().Trim();
+                    string ta002 = DT.Rows[i]["TA002"].ToString().Trim();
+
+                    SB_SQL_EXE.AppendFormat("'{0}{1}'", ta001, ta002);
+
+                    if (i < DT.Rows.Count - 1)
+                    {
+                        SB_SQL_EXE.Append(", ");
+                    }
+                }
+
+                SB_SQL_EXE.Append(")");
+            }
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                try
+                {
+                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                    //sqlConn = new SqlConnection(connectionString);
+
+                    //20210902密
+                    Class1 TKID = new Class1();//用new 建立類別實體
+                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                    //資料庫使用者密碼解密
+                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                    String connectionString;
+                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
+
+                    sbSql.Clear();
+
+                    sbSql.AppendFormat(@"
+                                    UPDATE [TK].dbo.INVTA
+                                    SET UDF01='Y'
+                                    WHERE 1=1
+                                    AND {0}
+                                        ", SB_SQL_EXE.ToString());
+
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                finally
+                {
+                    sqlConn.Close();
+                }
+            }
+
+               
+        }
+        public DataTable FIND_ADDUOFQCINVTAINVTB_AGAIN_APPLY()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                sbSql.AppendFormat(@"                                      
+                                    SELECT 
+                                    TA001,TA002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
+                                    FROM [192.168.1.105].[TK].dbo.INVTA
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TA001+TA002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE UDF01 IN ('UOF')
+                                    AND STATUS  IN ('0')
+                                    AND TA006 IN ('N')                   
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+        public void NEWPUR_MOCTH_MOCTI_AGAIN_APPLY()
+        {
+            DataTable DT = FIND_NEWPUR_MOCTH_MOCTI_AGAIN_APPLY();
+            StringBuilder SB_SQL_EXE = new StringBuilder();
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                SB_SQL_EXE.Append(" TH001 + TH002 IN (");
+
+                for (int i = 0; i < DT.Rows.Count; i++)
+                {
+                    string ta001 = DT.Rows[i]["TH001"].ToString().Trim();
+                    string ta002 = DT.Rows[i]["TH002"].ToString().Trim();
+
+                    SB_SQL_EXE.AppendFormat("'{0}{1}'", ta001, ta002);
+
+                    if (i < DT.Rows.Count - 1)
+                    {
+                        SB_SQL_EXE.Append(", ");
+                    }
+                }
+
+                SB_SQL_EXE.Append(")");
+            }
+
+            if (DT != null && DT.Rows.Count >= 1)
+            {
+                try
+                {
+                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                    //sqlConn = new SqlConnection(connectionString);
+
+                    //20210902密
+                    Class1 TKID = new Class1();//用new 建立類別實體
+                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                    //資料庫使用者密碼解密
+                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                    String connectionString;
+                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                    sqlConn.Close();
+                    sqlConn.Open();
+                    tran = sqlConn.BeginTransaction();
+
+                    sbSql.Clear();
+
+                    sbSql.AppendFormat(@"
+                                    UPDATE [TK].dbo.MOCTH
+                                    SET UDF01='Y'
+                                    WHERE 1=1
+                                    AND {0}
+                                        ", SB_SQL_EXE.ToString());
+
+                    cmd.Connection = sqlConn;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = sbSql.ToString();
+                    cmd.Transaction = tran;
+                    result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();    //交易取消
+                    }
+                    else
+                    {
+                        tran.Commit();      //執行交易  
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                finally
+                {
+                    sqlConn.Close();
+                }
+
+            }
+
+               
+        }
+        public DataTable FIND_NEWPUR_MOCTH_MOCTI_AGAIN_APPLY()
+        {
+            try
+            {
+                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
+                //sqlConn = new SqlConnection(connectionString);
+
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1 = new SqlDataAdapter();
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+
+                sbSql.Clear();
+                sbSqlQuery.Clear();
+
+
+
+                sbSql.AppendFormat(@"                                      
+                                    SELECT 
+                                    TH001,TH002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
+                                    FROM [192.168.1.105].[TK].dbo.MOCTH
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TH001+TH002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE UDF01 IN ('UOF')
+                                    AND STATUS  IN ('0')
+                                    AND TH023 IN ('N')           
+
+                                    ");
+
+                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+
+                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                sqlConn.Open();
+                ds1.Clear();
+                adapter1.Fill(ds1, "ds1");
+
+                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    return ds1.Tables["ds1"];
+
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                sqlConn.Close();
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -62781,6 +63105,12 @@ namespace TKSCHEDULEUOF
             //因為UOF從資料庫起單，有時會因UOF排程失敗，所以每1小時檢查起單失敗的進貨單，重發
             //更新UDF01=Y，就可以用  NEWPURTGPURTH() 重新起單
             NEWPURTGPURTH_AGAIN_APPLY();
+
+            //客供重起單
+            ADDUOFQCINVTAINVTB_AGAIN_APPLY();
+
+            //託外進貨重起單
+            NEWPUR_MOCTH_MOCTI_AGAIN_APPLY();
 
             MessageBox.Show("OK");
         }
