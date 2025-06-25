@@ -257,9 +257,9 @@
             this.tableLayoutPanel1.Controls.Add(this.button49, 1, 14);
             this.tableLayoutPanel1.Controls.Add(this.button48, 1, 13);
             this.tableLayoutPanel1.Controls.Add(this.button45, 1, 12);
-            this.tableLayoutPanel1.Controls.Add(this.button79, 1, 10);
-            this.tableLayoutPanel1.Controls.Add(this.button38, 1, 9);
-            this.tableLayoutPanel1.Controls.Add(this.button115, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button38, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button79, 1, 9);
+            this.tableLayoutPanel1.Controls.Add(this.button115, 1, 10);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -876,7 +876,7 @@
             // button79
             // 
             this.button79.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button79.Location = new System.Drawing.Point(166, 403);
+            this.button79.Location = new System.Drawing.Point(166, 363);
             this.button79.Name = "button79";
             this.button79.Size = new System.Drawing.Size(174, 34);
             this.button79.TabIndex = 66;
@@ -887,7 +887,7 @@
             // button38
             // 
             this.button38.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button38.Location = new System.Drawing.Point(166, 363);
+            this.button38.Location = new System.Drawing.Point(166, 323);
             this.button38.Name = "button38";
             this.button38.Size = new System.Drawing.Size(174, 34);
             this.button38.TabIndex = 48;
@@ -898,7 +898,7 @@
             // button115
             // 
             this.button115.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button115.Location = new System.Drawing.Point(166, 323);
+            this.button115.Location = new System.Drawing.Point(166, 403);
             this.button115.Name = "button115";
             this.button115.Size = new System.Drawing.Size(174, 34);
             this.button115.TabIndex = 70;
