@@ -49906,11 +49906,9 @@ namespace TKSCHEDULEUOF
 
                                         AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') <> ''
                                         AND CONVERT(datetime, GG006.value('@fieldValue', 'nvarchar(200)')) >= DATEADD(MONTH, -1, GETDATE())
-                                        AND REPLACE(DOC_NBR + GG002.value('@fieldValue', 'nvarchar(100)'), ' ', '') NOT IN
-                                        (
-                                            SELECT REPLACE([EXTERNAL_FORM_NBR_fieldValue] +[GG002_fieldValue], ' ', '')
-                                            FROM[UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
-                                        )
+                                     
+
+AND  GG004.value('@fieldValue', 'nvarchar(200)')='聖力'
                                     ) AS T
                                     WHERE 1=1
                                    
@@ -50051,11 +50049,7 @@ namespace TKSCHEDULEUOF
 
                                     AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') <> ''
                                     AND CONVERT(datetime, GG006.value('@fieldValue', 'nvarchar(200)')) >= DATEADD(MONTH, -1, GETDATE())
-                                    AND REPLACE(DOC_NBR + GG002.value('@fieldValue', 'nvarchar(100)'), ' ', '') NOT IN
-                                    (
-                                        SELECT REPLACE([EXTERNAL_FORM_NBR_fieldValue] +[GG002_fieldValue], ' ', '')
-                                        FROM[UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
-                                    )
+                                   
                                         AND  GG004.value('@fieldValue', 'nvarchar(200)')='{0}'
                                     ", GG004);
 
@@ -50233,7 +50227,7 @@ namespace TKSCHEDULEUOF
             //GA001	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA001");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldValue", "如明細");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50245,7 +50239,7 @@ namespace TKSCHEDULEUOF
             //GA002	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA002");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldValue", "如明細");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50269,7 +50263,7 @@ namespace TKSCHEDULEUOF
             //GA004	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA004");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldValue", "如明細");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50473,7 +50467,7 @@ namespace TKSCHEDULEUOF
             //GA019	
             FieldItem = xmlDoc.CreateElement("FieldItem");
             FieldItem.SetAttribute("fieldId", "GA019");
-            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("fieldValue", "如明細");
             FieldItem.SetAttribute("realValue", "");
             FieldItem.SetAttribute("enableSearch", "True");
             FieldItem.SetAttribute("fillerName", fillerName);
@@ -50605,7 +50599,17 @@ namespace TKSCHEDULEUOF
                 Cell.SetAttribute("enableSearch", "True");
                 //Row
                 Row.AppendChild(Cell);
-         
+
+                //Row	GG011
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG011");
+                Cell.SetAttribute("fieldValue", od["GA007"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
 
                 //Row	EXTERNAL_FORM_NBR
                 Cell = xmlDoc.CreateElement("Cell");
