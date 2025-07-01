@@ -23981,7 +23981,9 @@ namespace TKSCHEDULEUOF
             , string GA099
             , string GA999
             , string GA019
+            , DataTable DT
             , string DEFAUL_NAME
+
             )
         {
 
@@ -24339,45 +24341,154 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //DataGrid
+            //建立節點FieldItem
+            //INVTB
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "DETAILS");
+            FieldItem.SetAttribute("fieldValue", "");
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
+            //建立節點 DataGrid
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+            //DataGrid 加入至 TB 節點底下
+            XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
+            DETAILS.AppendChild(DataGrid);
 
 
+            foreach (DataRow od in DT.Rows)
+            {
+
+                // 新增 Row
+                XmlElement Row = xmlDoc.CreateElement("Row");
+                Row.SetAttribute("order", (rowscounts).ToString());
+
+                //Row	TGG002B004
+                XmlElement Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG002");
+                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG010
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG010");
+                Cell.SetAttribute("fieldValue", od["GG010"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG003
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG003");
+                Cell.SetAttribute("fieldValue", od["GG003"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG004
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG004");
+                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG005
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG005");
+                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG009
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG009");
+                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG006
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG006");
+                Cell.SetAttribute("fieldValue", od["GG006"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG007
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG007");
+                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG008
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG008");
+                Cell.SetAttribute("fieldValue", "");
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG011
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG011");
+                Cell.SetAttribute("fieldValue", GA004);
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
 
 
-            ////DataGrid
-            ////建立節點FieldItem
-            ////INVTB
-            //FieldItem = xmlDoc.CreateElement("FieldItem");
-            //FieldItem.SetAttribute("fieldId", "DETAILS");
-            //FieldItem.SetAttribute("fieldValue", "");
-            //FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("enableSearch", "True");
-            //FieldItem.SetAttribute("fillerName", fillerName);
-            //FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            //FieldItem.SetAttribute("fillerAccount", account);
-            //FieldItem.SetAttribute("fillSiteId", "");
-            ////加入至members節點底下
-            //FormFieldValue.AppendChild(FieldItem);
-
-            ////建立節點 DataGrid
-            //XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            ////DataGrid 加入至 TB 節點底下
-            //XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
-            //DETAILS.AppendChild(DataGrid);
+                //Row	EXTERNAL_FORM_NBR
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "EXTERNAL_FORM_NBR");
+                Cell.SetAttribute("fieldValue", od["DOC_NBR"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
 
 
-            //foreach (DataRow od in DT.Rows)
-            //{
+                rowscounts = rowscounts + 1;
 
+                //DataGrid PURTM
+                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
+                DataGridS.AppendChild(Row);
 
-
-
-            //    rowscounts = rowscounts + 1;
-
-            //    //DataGrid PURTM
-            //    XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-            //    DataGridS.AppendChild(Row);
-
-            //}
+            }
 
 
             ////用ADDTACK，直接啟動起單
@@ -49653,7 +49764,9 @@ namespace TKSCHEDULEUOF
                                                     , GA099
                                                     , GA999
                                                     , GA019
+                                                    , ds1.Tables["ds1"]
                                                     , DEFAUL_NAME
+                                                  
                                                     );
 
               
