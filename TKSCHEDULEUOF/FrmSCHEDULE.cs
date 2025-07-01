@@ -49906,9 +49906,12 @@ namespace TKSCHEDULEUOF
 
                                         AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') <> ''
                                         AND CONVERT(datetime, GG006.value('@fieldValue', 'nvarchar(200)')) >= DATEADD(MONTH, -1, GETDATE())
-                                     
+                                        AND REPLACE(DOC_NBR + GG002.value('@fieldValue', 'nvarchar(100)'), ' ', '') NOT IN
+                                        (
+                                            SELECT REPLACE([EXTERNAL_FORM_NBR_fieldValue] +[GG002_fieldValue], ' ', '')
+                                            FROM[UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
+                                        )
 
-AND  GG004.value('@fieldValue', 'nvarchar(200)')='聖力'
                                     ) AS T
                                     WHERE 1=1
                                    
@@ -50049,8 +50052,12 @@ AND  GG004.value('@fieldValue', 'nvarchar(200)')='聖力'
 
                                     AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') <> ''
                                     AND CONVERT(datetime, GG006.value('@fieldValue', 'nvarchar(200)')) >= DATEADD(MONTH, -1, GETDATE())
-                                   
-                                        AND  GG004.value('@fieldValue', 'nvarchar(200)')='{0}'
+                                    AND REPLACE(DOC_NBR + GG002.value('@fieldValue', 'nvarchar(100)'), ' ', '') NOT IN
+                                    (
+                                        SELECT REPLACE([EXTERNAL_FORM_NBR_fieldValue] +[GG002_fieldValue], ' ', '')
+                                        FROM[UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE]
+                                    )
+                                    AND  GG004.value('@fieldValue', 'nvarchar(200)')='{0}'
                                     ", GG004);
 
 
