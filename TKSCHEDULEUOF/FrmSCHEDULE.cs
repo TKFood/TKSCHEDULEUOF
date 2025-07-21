@@ -49461,77 +49461,85 @@ namespace TKSCHEDULEUOF
                 //AND [View_TB_WKF_TASK_APPLYBUY].DOC_NBR NOT IN (SELECT  EXTERNAL_FORM_NBR FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE STATUS IN ('1','2')  AND ISNULL(EXTERNAL_FORM_NBR,'')<>'') 
                 //AND DOC_NBR = 'GA1003240700088'
                 sbSql.AppendFormat(@"                                   
-                                    SELECT 
-                                    DOC_NBR AS 'DOC_NBR'
-                                    ,CURRENT_DOC
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
-                                    , GG002.value('@fieldValue', 'nvarchar(100)') AS GG002
-                                    , GG010.value('@fieldValue', 'nvarchar(200)') AS GG010
-                                    , GG003.value('@fieldValue', 'nvarchar(200)') AS GG003
-                                    , GG004.value('@fieldValue', 'nvarchar(200)') AS GG004
-                                    , GG005.value('@fieldValue', 'nvarchar(200)') AS GG005
-                                    , GG009.value('@fieldValue', 'nvarchar(200)') AS GG009
-                                    , GG006.value('@fieldValue', 'nvarchar(200)') AS GG006
-                                    , GG007.value('@fieldValue', 'nvarchar(200)') AS GG007
-                                    , GG008.value('@fieldValue', 'nvarchar(200)') AS GG008
+                                  SELECT 
+                                    T.DOC_NBR,
+                                    T.CURRENT_DOC,
+                                    GA.GA001, GA.GA002, GA.GA003, GA.GA004, GA.GA005,
+                                    GA.GA006, GA.GA007, GA.GA008, GA.GA009, GA.GA010,
+                                    GG.GG002, GG.GG010, GG.GG003, GG.GG004, GG.GG005,
+                                    GG.GG009, GG.GG006, GG.GG007, GG.GG008,
+                                    T.TASK_RESULT,
+                                    F.FORM_NAME,
+                                    U.NAME, U.ACCOUNT, U.USER_GUID,
+                                    DEP.GROUP_ID, DEP.TITLE_ID
+                                FROM [UOF].dbo.TB_WKF_TASK T
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM F ON F.FORM_ID = FV.FORM_ID
+                                LEFT JOIN [UOF].dbo.TB_EB_USER U ON U.USER_GUID = T.USER_GUID
+                                LEFT JOIN [UOF].dbo.TB_EB_EMPL_DEP DEP ON DEP.USER_GUID = U.USER_GUID AND DEP.ORDERS = '0'
 
-                                    , TASK_RESULT
-                                    , TB_WKF_FORM.FORM_NAME
-                                    , [TB_EB_USER].NAME AS 'NAME'
-                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
-                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
-                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
-                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+                                CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
 
-                                    FROM[UOF].dbo.TB_WKF_TASK
-                                    CROSS APPLY
-                                        CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002(GG002)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004(GG004)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005(GG005)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009(GG009)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006(GG006)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007(GG007)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008(GG008)
-                                    LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
-                                    LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
-                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE 1 = 1
-                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-                                    AND[DOC_NBR] >= 'GA1003250600080'
-                                    AND TB_WKF_FORM.FORM_NAME IN('1003.雜項請購單')
-                                    AND TASK_RESULT IN('0')
-                                    AND ISNULL(GG004.value('@fieldValue', 'nvarchar(200)'), '') = ''
-                                    AND DOC_NBR NOT IN
-                                    (
-                                        SELECT  EXTERNAL_FORM_NBR
-                                        FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
-                                        WHERE STATUS IN('1', '2')
+                                OUTER APPLY (
+                                    SELECT
+                                        GG002 = GG002Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG010 = GG010Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG003 = GG003Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG004 = GG004Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG005 = GG005Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG009 = GG009Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG006 = GG006Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG007 = GG007Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GG008 = GG008Node.C.value('@fieldValue', 'nvarchar(200)')
+                                    FROM RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007Node(C)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008Node(C)
+                                ) GG
+
+                                OUTER APPLY (
+                                    SELECT
+                                        GA001 = GA001Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA002 = GA002Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA003 = GA003Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA004 = GA004Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA005 = GA005Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA006 = GA006Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA007 = GA007Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA008 = GA008Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA009 = GA009Node.C.value('@fieldValue', 'nvarchar(200)'),
+                                        GA010 = GA010Node.C.value('@fieldValue', 'nvarchar(200)')
+                                    FROM T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]') AS GA001Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]') AS GA002Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]') AS GA003Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]') AS GA004Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]') AS GA005Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]') AS GA006Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]') AS GA007Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]') AS GA008Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]') AS GA009Node(C)
+                                    OUTER APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]') AS GA010Node(C)
+                                ) GA
+
+                                WHERE 
+                                    T.DOC_NBR >= 'GA1003250600080'
+                                    AND F.FORM_NAME = '1003.雜項請購單'
+                                    AND T.TASK_RESULT = '0'
+                                    AND ISNULL(GG.GG004, '') = ''
+                                    AND NOT EXISTS (
+                                        SELECT 1
+                                        FROM [UOF].dbo.TB_WKF_EXTERNAL_TASK EXT
+                                        WHERE EXT.EXTERNAL_FORM_NBR = T.DOC_NBR
+                                        AND STATUS IN ('1', '2')
                                         AND ISNULL(EXTERNAL_FORM_NBR, '') <> ''
                                     )
-                                    
-                                    ORDER BY DOC_NBR
+                                ORDER BY T.DOC_NBR
+
                                     ");
 
 
@@ -49599,69 +49607,52 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"                                   
-                                   SELECT 
-                                    DOC_NBR AS 'DOC_NBR'
-                                    ,CURRENT_DOC
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009
-                                    , CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
+                                 SELECT 
+                                    T.DOC_NBR,
+                                    T.CURRENT_DOC,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010,
 
-                                    , GG002.value('@fieldValue', 'nvarchar(100)') AS GG002
-                                    , GG010.value('@fieldValue', 'nvarchar(200)') AS GG010
-                                    , GG003.value('@fieldValue', 'nvarchar(200)') AS GG003
-                                    , GG004.value('@fieldValue', 'nvarchar(200)') AS GG004
-                                    , GG005.value('@fieldValue', 'nvarchar(200)') AS GG005
-                                    , GG009.value('@fieldValue', 'nvarchar(200)') AS GG009
-                                    , GG006.value('@fieldValue', 'nvarchar(200)') AS GG006
-                                    , GG007.value('@fieldValue', 'nvarchar(200)') AS GG007
-                                    , GG008.value('@fieldValue', 'nvarchar(200)') AS GG008
+                                    CellData.value('Cell[@fieldId=""GG002""]/@fieldValue', 'nvarchar(100)') AS GG002,
+                                    CellData.value('Cell[@fieldId=""GG010""]/@fieldValue', 'nvarchar(200)') AS GG010,
+                                    CellData.value('Cell[@fieldId=""GG003""]/@fieldValue', 'nvarchar(200)') AS GG003,
+                                    CellData.value('Cell[@fieldId=""GG004""]/@fieldValue', 'nvarchar(200)') AS GG004,
+                                    CellData.value('Cell[@fieldId=""GG005""]/@fieldValue', 'nvarchar(200)') AS GG005,
+                                    CellData.value('Cell[@fieldId=""GG009""]/@fieldValue', 'nvarchar(200)') AS GG009,
+                                    CellData.value('Cell[@fieldId=""GG006""]/@fieldValue', 'nvarchar(200)') AS GG006,
+                                    CellData.value('Cell[@fieldId=""GG007""]/@fieldValue', 'nvarchar(200)') AS GG007,
+                                    CellData.value('Cell[@fieldId=""GG008""]/@fieldValue', 'nvarchar(200)') AS GG008,
 
-                                    , TASK_RESULT
-                                    , TB_WKF_FORM.FORM_NAME
-                                    , [TB_EB_USER].NAME AS 'NAME'
-                                    , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
-                                    , [TB_EB_USER].USER_GUID AS 'USER_GUID'
-                                    , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
-                                    , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
+                                    T.TASK_RESULT,
+                                    F.FORM_NAME,
+                                    U.NAME,
+                                    U.ACCOUNT,
+                                    U.USER_GUID,
+                                    D.GROUP_ID,
+                                    D.TITLE_ID
 
-                                    FROM[UOF].dbo.TB_WKF_TASK
-                                    CROSS APPLY
-                                        CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002(GG002)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010(GG010)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003(GG003)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004(GG004)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005(GG005)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009(GG009)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006(GG006)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007(GG007)
-                                    OUTER APPLY
-                                        RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008(GG008)
-                                    LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
-                                    LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
-                                    ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE 1 = 1
-                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-                                    AND DOC_NBR='{0}'
-                                    AND GG004.value('@fieldValue', 'nvarchar(200)')='{1}'
-                                    AND GG002.value('@fieldValue', 'nvarchar(100)')='{2}'
-                                    AND GG005.value('@fieldValue', 'nvarchar(200)')='{3}'
+                                FROM [UOF].[dbo].[TB_WKF_TASK] T
+                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
+                                LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON T.USER_GUID = U.USER_GUID
+                                LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] D ON U.USER_GUID = D.USER_GUID AND D.ORDERS = '0'
+
+                                CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS RowTable(CellData)
+
+                                WHERE 
+                                    T.DOC_NBR = '{0}'
+                                    AND CellData.value('Cell[@fieldId=""GG004""]/@fieldValue', 'nvarchar(200)') = '{1}'
+                                    AND CellData.value('Cell[@fieldId=""GG002""]/@fieldValue', 'nvarchar(100)') = '{2}'
+                                    AND CellData.value('Cell[@fieldId=""GG005""]/@fieldValue', 'nvarchar(200)') = '{3}'
+
                               
                                     ", DOC_NBR, GG004, GG002, GG005);
 
