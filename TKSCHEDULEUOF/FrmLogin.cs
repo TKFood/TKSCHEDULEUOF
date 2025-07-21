@@ -82,7 +82,7 @@ namespace TKSCHEDULEUOF
                     //ADD USED LOG
                     List<string> IPAddress = GetHostIPAddress();
                     //MessageBox.Show(IPAddress[0].ToString());    
-                    ADDTKSYSLOGIN(MethodBase.GetCurrentMethod().DeclaringType.Namespace, txt_UserName.Text.Trim(), IPAddress[0].ToString(), "SUCCESS");
+                    //ADDTKSYSLOGIN(MethodBase.GetCurrentMethod().DeclaringType.Namespace, txt_UserName.Text.Trim(), IPAddress[0].ToString(), "SUCCESS");
 
                     //MessageBox.Show("登入成功!");
 
@@ -95,7 +95,7 @@ namespace TKSCHEDULEUOF
                     //ADD USED LOG
                     List<string> IPAddress = GetHostIPAddress();
                     //MessageBox.Show(IPAddress[0].ToString());    
-                    ADDTKSYSLOGIN(MethodBase.GetCurrentMethod().DeclaringType.Namespace, txt_UserName.Text.Trim(), IPAddress[0].ToString(), "FAIL");
+                    //ADDTKSYSLOGIN(MethodBase.GetCurrentMethod().DeclaringType.Namespace, txt_UserName.Text.Trim(), IPAddress[0].ToString(), "FAIL");
 
                     MessageBox.Show("登入失敗!");
 
