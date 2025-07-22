@@ -49528,7 +49528,7 @@ namespace TKSCHEDULEUOF
                                     ) GA
 
                                     WHERE 
-                                        T.DOC_NBR >= 'GA1003250600080'
+                                        T.DOC_NBR >= 'GA1003250600001'
                                         AND F.FORM_NAME = '1003.雜項請購單'
                                         AND T.TASK_RESULT = '0'
                                         AND ISNULL(GG.GG004, '') = ''
