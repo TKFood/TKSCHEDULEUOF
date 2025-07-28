@@ -854,126 +854,49 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public string SEARCHFORM_UOF_VERSION_ID(string FORM_NAME)
+        public string SEARCHFORM_UOF_VERSION_ID(string formName)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@" 
-                                   SELECT TOP 1 RTRIM(LTRIM(TB_WKF_FORM_VERSION.FORM_VERSION_ID)) FORM_VERSION_ID,TB_WKF_FORM_VERSION.FORM_ID,TB_WKF_FORM_VERSION.VERSION,TB_WKF_FORM_VERSION.ISSUE_CTL
-                                    ,TB_WKF_FORM.FORM_NAME
-                                    FROM [UOF].dbo.TB_WKF_FORM_VERSION,[UOF].dbo.TB_WKF_FORM
-                                    WHERE 1=1
-                                    AND TB_WKF_FORM_VERSION.FORM_ID=TB_WKF_FORM.FORM_ID
-                                    AND TB_WKF_FORM_VERSION.ISSUE_CTL=1
-                                    AND FORM_NAME='{0}'
-                                    ORDER BY TB_WKF_FORM_VERSION.FORM_ID,TB_WKF_FORM_VERSION.VERSION DESC
-
-                                    ", FORM_NAME);
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"].Rows[0]["FORM_VERSION_ID"].ToString();
-                }
-                else
-                {
-                    return "";
+                    string sql = @"
+                                SELECT TOP 1 RTRIM(LTRIM(FORM_VERSION_ID)) AS FORM_VERSION_ID
+                                FROM [UOF].dbo.TB_WKF_FORM_VERSION V
+                                JOIN [UOF].dbo.TB_WKF_FORM F ON V.FORM_ID = F.FORM_ID
+                                WHERE V.ISSUE_CTL = 1
+                                    AND F.FORM_NAME = @FORM_NAME
+                                ORDER BY V.FORM_ID, V.VERSION DESC";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@FORM_NAME", formName);
+
+                        sqlConn.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return reader["FORM_VERSION_ID"].ToString();
+                            }
+                        }
+                    }
                 }
 
+                return "";
             }
             catch
             {
                 return "";
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
 
-
-        //public string SEARCHFORM_VERSION_ID(string FORM_NAME)
-        //{
-        //    try
-        //    {
-        //        //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-        //        //sqlConn = new SqlConnection(connectionString);
-
-        //        //20210902密
-        //        Class1 TKID = new Class1();//用new 建立類別實體
-        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-        //        //資料庫使用者密碼解密
-        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
-        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-        //        String connectionString;
-        //        sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-        //        sbSql.Clear();
-        //        sbSqlQuery.Clear();
-
-
-        //        sbSql.AppendFormat(@" 
-        //                            SELECT 
-        //                            RTRIM(LTRIM([FORM_VERSION_ID])) AS FORM_VERSION_ID
-        //                            ,[FORM_NAME]
-        //                            FROM [TKIT].[dbo].[UOF_FORM_VERSION_ID]
-        //                            WHERE [FORM_NAME]='{0}'
-        //                            ", FORM_NAME);
-
-        //        adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-        //        sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-        //        sqlConn.Open();
-        //        ds1.Clear();
-        //        adapter1.Fill(ds1, "ds1");
-
-
-        //        if (ds1.Tables["ds1"].Rows.Count >= 1)
-        //        {
-        //            return ds1.Tables["ds1"].Rows[0]["FORM_VERSION_ID"].ToString();
-        //        }
-        //        else
-        //        {
-        //            return "";
-        //        }
-
-        //    }
-        //    catch
-        //    {
-        //        return "";
-        //    }
-        //    finally
-        //    {
-        //        sqlConn.Close();
-        //    }
-        //}
 
         public void ADDTOUOFTB_EIP_SCH_MEMO_MOC(string Sday)
         {
