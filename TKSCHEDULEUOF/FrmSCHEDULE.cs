@@ -816,59 +816,43 @@ namespace TKSCHEDULEUOF
         #region FUNCTION
 
         //
-        public Decimal SEARCHBASELIMITHRS(string ID)
+        public decimal SEARCHBASELIMITHRS(string id)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@" 
-                                    SELECT  [ID],[LIMITHRS] FROM [TKMOC].[dbo].[BASELIMITHRS] WHERE [ID]='{0}'
-                                    ", ID);
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return Convert.ToDecimal(ds1.Tables["ds1"].Rows[0]["LIMITHRS"].ToString());
-                }
-                else
-                {
-                    return 0;
+                    string sql = @"SELECT [LIMITHRS] FROM [TKMOC].[dbo].[BASELIMITHRS] WHERE [ID]=@ID";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@ID", id);
+
+                        sqlConn.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return reader.GetDecimal(reader.GetOrdinal("LIMITHRS"));
+                            }
+                        }
+                    }
                 }
 
+                return 0;
             }
             catch
             {
                 return 0;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         public string SEARCHFORM_UOF_VERSION_ID(string FORM_NAME)
         {
