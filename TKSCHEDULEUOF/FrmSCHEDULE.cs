@@ -163,10 +163,10 @@ namespace TKSCHEDULEUOF
                 ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
                 ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
                 ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
-                UPDATEtb_COMPANYSTATUS1();
-                UPDATEtb_COMPANYSTATUS2();
-                UPDATEtb_COMPANYOWNER_ID();
-                ADDtb_COMPANY();
+                //UPDATEtb_COMPANYSTATUS1();
+                //UPDATEtb_COMPANYSTATUS2();
+                //UPDATEtb_COMPANYOWNER_ID();
+                //ADDtb_COMPANY();
             }
         }
         /// <summary>
@@ -1799,591 +1799,466 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public void UPDATEtb_COMPANYSTATUS1()
-        {
-            DataSet dsCOMPA = new DataSet();
-            dsCOMPA = SERACHCOMPA();
-
-            if (dsCOMPA.Tables[0].Rows.Count > 0)
-            {
-                try
-                {
-                    //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                    //sqlConn = new SqlConnection(connectionString);
-
-                    //20210902密
-                    Class1 TKID = new Class1();//用new 建立類別實體
-                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                    //資料庫使用者密碼解密
-                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                    String connectionString;
-                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                    sqlConn.Close();
-                    sqlConn.Open();
-                    tran = sqlConn.BeginTransaction();
-
-                    sbSql.Clear();
-
-                    //更新          
-                    foreach (DataRow dr in dsCOMPA.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
-                        sbSql.AppendFormat(@" SET [STATUS]='1'");
-                        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["MA001"].ToString());
-                        sbSql.AppendFormat(@" ");
-                    }
-
-                    sbSql.AppendFormat(@" ");
-
-                    cmd.Connection = sqlConn;
-                    cmd.CommandTimeout = 60;
-                    cmd.CommandText = sbSql.ToString();
-                    cmd.Transaction = tran;
-                    result = cmd.ExecuteNonQuery();
-
-                    if (result == 0)
-                    {
-                        tran.Rollback();    //交易取消
-                    }
-                    else
-                    {
-                        tran.Commit();      //執行交易  
-
-                    }
-
-                }
-                catch
-                {
-
-                }
-
-                finally
-                {
-                    sqlConn.Close();
-                }
-            }
-
-        }
-
-        public DataSet SERACHCOMPA()
-        {
-            DataSet ds = new DataSet();
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
-            SqlTransaction tran;
-            SqlCommand cmd = new SqlCommand();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
-                sbSql.AppendFormat(" SELECT MA001");
-                sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
-                sbSql.AppendFormat(" WHERE ISNULL(UDF01,'')<>'Y'");
-                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
-                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='2' )");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
-
-                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder = new SqlCommandBuilder(adapter);
-                sqlConn.Open();
-                ds.Clear();
-                adapter.Fill(ds, "ds");
-
-
-
-                if (ds.Tables["ds"].Rows.Count == 0)
-                {
-                    return ds;
-                }
-                else
-                {
-                    if (ds.Tables["ds"].Rows.Count >= 1)
-                    {
-                        return ds;
-                    }
-
-                    return ds;
-                }
-
-            }
-            catch
-            {
-                return ds;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-        }
-
-        public void UPDATEtb_COMPANYSTATUS2()
-        {
-            DataSet dsCOMPASTOP = new DataSet();
-            dsCOMPASTOP = SERACHCOMPASTOP();
-
-            if (dsCOMPASTOP.Tables[0].Rows.Count > 0)
-            {
-                try
-                {
-                    //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                    //sqlConn = new SqlConnection(connectionString);
-
-                    //20210902密
-                    Class1 TKID = new Class1();//用new 建立類別實體
-                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                    //資料庫使用者密碼解密
-                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                    String connectionString;
-                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                    sqlConn.Close();
-                    sqlConn.Open();
-                    tran = sqlConn.BeginTransaction();
-
-                    sbSql.Clear();
-
-                    //更新          
-                    foreach (DataRow dr in dsCOMPASTOP.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
-                        sbSql.AppendFormat(@" SET [STATUS]='2'");
-                        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["MA001"].ToString());
-                        sbSql.AppendFormat(@" ");
-                    }
-
-                    sbSql.AppendFormat(@" ");
-
-                    cmd.Connection = sqlConn;
-                    cmd.CommandTimeout = 60;
-                    cmd.CommandText = sbSql.ToString();
-                    cmd.Transaction = tran;
-                    result = cmd.ExecuteNonQuery();
-
-                    if (result == 0)
-                    {
-                        tran.Rollback();    //交易取消
-                    }
-                    else
-                    {
-                        tran.Commit();      //執行交易  
-
-                    }
-
-                }
-                catch
-                {
-
-                }
-
-                finally
-                {
-                    sqlConn.Close();
-                }
-            }
-
-        }
-
-        public DataSet SERACHCOMPASTOP()
-        {
-            DataSet ds = new DataSet();
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
-            SqlTransaction tran;
-            SqlCommand cmd = new SqlCommand();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
-                sbSql.AppendFormat(" SELECT MA001");
-                sbSql.AppendFormat(" FROM [TK].dbo.COPMA");
-                sbSql.AppendFormat(" WHERE UDF01='Y'");
-                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>''  )");
-                sbSql.AppendFormat(" AND MA001 IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO],'')<>'' AND [STATUS]='1' )");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
-
-                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder = new SqlCommandBuilder(adapter);
-                sqlConn.Open();
-                ds.Clear();
-                adapter.Fill(ds, "ds");
-
-
-
-                if (ds.Tables["ds"].Rows.Count == 0)
-                {
-                    return ds;
-                }
-                else
-                {
-                    if (ds.Tables["ds"].Rows.Count >= 1)
-                    {
-                        return ds;
-                    }
-
-                    return ds;
-                }
-
-            }
-            catch
-            {
-                return ds;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-        }
-
-        public void ADDtb_COMPANY()
-        {
-            DataSet dsCOPMA = new DataSet();
-            dsCOPMA = SERACHdsCOPMA();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                //更新          
-                foreach (DataRow dr in dsCOPMA.Tables[0].Rows)
-                {
-                    sbSql.AppendFormat(@" 
-                                        INSERT INTO [HJ_BM_DB].[dbo].[tb_COMPANY]
-                                        ([COMPANY_NAME],[ERPNO],[TAX_NUMBER],[PHONE],[FAX],[COUNTRY],[CITY],[TOWN],[ADDRESS],[OVERSEAS_ADDR]
-                                        ,[EMAIL],[WEBSITE],[FACEBOOK],[INDUSTRY],[TURNOVER],[WORKER_NUMBER],[EST_DATE],[PARENT_ID],[UPDATE_DATETIME],[CREATE_DATETIME]
-                                        ,[CREATE_USER_ID],[UPDATE_USER_ID],[NOTE],[OWNER_ID],[LAST_CONTACT_DATE],[STATUS])
-                                        VALUES
-                                        ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}'
-                                        ,'{10}','{11}','{12}','{13}','{14}','{15}','{16}',{17},'{18}','{19}'
-                                        ,'{20}','{21}','{22}','{23}','{24}','{25}')
-                                        ", dr["COMPANY_NAME"].ToString(), dr["ERPNO"].ToString(), dr["TAX_NUMBER"].ToString(), dr["PHONE"].ToString(), dr["FAX"].ToString(), dr["COUNTRY"].ToString(), dr["CITY"].ToString(), dr["TOWN"].ToString(), dr["ADDRESS"].ToString(), dr["OVERSEAS_ADDR"].ToString()
-                                        , dr["EMAIL"].ToString(), dr["WEBSITE"].ToString(), dr["FACEBOOK"].ToString(), dr["INDUSTRY"].ToString(), dr["TURNOVER"].ToString(), dr["WORKER_NUMBER"].ToString(), dr["EST_DATE"].ToString(), "NULL", dr["UPDATE_DATETIME"].ToString(), dr["CREATE_DATETIME"].ToString()
-                                        , dr["CREATE_USER_ID"].ToString(), dr["UPDATE_USER_ID"].ToString(), dr["NOTE"].ToString(), dr["OWNER_ID"].ToString(), dr["LAST_CONTACT_DATE"].ToString(), dr["STATUS"].ToString());
-                }
-                sbSql.AppendFormat(@" ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-
-
-                }
-
-            }
-            catch
-            {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
-
-        public void UPDATEtb_COMPANYOWNER_ID()
-        {
-            //DataSet dsCOMPAMA016 = new DataSet();
-            //dsCOMPAMA016 = SERACHCOMPAMA016();
-
-            //try
-            //{
-            //    connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-            //    sqlConn = new SqlConnection(connectionString);
-
-            //    sqlConn.Close();
-            //    sqlConn.Open();
-            //    tran = sqlConn.BeginTransaction();
-
-            //    sbSql.Clear();
-
-            //    //更新          
-            //    foreach (DataRow dr in dsCOMPAMA016.Tables[0].Rows)
-            //    {
-            //        sbSql.AppendFormat(@" UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY]");
-            //        sbSql.AppendFormat(@" SET [OWNER_ID]='{0}'", dr["USER_ID"].ToString());
-            //        sbSql.AppendFormat(@" WHERE [ERPNO]='{0}' ", dr["ERPNO"].ToString());
-            //        sbSql.AppendFormat(@" ");
-            //    }
-            //    sbSql.AppendFormat(@" ");
-
-            //    cmd.Connection = sqlConn;
-            //    cmd.CommandTimeout = 60;
-            //    cmd.CommandText = sbSql.ToString();
-            //    cmd.Transaction = tran;
-            //    result = cmd.ExecuteNonQuery();
-
-            //    if (result == 0)
-            //    {
-            //        tran.Rollback();    //交易取消
-            //    }
-            //    else
-            //    {
-            //        tran.Commit();      //執行交易  
-
-            //    }
-
-            //}
-            //catch
-            //{
-
-            //}
-
-            //finally
-            //{
-            //    sqlConn.Close();
-            //}
-        }
-
-        public DataSet SERACHCOMPAMA016()
-        {
-            DataSet ds = new DataSet();
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
-            SqlTransaction tran;
-            SqlCommand cmd = new SqlCommand();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //找出在ERP是被停用的客戶，但是在UOF沒有被停用
-                sbSql.AppendFormat(" SELECT [ERPNO],[OWNER_ID],MA001,MA016,[USER_ACCOUNT],[USER_ID]");
-                sbSql.AppendFormat(" FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY],[TK].dbo.COPMA");
-                sbSql.AppendFormat(" LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] ON [tb_USER].[USER_ACCOUNT]=COPMA.MA016");
-                sbSql.AppendFormat(" WHERE MA001=[ERPNO] ");
-                sbSql.AppendFormat(" AND ISNULL(MA016,'')<>''");
-                sbSql.AppendFormat(" AND [OWNER_ID]<>[USER_ID]");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
-
-                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder = new SqlCommandBuilder(adapter);
-                sqlConn.Open();
-                ds.Clear();
-                adapter.Fill(ds, "ds");
-
-
-
-                if (ds.Tables["ds"].Rows.Count == 0)
-                {
-                    return ds;
-                }
-                else
-                {
-                    if (ds.Tables["ds"].Rows.Count >= 1)
-                    {
-                        return ds;
-                    }
-
-                    return ds;
-                }
-
-            }
-            catch
-            {
-                return ds;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
-
-        public DataSet SERACHdsCOPMA()
-        {
-            DataSet ds = new DataSet();
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
-            SqlTransaction tran;
-            SqlCommand cmd = new SqlCommand();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //               
-                sbSql.AppendFormat(@" 
-                                    SELECT 
-                                    MA002 [COMPANY_NAME]
-                                    ,MA001 [ERPNO]
-                                    ,MA010 [TAX_NUMBER]
-                                    ,MA006 [PHONE]
-                                    ,MA008 [FAX]
-                                    ,'Taiwan (台灣)' [COUNTRY]
-                                    ,'' [CITY]
-                                    ,'' [TOWN]
-                                    ,'' [ADDRESS]
-                                    ,'' [OVERSEAS_ADDR]
-                                    ,MA009 [EMAIL]
-                                    ,'' [WEBSITE]
-                                    ,'' [FACEBOOK]
-                                    ,'' [INDUSTRY]
-                                    ,'0' [TURNOVER]
-                                    ,'0' [WORKER_NUMBER]
-                                    ,'' [EST_DATE]
-                                    ,'' [PARENT_ID]
-                                    ,CONVERT(nvarchar,GETDATE(),111)  [UPDATE_DATETIME]
-                                    ,CONVERT(nvarchar,GETDATE(),111)  [CREATE_DATETIME]
-                                    ,[USER_ID]  [CREATE_USER_ID]
-                                    ,[USER_ID]  [UPDATE_USER_ID]
-                                    ,''[NOTE]
-                                    ,[USER_ID] [OWNER_ID]
-                                    ,'' [LAST_CONTACT_DATE]
-                                    ,'1' [STATUS]
-                                    FROM [TK].dbo.COPMA
-                                    LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] ON [tb_USER].[USER_ACCOUNT]=MA016
-                                    WHERE MA001 NOT IN (SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL([ERPNO] ,'')<>'')
-                                    AND MA001 NOT LIKE '1%'
-                                    AND MA001 NOT LIKE '299%'
-                                    AND MA001 NOT LIKE '399%'
-                                    AND MA001 NOT LIKE '4%'
-                                    AND MA001 NOT LIKE '5%'
-                                    AND MA001 NOT LIKE '6%'
-                                    AND MA001 NOT LIKE '7%'
-                                    AND MA001 NOT LIKE '910%'
-                                    AND MA001 NOT LIKE '990%'
-                                    ");
-
-                adapter = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder = new SqlCommandBuilder(adapter);
-                sqlConn.Open();
-                ds.Clear();
-                adapter.Fill(ds, "ds");
-
-
-
-                if (ds.Tables["ds"].Rows.Count == 0)
-                {
-                    return ds;
-                }
-                else
-                {
-                    if (ds.Tables["ds"].Rows.Count >= 1)
-                    {
-                        return ds;
-                    }
-
-                    return ds;
-                }
-
-            }
-            catch
-            {
-                return ds;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
-
+        //public void UPDATEtb_COMPANYSTATUS1()
+        //{
+        //    DataSet dsCOMPA = SERACHCOMPA();
+
+        //    if (dsCOMPA.Tables[0].Rows.Count == 0)
+        //        return;
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            sqlConn.Open();
+        //            using (SqlTransaction tran = sqlConn.BeginTransaction())
+        //            {
+        //                try
+        //                {
+        //                    // 建立 IN 條件用的參數清單
+        //                    List<string> erpNos = dsCOMPA.Tables[0].AsEnumerable()
+        //                        .Select(r => r.Field<string>("MA001"))
+        //                        .Where(s => !string.IsNullOrEmpty(s))
+        //                        .ToList();
+
+        //                    if (erpNos.Count == 0)
+        //                        return;
+
+        //                    // 用參數化建立 IN 子句
+        //                    var paramNames = erpNos.Select((s, i) => "@erpNo" + i).ToList();
+        //                    string inClause = string.Join(",", paramNames);
+
+        //                    string sql = $"UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY] SET [STATUS] = '1' WHERE [ERPNO] IN ({inClause})";
+
+        //                    using (SqlCommand cmd = new SqlCommand(sql, sqlConn, tran))
+        //                    {
+        //                        for (int i = 0; i < erpNos.Count; i++)
+        //                        {
+        //                            cmd.Parameters.AddWithValue(paramNames[i], erpNos[i]);
+        //                        }
+
+        //                        int result = cmd.ExecuteNonQuery();
+
+        //                        if (result == 0)
+        //                        {
+        //                            tran.Rollback();
+        //                        }
+        //                        else
+        //                        {
+        //                            tran.Commit();
+        //                        }
+        //                    }
+        //                }
+        //                catch
+        //                {
+        //                    tran.Rollback();
+        //                    throw;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // 可視情況記錄日誌或拋出例外
+        //        // throw new Exception("更新公司狀態失敗: " + ex.Message, ex);
+        //    }
+        //}
+
+        //public DataSet SERACHCOMPA()
+        //{
+        //    DataSet ds = new DataSet();
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            sqlConn.Open();
+
+        //            string sql = @"
+        //                        SELECT MA001
+        //                        FROM [TK].dbo.COPMA
+        //                        WHERE ISNULL(UDF01, '') <> 'Y'
+        //                          AND MA001 IN (SELECT ERPNO FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL(ERPNO, '') <> '')
+        //                          AND MA001 IN (SELECT ERPNO FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] WHERE ISNULL(ERPNO, '') <> '' AND [STATUS] = '2')
+        //                    ";
+
+        //            using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+        //            {
+        //                adapter.Fill(ds, "ds");
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        // 可視情況記錄錯誤
+        //    }
+
+        //    return ds;
+        //}
+
+
+
+        //public void UPDATEtb_COMPANYSTATUS2()
+        //{
+        //    DataSet dsCOMPASTOP = SERACHCOMPASTOP();
+
+        //    if (dsCOMPASTOP.Tables.Count == 0 || dsCOMPASTOP.Tables[0].Rows.Count == 0)
+        //        return;
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            sqlConn.Open();
+        //            using (SqlTransaction tran = sqlConn.BeginTransaction())
+        //            {
+        //                using (SqlCommand cmd = new SqlCommand())
+        //                {
+        //                    cmd.Connection = sqlConn;
+        //                    cmd.Transaction = tran;
+        //                    cmd.CommandTimeout = 60;
+        //                    cmd.CommandText = "UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY] SET [STATUS] = '2' WHERE [ERPNO] = @ERPNO";
+
+        //                    SqlParameter param = cmd.Parameters.Add("@ERPNO", SqlDbType.NVarChar, 50);
+
+        //                    foreach (DataRow dr in dsCOMPASTOP.Tables[0].Rows)
+        //                    {
+        //                        param.Value = dr["MA001"].ToString();
+        //                        cmd.ExecuteNonQuery();
+        //                    }
+        //                }
+        //                tran.Commit();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // 可加入錯誤處理或紀錄 ex.Message
+        //        // ex: Log.Error(ex);
+        //    }
+        //}
+
+
+
+        //public DataSet SERACHCOMPASTOP()
+        //{
+        //    DataSet ds = new DataSet();
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1(); // 用 new 建立類別實體
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+        //        // 資料庫使用者密碼解密
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            string sql = @"
+        //                        SELECT MA001
+        //                        FROM [TK].dbo.COPMA
+        //                        WHERE UDF01 = 'Y'
+        //                        AND MA001 IN (
+        //                            SELECT [ERPNO] 
+        //                            FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] 
+        //                            WHERE ISNULL([ERPNO],'') <> ''
+        //                        )
+        //                        AND MA001 IN (
+        //                            SELECT [ERPNO] 
+        //                            FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] 
+        //                            WHERE ISNULL([ERPNO],'') <> '' AND [STATUS] = '1'
+        //                        )";
+
+        //            using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+        //            {
+        //                sqlConn.Open();
+        //                adapter.Fill(ds, "ds");
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        // 這裡可以考慮紀錄錯誤訊息
+        //    }
+
+        //    return ds;
+        //}
+
+
+        //public void ADDtb_COMPANY()
+        //{
+        //    DataSet dsCOPMA = SERACHdsCOPMA();
+        //    if (dsCOPMA.Tables.Count == 0 || dsCOPMA.Tables[0].Rows.Count == 0)
+        //        return;
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            sqlConn.Open();
+        //            using (SqlTransaction tran = sqlConn.BeginTransaction())
+        //            {
+        //                using (SqlCommand cmd = new SqlCommand())
+        //                {
+        //                    cmd.Connection = sqlConn;
+        //                    cmd.Transaction = tran;
+        //                    cmd.CommandTimeout = 60;
+
+        //                    StringBuilder sbSql = new StringBuilder();
+
+        //                    foreach (DataRow dr in dsCOPMA.Tables[0].Rows)
+        //                    {
+        //                        sbSql.AppendLine(@"
+        //                                        INSERT INTO [HJ_BM_DB].[dbo].[tb_COMPANY]
+        //                                        ([COMPANY_NAME],[ERPNO],[TAX_NUMBER],[PHONE],[FAX],[COUNTRY],[CITY],[TOWN],[ADDRESS],[OVERSEAS_ADDR]
+        //                                        ,[EMAIL],[WEBSITE],[FACEBOOK],[INDUSTRY],[TURNOVER],[WORKER_NUMBER],[EST_DATE],[PARENT_ID],[UPDATE_DATETIME],[CREATE_DATETIME]
+        //                                        ,[CREATE_USER_ID],[UPDATE_USER_ID],[NOTE],[OWNER_ID],[LAST_CONTACT_DATE],[STATUS])
+        //                                        VALUES
+        //                                        (@COMPANY_NAME,@ERPNO,@TAX_NUMBER,@PHONE,@FAX,@COUNTRY,@CITY,@TOWN,@ADDRESS,@OVERSEAS_ADDR,
+        //                                        @EMAIL,@WEBSITE,@FACEBOOK,@INDUSTRY,@TURNOVER,@WORKER_NUMBER,@EST_DATE,NULL,@UPDATE_DATETIME,@CREATE_DATETIME,
+        //                                        @CREATE_USER_ID,@UPDATE_USER_ID,@NOTE,@OWNER_ID,@LAST_CONTACT_DATE,@STATUS);");
+
+        //                        cmd.Parameters.Clear();
+        //                        cmd.Parameters.AddWithValue("@COMPANY_NAME", dr["COMPANY_NAME"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@ERPNO", dr["ERPNO"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@TAX_NUMBER", dr["TAX_NUMBER"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@PHONE", dr["PHONE"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@FAX", dr["FAX"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@COUNTRY", dr["COUNTRY"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@CITY", dr["CITY"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@TOWN", dr["TOWN"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@ADDRESS", dr["ADDRESS"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@OVERSEAS_ADDR", dr["OVERSEAS_ADDR"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@EMAIL", dr["EMAIL"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@WEBSITE", dr["WEBSITE"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@FACEBOOK", dr["FACEBOOK"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@INDUSTRY", dr["INDUSTRY"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@TURNOVER", dr["TURNOVER"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@WORKER_NUMBER", dr["WORKER_NUMBER"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@EST_DATE", dr["EST_DATE"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@UPDATE_DATETIME", dr["UPDATE_DATETIME"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@CREATE_DATETIME", dr["CREATE_DATETIME"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@CREATE_USER_ID", dr["CREATE_USER_ID"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@UPDATE_USER_ID", dr["UPDATE_USER_ID"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@NOTE", dr["NOTE"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@OWNER_ID", dr["OWNER_ID"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@LAST_CONTACT_DATE", dr["LAST_CONTACT_DATE"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@STATUS", dr["STATUS"] ?? DBNull.Value);
+
+        //                        cmd.CommandText = sbSql.ToString();
+        //                        sbSql.Clear();
+
+        //                        cmd.ExecuteNonQuery();
+        //                    }
+
+        //                    tran.Commit();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // 可記錄錯誤 ex.Message
+        //        // 也可視需求 throw;
+        //    }
+        //}
+
+        //public void UPDATEtb_COMPANYOWNER_ID()
+        //{
+        //    DataSet dsCOMPAMA016 = SERACHCOMPAMA016();
+
+        //    if (dsCOMPAMA016.Tables.Count == 0 || dsCOMPAMA016.Tables[0].Rows.Count == 0)
+        //        return;
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            sqlConn.Open();
+        //            using (SqlTransaction tran = sqlConn.BeginTransaction())
+        //            {
+        //                using (SqlCommand cmd = new SqlCommand())
+        //                {
+        //                    cmd.Connection = sqlConn;
+        //                    cmd.Transaction = tran;
+        //                    cmd.CommandTimeout = 60;
+
+        //                    StringBuilder sbSql = new StringBuilder();
+
+        //                    foreach (DataRow dr in dsCOMPAMA016.Tables[0].Rows)
+        //                    {
+        //                        sbSql.AppendLine("UPDATE [HJ_BM_DB].[dbo].[tb_COMPANY] SET [OWNER_ID] = @OWNER_ID WHERE [ERPNO] = @ERPNO;");
+
+        //                        cmd.Parameters.Clear();
+        //                        cmd.Parameters.AddWithValue("@OWNER_ID", dr["USER_ID"] ?? DBNull.Value);
+        //                        cmd.Parameters.AddWithValue("@ERPNO", dr["ERPNO"] ?? DBNull.Value);
+
+        //                        cmd.CommandText = sbSql.ToString();
+        //                        sbSql.Clear();
+
+        //                        cmd.ExecuteNonQuery();
+        //                    }
+
+        //                    tran.Commit();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        // 可加入錯誤處理或記錄
+        //    }
+        //}
+
+
+        //public DataSet SERACHCOMPAMA016()
+        //{
+        //    DataSet ds = new DataSet();
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1(); // 用new建立類別實體
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+        //        // 資料庫使用者密碼解密
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            string sql = @"
+        //                        SELECT c.[ERPNO], c.[OWNER_ID], m.MA001, m.MA016, u.[USER_ACCOUNT], u.[USER_ID]
+        //                        FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] c
+        //                        INNER JOIN [TK].dbo.COPMA m ON m.MA001 = c.ERPNO
+        //                        LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] u ON u.USER_ACCOUNT = m.MA016
+        //                        WHERE ISNULL(m.MA016,'') <> ''
+        //                            AND c.OWNER_ID <> u.USER_ID
+        //                        ";
+
+        //            using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+        //            {
+        //                sqlConn.Open();
+        //                adapter.Fill(ds, "ds");
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        // 可加入錯誤處理或紀錄
+        //    }
+
+        //    return ds;
+        //}
+
+
+        //public DataSet SERACHdsCOPMA()
+        //{
+        //    DataSet ds = new DataSet();
+
+        //    try
+        //    {
+        //        Class1 TKID = new Class1();//用new建立類別實體
+        //        SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+        //        //資料庫使用者密碼解密
+        //        sqlsb.Password = TKID.Decryption(sqlsb.Password);
+        //        sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+        //        using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+        //        {
+        //            string sql = @"
+        //                        SELECT 
+        //                            MA002 AS [COMPANY_NAME],
+        //                            MA001 AS [ERPNO],
+        //                            MA010 AS [TAX_NUMBER],
+        //                            MA006 AS [PHONE],
+        //                            MA008 AS [FAX],
+        //                            'Taiwan (台灣)' AS [COUNTRY],
+        //                            '' AS [CITY],
+        //                            '' AS [TOWN],
+        //                            '' AS [ADDRESS],
+        //                            '' AS [OVERSEAS_ADDR],
+        //                            MA009 AS [EMAIL],
+        //                            '' AS [WEBSITE],
+        //                            '' AS [FACEBOOK],
+        //                            '' AS [INDUSTRY],
+        //                            '0' AS [TURNOVER],
+        //                            '0' AS [WORKER_NUMBER],
+        //                            '' AS [EST_DATE],
+        //                            '' AS [PARENT_ID],
+        //                            CONVERT(nvarchar, GETDATE(), 111) AS [UPDATE_DATETIME],
+        //                            CONVERT(nvarchar, GETDATE(), 111) AS [CREATE_DATETIME],
+        //                            [USER_ID] AS [CREATE_USER_ID],
+        //                            [USER_ID] AS [UPDATE_USER_ID],
+        //                            '' AS [NOTE],
+        //                            [USER_ID] AS [OWNER_ID],
+        //                            '' AS [LAST_CONTACT_DATE],
+        //                            '1' AS [STATUS]
+        //                        FROM [TK].dbo.COPMA
+        //                        LEFT JOIN [192.168.1.223].[HJ_BM_DB].[dbo].[tb_USER] 
+        //                            ON [tb_USER].[USER_ACCOUNT] = MA016
+        //                        WHERE MA001 NOT IN (
+        //                            SELECT [ERPNO] FROM [192.168.1.223].[HJ_BM_DB].[dbo].[tb_COMPANY] 
+        //                            WHERE ISNULL([ERPNO], '') <> ''
+        //                        )
+        //                        AND MA001 NOT LIKE '1%'
+        //                        AND MA001 NOT LIKE '299%'
+        //                        AND MA001 NOT LIKE '399%'
+        //                        AND MA001 NOT LIKE '4%'
+        //                        AND MA001 NOT LIKE '5%'
+        //                        AND MA001 NOT LIKE '6%'
+        //                        AND MA001 NOT LIKE '7%'
+        //                        AND MA001 NOT LIKE '910%'
+        //                        AND MA001 NOT LIKE '990%'
+        //                    ";
+
+        //            using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+        //            {
+        //                sqlConn.Open();
+        //                adapter.Fill(ds, "ds");
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        // 可加錯誤處理
+        //    }
+
+        //    return ds;
+        //}
+
+
+        /// <summary>
+        /// 轉入ERP的請購單到UOF簽核
+        /// </summary>
+        /// <param name="TA001"></param>
+        /// <param name="TA002"></param>
         public void ADDTB_WKF_EXTERNAL_TASK(string TA001, string TA002)
         {
             DataTable DT = SEARCHPURTAPURTB(TA001, TA002);
@@ -62309,12 +62184,12 @@ namespace TKSCHEDULEUOF
         }
         private void button4_Click(object sender, EventArgs e)
         {
-            UPDATEtb_COMPANYSTATUS1();
-            UPDATEtb_COMPANYSTATUS2();
+            //UPDATEtb_COMPANYSTATUS1();
+            //UPDATEtb_COMPANYSTATUS2();
         }
         private void button5_Click(object sender, EventArgs e)
         {
-            ADDtb_COMPANY();
+            //ADDtb_COMPANY();
         }
 
         private void button6_Click(object sender, EventArgs e)
