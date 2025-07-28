@@ -1089,12 +1089,10 @@ namespace TKSCHEDULEUOF
         //包裝線、製一線、製二線、手工線的總工時
         public DataSet SEARCHMANULINE2(string Sday)
         {
+            DataSet ds2 = new DataSet();
+
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
@@ -1102,83 +1100,122 @@ namespace TKSCHEDULEUOF
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@" 
-                                     SELECT [CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID]
-                                     FROM (
-                                     SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'7774b96c-6762-45ef-b9d1-fcd718854e9f' AS [CREATE_USER],[MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([PACKAGE]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21) AS [START_TIME],[MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([PACKAGE]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'7774b96c-6762-45ef-b9d1-fcd718854e9f' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]
-                                     FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB
-                                     LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%包裝%'
-                                     WHERE INVMB.MB001=MOCMANULINE.MB001   
-                                     AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' 
-                                     AND [MOCMANULINE]. [MANU]='包裝線'
-                                     GROUP BY [MOCMANULINE].[MANU],[MANUDATE]                
-                                     UNION
-                                     SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [CREATE_USER],[MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 '  AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21)  AS [START_TIME],[MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]
-                                     FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB
-                                     LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製一線%'
-                                     WHERE INVMB.MB001=MOCMANULINE.MB001 
-                                     AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' 
-                                     AND [MOCMANULINE]. [MANU]='製一線'
-                                     GROUP BY [MOCMANULINE].[MANU],[MANUDATE]
-                                     UNION
-                                     SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'5ce0f554-8b80-4aed-afea-fcd224cecb81' AS [CREATE_USER],[MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21)  AS [START_TIME],[MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'5ce0f554-8b80-4aed-afea-fcd224cecb81' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]
-                                     FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB
-                                     LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製二線%'
-                                     WHERE INVMB.MB001=MOCMANULINE.MB001   
-                                     AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' 
-                                     AND [MOCMANULINE]. [MANU]='製二線'
-                                     GROUP BY [MOCMANULINE].[MANU],[MANUDATE]
-                                     UNION               
-                                     SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [CREATE_USER],[MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21)   AS [START_TIME],[MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]
-                                     FROM [TKMOC].[dbo].[MOCMANULINE],[TK].dbo.INVMB
-                                     LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001=INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%手工線%'
-                                     WHERE INVMB.MB001=MOCMANULINE.MB001 
-                                     AND CONVERT(NVARCHAR,[MANUDATE],112) >='{0}' 
-                                     AND [MOCMANULINE]. [MANU]='手工線'
-                                     GROUP BY [MOCMANULINE].[MANU],[MANUDATE]              
-                                     ) AS TEMP
-                                     ORDER BY [START_TIME],[SUBJECT]
-                                    ", DateTime.Now.ToString("yyyyMMdd"));
-
-                adapter2 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder2 = new SqlCommandBuilder(adapter2);
-                sqlConn.Open();
-                ds2.Clear();
-                adapter2.Fill(ds2, "ds2");
-
-
-
-                if (ds2.Tables["ds2"].Rows.Count == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds2;
-                }
-                else
-                {
-                    if (ds1.Tables["ds2"].Rows.Count >= 1)
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.AppendFormat(@"
+                                        SELECT [CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID]
+                                        FROM (
+                                            SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],
+                                                '7774b96c-6762-45ef-b9d1-fcd718854e9f' AS [CREATE_USER],
+                                                [MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([PACKAGE]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],
+                                                CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],
+                                                NEWID() AS [MEMO_GUID],
+                                                'Display' AS [PERSONAL_TYPE],
+                                                NULL AS [REPEAT_GUID],
+                                                CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21) AS [START_TIME],
+                                                [MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([PACKAGE]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],
+                                                NULL AS [REMINDER_GUID],
+                                                '1' AS [ALL_DAY],
+                                                '7774b96c-6762-45ef-b9d1-fcd718854e9f' AS [OWNER],
+                                                NULL AS [UID],
+                                                NULL AS [ICS_GUID]
+                                            FROM [TKMOC].[dbo].[MOCMANULINE], [TK].dbo.INVMB
+                                            LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001 = INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%包裝%'
+                                            WHERE INVMB.MB001 = MOCMANULINE.MB001   
+                                                AND CONVERT(NVARCHAR,[MANUDATE],112) >= '{0}'
+                                                AND [MOCMANULINE].[MANU] = '包裝線'
+                                            GROUP BY [MOCMANULINE].[MANU], [MANUDATE]
+
+                                            UNION
+
+                                            SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],
+                                                '0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [CREATE_USER],
+                                                [MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],
+                                                CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],
+                                                NEWID() AS [MEMO_GUID],
+                                                'Display' AS [PERSONAL_TYPE],
+                                                NULL AS [REPEAT_GUID],
+                                                CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21) AS [START_TIME],
+                                                [MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],
+                                                NULL AS [REMINDER_GUID],
+                                                '1' AS [ALL_DAY],
+                                                '0c98530a-b467-4cd4-a411-7279f1e04d0d' AS [OWNER],
+                                                NULL AS [UID],
+                                                NULL AS [ICS_GUID]
+                                            FROM [TKMOC].[dbo].[MOCMANULINE], [TK].dbo.INVMB
+                                            LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001 = INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製一線%'
+                                            WHERE INVMB.MB001 = MOCMANULINE.MB001 
+                                                AND CONVERT(NVARCHAR,[MANUDATE],112) >= '{0}' 
+                                                AND [MOCMANULINE].[MANU] = '製一線'
+                                            GROUP BY [MOCMANULINE].[MANU], [MANUDATE]
+
+                                            UNION
+
+                                            SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],
+                                                '5ce0f554-8b80-4aed-afea-fcd224cecb81' AS [CREATE_USER],
+                                                [MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],
+                                                CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],
+                                                NEWID() AS [MEMO_GUID],
+                                                'Display' AS [PERSONAL_TYPE],
+                                                NULL AS [REPEAT_GUID],
+                                                CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21) AS [START_TIME],
+                                                [MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],
+                                                NULL AS [REMINDER_GUID],
+                                                '1' AS [ALL_DAY],
+                                                '5ce0f554-8b80-4aed-afea-fcd224cecb81' AS [OWNER],
+                                                NULL AS [UID],
+                                                NULL AS [ICS_GUID]
+                                            FROM [TKMOC].[dbo].[MOCMANULINE], [TK].dbo.INVMB
+                                            LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001 = INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%製二線%'
+                                            WHERE INVMB.MB001 = MOCMANULINE.MB001   
+                                                AND CONVERT(NVARCHAR,[MANUDATE],112) >= '{0}' 
+                                                AND [MOCMANULINE].[MANU] = '製二線'
+                                            GROUP BY [MOCMANULINE].[MANU], [MANUDATE]
+
+                                            UNION
+
+                                            SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],
+                                                '88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [CREATE_USER],
+                                                [MOCMANULINE].[MANU]+'-總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [DESCRIPTION],
+                                                CONVERT(NVARCHAR,[MANUDATE],112) AS [END_TIME],
+                                                NEWID() AS [MEMO_GUID],
+                                                'Display' AS [PERSONAL_TYPE],
+                                                NULL AS [REPEAT_GUID],
+                                                CONVERT(varchar(100),DATEADD(second,2,[MANUDATE]),21) AS [START_TIME],
+                                                [MOCMANULINE].[MANU]+'--總工時-'+CONVERT(nvarchar,SUM(CONVERT(DECIMAL(12,2),ISNULL(ROUND(([NUM]/NULLIF([PREINVMBMANU].TIMES,1)),0),0))))+'小時 ' AS [SUBJECT],
+                                                NULL AS [REMINDER_GUID],
+                                                '1' AS [ALL_DAY],
+                                                '88789ece-41d1-4b48-94f1-6ffab05b05f4' AS [OWNER],
+                                                NULL AS [UID],
+                                                NULL AS [ICS_GUID]
+                                            FROM [TKMOC].[dbo].[MOCMANULINE], [TK].dbo.INVMB
+                                            LEFT JOIN [TKMOC].[dbo].[PREINVMBMANU] ON [PREINVMBMANU].MB001 = INVMB.MB001 AND [PREINVMBMANU].MANU LIKE '%手工線%'
+                                            WHERE INVMB.MB001 = MOCMANULINE.MB001 
+                                                AND CONVERT(NVARCHAR,[MANUDATE],112) >= '{0}' 
+                                                AND [MOCMANULINE].[MANU] = '手工線'
+                                            GROUP BY [MOCMANULINE].[MANU], [MANUDATE]
+                                        ) AS TEMP
+                                        ORDER BY [START_TIME], [SUBJECT]
+                                    ", Sday);
+
+                    using (SqlDataAdapter adapter2 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        return ds2;
+                        ds2.Clear();
+                        sqlConn.Open();
+                        adapter2.Fill(ds2, "ds2");
                     }
-
-                    return ds2;
                 }
 
+                return ds2;
             }
             catch
             {
-                return ds2;
-            }
-            finally
-            {
-                sqlConn.Close();
+                return new DataSet();
             }
         }
+
 
         //包裝線、製一線、製二線、手工線的稼動率
         public DataSet SEARCHMANULINE3(string Sday)
