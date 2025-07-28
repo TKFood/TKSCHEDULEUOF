@@ -1625,57 +1625,49 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902密碼解密
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
-                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
-                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
-                sbSql.AppendFormat(" AND TD004=MB001");
-                sbSql.AppendFormat(" AND TD016 IN ('N')");
-                sbSql.AppendFormat(" AND TD001 IN ('A221','A223','A227','A229')");
-                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
-                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(@"
+                                    SELECT 
+                                        CONVERT(varchar(100), GETDATE(), 21) AS [CREATE_TIME],
+                                        '4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [CREATE_USER],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [DESCRIPTION],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [END_TIME],
+                                        NEWID() AS [MEMO_GUID],
+                                        'Display' AS [PERSONAL_TYPE],
+                                        NULL AS [REPEAT_GUID],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [START_TIME],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [SUBJECT],
+                                        NULL AS [REMINDER_GUID],
+                                        '1' AS [ALL_DAY],
+                                        '4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [OWNER],
+                                        NULL AS [UID],
+                                        NULL AS [ICS_GUID]
+                                    FROM [TK].[dbo].[COPTC], [TK].[dbo].[COPTD], [TK].dbo.INVMB
+                                    WHERE TC001 = TD001 AND TC002 = TD002
+                                        AND TD004 = MB001
+                                        AND TD016 = 'N'
+                                        AND TD001 IN ('A221', 'A223', 'A227', 'A229')
+                                        AND TD013 >= '{0}'
+                                    ORDER BY TD013, TC001, TC002
+                                    ", Sday);
 
-                adapter6 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                adapter6 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
 
                 sqlCmdBuilder6 = new SqlCommandBuilder(adapter6);
                 sqlConn.Open();
                 ds6.Clear();
                 adapter6.Fill(ds6, "ds6");
 
-
-
-                if (ds6.Tables["ds6"].Rows.Count == 0)
-                {
-                    return ds6;
-                }
-                else
-                {
-                    if (ds6.Tables["ds6"].Rows.Count >= 1)
-                    {
-                        return ds6;
-                    }
-
-                    return ds6;
-                }
-
+                return ds6;
             }
             catch
             {
@@ -1683,65 +1675,58 @@ namespace TKSCHEDULEUOF
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                    sqlConn.Close();
             }
         }
+
 
         public DataSet SEARCHMANULINE7(string Sday)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
-                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
-                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
-                sbSql.AppendFormat(" AND TD004=MB001");
-                sbSql.AppendFormat(" AND TD016 IN ('N')");
-                sbSql.AppendFormat(" AND TD001 IN ('A222','A227')");
-                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
-                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(@"
+                                    SELECT 
+                                        CONVERT(varchar(100), GETDATE(), 21) AS [CREATE_TIME],
+                                        '8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [CREATE_USER],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [DESCRIPTION],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [END_TIME],
+                                        NEWID() AS [MEMO_GUID],
+                                        'Display' AS [PERSONAL_TYPE],
+                                        NULL AS [REPEAT_GUID],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [START_TIME],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [SUBJECT],
+                                        NULL AS [REMINDER_GUID],
+                                        '1' AS [ALL_DAY],
+                                        '8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [OWNER],
+                                        NULL AS [UID],
+                                        NULL AS [ICS_GUID]
+                                    FROM [TK].[dbo].[COPTC], [TK].[dbo].[COPTD], [TK].dbo.INVMB
+                                    WHERE TC001 = TD001 AND TC002 = TD002
+                                        AND TD004 = MB001
+                                        AND TD016 = 'N'
+                                        AND TD001 IN ('A222', 'A227')
+                                        AND TD013 >= '{0}'
+                                    ORDER BY TD013, TC001, TC002
+                                    ", Sday);
 
-                adapter7 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                adapter7 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
 
                 sqlCmdBuilder7 = new SqlCommandBuilder(adapter7);
                 sqlConn.Open();
                 ds7.Clear();
                 adapter7.Fill(ds7, "ds7");
 
-
-
-                if (ds7.Tables["ds7"].Rows.Count == 0)
-                {
-                    return ds7;
-                }
-                else
-                {
-                    if (ds7.Tables["ds7"].Rows.Count >= 1)
-                    {
-                        return ds7;
-                    }
-
-                    return ds7;
-                }
-
+                return ds7;
             }
             catch
             {
@@ -1749,65 +1734,58 @@ namespace TKSCHEDULEUOF
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                    sqlConn.Close();
             }
         }
+
 
         public DataSet SEARCHMANULINE8(string Sday)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [CREATE_USER],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [DESCRIPTION],CONVERT(NVARCHAR,[TD013],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD013],112) AS [START_TIME],TC053+'-'+TD005+'-'+CONVERT(NVARCHAR,CONVERT(INT,(TD008-TD009)))+' ('+TD010+') 贈品'+CONVERT(NVARCHAR,CONVERT(INT,(TD024-TD025)))+' ('+TD010+')' AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
-                sbSql.AppendFormat(" FROM [TK].[dbo].[COPTC],[TK].[dbo].[COPTD],[TK].dbo.INVMB");
-                sbSql.AppendFormat(" WHERE TC001=TD001 AND TC002=TD002");
-                sbSql.AppendFormat(" AND TD004=MB001");
-                sbSql.AppendFormat(" AND TD016 IN ('N')");
-                sbSql.AppendFormat(" AND TD001 IN ('A224','A225','A226','A228')");
-                sbSql.AppendFormat(" AND TD013>='{0}'", Sday);
-                sbSql.AppendFormat(" ORDER BY TD013,TC001,TC002");
-                sbSql.AppendFormat(" ");
-                sbSql.AppendFormat(" ");
+                sbSql.AppendFormat(@"
+                                    SELECT 
+                                        CONVERT(varchar(100), GETDATE(), 21) AS [CREATE_TIME],
+                                        'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [CREATE_USER],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [DESCRIPTION],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [END_TIME],
+                                        NEWID() AS [MEMO_GUID],
+                                        'Display' AS [PERSONAL_TYPE],
+                                        NULL AS [REPEAT_GUID],
+                                        CONVERT(NVARCHAR, [TD013], 112) AS [START_TIME],
+                                        TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [SUBJECT],
+                                        NULL AS [REMINDER_GUID],
+                                        '1' AS [ALL_DAY],
+                                        'e6a83ac9-5ab4-4c5b-af50-1936a694ffe8' AS [OWNER],
+                                        NULL AS [UID],
+                                        NULL AS [ICS_GUID]
+                                    FROM [TK].[dbo].[COPTC], [TK].[dbo].[COPTD], [TK].dbo.INVMB
+                                    WHERE TC001 = TD001 AND TC002 = TD002
+                                        AND TD004 = MB001
+                                        AND TD016 = 'N'
+                                        AND TD001 IN ('A224', 'A225', 'A226', 'A228')
+                                        AND TD013 >= '{0}'
+                                    ORDER BY TD013, TC001, TC002
+                                    ", Sday);
 
-                adapter8 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                adapter8 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
 
                 sqlCmdBuilder8 = new SqlCommandBuilder(adapter8);
                 sqlConn.Open();
                 ds8.Clear();
                 adapter8.Fill(ds8, "ds8");
 
-
-
-                if (ds8.Tables["ds8"].Rows.Count == 0)
-                {
-                    return ds8;
-                }
-                else
-                {
-                    if (ds8.Tables["ds8"].Rows.Count >= 1)
-                    {
-                        return ds8;
-                    }
-
-                    return ds8;
-                }
-
+                return ds8;
             }
             catch
             {
@@ -1815,9 +1793,11 @@ namespace TKSCHEDULEUOF
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                    sqlConn.Close();
             }
         }
+
 
         public void UPDATEtb_COMPANYSTATUS1()
         {
