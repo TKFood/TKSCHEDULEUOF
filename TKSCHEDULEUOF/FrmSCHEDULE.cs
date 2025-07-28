@@ -1445,257 +1445,180 @@ namespace TKSCHEDULEUOF
 
         public void ADDTOUOFTB_EIP_SCH_MEMO_PUR(string Sday)
         {
+            DataSet ds5 = SEARCHMANULINE5(Sday);
+            if (ds5 == null || ds5.Tables.Count == 0 || ds5.Tables[0].Rows.Count == 0)
+                return; // 沒資料就不執行
 
-            DataSet ds5 = new DataSet();
-            ds5 = SEARCHMANULINE5(Sday);
+            Class1 TKID = new Class1();//解密
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-
-            try
+            using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
                 sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
 
-                sbSql.Clear();
-
-                //先刪除再新增
-
-                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='701e642b-c4d5-43ce-8289-c7dffb7ba016'", Sday);
-                sbSql.AppendFormat(" ");
-
-                if (ds5.Tables[0].Rows.Count > 0)
+                // 刪除資料
+                using (SqlCommand cmd = new SqlCommand("DELETE FROM [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112) >= @Sday AND [CREATE_USER] = @CreateUser", sqlConn))
                 {
-                    foreach (DataRow dr in ds5.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
-                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
-                        sbSql.AppendFormat(" VALUES");
-                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
-                        sbSql.AppendFormat(" ");
-                    }
+                    cmd.Parameters.AddWithValue("@Sday", Sday);
+                    cmd.Parameters.AddWithValue("@CreateUser", "701e642b-c4d5-43ce-8289-c7dffb7ba016");
+                    cmd.ExecuteNonQuery();
                 }
 
-
-
-
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                // 批次匯入
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConn))
                 {
-                    tran.Rollback();    //交易取消
+                    bulkCopy.DestinationTableName = "[UOF].[dbo].[TB_EIP_SCH_MEMO]";
+                    bulkCopy.ColumnMappings.Add("CREATE_TIME", "CREATE_TIME");
+                    bulkCopy.ColumnMappings.Add("CREATE_USER", "CREATE_USER");
+                    bulkCopy.ColumnMappings.Add("DESCRIPTION", "DESCRIPTION");
+                    bulkCopy.ColumnMappings.Add("END_TIME", "END_TIME");
+                    bulkCopy.ColumnMappings.Add("MEMO_GUID", "MEMO_GUID");
+                    bulkCopy.ColumnMappings.Add("PERSONAL_TYPE", "PERSONAL_TYPE");
+                    bulkCopy.ColumnMappings.Add("REPEAT_GUID", "REPEAT_GUID");
+                    bulkCopy.ColumnMappings.Add("START_TIME", "START_TIME");
+                    bulkCopy.ColumnMappings.Add("SUBJECT", "SUBJECT");
+                    bulkCopy.ColumnMappings.Add("REMINDER_GUID", "REMINDER_GUID");
+                    bulkCopy.ColumnMappings.Add("ALL_DAY", "ALL_DAY");
+                    bulkCopy.ColumnMappings.Add("OWNER", "OWNER");
+                    bulkCopy.ColumnMappings.Add("UID", "UID");
+                    bulkCopy.ColumnMappings.Add("ICS_GUID", "ICS_GUID");
+
+                    bulkCopy.WriteToServer(ds5.Tables[0]);
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
-            }
-            catch
-            {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
-        //採購明細
+        //採購明細        
         public DataSet SEARCHMANULINE5(string Sday)
         {
+            DataSet ds5 = new DataSet();
+
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                Class1 TKID = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(" SELECT CONVERT(varchar(100),GETDATE(),21) AS [CREATE_TIME],'701e642b-c4d5-43ce-8289-c7dffb7ba016' AS [CREATE_USER],TD005+'-'+CONVERT(NVARCHAR,(TD008-TD015))+' '+TD009 AS [DESCRIPTION],CONVERT(NVARCHAR,[TD012],112) AS [END_TIME],NEWID() AS [MEMO_GUID],'Display' AS [PERSONAL_TYPE],NULL AS [REPEAT_GUID],CONVERT(NVARCHAR,[TD012],112) AS [START_TIME],TD005+'-'+CONVERT(NVARCHAR,(TD008-TD015))+' '+TD009  AS [SUBJECT],NULL AS [REMINDER_GUID],'1' AS [ALL_DAY],'701e642b-c4d5-43ce-8289-c7dffb7ba016' AS [OWNER],NULL AS [UID],NULL AS [ICS_GUID]");
-                sbSql.AppendFormat(" FROM [TK].[dbo].[PURTD],[TK].dbo.INVMB");
-                sbSql.AppendFormat(" WHERE TD004=MB001");
-                sbSql.AppendFormat(" AND TD016 IN ('N')");
-                sbSql.AppendFormat(" AND (TD004 LIKE '1%' OR TD004 LIKE '2%')");
-                sbSql.AppendFormat(" AND TD012>='{0}'", Sday);
-                sbSql.AppendFormat(" ORDER BY TD012");
-                sbSql.AppendFormat(" ");
-
-                adapter5 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder5 = new SqlCommandBuilder(adapter5);
-                sqlConn.Open();
-                ds5.Clear();
-                adapter5.Fill(ds5, "ds5");
-
-
-
-                if (ds5.Tables["ds5"].Rows.Count == 0)
+                using (var conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds5;
-                }
-                else
-                {
-                    if (ds5.Tables["ds5"].Rows.Count >= 1)
+                    string query = @"
+                                SELECT 
+                                    CONVERT(varchar(100), GETDATE(), 21) AS CREATE_TIME,
+                                    '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS CREATE_USER,
+                                    TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS DESCRIPTION,
+                                    CONVERT(NVARCHAR, TD012, 112) AS END_TIME,
+                                    NEWID() AS MEMO_GUID,
+                                    'Display' AS PERSONAL_TYPE,
+                                    NULL AS REPEAT_GUID,
+                                    CONVERT(NVARCHAR, TD012, 112) AS START_TIME,
+                                    TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS SUBJECT,
+                                    NULL AS REMINDER_GUID,
+                                    '1' AS ALL_DAY,
+                                    '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS OWNER,
+                                    NULL AS UID,
+                                    NULL AS ICS_GUID
+                                FROM [TK].[dbo].[PURTD]
+                                JOIN [TK].[dbo].[INVMB] ON TD004 = MB001
+                                WHERE TD016 = 'N'
+                                    AND (TD004 LIKE '1%' OR TD004 LIKE '2%')
+                                    AND TD012 >= @Sday
+                                ORDER BY TD012";
+
+                    using (var cmd = new SqlCommand(query, conn))
                     {
-                        return ds5;
+                        cmd.Parameters.AddWithValue("@Sday", Sday);
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            conn.Open();
+                            adapter.Fill(ds5, "ds5");
+                        }
                     }
-
-                    return ds5;
                 }
-
             }
             catch
             {
-                return ds5;
+                // 可加上Log
             }
-            finally
-            {
-                sqlConn.Close();
-            }
+
+            return ds5;
         }
 
-        public void ADDTOUOFTB_EIP_SCH_MEMO_COP(string Sday)
+        public void ADDTOUOFTB_EIP_SCH_MEMO_COP(string sDate)
         {
-
-            DataSet ds6 = new DataSet();
-            DataSet ds7 = new DataSet();
-            DataSet ds8 = new DataSet();
-            ds6 = SEARCHMANULINE6(Sday);
-            ds7 = SEARCHMANULINE7(Sday);
-            ds8 = SEARCHMANULINE8(Sday);
-
-
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 1. 建立連線字串
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
-                sqlConn.Close();
+                // 2. 查詢三個產線資料
+                DataSet ds6 = SEARCHMANULINE5(sDate); // 製一線
+                DataSet ds7 = SEARCHMANULINE6(sDate); // 包裝線
+                DataSet ds8 = SEARCHMANULINE7(sDate); // 手工線
+
+                // 3. 合併資料
+                DataTable dtAll = ds6.Tables[0].Clone(); // 複製結構
+                dtAll.Merge(ds6.Tables[0]);
+                dtAll.Merge(ds7.Tables[0]);
+                dtAll.Merge(ds8.Tables[0]);
+
+                if (dtAll.Rows.Count == 0) return;
+
+                // 4. 組合批次 INSERT SQL
+                StringBuilder sbSql = new StringBuilder();
+                sbSql.AppendLine("INSERT INTO [TKIT].[dbo].[CALENDAR_MANULINE]");
+                sbSql.AppendLine("([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
+                sbSql.AppendLine("VALUES");
+
+                for (int i = 0; i < dtAll.Rows.Count; i++)
+                {
+                    DataRow dr = dtAll.Rows[i];
+
+                    sbSql.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}',{6},'{7}','{8}',{9},'{10}','{11}',{12},{13})",
+                        dr["CREATE_TIME"],
+                        dr["CREATE_USER"],
+                        dr["DESCRIPTION"].ToString().Replace("'", "''"),
+                        dr["END_TIME"],
+                        dr["MEMO_GUID"],
+                        dr["PERSONAL_TYPE"],
+                        dr["REPEAT_GUID"] == DBNull.Value ? "NULL" : $"'{dr["REPEAT_GUID"]}'",
+                        dr["START_TIME"],
+                        dr["SUBJECT"].ToString().Replace("'", "''"),
+                        dr["REMINDER_GUID"] == DBNull.Value ? "NULL" : $"'{dr["REMINDER_GUID"]}'",
+                        dr["ALL_DAY"],
+                        dr["OWNER"],
+                        dr["UID"] == DBNull.Value ? "NULL" : $"'{dr["UID"]}'",
+                        dr["ICS_GUID"] == DBNull.Value ? "NULL" : $"'{dr["ICS_GUID"]}'"
+                    );
+
+                    if (i < dtAll.Rows.Count - 1)
+                        sbSql.AppendLine(",");
+                    else
+                        sbSql.AppendLine(";");
+                }
+
+                // 5. 執行 SQL
                 sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                //先刪除再新增
-
-                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='4eda2bfc-bf4b-4df2-a39c-1cc46e68598a'", Sday);
-                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='8e841f56-0a77-4b5c-9c7e-1fd05b089900'", Sday);
-                sbSql.AppendFormat(" DELETE [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112)>='{0}' AND [CREATE_USER]='e6a83ac9-5ab4-4c5b-af50-1936a694ffe8'", Sday);
-                sbSql.AppendFormat(" ");
-
-                if (ds6.Tables[0].Rows.Count > 0)
-                {
-                    foreach (DataRow dr in ds6.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
-                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
-                        sbSql.AppendFormat(" VALUES");
-                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
-                        sbSql.AppendFormat(" ");
-                    }
-                }
-                if (ds7.Tables[0].Rows.Count > 0)
-                {
-                    foreach (DataRow dr in ds7.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
-                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
-                        sbSql.AppendFormat(" VALUES");
-                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
-                        sbSql.AppendFormat(" ");
-                    }
-                }
-                if (ds8.Tables[0].Rows.Count > 0)
-                {
-                    foreach (DataRow dr in ds8.Tables[0].Rows)
-                    {
-                        sbSql.AppendFormat(" INSERT INTO [UOF].[dbo].[TB_EIP_SCH_MEMO]");
-                        sbSql.AppendFormat(" ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
-                        sbSql.AppendFormat(" VALUES");
-                        sbSql.AppendFormat(" ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}','{13}')", dr["CREATE_TIME"].ToString(), dr["CREATE_USER"].ToString(), dr["DESCRIPTION"].ToString(), dr["END_TIME"].ToString(), dr["MEMO_GUID"].ToString(), dr["PERSONAL_TYPE"].ToString(), dr["REPEAT_GUID"].ToString(), dr["START_TIME"].ToString(), dr["SUBJECT"].ToString(), dr["REMINDER_GUID"].ToString(), dr["ALL_DAY"].ToString(), dr["OWNER"].ToString(), dr["UID"].ToString(), dr["ICS_GUID"].ToString());
-                        sbSql.AppendFormat(" ");
-                    }
-                }
-
-
-
-
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
+                SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn);
+                cmd.ExecuteNonQuery();
             }
-            catch
+            catch (Exception ex)
             {
-
+                throw new Exception("寫入 CALENDAR_MANULINE 發生錯誤：" + ex.Message, ex);
             }
-
             finally
             {
-                sqlConn.Close();
+                if (sqlConn.State == ConnectionState.Open)
+                    sqlConn.Close();
             }
         }
+
 
         //訂單-國內
         public DataSet SEARCHMANULINE6(string Sday)
