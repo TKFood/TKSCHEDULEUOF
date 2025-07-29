@@ -2261,7 +2261,7 @@ namespace TKSCHEDULEUOF
         // 這是簡化與結構化版本，將重複的部分重構為方法來減少程式碼長度與重複性
 
         public void ADDTB_WKF_EXTERNAL_TASK_PURTAB(string TA001, string TA002)
-        {
+        {            
             DataTable dt = SEARCHPURTAPURTB(TA001, TA002);
             DataTable dtUofDep = SEARCHUOFDEP(dt.Rows[0]["TA012"].ToString());
 
@@ -2276,21 +2276,23 @@ namespace TKSCHEDULEUOF
 
             string externalFormNbr = dt.Rows[0]["TA001"].ToString().Trim() + dt.Rows[0]["TA002"].ToString().Trim();
 
+            //找出表單的最新版號
             string purId = SEARCHFORM_UOF_VERSION_ID("PUR10.請購單申請");
 
+            //建立XML
             XmlDocument xmlDoc = new XmlDocument();
             XmlElement form = xmlDoc.CreateElement("Form");
             if (!string.IsNullOrEmpty(purId)) form.SetAttribute("formVersionId", purId);
             form.SetAttribute("urgentLevel", "2");
             xmlDoc.AppendChild(form);
-
+            //建立XML的 applicant 節點
             XmlElement applicant = CreateApplicant(xmlDoc, account, groupId, jobTitleId);
             form.AppendChild(applicant);
-
+            //建立XML的 Comment 節點
             XmlElement comment = xmlDoc.CreateElement("Comment");
             comment.InnerText = "申請者意見";
             applicant.AppendChild(comment);
-
+            //建立XML的 FormFieldValue 節點
             XmlElement formFieldValue = xmlDoc.CreateElement("FormFieldValue");
             form.AppendChild(formFieldValue);
 
@@ -2299,13 +2301,14 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, formFieldValue, "QC", dt.Rows[0]["QC"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, formFieldValue, "DEPNO", depName, fillerName, fillerUserGuid, account, depNo);
             AddFieldItem(xmlDoc, formFieldValue, "TA004", dt.Rows[0]["ME002"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "TA001", dt.Rows[0]["TA001"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "TA002", dt.Rows[0]["TA002"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "TA003", dt.Rows[0]["TA003"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "TA012", dt.Rows[0]["TA012"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "MV002", dt.Rows[0]["MV002"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "TA006", dt.Rows[0]["TA006"].ToString(), fillerName, fillerUserGuid, account);
 
-            string[] fieldIds = new[] { "TA001", "TA002", "TA003", "TA012", "MV002", "TA006" };
-            foreach (string fieldId in fieldIds)
-            {
-                AddFieldItem(xmlDoc, formFieldValue, fieldId, dt.Rows[0][fieldId].ToString(), fillerName, fillerUserGuid, account);
-            }
-
+            // 建立 DataGrid
             XmlElement tbField = AddFieldItem(xmlDoc, formFieldValue, "TB", "", fillerName, fillerUserGuid, account);
             XmlElement dataGrid = xmlDoc.CreateElement("DataGrid");
             tbField.AppendChild(dataGrid);
@@ -2315,12 +2318,19 @@ namespace TKSCHEDULEUOF
             {
                 XmlElement row = xmlDoc.CreateElement("Row");
                 row.SetAttribute("order", rowIndex.ToString());
-                string[] itemFields = { "TB004", "TB005", "TB006", "TB007", "TB009", "SUMLA011", "TB011", "TB010", "MA002", "TB012", "LASTTB", "LASTTH" };
 
-                foreach (string fid in itemFields)
-                {
-                    AppendCellToRow(xmlDoc, row, od, fid);
-                }
+                AppendCellToRow(xmlDoc, row, od, "TB004");
+                AppendCellToRow(xmlDoc, row, od, "TB005");
+                AppendCellToRow(xmlDoc, row, od, "TB006");
+                AppendCellToRow(xmlDoc, row, od, "TB007");
+                AppendCellToRow(xmlDoc, row, od, "TB009");
+                AppendCellToRow(xmlDoc, row, od, "SUMLA011");
+                AppendCellToRow(xmlDoc, row, od, "TB011");
+                AppendCellToRow(xmlDoc, row, od, "TB010");
+                AppendCellToRow(xmlDoc, row, od, "MA002");
+                AppendCellToRow(xmlDoc, row, od, "TB012");
+                AppendCellToRow(xmlDoc, row, od, "LASTTB");
+                AppendCellToRow(xmlDoc, row, od, "LASTTH");
 
                 dataGrid.AppendChild(row);
                 rowIndex++;
@@ -2580,7 +2590,8 @@ namespace TKSCHEDULEUOF
                         {
                             string ta001 = row["TA001"].ToString().Trim();
                             string ta002 = row["TA002"].ToString().Trim();
-
+                            
+                            //將ERP的請購單，轉入UOF的請購單
                             ADDTB_WKF_EXTERNAL_TASK_PURTAB(ta001, ta002);
                         }
                     }
@@ -61909,6 +61920,7 @@ namespace TKSCHEDULEUOF
         }
         private void button7_Click(object sender, EventArgs e)
         {
+            //ERP請購單>轉入UOF簽核
             ADDTOUOFPURTAB();
             //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
         }
