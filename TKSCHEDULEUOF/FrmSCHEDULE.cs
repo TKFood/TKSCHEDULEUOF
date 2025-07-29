@@ -2354,6 +2354,11 @@ namespace TKSCHEDULEUOF
                 cmd.ExecuteNonQuery();
             }
         }
+        /// <summary>
+        /// 建立資料庫連線
+        /// </summary>
+        /// <param name="configName"></param>
+        /// <returns></returns>
         private string BuildDecryptedConnection(string configName)
         {
             Class1 tkid = new Class1();
@@ -2362,7 +2367,14 @@ namespace TKSCHEDULEUOF
             builder.UserID = tkid.Decryption(builder.UserID);
             return builder.ConnectionString;
         }
-
+        /// <summary>
+        /// 找出申請者的GROUP_ID
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="targetGroupCode"></param>
+        /// <param name="depName"></param>
+        /// <param name="depNo"></param>
+        /// <returns></returns>
         private string GetGroupId(DataTable dt, string targetGroupCode, out string depName, out string depNo)
         {
             foreach (DataRow row in dt.Rows)
@@ -2379,7 +2391,14 @@ namespace TKSCHEDULEUOF
             return dt.Rows[0]["GROUP_ID"].ToString();
         }
 
-
+        /// <summary>
+        /// 建立 Applicant
+        /// </summary>
+        /// <param name="xmlDoc"></param>
+        /// <param name="account"></param>
+        /// <param name="groupId"></param>
+        /// <param name="jobTitleId"></param>
+        /// <returns></returns>
         private XmlElement CreateApplicant(XmlDocument xmlDoc, string account, string groupId, string jobTitleId)
         {
             XmlElement applicant = xmlDoc.CreateElement("Applicant");
@@ -2388,7 +2407,18 @@ namespace TKSCHEDULEUOF
             applicant.SetAttribute("jobTitleId", jobTitleId);
             return applicant;
         }
-
+        /// <summary>
+        /// 建立 FieldItem
+        /// </summary>
+        /// <param name="xmlDoc"></param>
+        /// <param name="parent"></param>
+        /// <param name="fieldId"></param>
+        /// <param name="fieldValue"></param>
+        /// <param name="fillerName"></param>
+        /// <param name="fillerUserGuid"></param>
+        /// <param name="fillerAccount"></param>
+        /// <param name="realValue"></param>
+        /// <returns></returns>
         private XmlElement AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "")
         {
             XmlElement fieldItem = xmlDoc.CreateElement("FieldItem");
@@ -2403,7 +2433,13 @@ namespace TKSCHEDULEUOF
             parent.AppendChild(fieldItem);
             return fieldItem;
         }
-
+        /// <summary>
+        /// 建立 Cell
+        /// </summary>
+        /// <param name="xmlDoc"></param>
+        /// <param name="row"></param>
+        /// <param name="od"></param>
+        /// <param name="fid"></param>
         private void AppendCellToRow(XmlDocument xmlDoc, XmlElement row, DataRow od, string fid)
         {
             string value = od.Table.Columns.Contains(fid) ? od[fid].ToString() : "";
