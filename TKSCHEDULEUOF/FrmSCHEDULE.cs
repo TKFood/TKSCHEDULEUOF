@@ -2549,130 +2549,118 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        /// <summary>
+        /// ERP中，找出要送UOF簽核的請購單
+        /// </summary>
         public void ADDTOUOFPURTAB()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                string connectionString = BuildDecryptedConnection("dberp");
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@" 
-                                    SELECT TA001,TA002,UDF01
-                                    FROM [TK].dbo.PURTA
-                                    WHERE TA007='N' AND (UDF01 IN ('Y','y') )
-                                    ORDER BY TA001,TA002
+                using (sqlConn = new SqlConnection(connectionString))
+                {
+                    DataTable purtaData = new DataTable();
+                    sbSql.Clear();
+                    sbSql.AppendLine(@"
+                                        SELECT TA001, TA002, UDF01
+                                        FROM [TK].dbo.PURTA
+                                        WHERE TA007 = 'N' AND (UDF01 IN ('Y','y'))
+                                        ORDER BY TA001, TA002
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
-                    {
-                        ADDTB_WKF_EXTERNAL_TASK_PURTAB(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {                        
+                        adapter.Fill(purtaData);                       
                     }
 
+                    if (purtaData.Rows.Count > 0)
+                    {
+                        foreach (DataRow row in purtaData.Rows)
+                        {
+                            string ta001 = row["TA001"].ToString().Trim();
+                            string ta002 = row["TA002"].ToString().Trim();
 
-                    //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
+                            ADDTB_WKF_EXTERNAL_TASK_PURTAB(ta001, ta002);
+                        }
+                    }
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 建議可加入 log 紀錄錯誤訊息
+                //Console.WriteLine("ADDTOUOFPURTAB 發生錯誤：" + ex.Message);
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                {
+                    sqlConn.Close();
+                }
             }
 
-            UPDATEPURTAUDF01();
+            UPDATE_PURTAUDF01();
         }
-
-        public void UPDATEPURTAUDF01()
+        /// <summary>
+        /// 更新ERP的請購單的UDF01，避免重覆轉入UOF
+        /// </summary>
+        public void UPDATE_PURTAUDF01()
         {
-            try
+            StringBuilder sql = new StringBuilder();
+
+            sql.AppendLine(@"
+                                UPDATE [TK].dbo.PURTA  
+                                SET UDF01 = 'UOF', TA016 = 'N'
+                                WHERE TA007 = 'N' AND (UDF01 IN ('Y','y'))
+                            ");
+
+            using (SqlConnection conn = new SqlConnection(BuildDecryptedConnection("dberp")))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE  [TK].dbo.PURTA  
-                                    SET UDF01 = 'UOF',TA016='N'
-                                    WHERE TA007 = 'N' AND (UDF01 IN ('Y','y') )
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
+                int result = ExecuteSqlWithTransaction(conn, sql.ToString());
+                //Console.WriteLine("更新筆數：" + result.ToString());
             }
-            catch
+        }
+        /// <summary>
+        /// SQL的執行語法
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        private int ExecuteSqlWithTransaction(SqlConnection conn, string sql)
+        {
+            using (SqlCommand cmd = conn.CreateCommand())
             {
+                SqlTransaction tran = null;
+                try
+                {
+                    conn.Open();
+                    tran = conn.BeginTransaction();
+                    cmd.Transaction = tran;
+                    cmd.CommandText = sql;
+                    cmd.CommandTimeout = 60;
 
-            }
+                    int result = cmd.ExecuteNonQuery();
 
-            finally
-            {
-                sqlConn.Close();
+                    if (result > 0)
+                        tran.Commit();
+                    else
+                        tran.Rollback();
+
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    if (tran != null)
+                        tran.Rollback();
+
+                    Console.WriteLine("執行 SQL 發生錯誤：" + ex.Message);
+                    return 0;
+                }
+                finally
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+                }
             }
         }
 
