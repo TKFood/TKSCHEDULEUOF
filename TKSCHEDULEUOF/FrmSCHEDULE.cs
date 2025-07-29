@@ -418,9 +418,8 @@ namespace TKSCHEDULEUOF
             //將ERP的 請購資料，轉到UOF「PUR10.請購單申請」做簽核
             try
             {
-                ADDTOUOFOURTAB();
-                ADDTOUOFOURTAB();
-                ADDTOUOFOURTAB();
+                ADDTOUOFPURTAB();
+
             }
             catch { }
 
@@ -2261,7 +2260,7 @@ namespace TKSCHEDULEUOF
         /// <param name="TA002"></param>
         // 這是簡化與結構化版本，將重複的部分重構為方法來減少程式碼長度與重複性
 
-        public void ADDTB_WKF_EXTERNAL_TASK(string TA001, string TA002)
+        public void ADDTB_WKF_EXTERNAL_TASK_PURTAB(string TA001, string TA002)
         {
             DataTable dt = SEARCHPURTAPURTB(TA001, TA002);
             DataTable dtUofDep = SEARCHUOFDEP(dt.Rows[0]["TA012"].ToString());
@@ -2551,7 +2550,7 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public void ADDTOUOFOURTAB()
+        public void ADDTOUOFPURTAB()
         {
             try
             {
@@ -2596,7 +2595,7 @@ namespace TKSCHEDULEUOF
                 {
                     foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
-                        ADDTB_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                        ADDTB_WKF_EXTERNAL_TASK_PURTAB(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
                     }
 
 
@@ -61922,7 +61921,7 @@ namespace TKSCHEDULEUOF
         }
         private void button7_Click(object sender, EventArgs e)
         {
-            ADDTOUOFOURTAB();
+            ADDTOUOFPURTAB();
             //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
         }
         private void button8_Click(object sender, EventArgs e)
