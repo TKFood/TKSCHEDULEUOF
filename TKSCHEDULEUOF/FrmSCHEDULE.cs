@@ -3600,7 +3600,9 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        /// <summary>
+        /// UOF門市督導轉入DB
+        /// </summary>
         public void ADDTKMKdboTBSTORESCHECK()
         {
             IEnumerable<DataRow> query2 = null;
@@ -3616,9 +3618,7 @@ namespace TKSCHEDULEUOF
             {
                 query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
             }
-
-
-
+            
             if (query2.Count() > 0)
             {
                 //差集集合
@@ -3663,7 +3663,54 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"  
-                                    SELECT * 
+                                    SELECT 
+                                    DOC_NBR,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(50)') AS ID,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE1""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE1,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE2""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE2,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE3""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE3,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE4""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE4,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE5""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE5,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE6""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE6,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE7""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE7,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE8""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE8,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE9""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE9,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE10""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE10,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE11""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE11,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE12""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE12,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE13""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE13,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE14""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE14,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE15""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE15,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE16""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE16,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE17""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE17,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE18""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE18,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE19""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE19,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE20""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE20,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE21""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE21,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE22""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE22,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE23""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE23,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE24""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE24,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE25""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE25,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE26""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE26,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE27""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE27,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE28""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE28,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE29""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE29,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE30""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE30,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE31""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE31,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE32""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE32,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE33""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE33,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE34""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE34,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE35""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE35,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE36""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE36,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE37""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE37,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE38""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE38,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE39""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE39,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE40""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE40,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE41""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE41,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE42""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE42,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE43""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE43,
+                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE44""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE44
+                                    FROM [UOF].[dbo].[TB_WKF_TASK]
                                     FROM [UOF].DBO.TB_WKF_TASK 
                                     LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
                                     WHERE DOC_NBR LIKE '{0}%'
@@ -3687,96 +3734,109 @@ namespace TKSCHEDULEUOF
                     xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
 
                     //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
-                    string STORE1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE1']").Attributes["fieldValue"].Value;
-                    string STORE2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE2']").Attributes["fieldValue"].Value;
-                    string STORE3 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE3']").Attributes["fieldValue"].Value;
-                    string STORE4 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE4']").Attributes["fieldValue"].Value;
-                    string STORE5 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE5']").Attributes["fieldValue"].Value;
-                    string STORE6 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE6']").Attributes["fieldValue"].Value;
-                    string STORE7 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE7']").Attributes["fieldValue"].Value;
-                    string STORE8 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE8']").Attributes["fieldValue"].Value;
-                    string STORE9 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE9']").Attributes["fieldValue"].Value;
-                    string STORE10 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE10']").Attributes["fieldValue"].Value;
-                    string STORE11 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE11']").Attributes["fieldValue"].Value;
-                    string STORE12 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE12']").Attributes["fieldValue"].Value;
-                    string STORE13 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE13']").Attributes["fieldValue"].Value;
-                    string STORE14 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE14']").Attributes["fieldValue"].Value;
-                    string STORE15 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE15']").Attributes["fieldValue"].Value;
-                    string STORE16 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE16']").Attributes["fieldValue"].Value;
-                    string STORE17 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE17']").Attributes["fieldValue"].Value;
-                    string STORE18 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE18']").Attributes["fieldValue"].Value;
-                    string STORE19 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE19']").Attributes["fieldValue"].Value;
-                    string STORE20 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE20']").Attributes["fieldValue"].Value;
-                    string STORE21 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE21']").Attributes["fieldValue"].Value;
-                    string STORE22 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE22']").Attributes["fieldValue"].Value;
-                    string STORE23 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE23']").Attributes["fieldValue"].Value;
-                    string STORE24 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE24']").Attributes["fieldValue"].Value;
-                    string STORE25 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE25']").Attributes["fieldValue"].Value;
-                    string STORE26 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE26']").Attributes["fieldValue"].Value;
-                    string STORE27 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE27']").Attributes["fieldValue"].Value;
-                    string STORE28 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE28']").Attributes["fieldValue"].Value;
-                    string STORE29 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE29']").Attributes["fieldValue"].Value;
-                    string STORE30 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE30']").Attributes["fieldValue"].Value;
-                    string STORE31 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE31']").Attributes["fieldValue"].Value;
-                    string STORE32 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE32']").Attributes["fieldValue"].Value;
-                    string STORE33 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE33']").Attributes["fieldValue"].Value;
-                    string STORE34 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE34']").Attributes["fieldValue"].Value;
-                    string STORE35 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE35']").Attributes["fieldValue"].Value;
-                    string STORE36 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE36']").Attributes["fieldValue"].Value;
-                    string STORE37 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE37']").Attributes["fieldValue"].Value;
-                    string STORE38 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE38']").Attributes["fieldValue"].Value;
-                    string STORE39 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE39']").Attributes["fieldValue"].Value;
-                    string STORE40 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE40']").Attributes["fieldValue"].Value;
-                    string STORE41 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE41']").Attributes["fieldValue"].Value;
-                    string STORE42 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE42']").Attributes["fieldValue"].Value;
-                    string STORE43 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE43']").Attributes["fieldValue"].Value;
-                    string STORE44 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='STORE44']").Attributes["fieldValue"].Value;
+                    string ID = ds1.Tables["ds1"].Rows[0]["ID"].ToString();
 
-                    int index2 = STORE2.IndexOf("@");
-                    STORE2 = STORE2.Substring(0, index2);
-                    int index8 = STORE8.IndexOf("@");
-                    STORE8 = STORE8.Substring(0, index8);
-                    int index10 = STORE10.IndexOf("@");
-                    STORE10 = STORE10.Substring(0, index10);
-                    int index11 = STORE11.IndexOf("@");
-                    STORE11 = STORE11.Substring(0, index11);
-                    int index12 = STORE12.IndexOf("@");
-                    STORE12 = STORE12.Substring(0, index12);
-                    int index13 = STORE13.IndexOf("@");
-                    STORE13 = STORE13.Substring(0, index13);
-                    int index14 = STORE14.IndexOf("@");
-                    STORE14 = STORE14.Substring(0, index14);
-                    int index17 = STORE17.IndexOf("@");
-                    STORE17 = STORE17.Substring(0, index17);
-                    int index18 = STORE18.IndexOf("@");
-                    STORE18 = STORE18.Substring(0, index18);
-                    int index19 = STORE19.IndexOf("@");
-                    STORE19 = STORE19.Substring(0, index19);
-                    int index22 = STORE22.IndexOf("@");
-                    STORE22 = STORE22.Substring(0, index22);
-                    int index23 = STORE23.IndexOf("@");
-                    STORE23 = STORE23.Substring(0, index23);
-                    int index24 = STORE24.IndexOf("@");
-                    STORE24 = STORE24.Substring(0, index24);
-                    int index26 = STORE26.IndexOf("@");
-                    STORE26 = STORE26.Substring(0, index26);
-                    int index29 = STORE29.IndexOf("@");
-                    STORE29 = STORE29.Substring(0, index29);
-                    int index30 = STORE30.IndexOf("@");
-                    STORE30 = STORE30.Substring(0, index30);
-                    int index31 = STORE31.IndexOf("@");
-                    STORE31 = STORE31.Substring(0, index31);
-                    int index32 = STORE32.IndexOf("@");
-                    STORE32 = STORE32.Substring(0, index32);
-                    int index33 = STORE33.IndexOf("@");
-                    STORE33 = STORE33.Substring(0, index33);
-                    int index35 = STORE35.IndexOf("@");
-                    STORE35 = STORE35.Substring(0, index35);
-                    int index36 = STORE36.IndexOf("@");
-                    STORE36 = STORE36.Substring(0, index36);
+                    DataRow row = ds1.Tables["ds1"].Rows[0];                   
+                    string STORE1 = row["STORE1"].ToString();
+                    string STORE2 = row["STORE2"].ToString();
+                    string STORE3 = row["STORE3"].ToString();
+                    string STORE4 = row["STORE4"].ToString();
+                    string STORE5 = row["STORE5"].ToString();
+                    string STORE6 = row["STORE6"].ToString();
+                    string STORE7 = row["STORE7"].ToString();
+                    string STORE8 = row["STORE8"].ToString();
+                    string STORE9 = row["STORE9"].ToString();
+                    string STORE10 = row["STORE10"].ToString();
+                    string STORE11 = row["STORE11"].ToString();
+                    string STORE12 = row["STORE12"].ToString();
+                    string STORE13 = row["STORE13"].ToString();
+                    string STORE14 = row["STORE14"].ToString();
+                    string STORE15 = row["STORE15"].ToString();
+                    string STORE16 = row["STORE16"].ToString();
+                    string STORE17 = row["STORE17"].ToString();
+                    string STORE18 = row["STORE18"].ToString();
+                    string STORE19 = row["STORE19"].ToString();
+                    string STORE20 = row["STORE20"].ToString();
+                    string STORE21 = row["STORE21"].ToString();
+                    string STORE22 = row["STORE22"].ToString();
+                    string STORE23 = row["STORE23"].ToString();
+                    string STORE24 = row["STORE24"].ToString();
+                    string STORE25 = row["STORE25"].ToString();
+                    string STORE26 = row["STORE26"].ToString();
+                    string STORE27 = row["STORE27"].ToString();
+                    string STORE28 = row["STORE28"].ToString();
+                    string STORE29 = row["STORE29"].ToString();
+                    string STORE30 = row["STORE30"].ToString();
+                    string STORE31 = row["STORE31"].ToString();
+                    string STORE32 = row["STORE32"].ToString();
+                    string STORE33 = row["STORE33"].ToString();
+                    string STORE34 = row["STORE34"].ToString();
+                    string STORE35 = row["STORE35"].ToString();
+                    string STORE36 = row["STORE36"].ToString();
+                    string STORE37 = row["STORE37"].ToString();
+                    string STORE38 = row["STORE38"].ToString();
+                    string STORE39 = row["STORE39"].ToString();
+                    string STORE40 = row["STORE40"].ToString();
+                    string STORE41 = row["STORE41"].ToString();
+                    string STORE42 = row["STORE42"].ToString();
+                    string STORE43 = row["STORE43"].ToString();
+                    string STORE44 = row["STORE44"].ToString();
 
-                    //string OK = "";
+                    // STORE 字串中「@」符號後的部分去掉，如果有「@」就截取前面部分，沒「@」要避免例外
+                    var storeValues = new Dictionary<string, string>()
+                    {
+                        {"STORE2", STORE2},
+                        {"STORE8", STORE8},
+                        {"STORE10", STORE10},
+                        {"STORE11", STORE11},
+                        {"STORE12", STORE12},
+                        {"STORE13", STORE13},
+                        {"STORE14", STORE14},
+                        {"STORE17", STORE17},
+                        {"STORE18", STORE18},
+                        {"STORE19", STORE19},
+                        {"STORE22", STORE22},
+                        {"STORE23", STORE23},
+                        {"STORE24", STORE24},
+                        {"STORE26", STORE26},
+                        {"STORE29", STORE29},
+                        {"STORE30", STORE30},
+                        {"STORE31", STORE31},
+                        {"STORE32", STORE32},
+                        {"STORE33", STORE33},
+                        {"STORE35", STORE35},
+                        {"STORE36", STORE36},
+                    };
+
+                    // 用迴圈呼叫函式處理所有字串
+                    foreach (var key in storeValues.Keys.ToList())
+                    {
+                        storeValues[key] = RemoveAfterAt(storeValues[key]);
+                    }
+
+                    // 再把處理結果回填回變數
+                    STORE2 = storeValues["STORE2"];
+                    STORE8 = storeValues["STORE8"];
+                    STORE10 = storeValues["STORE10"];
+                    STORE11 = storeValues["STORE11"];
+                    STORE12 = storeValues["STORE12"];
+                    STORE13 = storeValues["STORE13"];
+                    STORE14 = storeValues["STORE14"];
+                    STORE17 = storeValues["STORE17"];
+                    STORE18 = storeValues["STORE18"];
+                    STORE19 = storeValues["STORE19"];
+                    STORE22 = storeValues["STORE22"];
+                    STORE23 = storeValues["STORE23"];
+                    STORE24 = storeValues["STORE24"];
+                    STORE26 = storeValues["STORE26"];
+                    STORE29 = storeValues["STORE29"];
+                    STORE30 = storeValues["STORE30"];
+                    STORE31 = storeValues["STORE31"];
+                    STORE32 = storeValues["STORE32"];
+                    STORE33 = storeValues["STORE33"];
+                    STORE35 = storeValues["STORE35"];
+                    STORE36 = storeValues["STORE36"];
+                    
                     ADDTOTKMKTBSTORESCHECK(
                                             ID
                                             , STORE1
@@ -3844,250 +3904,126 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        // 小函式：去除字串中 '@' 及其後面部分
+        string RemoveAfterAt(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            int index = input.IndexOf("@");
+            return index >= 0 ? input.Substring(0, index) : input;
+        }
+
         public void ADDTOTKMKTBSTORESCHECK(
-                                        string ID
-                                        , string STORE1
-                                        , string STORE2
-                                        , string STORE3
-                                        , string STORE4
-                                        , string STORE5
-                                        , string STORE6
-                                        , string STORE7
-                                        , string STORE8
-                                        , string STORE9
-                                        , string STORE10
-                                        , string STORE11
-                                        , string STORE12
-                                        , string STORE13
-                                        , string STORE14
-                                        , string STORE15
-                                        , string STORE16
-                                        , string STORE17
-                                        , string STORE18
-                                        , string STORE19
-                                        , string STORE20
-                                        , string STORE21
-                                        , string STORE22
-                                        , string STORE23
-                                        , string STORE24
-                                        , string STORE25
-                                        , string STORE26
-                                        , string STORE27
-                                        , string STORE28
-                                        , string STORE29
-                                        , string STORE30
-                                        , string STORE31
-                                        , string STORE32
-                                        , string STORE33
-                                        , string STORE34
-                                        , string STORE35
-                                        , string STORE36
-                                        , string STORE37
-                                        , string STORE38
-                                        , string STORE39
-                                        , string STORE40
-                                        , string STORE41
-                                        , string STORE42
-                                        , string STORE43
-                                        , string STORE44
-                                        , string NAME
-                                            )
+                     string ID,
+                     string STORE1, string STORE2, string STORE3, string STORE4, string STORE5,
+                     string STORE6, string STORE7, string STORE8, string STORE9, string STORE10,
+                     string STORE11, string STORE12, string STORE13, string STORE14, string STORE15,
+                     string STORE16, string STORE17, string STORE18, string STORE19, string STORE20,
+                     string STORE21, string STORE22, string STORE23, string STORE24, string STORE25,
+                     string STORE26, string STORE27, string STORE28, string STORE29, string STORE30,
+                     string STORE31, string STORE32, string STORE33, string STORE34, string STORE35,
+                     string STORE36, string STORE37, string STORE38, string STORE39, string STORE40,
+                     string STORE41, string STORE42, string STORE43, string STORE44,
+                     string NAME)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                var connString = BuildDecryptedConnection("dberp");
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    INSERT INTO [TKMK].[dbo].[TBSTORESCHECK]
-                                    (
-                                    [ID]
-                                    ,[STORE1]
-                                    ,[STORE2]
-                                    ,[STORE3]
-                                    ,[STORE4]
-                                    ,[STORE5]
-                                    ,[STORE6]
-                                    ,[STORE7]
-                                    ,[STORE8]
-                                    ,[STORE9]
-                                    ,[STORE10]
-                                    ,[STORE11]
-                                    ,[STORE12]
-                                    ,[STORE13]
-                                    ,[STORE14]
-                                    ,[STORE15]
-                                    ,[STORE16]
-                                    ,[STORE17]
-                                    ,[STORE18]
-                                    ,[STORE19]
-                                    ,[STORE20]
-                                    ,[STORE21]
-                                    ,[STORE22]
-                                    ,[STORE23]
-                                    ,[STORE24]
-                                    ,[STORE25]
-                                    ,[STORE26]
-                                    ,[STORE27]
-                                    ,[STORE28]
-                                    ,[STORE29]
-                                    ,[STORE30]
-                                    ,[STORE31]
-                                    ,[STORE32]
-                                    ,[STORE33]
-                                    ,[STORE34]
-                                    ,[STORE35]
-                                    ,[STORE36]
-                                    ,[STORE37]
-                                    ,[STORE38]
-                                    ,[STORE39]
-                                    ,[STORE40]
-                                    ,[STORE41]
-                                    ,[STORE42]
-                                    ,[STORE43]
-                                    ,[STORE44]
-                                    ,[NAME]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    ,'{15}'
-                                    ,'{16}'
-                                    ,'{17}'
-                                    ,'{18}'
-                                    ,'{19}'
-                                    ,'{20}'
-                                    ,'{21}'
-                                    ,'{22}'
-                                    ,'{23}'
-                                    ,'{24}'
-                                    ,'{25}'
-                                    ,'{26}'
-                                    ,'{27}'
-                                    ,'{28}'
-                                    ,'{29}'
-                                    ,'{30}'
-                                    ,'{31}'
-                                    ,'{32}'
-                                    ,'{33}'
-                                    ,'{34}'
-                                    ,'{35}'
-                                    ,'{36}'
-                                    ,'{37}'
-                                    ,'{38}'
-                                    ,'{39}'
-                                    ,'{40}'
-                                    ,'{41}'
-                                    ,'{42}'
-                                    ,'{43}'
-                                    ,'{44}'
-                                    ,'{45}'
-                                    )
-
-                                    ", ID
-                                    , STORE1
-                                    , STORE2
-                                    , STORE3
-                                    , STORE4
-                                    , STORE5
-                                    , STORE6
-                                    , STORE7
-                                    , STORE8
-                                    , STORE9
-                                    , STORE10
-                                    , STORE11
-                                    , STORE12
-                                    , STORE13
-                                    , STORE14
-                                    , STORE15
-                                    , STORE16
-                                    , STORE17
-                                    , STORE18
-                                    , STORE19
-                                    , STORE20
-                                    , STORE21
-                                    , STORE22
-                                    , STORE23
-                                    , STORE24
-                                    , STORE25
-                                    , STORE26
-                                    , STORE27
-                                    , STORE28
-                                    , STORE29
-                                    , STORE30
-                                    , STORE31
-                                    , STORE32
-                                    , STORE33
-                                    , STORE34
-                                    , STORE35
-                                    , STORE36
-                                    , STORE37
-                                    , STORE38
-                                    , STORE39
-                                    , STORE40
-                                    , STORE41
-                                    , STORE42
-                                    , STORE43
-                                    , STORE44
-                                    , NAME
-
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (var sqlConn = new SqlConnection(connString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (var tran = sqlConn.BeginTransaction())
+                    using (var cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+
+                        cmd.CommandText = @"
+                                        INSERT INTO [TKMK].[dbo].[TBSTORESCHECK](
+                                            [ID],[STORE1],[STORE2],[STORE3],[STORE4],[STORE5],
+                                            [STORE6],[STORE7],[STORE8],[STORE9],[STORE10],[STORE11],
+                                            [STORE12],[STORE13],[STORE14],[STORE15],[STORE16],[STORE17],
+                                            [STORE18],[STORE19],[STORE20],[STORE21],[STORE22],[STORE23],
+                                            [STORE24],[STORE25],[STORE26],[STORE27],[STORE28],[STORE29],
+                                            [STORE30],[STORE31],[STORE32],[STORE33],[STORE34],[STORE35],
+                                            [STORE36],[STORE37],[STORE38],[STORE39],[STORE40],[STORE41],
+                                            [STORE42],[STORE43],[STORE44],[NAME]
+                                        ) VALUES (
+                                            @ID,@STORE1,@STORE2,@STORE3,@STORE4,@STORE5,
+                                            @STORE6,@STORE7,@STORE8,@STORE9,@STORE10,@STORE11,
+                                            @STORE12,@STORE13,@STORE14,@STORE15,@STORE16,@STORE17,
+                                            @STORE18,@STORE19,@STORE20,@STORE21,@STORE22,@STORE23,
+                                            @STORE24,@STORE25,@STORE26,@STORE27,@STORE28,@STORE29,
+                                            @STORE30,@STORE31,@STORE32,@STORE33,@STORE34,@STORE35,
+                                            @STORE36,@STORE37,@STORE38,@STORE39,@STORE40,@STORE41,
+                                            @STORE42,@STORE43,@STORE44,@NAME
+                                        )";
+
+                        cmd.Parameters.AddWithValue("@ID", ID);
+                        cmd.Parameters.AddWithValue("@STORE1", STORE1);
+                        cmd.Parameters.AddWithValue("@STORE2", STORE2);
+                        cmd.Parameters.AddWithValue("@STORE3", STORE3);
+                        cmd.Parameters.AddWithValue("@STORE4", STORE4);
+                        cmd.Parameters.AddWithValue("@STORE5", STORE5);
+                        cmd.Parameters.AddWithValue("@STORE6", STORE6);
+                        cmd.Parameters.AddWithValue("@STORE7", STORE7);
+                        cmd.Parameters.AddWithValue("@STORE8", STORE8);
+                        cmd.Parameters.AddWithValue("@STORE9", STORE9);
+                        cmd.Parameters.AddWithValue("@STORE10", STORE10);
+                        cmd.Parameters.AddWithValue("@STORE11", STORE11);
+                        cmd.Parameters.AddWithValue("@STORE12", STORE12);
+                        cmd.Parameters.AddWithValue("@STORE13", STORE13);
+                        cmd.Parameters.AddWithValue("@STORE14", STORE14);
+                        cmd.Parameters.AddWithValue("@STORE15", STORE15);
+                        cmd.Parameters.AddWithValue("@STORE16", STORE16);
+                        cmd.Parameters.AddWithValue("@STORE17", STORE17);
+                        cmd.Parameters.AddWithValue("@STORE18", STORE18);
+                        cmd.Parameters.AddWithValue("@STORE19", STORE19);
+                        cmd.Parameters.AddWithValue("@STORE20", STORE20);
+                        cmd.Parameters.AddWithValue("@STORE21", STORE21);
+                        cmd.Parameters.AddWithValue("@STORE22", STORE22);
+                        cmd.Parameters.AddWithValue("@STORE23", STORE23);
+                        cmd.Parameters.AddWithValue("@STORE24", STORE24);
+                        cmd.Parameters.AddWithValue("@STORE25", STORE25);
+                        cmd.Parameters.AddWithValue("@STORE26", STORE26);
+                        cmd.Parameters.AddWithValue("@STORE27", STORE27);
+                        cmd.Parameters.AddWithValue("@STORE28", STORE28);
+                        cmd.Parameters.AddWithValue("@STORE29", STORE29);
+                        cmd.Parameters.AddWithValue("@STORE30", STORE30);
+                        cmd.Parameters.AddWithValue("@STORE31", STORE31);
+                        cmd.Parameters.AddWithValue("@STORE32", STORE32);
+                        cmd.Parameters.AddWithValue("@STORE33", STORE33);
+                        cmd.Parameters.AddWithValue("@STORE34", STORE34);
+                        cmd.Parameters.AddWithValue("@STORE35", STORE35);
+                        cmd.Parameters.AddWithValue("@STORE36", STORE36);
+                        cmd.Parameters.AddWithValue("@STORE37", STORE37);
+                        cmd.Parameters.AddWithValue("@STORE38", STORE38);
+                        cmd.Parameters.AddWithValue("@STORE39", STORE39);
+                        cmd.Parameters.AddWithValue("@STORE40", STORE40);
+                        cmd.Parameters.AddWithValue("@STORE41", STORE41);
+                        cmd.Parameters.AddWithValue("@STORE42", STORE42);
+                        cmd.Parameters.AddWithValue("@STORE43", STORE43);
+                        cmd.Parameters.AddWithValue("@STORE44", STORE44);
+                        cmd.Parameters.AddWithValue("@NAME", NAME);
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                            throw new Exception("新增失敗，沒有資料被寫入。");
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 可改成用你的 logging 機制記錄錯誤
+                throw new Exception("新增TBSTORESCHECK時發生錯誤: " + ex.Message, ex);
             }
         }
 
@@ -60218,6 +60154,7 @@ namespace TKSCHEDULEUOF
 
         private void button11_Click(object sender, EventArgs e)
         {
+            //UOF門市督導轉入DB
             ADDTKMKdboTBSTORESCHECK();
             //SEARCHUOFTB_WKF_TASK();
         }
