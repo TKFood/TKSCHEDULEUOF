@@ -2991,151 +2991,147 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHCOPTCCOPTD(string TC001, string TC002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dtResult = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
 
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
+                    sbSql.Append(@"
+                                SELECT 
+                                    COMPANY,CREATOR,USR_GROUP,CREATE_DATE,MODIFIER,MODI_DATE,FLAG,CREATE_TIME,MODI_TIME,TRANS_TYPE,TRANS_NAME,
+                                    sync_date,sync_time,sync_mark,sync_count,DataUser,DataGroup,
+                                    TC001,TC002,TC003,TC004,TC005,TC006,TC007,TC008,TC009,TC010,
+                                    TC011,TC012,TC013,TC014,TC015,TC016,TC017,TC018,TC019,TC020,
+                                    TC021,TC022,TC023,TC024,TC025,TC026,TC027,TC028,TC029,TC030,
+                                    TC031,TC032,TC033,TC034,TC035,TC036,TC037,TC038,TC039,TC040,
+                                    TC041,TC042,TC043,TC044,TC045,TC046,TC047,TC048,TC049,TC050,
+                                    TC051,TC052,TC053,TC054,TC055,TC056,TC057,TC058,TC059,TC060,
+                                    TC061,TC062,TC063,TC064,TC065,TC066,TC067,TC068,TC069,TC070,
+                                    TC071,TC072,TC073,TC074,TC075,TC076,TC077,TC078,TC079,TC080,
+                                    TC081,TC082,TC083,TC084,TC085,TC086,TC087,TC088,TC089,TC090,
+                                    TC091,TC092,TC093,TC094,TC095,TC096,TC097,TC098,TC099,TC100,
+                                    TC101,TC102,TC103,TC104,TC105,TC106,TC107,TC108,TC109,TC110,
+                                    TC111,TC112,TC113,TC114,TC115,TC116,TC117,TC118,TC119,TC120,
+                                    TC121,TC122,TC123,TC124,TC125,TC126,TC127,TC128,TC129,TC130,
+                                    TC131,TC132,TC133,TC134,TC135,TC136,TC137,TC138,TC139,TC140,
+                                    TC141,TC142,TC143,TC144,TC145,TC146,
+                                    UDF01,UDF02,UDF03,UDF04,UDF05,UDF06,UDF07,UDF08,UDF09,UDF10,
+                                    TD001,TD002,TD003,TD004,TD005,TD006,TD007,TD008,TD009,TD010,
+                                    TD011,TD012,TD013,TD014,TD015,TD016,TD017,TD018,TD019,TD020,
+                                    TD021,TD022,TD023,TD024,TD025,TD026,TD027,TD028,TD029,TD030,
+                                    TD031,TD032,TD033,TD034,TD035,TD036,TD037,TD038,TD039,TD040,
+                                    TD041,TD042,TD043,TD044,TD045,TD046,TD047,TD048,TD049,TD050,
+                                    TD051,TD052,TD053,TD054,TD055,TD056,TD057,TD058,TD059,TD060,
+                                    TD061,TD062,TD063,TD064,TD065,TD066,TD067,TD068,TD069,TD070,
+                                    TD071,TD072,TD073,TD074,TD075,TD076,TD077,TD078,TD079,TD080,
+                                    TD081,TD082,TD083,TD084,TD085,TD086,TD087,TD088,TD089,TD090,
+                                    TD091,TD092,TD093,TD094,TD095,TD096,TD097,TD098,TD099,TD100,
+                                    TD101,TD102,TD103,TD104,TD105,TD106,TD107,TD108,TD109,TD110,
+                                    TD111,TD112,TD113,
+                                    COPTDUDF01,COPTDUDF02,COPTDUDF03,COPTDUDF04,COPTDUDF05,COPTDUDF06,COPTDUDF07,COPTDUDF08,COPTDUDF09,COPTDUDF10,TD200,
+                                    USER_GUID,NAME,
+                                    (SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID=TEMP.USER_GUID) AS GROUP_ID,
+                                    (SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID=TEMP.USER_GUID) AS TITLE_ID,
+                                    MA002,
+                                    CASE WHEN TC016='1' THEN '1.應稅內含'  
+                                         WHEN TC016='2' THEN '2.應稅外加'  
+                                         WHEN TC016='3' THEN '3.零稅率'  
+                                         WHEN TC016='4' THEN '4.免稅'  
+                                         WHEN TC016='9' THEN '9.不計稅'  
+                                         ELSE '' END AS NEWTC016,
+                                    CASE WHEN TC121='1' THEN '1.二聯式' 
+                                         WHEN TC121='2' THEN '2.三聯式' 
+                                         WHEN TC121='3' THEN '3.二聯式收銀機發票' 
+                                         WHEN TC121='4' THEN '4.三聯式收銀機發票' 
+                                         WHEN TC121='5' THEN '5.電子計算機發票' 
+                                         WHEN TC121='6' THEN '6.免用統一發票' 
+                                         WHEN TC121='7' THEN '7.電子發票' 
+                                         ELSE '' END AS NEWTC121,
+                                    BA,
+                                    BANAME,
+                                    (SELECT TOP 1 USER_GUID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER] WHERE ACCOUNT=BA COLLATE Chinese_Taiwan_Stroke_BIN) AS BA_USER_GUID
+                                FROM 
+                                (
                                     SELECT 
-                                    COMPANY,CREATOR,USR_GROUP,CREATE_DATE,MODIFIER,MODI_DATE,FLAG,CREATE_TIME,MODI_TIME,TRANS_TYPE,TRANS_NAME
-                                    ,sync_date,sync_time,sync_mark,sync_count,DataUser,DataGroup
-                                    ,TC001,TC002,TC003,TC004,TC005,TC006,TC007,TC008,TC009,TC010
-                                    ,TC011,TC012,TC013,TC014,TC015,TC016,TC017,TC018,TC019,TC020
-                                    ,TC021,TC022,TC023,TC024,TC025,TC026,TC027,TC028,TC029,TC030
-                                    ,TC031,TC032,TC033,TC034,TC035,TC036,TC037,TC038,TC039,TC040
-                                    ,TC041,TC042,TC043,TC044,TC045,TC046,TC047,TC048,TC049,TC050
-                                    ,TC051,TC052,TC053,TC054,TC055,TC056,TC057,TC058,TC059,TC060
-                                    ,TC061,TC062,TC063,TC064,TC065,TC066,TC067,TC068,TC069,TC070
-                                    ,TC071,TC072,TC073,TC074,TC075,TC076,TC077,TC078,TC079,TC080
-                                    ,TC081,TC082,TC083,TC084,TC085,TC086,TC087,TC088,TC089,TC090
-                                    ,TC091,TC092,TC093,TC094,TC095,TC096,TC097,TC098,TC099,TC100
-                                    ,TC101,TC102,TC103,TC104,TC105,TC106,TC107,TC108,TC109,TC110
-                                    ,TC111,TC112,TC113,TC114,TC115,TC116,TC117,TC118,TC119,TC120
-                                    ,TC121,TC122,TC123,TC124,TC125,TC126,TC127,TC128,TC129,TC130
-                                    ,TC131,TC132,TC133,TC134,TC135,TC136,TC137,TC138,TC139,TC140
-                                    ,TC141,TC142,TC143,TC144,TC145,TC146
-                                    ,UDF01,UDF02,UDF03,UDF04,UDF05,UDF06,UDF07,UDF08,UDF09,UDF10
-                                    ,TD001,TD002,TD003,TD004,TD005,TD006,TD007,TD008,TD009,TD010
-                                    ,TD011,TD012,TD013,TD014,TD015,TD016,TD017,TD018,TD019,TD020
-                                    ,TD021,TD022,TD023,TD024,TD025,TD026,TD027,TD028,TD029,TD030
-                                    ,TD031,TD032,TD033,TD034,TD035,TD036,TD037,TD038,TD039,TD040
-                                    ,TD041,TD042,TD043,TD044,TD045,TD046,TD047,TD048,TD049,TD050
-                                    ,TD051,TD052,TD053,TD054,TD055,TD056,TD057,TD058,TD059,TD060
-                                    ,TD061,TD062,TD063,TD064,TD065,TD066,TD067,TD068,TD069,TD070
-                                    ,TD071,TD072,TD073,TD074,TD075,TD076,TD077,TD078,TD079,TD080
-                                    ,TD081,TD082,TD083,TD084,TD085,TD086,TD087,TD088,TD089,TD090
-                                    ,TD091,TD092,TD093,TD094,TD095,TD096,TD097,TD098,TD099,TD100
-                                    ,TD101,TD102,TD103,TD104,TD105,TD106,TD107,TD108,TD109,TD110
-                                    ,TD111,TD112,TD113
-                                    ,COPTDUDF01,COPTDUDF02,COPTDUDF03,COPTDUDF04,COPTDUDF05,COPTDUDF06,COPTDUDF07,COPTDUDF08,COPTDUDF09,COPTDUDF10,TD200
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    ,MA002
-                                    ,CASE WHEN TC016='1' THEN '1.應稅內含'  ELSE (CASE WHEN TC016='2' THEN '2.應稅外加'  ELSE (CASE WHEN TC016='3' THEN '3.零稅率'  ELSE (CASE WHEN TC016='4' THEN '4.免稅'  ELSE (CASE WHEN TC016='9' THEN '9.不計稅'  ELSE '' END) END) END) END ) END AS 'NEWTC016'
-                                    ,CASE WHEN TC121='1' THEN '1.二聯式' ELSE (CASE WHEN TC121='2' THEN '2.三聯式' ELSE (CASE WHEN TC121='3' THEN '3.二聯式收銀機發票' ELSE (CASE WHEN TC121='4' THEN '4.三聯式收銀機發票' ELSE (CASE WHEN TC121='5' THEN '5.電子計算機發票' ELSE (CASE WHEN TC121='6' THEN '6.免用統一發票' ELSE (CASE WHEN TC121='7' THEN '7.電子發票' ELSE '' END) END) END) END) END) END) END AS 'NEWTC121'
-                                    ,BA
-                                    ,BANAME
-                                    ,(SELECT TOP 1 [USER_GUID] FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER] WHERE [ACCOUNT]=BA COLLATE Chinese_Taiwan_Stroke_BIN) AS 'BA_USER_GUID'
-    
-                                    FROM 
-                                    (
-                                    SELECT [COPTC].[COMPANY],[COPTC].[CREATOR],[COPTC].[USR_GROUP],[COPTC].[CREATE_DATE],[COPTC].[MODIFIER],[COPTC].[MODI_DATE],[COPTC].[FLAG],[COPTC].[CREATE_TIME],[COPTC].[MODI_TIME],[COPTC].[TRANS_TYPE],[COPTC].[TRANS_NAME]
-                                    ,[COPTC].[sync_date],[COPTC].[sync_time],[COPTC].[sync_mark],[COPTC].[sync_count],[COPTC].[DataUser],[COPTC].[DataGroup]
-                                    ,[COPTC].[TC001],[COPTC].[TC002],[COPTC].[TC003],[COPTC].[TC004],[COPTC].[TC005],[COPTC].[TC006],[COPTC].[TC007],[COPTC].[TC008],[COPTC].[TC009],[COPTC].[TC010]
-                                    ,[COPTC].[TC011],[COPTC].[TC012],[COPTC].[TC013],[COPTC].[TC014],[COPTC].[TC015],[COPTC].[TC016],[COPTC].[TC017],[COPTC].[TC018],[COPTC].[TC019],[COPTC].[TC020]
-                                    ,[COPTC].[TC021],[COPTC].[TC022],[COPTC].[TC023],[COPTC].[TC024],[COPTC].[TC025],[COPTC].[TC026],[COPTC].[TC027],[COPTC].[TC028],[COPTC].[TC029],[COPTC].[TC030]
-                                    ,[COPTC].[TC031],[COPTC].[TC032],[COPTC].[TC033],[COPTC].[TC034],[COPTC].[TC035],[COPTC].[TC036],[COPTC].[TC037],[COPTC].[TC038],[COPTC].[TC039],[COPTC].[TC040]
-                                    ,[COPTC].[TC041],[COPTC].[TC042],[COPTC].[TC043],[COPTC].[TC044],[COPTC].[TC045],[COPTC].[TC046],[COPTC].[TC047],[COPTC].[TC048],[COPTC].[TC049],[COPTC].[TC050]
-                                    ,[COPTC].[TC051],[COPTC].[TC052],[COPTC].[TC053],[COPTC].[TC054],[COPTC].[TC055],[COPTC].[TC056],[COPTC].[TC057],[COPTC].[TC058],[COPTC].[TC059],[COPTC].[TC060]
-                                    ,[COPTC].[TC061],[COPTC].[TC062],[COPTC].[TC063],[COPTC].[TC064],[COPTC].[TC065],[COPTC].[TC066],[COPTC].[TC067],[COPTC].[TC068],[COPTC].[TC069],[COPTC].[TC070]
-                                    ,[COPTC].[TC071],[COPTC].[TC072],[COPTC].[TC073],[COPTC].[TC074],[COPTC].[TC075],[COPTC].[TC076],[COPTC].[TC077],[COPTC].[TC078],[COPTC].[TC079],[COPTC].[TC080]
-                                    ,[COPTC].[TC081],[COPTC].[TC082],[COPTC].[TC083],[COPTC].[TC084],[COPTC].[TC085],[COPTC].[TC086],[COPTC].[TC087],[COPTC].[TC088],[COPTC].[TC089],[COPTC].[TC090]
-                                    ,[COPTC].[TC091],[COPTC].[TC092],[COPTC].[TC093],[COPTC].[TC094],[COPTC].[TC095],[COPTC].[TC096],[COPTC].[TC097],[COPTC].[TC098],[COPTC].[TC099],[COPTC].[TC100]
-                                    ,[COPTC].[TC101],[COPTC].[TC102],[COPTC].[TC103],[COPTC].[TC104],[COPTC].[TC105],[COPTC].[TC106],[COPTC].[TC107],[COPTC].[TC108],[COPTC].[TC109],[COPTC].[TC110]
-                                    ,[COPTC].[TC111],[COPTC].[TC112],[COPTC].[TC113],[COPTC].[TC114],[COPTC].[TC115],[COPTC].[TC116],[COPTC].[TC117],[COPTC].[TC118],[COPTC].[TC119],[COPTC].[TC120]
-                                    ,[COPTC].[TC121],[COPTC].[TC122],[COPTC].[TC123],[COPTC].[TC124],[COPTC].[TC125],[COPTC].[TC126],[COPTC].[TC127],[COPTC].[TC128],[COPTC].[TC129],[COPTC].[TC130]
-                                    ,[COPTC].[TC131],[COPTC].[TC132],[COPTC].[TC133],[COPTC].[TC134],[COPTC].[TC135],[COPTC].[TC136],[COPTC].[TC137],[COPTC].[TC138],[COPTC].[TC139],[COPTC].[TC140]
-                                    ,[COPTC].[TC141],[COPTC].[TC142],[COPTC].[TC143],[COPTC].[TC144],[COPTC].[TC145],[COPTC].[TC146]
-                                    ,[COPTC].[UDF01],[COPTC].[UDF02],[COPTC].[UDF03],[COPTC].[UDF04],[COPTC].[UDF05],[COPTC].[UDF06],[COPTC].[UDF07],[COPTC].[UDF08],[COPTC].[UDF09],[COPTC].[UDF10]
-                                    ,[COPTD].[TD001],[COPTD].[TD002],[COPTD].[TD003],[COPTD].[TD004],[COPTD].[TD005],[COPTD].[TD006],[COPTD].[TD007],[COPTD].[TD008],[COPTD].[TD009],[COPTD].[TD010]
-                                    ,[COPTD].[TD011],[COPTD].[TD012],[COPTD].[TD013],[COPTD].[TD014],[COPTD].[TD015],[COPTD].[TD016],[COPTD].[TD017],[COPTD].[TD018],[COPTD].[TD019],[COPTD].[TD020]
-                                    ,[COPTD].[TD021],[COPTD].[TD022],[COPTD].[TD023],[COPTD].[TD024],[COPTD].[TD025],[COPTD].[TD026],[COPTD].[TD027],[COPTD].[TD028],[COPTD].[TD029],[COPTD].[TD030]
-                                    ,[COPTD].[TD031],[COPTD].[TD032],[COPTD].[TD033],[COPTD].[TD034],[COPTD].[TD035],[COPTD].[TD036],[COPTD].[TD037],[COPTD].[TD038],[COPTD].[TD039],[COPTD].[TD040]
-                                    ,[COPTD].[TD041],[COPTD].[TD042],[COPTD].[TD043],[COPTD].[TD044],[COPTD].[TD045],[COPTD].[TD046],[COPTD].[TD047],[COPTD].[TD048],[COPTD].[TD049],[COPTD].[TD050]
-                                    ,[COPTD].[TD051],[COPTD].[TD052],[COPTD].[TD053],[COPTD].[TD054],[COPTD].[TD055],[COPTD].[TD056],[COPTD].[TD057],[COPTD].[TD058],[COPTD].[TD059],[COPTD].[TD060]
-                                    ,[COPTD].[TD061],[COPTD].[TD062],[COPTD].[TD063],[COPTD].[TD064],[COPTD].[TD065],[COPTD].[TD066],[COPTD].[TD067],[COPTD].[TD068],[COPTD].[TD069],[COPTD].[TD070]
-                                    ,[COPTD].[TD071],[COPTD].[TD072],[COPTD].[TD073],[COPTD].[TD074],[COPTD].[TD075],[COPTD].[TD076],[COPTD].[TD077],[COPTD].[TD078],[COPTD].[TD079],[COPTD].[TD080]
-                                    ,[COPTD].[TD081],[COPTD].[TD082],[COPTD].[TD083],[COPTD].[TD084],[COPTD].[TD085],[COPTD].[TD086],[COPTD].[TD087],[COPTD].[TD088],[COPTD].[TD089],[COPTD].[TD090]
-                                    ,[COPTD].[TD091],[COPTD].[TD092],[COPTD].[TD093],[COPTD].[TD094],[COPTD].[TD095],[COPTD].[TD096],[COPTD].[TD097],[COPTD].[TD098],[COPTD].[TD099],[COPTD].[TD100]
-                                    ,[COPTD].[TD101],[COPTD].[TD102],[COPTD].[TD103],[COPTD].[TD104],[COPTD].[TD105],[COPTD].[TD106],[COPTD].[TD107],[COPTD].[TD108],[COPTD].[TD109],[COPTD].[TD110]
-                                    ,[COPTD].[TD111],[COPTD].[TD112],[COPTD].[TD113]
-                                    ,[COPTD].[UDF01] AS 'COPTDUDF01',[COPTD].[UDF02] AS 'COPTDUDF02',[COPTD].[UDF03] AS 'COPTDUDF03',[COPTD].[UDF04] AS 'COPTDUDF04',[COPTD].[UDF05] AS 'COPTDUDF05',[COPTD].[UDF06] AS 'COPTDUDF06',[COPTD].[UDF07] AS 'COPTDUDF07',[COPTD].[UDF08] AS 'COPTDUDF08',[COPTD].[UDF09] AS 'COPTDUDF09',[COPTD].[UDF10] AS 'COPTDUDF10',[COPTD].[TD200] AS 'TD200'
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TC006) AS 'MV002'
-                                    ,(SELECT TOP 1 MA002 FROM [TK].dbo.COPMA WHERE MA001=TC004) AS 'MA002'
-                                    ,(SELECT TOP 1 COPMA.UDF04 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS 'BA'
-                                    ,(SELECT TOP 1 CMSMV.MV002 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS 'BANAME'
+                                        COPTC.COMPANY,COPTC.CREATOR,COPTC.USR_GROUP,COPTC.CREATE_DATE,COPTC.MODIFIER,COPTC.MODI_DATE,COPTC.FLAG,COPTC.CREATE_TIME,COPTC.MODI_TIME,COPTC.TRANS_TYPE,COPTC.TRANS_NAME,
+                                        COPTC.sync_date,COPTC.sync_time,COPTC.sync_mark,COPTC.sync_count,COPTC.DataUser,COPTC.DataGroup,
+                                        COPTC.TC001,COPTC.TC002,COPTC.TC003,COPTC.TC004,COPTC.TC005,COPTC.TC006,COPTC.TC007,COPTC.TC008,COPTC.TC009,COPTC.TC010,
+                                        COPTC.TC011,COPTC.TC012,COPTC.TC013,COPTC.TC014,COPTC.TC015,COPTC.TC016,COPTC.TC017,COPTC.TC018,COPTC.TC019,COPTC.TC020,
+                                        COPTC.TC021,COPTC.TC022,COPTC.TC023,COPTC.TC024,COPTC.TC025,COPTC.TC026,COPTC.TC027,COPTC.TC028,COPTC.TC029,COPTC.TC030,
+                                        COPTC.TC031,COPTC.TC032,COPTC.TC033,COPTC.TC034,COPTC.TC035,COPTC.TC036,COPTC.TC037,COPTC.TC038,COPTC.TC039,COPTC.TC040,
+                                        COPTC.TC041,COPTC.TC042,COPTC.TC043,COPTC.TC044,COPTC.TC045,COPTC.TC046,COPTC.TC047,COPTC.TC048,COPTC.TC049,COPTC.TC050,
+                                        COPTC.TC051,COPTC.TC052,COPTC.TC053,COPTC.TC054,COPTC.TC055,COPTC.TC056,COPTC.TC057,COPTC.TC058,COPTC.TC059,COPTC.TC060,
+                                        COPTC.TC061,COPTC.TC062,COPTC.TC063,COPTC.TC064,COPTC.TC065,COPTC.TC066,COPTC.TC067,COPTC.TC068,COPTC.TC069,COPTC.TC070,
+                                        COPTC.TC071,COPTC.TC072,COPTC.TC073,COPTC.TC074,COPTC.TC075,COPTC.TC076,COPTC.TC077,COPTC.TC078,COPTC.TC079,COPTC.TC080,
+                                        COPTC.TC081,COPTC.TC082,COPTC.TC083,COPTC.TC084,COPTC.TC085,COPTC.TC086,COPTC.TC087,COPTC.TC088,COPTC.TC089,COPTC.TC090,
+                                        COPTC.TC091,COPTC.TC092,COPTC.TC093,COPTC.TC094,COPTC.TC095,COPTC.TC096,COPTC.TC097,COPTC.TC098,COPTC.TC099,COPTC.TC100,
+                                        COPTC.TC101,COPTC.TC102,COPTC.TC103,COPTC.TC104,COPTC.TC105,COPTC.TC106,COPTC.TC107,COPTC.TC108,COPTC.TC109,COPTC.TC110,
+                                        COPTC.TC111,COPTC.TC112,COPTC.TC113,COPTC.TC114,COPTC.TC115,COPTC.TC116,COPTC.TC117,COPTC.TC118,COPTC.TC119,COPTC.TC120,
+                                        COPTC.TC121,COPTC.TC122,COPTC.TC123,COPTC.TC124,COPTC.TC125,COPTC.TC126,COPTC.TC127,COPTC.TC128,COPTC.TC129,COPTC.TC130,
+                                        COPTC.TC131,COPTC.TC132,COPTC.TC133,COPTC.TC134,COPTC.TC135,COPTC.TC136,COPTC.TC137,COPTC.TC138,COPTC.TC139,COPTC.TC140,
+                                        COPTC.TC141,COPTC.TC142,COPTC.TC143,COPTC.TC144,COPTC.TC145,COPTC.TC146,
+                                        COPTC.UDF01,COPTC.UDF02,COPTC.UDF03,COPTC.UDF04,COPTC.UDF05,COPTC.UDF06,COPTC.UDF07,COPTC.UDF08,COPTC.UDF09,COPTC.UDF10,
+                                        COPTD.TD001,COPTD.TD002,COPTD.TD003,COPTD.TD004,COPTD.TD005,COPTD.TD006,COPTD.TD007,COPTD.TD008,COPTD.TD009,COPTD.TD010,
+                                        COPTD.TD011,COPTD.TD012,COPTD.TD013,COPTD.TD014,COPTD.TD015,COPTD.TD016,COPTD.TD017,COPTD.TD018,COPTD.TD019,COPTD.TD020,
+                                        COPTD.TD021,COPTD.TD022,COPTD.TD023,COPTD.TD024,COPTD.TD025,COPTD.TD026,COPTD.TD027,COPTD.TD028,COPTD.TD029,COPTD.TD030,
+                                        COPTD.TD031,COPTD.TD032,COPTD.TD033,COPTD.TD034,COPTD.TD035,COPTD.TD036,COPTD.TD037,COPTD.TD038,COPTD.TD039,COPTD.TD040,
+                                        COPTD.TD041,COPTD.TD042,COPTD.TD043,COPTD.TD044,COPTD.TD045,COPTD.TD046,COPTD.TD047,COPTD.TD048,COPTD.TD049,COPTD.TD050,
+                                        COPTD.TD051,COPTD.TD052,COPTD.TD053,COPTD.TD054,COPTD.TD055,COPTD.TD056,COPTD.TD057,COPTD.TD058,COPTD.TD059,COPTD.TD060,
+                                        COPTD.TD061,COPTD.TD062,COPTD.TD063,COPTD.TD064,COPTD.TD065,COPTD.TD066,COPTD.TD067,COPTD.TD068,COPTD.TD069,COPTD.TD070,
+                                        COPTD.TD071,COPTD.TD072,COPTD.TD073,COPTD.TD074,COPTD.TD075,COPTD.TD076,COPTD.TD077,COPTD.TD078,COPTD.TD079,COPTD.TD080,
+                                        COPTD.TD081,COPTD.TD082,COPTD.TD083,COPTD.TD084,COPTD.TD085,COPTD.TD086,COPTD.TD087,COPTD.TD088,COPTD.TD089,COPTD.TD090,
+                                        COPTD.TD091,COPTD.TD092,COPTD.TD093,COPTD.TD094,COPTD.TD095,COPTD.TD096,COPTD.TD097,COPTD.TD098,COPTD.TD099,COPTD.TD100,
+                                        COPTD.TD101,COPTD.TD102,COPTD.TD103,COPTD.TD104,COPTD.TD105,COPTD.TD106,COPTD.TD107,COPTD.TD108,COPTD.TD109,COPTD.TD110,
+                                        COPTD.TD111,COPTD.TD112,COPTD.TD113,
+                                        COPTD.UDF01 AS COPTDUDF01,COPTD.UDF02 AS COPTDUDF02,COPTD.UDF03 AS COPTDUDF03,COPTD.UDF04 AS COPTDUDF04,COPTD.UDF05 AS COPTDUDF05,
+                                        COPTD.UDF06 AS COPTDUDF06,COPTD.UDF07 AS COPTDUDF07,COPTD.UDF08 AS COPTDUDF08,COPTD.UDF09 AS COPTDUDF09,COPTD.UDF10 AS COPTDUDF10,
+                                        COPTD.TD200,
+                                        TB_EB_USER.USER_GUID, TB_EB_USER.NAME,
+                                        (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TC006) AS MV002,
+                                        (SELECT TOP 1 MA002 FROM [TK].dbo.COPMA WHERE MA001=TC004) AS MA002,
+                                        (SELECT TOP 1 COPMA.UDF04 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS BA,
+                                        (SELECT TOP 1 CMSMV.MV002 FROM [TK].dbo.COPMA,[TK].dbo.CMSMV WHERE COPMA.UDF04=CMSMV.MV001 AND COPMA.MA001=TC004) AS BANAME
+                                    FROM [TK].dbo.COPTD
+                                    INNER JOIN [TK].dbo.COPTC ON TC001=TD001 AND TC002=TD002
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON TB_EB_USER.ACCOUNT = TC006 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE TC001 = @TC001 AND TC002 = @TC002
+                                ) AS TEMP
+                            ");
 
-                                    FROM [TK].dbo.COPTD,[TK].dbo.COPTC
-                                    LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TC006 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    WHERE TC001=TD001 AND TC002=TD002
-                                    AND TC001='{1}' AND TC002='{2}'
-                                    ) AS TEMP   
-                              
-                                    ", DBNAME, TC001, TC002);
+                    using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@TC001", TC001);
+                        cmd.Parameters.AddWithValue("@TC002", TC002);
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlConn.Open();
+                            adapter.Fill(dtResult);
+                            sqlConn.Close();
+                        }
+                    }
                 }
+
+                if (dtResult.Rows.Count > 0)
+                    return dtResult;
                 else
-                {
                     return null;
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("錯誤: " + ex.Message);
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         public void ADDCOPTECOPTF()
         {
