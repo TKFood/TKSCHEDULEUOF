@@ -3911,7 +3911,7 @@ namespace TKSCHEDULEUOF
             int index = input.IndexOf("@");
             return index >= 0 ? input.Substring(0, index) : input;
         }
-
+        //新增UOF門市督導轉入DB
         public void ADDTOTKMKTBSTORESCHECK(
                      string ID,
                      string STORE1, string STORE2, string STORE3, string STORE4, string STORE5,
