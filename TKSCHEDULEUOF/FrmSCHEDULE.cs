@@ -3605,185 +3605,199 @@ namespace TKSCHEDULEUOF
         /// </summary>
         public void ADDTKMKdboTBSTORESCHECK()
         {
-            IEnumerable<DataRow> query2 = null;
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
 
-            DataTable DT1 = SEARCHUOFSTORE();
-            DataTable DT2 = SEARCHTKMKTBSTORESCHECK();
+            DataTable dtResult = new DataTable();
 
-            //找DataTable差集
-            //要有相同的欄位名稱
-            //找DataTable差集
-            //要有相同的欄位名稱
-            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            try
             {
-                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
-            }
-            
-            if (query2.Count() > 0)
-            {
-                //差集集合
-                DataTable dt3 = query2.CopyToDataTable();
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                foreach (DataRow dr in dt3.Rows)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    SEARCHUOFTB_WKF_TASK(dr["DOC_NBR"].ToString());
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.AppendFormat(@"
+                                SELECT DOC_NBR
+                                FROM [UOF].dbo.TB_WKF_TASK 
+                                WHERE DOC_NBR LIKE 'STORE{0}%'
+                                AND TASK_RESULT='0'
+                                AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN  NOT IN
+                                (
+	                                SELECT [ID] AS 'DOC_NBR'
+	                                FROM [192.168.1.105].[TKMK].[dbo].[TBSTORESCHECK]
+	                                WHERE [ID] LIKE 'STORE{0}%'
+                                )
+                                ORDER BY DOC_NBR
+                            ", THISYEARS);
+
+                    using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlConn.Open();
+                            adapter.Fill(dtResult);
+                            sqlConn.Close();
+                        }
+                    }
+                }
+
+                if (dtResult.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dtResult.Rows)
+                    {
+                        SEARCHUOFTB_WKF_TASK_STORE(dr["DOC_NBR"].ToString());
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine("錯誤: " + ex.Message);
+            }
+            
 
         }
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
-        public void SEARCHUOFTB_WKF_TASK(string DOC_NBR)
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
+        public void SEARCHUOFTB_WKF_TASK_STORE(string DOC_NBR)
+        {            
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 建立解密物件
+                Class1 TKID = new Class1();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 取得並解密連線字串
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                // 建立 SQL 連線
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    // 組合 SQL 查詢語句
+                    StringBuilder sbSql = new StringBuilder();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    DOC_NBR,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(50)') AS ID,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE1""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE1,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE2""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE2,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE3""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE3,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE4""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE4,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE5""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE5,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE6""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE6,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE7""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE7,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE8""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE8,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE9""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE9,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE10""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE10,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE11""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE11,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE12""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE12,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE13""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE13,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE14""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE14,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE15""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE15,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE16""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE16,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE17""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE17,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE18""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE18,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE19""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE19,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE20""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE20,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE21""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE21,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE22""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE22,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE23""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE23,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE24""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE24,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE25""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE25,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE26""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE26,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE27""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE27,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE28""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE28,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE29""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE29,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE30""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE30,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE31""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE31,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE32""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE32,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE33""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE33,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE34""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE34,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE35""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE35,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE36""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE36,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE37""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE37,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE38""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE38,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE39""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE39,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE40""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE40,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE41""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE41,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE42""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE42,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE43""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE43,
-                                    CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE44""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE44
-                                    FROM [UOF].[dbo].[TB_WKF_TASK]
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
+                    sbSql.AppendFormat(@"
+                                        SELECT 
+                                            [TB_EB_USER].NAME,
+                                            DOC_NBR,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(50)') AS ID,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE1""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE1,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE2""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE2,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE3""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE3,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE4""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE4,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE5""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE5,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE6""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE6,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE7""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE7,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE8""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE8,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE9""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE9,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE10""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE10,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE11""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE11,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE12""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE12,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE13""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE13,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE14""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE14,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE15""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE15,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE16""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE16,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE17""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE17,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE18""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE18,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE19""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE19,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE20""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE20,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE21""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE21,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE22""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE22,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE23""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE23,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE24""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE24,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE25""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE25,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE26""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE26,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE27""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE27,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE28""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE28,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE29""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE29,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE30""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE30,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE31""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE31,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE32""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE32,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE33""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE33,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE34""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE34,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE35""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE35,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE36""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE36,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE37""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE37,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE38""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE38,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE39""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE39,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE40""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE40,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE41""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE41,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE42""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE42,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE43""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE43,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""STORE44""]/@fieldValue)[1]', 'nvarchar(50)') AS STORE44
+                                        FROM [UOF].[dbo].[TB_WKF_TASK] 
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
+                                        WHERE DOC_NBR LIKE '{0}%'
                                     ", DOC_NBR);
 
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    DataSet ds1 = new DataSet();
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
+                    sqlConn.Open();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
 
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+                    if (ds1.Tables["ds1"].Rows.Count >= 1)
+                    {
+                        string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+                        string ID = ds1.Tables["ds1"].Rows[0]["ID"].ToString();
 
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+                        DataRow row = ds1.Tables["ds1"].Rows[0];
+                        string STORE1 = row["STORE1"].ToString();
+                        string STORE2 = row["STORE2"].ToString();
+                        string STORE3 = row["STORE3"].ToString();
+                        string STORE4 = row["STORE4"].ToString();
+                        string STORE5 = row["STORE5"].ToString();
+                        string STORE6 = row["STORE6"].ToString();
+                        string STORE7 = row["STORE7"].ToString();
+                        string STORE8 = row["STORE8"].ToString();
+                        string STORE9 = row["STORE9"].ToString();
+                        string STORE10 = row["STORE10"].ToString();
+                        string STORE11 = row["STORE11"].ToString();
+                        string STORE12 = row["STORE12"].ToString();
+                        string STORE13 = row["STORE13"].ToString();
+                        string STORE14 = row["STORE14"].ToString();
+                        string STORE15 = row["STORE15"].ToString();
+                        string STORE16 = row["STORE16"].ToString();
+                        string STORE17 = row["STORE17"].ToString();
+                        string STORE18 = row["STORE18"].ToString();
+                        string STORE19 = row["STORE19"].ToString();
+                        string STORE20 = row["STORE20"].ToString();
+                        string STORE21 = row["STORE21"].ToString();
+                        string STORE22 = row["STORE22"].ToString();
+                        string STORE23 = row["STORE23"].ToString();
+                        string STORE24 = row["STORE24"].ToString();
+                        string STORE25 = row["STORE25"].ToString();
+                        string STORE26 = row["STORE26"].ToString();
+                        string STORE27 = row["STORE27"].ToString();
+                        string STORE28 = row["STORE28"].ToString();
+                        string STORE29 = row["STORE29"].ToString();
+                        string STORE30 = row["STORE30"].ToString();
+                        string STORE31 = row["STORE31"].ToString();
+                        string STORE32 = row["STORE32"].ToString();
+                        string STORE33 = row["STORE33"].ToString();
+                        string STORE34 = row["STORE34"].ToString();
+                        string STORE35 = row["STORE35"].ToString();
+                        string STORE36 = row["STORE36"].ToString();
+                        string STORE37 = row["STORE37"].ToString();
+                        string STORE38 = row["STORE38"].ToString();
+                        string STORE39 = row["STORE39"].ToString();
+                        string STORE40 = row["STORE40"].ToString();
+                        string STORE41 = row["STORE41"].ToString();
+                        string STORE42 = row["STORE42"].ToString();
+                        string STORE43 = row["STORE43"].ToString();
+                        string STORE44 = row["STORE44"].ToString();
 
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string ID = ds1.Tables["ds1"].Rows[0]["ID"].ToString();
-
-                    DataRow row = ds1.Tables["ds1"].Rows[0];                   
-                    string STORE1 = row["STORE1"].ToString();
-                    string STORE2 = row["STORE2"].ToString();
-                    string STORE3 = row["STORE3"].ToString();
-                    string STORE4 = row["STORE4"].ToString();
-                    string STORE5 = row["STORE5"].ToString();
-                    string STORE6 = row["STORE6"].ToString();
-                    string STORE7 = row["STORE7"].ToString();
-                    string STORE8 = row["STORE8"].ToString();
-                    string STORE9 = row["STORE9"].ToString();
-                    string STORE10 = row["STORE10"].ToString();
-                    string STORE11 = row["STORE11"].ToString();
-                    string STORE12 = row["STORE12"].ToString();
-                    string STORE13 = row["STORE13"].ToString();
-                    string STORE14 = row["STORE14"].ToString();
-                    string STORE15 = row["STORE15"].ToString();
-                    string STORE16 = row["STORE16"].ToString();
-                    string STORE17 = row["STORE17"].ToString();
-                    string STORE18 = row["STORE18"].ToString();
-                    string STORE19 = row["STORE19"].ToString();
-                    string STORE20 = row["STORE20"].ToString();
-                    string STORE21 = row["STORE21"].ToString();
-                    string STORE22 = row["STORE22"].ToString();
-                    string STORE23 = row["STORE23"].ToString();
-                    string STORE24 = row["STORE24"].ToString();
-                    string STORE25 = row["STORE25"].ToString();
-                    string STORE26 = row["STORE26"].ToString();
-                    string STORE27 = row["STORE27"].ToString();
-                    string STORE28 = row["STORE28"].ToString();
-                    string STORE29 = row["STORE29"].ToString();
-                    string STORE30 = row["STORE30"].ToString();
-                    string STORE31 = row["STORE31"].ToString();
-                    string STORE32 = row["STORE32"].ToString();
-                    string STORE33 = row["STORE33"].ToString();
-                    string STORE34 = row["STORE34"].ToString();
-                    string STORE35 = row["STORE35"].ToString();
-                    string STORE36 = row["STORE36"].ToString();
-                    string STORE37 = row["STORE37"].ToString();
-                    string STORE38 = row["STORE38"].ToString();
-                    string STORE39 = row["STORE39"].ToString();
-                    string STORE40 = row["STORE40"].ToString();
-                    string STORE41 = row["STORE41"].ToString();
-                    string STORE42 = row["STORE42"].ToString();
-                    string STORE43 = row["STORE43"].ToString();
-                    string STORE44 = row["STORE44"].ToString();
-
-                    // STORE 字串中「@」符號後的部分去掉，如果有「@」就截取前面部分，沒「@」要避免例外
-                    var storeValues = new Dictionary<string, string>()
+                        // STORE 字串中「@」符號後的部分去掉，如果有「@」就截取前面部分，沒「@」要避免例外
+                        var storeValues = new Dictionary<string, string>()
                     {
                         {"STORE2", STORE2},
                         {"STORE8", STORE8},
@@ -3808,93 +3822,88 @@ namespace TKSCHEDULEUOF
                         {"STORE36", STORE36},
                     };
 
-                    // 用迴圈呼叫函式處理所有字串
-                    foreach (var key in storeValues.Keys.ToList())
-                    {
-                        storeValues[key] = RemoveAfterAt(storeValues[key]);
+                        // 用迴圈呼叫函式處理所有字串
+                        foreach (var key in storeValues.Keys.ToList())
+                        {
+                            storeValues[key] = RemoveAfterAt(storeValues[key]);
+                        }
+
+                        // 再把處理結果回填回變數
+                        STORE2 = storeValues["STORE2"];
+                        STORE8 = storeValues["STORE8"];
+                        STORE10 = storeValues["STORE10"];
+                        STORE11 = storeValues["STORE11"];
+                        STORE12 = storeValues["STORE12"];
+                        STORE13 = storeValues["STORE13"];
+                        STORE14 = storeValues["STORE14"];
+                        STORE17 = storeValues["STORE17"];
+                        STORE18 = storeValues["STORE18"];
+                        STORE19 = storeValues["STORE19"];
+                        STORE22 = storeValues["STORE22"];
+                        STORE23 = storeValues["STORE23"];
+                        STORE24 = storeValues["STORE24"];
+                        STORE26 = storeValues["STORE26"];
+                        STORE29 = storeValues["STORE29"];
+                        STORE30 = storeValues["STORE30"];
+                        STORE31 = storeValues["STORE31"];
+                        STORE32 = storeValues["STORE32"];
+                        STORE33 = storeValues["STORE33"];
+                        STORE35 = storeValues["STORE35"];
+                        STORE36 = storeValues["STORE36"];
+
+                        ADDTOTKMKTBSTORESCHECK(
+                                                ID
+                                                , STORE1
+                                                , STORE2
+                                                , STORE3
+                                                , STORE4
+                                                , STORE5
+                                                , STORE6
+                                                , STORE7
+                                                , STORE8
+                                                , STORE9
+                                                , STORE10
+                                                , STORE11
+                                                , STORE12
+                                                , STORE13
+                                                , STORE14
+                                                , STORE15
+                                                , STORE16
+                                                , STORE17
+                                                , STORE18
+                                                , STORE19
+                                                , STORE20
+                                                , STORE21
+                                                , STORE22
+                                                , STORE23
+                                                , STORE24
+                                                , STORE25
+                                                , STORE26
+                                                , STORE27
+                                                , STORE28
+                                                , STORE29
+                                                , STORE30
+                                                , STORE31
+                                                , STORE32
+                                                , STORE33
+                                                , STORE34
+                                                , STORE35
+                                                , STORE36
+                                                , STORE37
+                                                , STORE38
+                                                , STORE39
+                                                , STORE40
+                                                , STORE41
+                                                , STORE42
+                                                , STORE43
+                                                , STORE44
+                                                , NAME
+                                                );
+
                     }
-
-                    // 再把處理結果回填回變數
-                    STORE2 = storeValues["STORE2"];
-                    STORE8 = storeValues["STORE8"];
-                    STORE10 = storeValues["STORE10"];
-                    STORE11 = storeValues["STORE11"];
-                    STORE12 = storeValues["STORE12"];
-                    STORE13 = storeValues["STORE13"];
-                    STORE14 = storeValues["STORE14"];
-                    STORE17 = storeValues["STORE17"];
-                    STORE18 = storeValues["STORE18"];
-                    STORE19 = storeValues["STORE19"];
-                    STORE22 = storeValues["STORE22"];
-                    STORE23 = storeValues["STORE23"];
-                    STORE24 = storeValues["STORE24"];
-                    STORE26 = storeValues["STORE26"];
-                    STORE29 = storeValues["STORE29"];
-                    STORE30 = storeValues["STORE30"];
-                    STORE31 = storeValues["STORE31"];
-                    STORE32 = storeValues["STORE32"];
-                    STORE33 = storeValues["STORE33"];
-                    STORE35 = storeValues["STORE35"];
-                    STORE36 = storeValues["STORE36"];
-                    
-                    ADDTOTKMKTBSTORESCHECK(
-                                            ID
-                                            , STORE1
-                                            , STORE2
-                                            , STORE3
-                                            , STORE4
-                                            , STORE5
-                                            , STORE6
-                                            , STORE7
-                                            , STORE8
-                                            , STORE9
-                                            , STORE10
-                                            , STORE11
-                                            , STORE12
-                                            , STORE13
-                                            , STORE14
-                                            , STORE15
-                                            , STORE16
-                                            , STORE17
-                                            , STORE18
-                                            , STORE19
-                                            , STORE20
-                                            , STORE21
-                                            , STORE22
-                                            , STORE23
-                                            , STORE24
-                                            , STORE25
-                                            , STORE26
-                                            , STORE27
-                                            , STORE28
-                                            , STORE29
-                                            , STORE30
-                                            , STORE31
-                                            , STORE32
-                                            , STORE33
-                                            , STORE34
-                                            , STORE35
-                                            , STORE36
-                                            , STORE37
-                                            , STORE38
-                                            , STORE39
-                                            , STORE40
-                                            , STORE41
-                                            , STORE42
-                                            , STORE43
-                                            , STORE44
-                                            , NAME
-                                            );
-
-
                 }
-                else
-                {
-
-                }
-
-            }
-            catch
+            }            
+            catch (Exception EX)
             {
 
             }
