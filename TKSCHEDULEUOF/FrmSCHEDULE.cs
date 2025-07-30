@@ -3406,59 +3406,19 @@ namespace TKSCHEDULEUOF
 
         public void UPDATECOPTEUDF01()
         {
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+            StringBuilder sql = new StringBuilder();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
+            sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.COPTE 
                                     SET UDF01 = 'UOF'
                                     WHERE TE029='N' AND UDF01='Y'                                             
 
                                     ");
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
-            }
-            catch
+            using (SqlConnection conn = new SqlConnection(BuildDecryptedConnection("dberp")))
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                int result = ExecuteSqlWithTransaction(conn, sql.ToString());
+                //Console.WriteLine("更新筆數：" + result.ToString());
             }
         }
         public DataTable SEARCHCOPTECOPTF(string TE001, string TE002, string TE003)
