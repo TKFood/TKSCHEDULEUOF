@@ -2681,81 +2681,52 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable SEARCHUOFDEP(string ACCOUNT)
+        public DataTable SEARCHUOFDEP(string account)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                string connectionString = BuildDecryptedConnection("dberp");
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    [GROUP_NAME] AS 'DEPNAME'
-                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]+','+[GROUP_NAME]+',False' AS 'DEPNO'
-                                    ,[TB_EB_USER].[USER_GUID]
-                                    ,[ACCOUNT]
-                                    ,[NAME]
-                                    ,[TB_EB_EMPL_DEP].[GROUP_ID]
-                                    ,[TITLE_ID]     
-                                    ,[GROUP_NAME]
-                                    ,[GROUP_CODE]
-                                    ,[TB_EB_EMPL_DEP].ORDERS
-                                    FROM [192.168.1.223].[{0}].[dbo].[TB_EB_USER],[192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP],[192.168.1.223].[{0}].[dbo].[TB_EB_GROUP]
-                                    WHERE [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
-                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
-                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
-                                    AND [ACCOUNT]='{1}'
-                                    ORDER BY [TB_EB_EMPL_DEP].ORDERS
-
-                                    ", DBNAME, ACCOUNT);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    string sql = string.Format(@"
+                                       SELECT 
+                                        [GROUP_NAME] AS 'DEPNAME',
+                                        [TB_EB_EMPL_DEP].[GROUP_ID] + ',' + [GROUP_NAME] + ',False' AS 'DEPNO',
+                                        [TB_EB_USER].[USER_GUID],
+                                        [ACCOUNT],
+                                        [NAME],
+                                        [TB_EB_EMPL_DEP].[GROUP_ID],
+                                        [TITLE_ID],
+                                        [GROUP_NAME],
+                                        [GROUP_CODE],
+                                        [TB_EB_EMPL_DEP].ORDERS
+                                        FROM [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                        JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP]  ON [TB_EB_USER].[USER_GUID] = [TB_EB_EMPL_DEP].[USER_GUID]
+                                        JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_GROUP]  ON [TB_EB_EMPL_DEP].[GROUP_ID] = [TB_EB_GROUP].[GROUP_ID]
+                                        WHERE ISNULL([TB_EB_GROUP].[GROUP_CODE], '') <> ''
+                                        AND [TB_EB_USER] .[ACCOUNT] = '{0}'
+                                        ORDER BY [TB_EB_EMPL_DEP].ORDERS
+                                        ",
+                                         account);
 
-                }
-                else
-                {
-                    return null;
-                }
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+                    using (DataSet ds = new DataSet())
+                    {
+                        sqlConn.Open();
+                        adapter.Fill(ds);
 
+                        return ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0 ? ds.Tables[0] : null;
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                // log ex if needed
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         public void ADDCOPTCCOPTD()
         {
