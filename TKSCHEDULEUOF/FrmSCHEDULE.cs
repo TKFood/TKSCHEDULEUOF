@@ -3132,74 +3132,68 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        /// <summary>
+        /// ERP訂單變更單 轉到UOF簽核
+        /// 取消不用了，因為改用生管做訂單變更 協調
+        /// </summary>
         public void ADDCOPTECOPTF()
         {
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+            //try
+            //{
+            //    Class1 TKID = new Class1(); // 用new建立類別實體
+            //    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+            //    // 資料庫使用者密碼解密
+            //    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            //    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            //    using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+            //    {
+            //        DataSet ds1 = new DataSet();
+            //        StringBuilder sbSql = new StringBuilder();
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            //        sbSql.Append(@"
+            //                        SELECT TE001, TE002, TE003
+            //                        FROM [TK].dbo.COPTE
+            //                        WHERE TE029 = 'N' AND UDF01 IN ('Y','y')
+            //                    ");
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            //        using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+            //        {
+            //            sqlConn.Open();
+            //            ds1.Clear();
+            //            adapter1.Fill(ds1, "ds1");
+            //        }
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+            //        if (ds1.Tables["ds1"].Rows.Count > 0)
+            //        {
+            //            foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+            //            {
+            //                string te001 = dr["TE001"].ToString().Trim();
+            //                string te002 = dr["TE002"].ToString().Trim();
+            //                string te003 = dr["TE003"].ToString().Trim();
 
+            //                ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(te001, te002, te003);
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    // 你可以改成log檔寫入，這裡暫時用Console輸出
+            //    Console.WriteLine("ADD COPT ECOPTF 發生錯誤：" + ex.Message);
+            //}
+            //finally
+            //{
+            //    if (sqlConn != null && sqlConn.State != System.Data.ConnectionState.Closed)
+            //    {
+            //        sqlConn.Close();
+            //    }
+            //}
 
-                sbSql.AppendFormat(@" 
-                                    SELECT TE001,TE002,TE003
-                                    FROM [TK].dbo.COPTE
-                                    WHERE TE029='N' AND (UDF01 IN ('Y','y') )
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
-                    {
-                        ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(dr["TE001"].ToString().Trim(), dr["TE002"].ToString().Trim(), dr["TE003"].ToString().Trim());
-                    }
-
-
-                    //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
-                }
-                else
-                {
-
-                }
-
-            }
-            catch
-            {
-
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-            UPDATECOPTEUDF01();
+            //UPDATECOPTEUDF01();
         }
+
 
         public void ADDTB_WKF_EXTERNAL_TASK_COPTECOPTF(string TE001, string TE002, string TE003)
         {
