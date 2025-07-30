@@ -2492,108 +2492,78 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHPURTAPURTB(string TA001, string TA002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dt = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                string connectionString = BuildDecryptedConnection("dberp");
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                   SELECT CREATOR,TA001,TA002,TA003,TA004,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,MV002,UDF03 QC
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[{0}].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    ,TB010,MA002,SUMLA011
-                                    ,ME002
-
-                                    ,(
-                                    SELECT TOP 1 '請購日:'+TA003+' ，請購單:'+TB001+TB002+TB003+' ，請購數量:'+CONVERT(NVARCHAR,TB009)+' '+TB007+' ，廠商:'+MA002+' ，請購人:'+MV002
-                                    FROM [TK].dbo.PURTA,[TK].dbo.PURTB,[TK].dbo.PURMA,[TK].dbo.CMSMV
-                                    WHERE TA001=TB001 AND TA002=TB002
-                                    AND TB010=MA001
-                                    AND TA012=MV001
-                                    AND TA007 NOT IN ('V')
-                                    AND TB004=TEMP.TB004
-                                    AND TA001+TA002<>TEMP.TA001+TEMP.TA002
-                                    ORDER BY TA003 DESC
-                                    ) AS 'LASTTB'
-                                    ,(
-                                    SELECT TOP 1 '進貨日:'+TG003+' ，進貨單:'+TH001+TH002+TH003+' ，進貨數量:'+CONVERT(NVARCHAR,TH007)+' '+TH008+' ，廠商:'+MA002
-                                    FROM [TK].dbo.PURTG,[TK].dbo.PURTH,[TK].dbo.PURMA
-                                    WHERE TG001=TH001 AND TG002=TH002
-                                    AND TG005=MA001
-                                    AND TG013 IN ('Y')
-                                    AND TH004=TEMP.TB004
-                                    ORDER BY TG003 DESC
-                                    ) AS 'LASTTH'
-                                    FROM 
-                                    (
-                                    SELECT PURTA.CREATOR,TA001,TA002,TA003,TA004,TA012,TB004,TB005,TB006,TB007,TB009,TB011,TA006,TB012,TB010,PURTA.UDF03
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA012) AS 'MV002'
-                                    ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TB010) AS 'MA002'
-                                    ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TB004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
-                                    ,ME002
-
-                                    FROM [TK].dbo.PURTB,[TK].dbo.PURTA
-                                    LEFT JOIN [192.168.1.223].[{0}].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA012 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [TK].dbo.CMSME ON ME001=TA004
-
-                                    WHERE TA001=TB001 AND TA002=TB002                                    
-                                    AND TA001='{1}' AND TA002='{2}'
-                                    ) AS TEMP
-                              
-                                    ", DBNAME, TA001, TA002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    return ds1.Tables["ds1"];
+                    cmd.CommandText = string.Format(@"
+                                                SELECT 
+                                                    CREATOR, TA001, TA002, TA003, TA004, TA012, TB004, TB005, TB006, TB007, TB009, TB011, TA006, TB012, MV002, UDF03 AS QC,
+                                                    USER_GUID, NAME,
+                                                    (SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].dbo.TB_EB_EMPL_DEP WHERE USER_GUID=TEMP.USER_GUID) AS GROUP_ID,
+                                                    (SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].dbo.TB_EB_EMPL_DEP WHERE USER_GUID=TEMP.USER_GUID) AS TITLE_ID,
+                                                    TB010, MA002, SUMLA011, ME002,
+                                                    (
+                                                        SELECT TOP 1 
+                                                            '請購日:' + TA003 + ' ，請購單:' + TB001 + TB002 + TB003 +
+                                                            ' ，請購數量:' + CONVERT(NVARCHAR, TB009) + ' ' + TB007 +
+                                                            ' ，廠商:' + MA002 + ' ，請購人:' + MV002
+                                                        FROM [TK].dbo.PURTA, [TK].dbo.PURTB, [TK].dbo.PURMA, [TK].dbo.CMSMV
+                                                        WHERE TA001 = TB001 AND TA002 = TB002
+                                                          AND TB010 = MA001
+                                                          AND TA012 = MV001
+                                                          AND TA007 NOT IN ('V')
+                                                          AND TB004 = TEMP.TB004
+                                                          AND TA001 + TA002 <> TEMP.TA001 + TEMP.TA002
+                                                        ORDER BY TA003 DESC
+                                                    ) AS LASTTB,
+                                                    (
+                                                        SELECT TOP 1 
+                                                            '進貨日:' + TG003 + ' ，進貨單:' + TH001 + TH002 + TH003 +
+                                                            ' ，進貨數量:' + CONVERT(NVARCHAR, TH007) + ' ' + TH008 +
+                                                            ' ，廠商:' + MA002
+                                                        FROM [TK].dbo.PURTG, [TK].dbo.PURTH, [TK].dbo.PURMA
+                                                        WHERE TG001 = TH001 AND TG002 = TH002
+                                                          AND TG005 = MA001
+                                                          AND TG013 IN ('Y')
+                                                          AND TH004 = TEMP.TB004
+                                                        ORDER BY TG003 DESC
+                                                    ) AS LASTTH
+                                                FROM (
+                                                    SELECT 
+                                                        PURTA.CREATOR, TA001, TA002, TA003, TA004, TA012, TB004, TB005, TB006, TB007, TB009, TB011, TA006, TB012, TB010, PURTA.UDF03,
+                                                        U.USER_GUID, U.NAME,
+                                                        (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001 = TA012) AS MV002,
+                                                        (SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001 = TB010) AS MA002,
+                                                        (SELECT ISNULL(SUM(LA005 * LA011), 0) 
+                                                         FROM [TK].dbo.INVLA WITH(NOLOCK) 
+                                                         WHERE LA001 = TB004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011,
+                                                        ME002
+                                                    FROM [TK].dbo.PURTB
+                                                    JOIN [TK].dbo.PURTA ON TA001 = TB001 AND TA002 = TB002
+                                                    LEFT JOIN [192.168.1.223].[UOF].dbo.TB_EB_USER U ON U.ACCOUNT = TA012 COLLATE Chinese_Taiwan_Stroke_BIN
+                                                    LEFT JOIN [TK].dbo.CMSME ON ME001 = TA004
+                                                    WHERE TA001 = '{0}' AND TA002 = '{1}'
+                                                ) AS TEMP
+                                            ",  TA001, TA002);
 
-                }
-                else
-                {
-                    return null;
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
                 }
 
+                return dt.Rows.Count > 0 ? dt : null;
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         /// <summary>
         /// ERP中，找出要送UOF簽核的請購單
