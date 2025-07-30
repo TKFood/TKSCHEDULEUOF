@@ -3622,7 +3622,7 @@ namespace TKSCHEDULEUOF
                 {
                     StringBuilder sbSql = new StringBuilder();
 
-                    sbSql.AppendFormat(@"
+                    sbSql.AppendFormat(@" 
                                 SELECT DOC_NBR
                                 FROM [UOF].dbo.TB_WKF_TASK 
                                 WHERE DOC_NBR LIKE 'STORE{0}%'
