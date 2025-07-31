@@ -57561,158 +57561,106 @@ namespace TKSCHEDULEUOF
 
         public void NEWPURTGPURTH_AGAIN_APPLY()
         {
-            DataTable DT = FIND_NEWPURTGPURTH_AGAIN_APPLY();
-            StringBuilder SB_SQL_EXE = new StringBuilder();
+            DataTable dt = FIND_NEWPURTGPURTH_AGAIN_APPLY();
 
-            if (DT!=null && DT.Rows.Count>=1)
+            if (dt == null || dt.Rows.Count == 0)
             {
-                SB_SQL_EXE.Append(" TG001 + TG002 IN (");
-
-                for (int i = 0; i < DT.Rows.Count; i++)
-                {
-                    string ta001 = DT.Rows[i]["TG001"].ToString().Trim();
-                    string ta002 = DT.Rows[i]["TG002"].ToString().Trim();
-
-                    SB_SQL_EXE.AppendFormat("'{0}{1}'", ta001, ta002);
-
-                    if (i < DT.Rows.Count - 1)
-                    {
-                        SB_SQL_EXE.Append(", ");
-                    }
-                }
-
-                SB_SQL_EXE.Append(")");
+                return; // 沒資料，無需處理
             }
 
-            if (DT != null && DT.Rows.Count >= 1)
+            // 組出 IN ('AAA001','AAA002',...)
+            List<string> tgKeys = new List<string>();
+            foreach (DataRow row in dt.Rows)
             {
-                try
-                {
-                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                    //sqlConn = new SqlConnection(connectionString);
-
-                    //20210902密
-                    Class1 TKID = new Class1();//用new 建立類別實體
-                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                    //資料庫使用者密碼解密
-                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                    String connectionString;
-                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                    sqlConn.Close();
-                    sqlConn.Open();
-                    tran = sqlConn.BeginTransaction();
-
-                    sbSql.Clear();
-
-                    sbSql.AppendFormat(@"
-                                    UPDATE [TK].dbo.PURTG
-                                    SET UDF01='Y'
-                                    WHERE 1=1
-                                    AND {0}
-                                        ", SB_SQL_EXE.ToString());
-
-                    cmd.Connection = sqlConn;
-                    cmd.CommandTimeout = 60;
-                    cmd.CommandText = sbSql.ToString();
-                    cmd.Transaction = tran;
-                    result = cmd.ExecuteNonQuery();
-
-                    if (result == 0)
-                    {
-                        tran.Rollback();    //交易取消
-                    }
-                    else
-                    {
-                        tran.Commit();      //執行交易  
-                    }
-
-                }
-                catch (Exception ex)
-                {
-
-                }
-
-                finally
-                {
-                    sqlConn.Close();
-                }
+                string tg001 = row["TG001"].ToString().Trim();
+                string tg002 = row["TG002"].ToString().Trim();
+                tgKeys.Add($"'{tg001 + tg002}'");
             }
 
-            
+            string whereInClause = $"TG001 + TG002 IN ({string.Join(",", tgKeys)})";
 
-        }
-
-        public DataTable FIND_NEWPURTGPURTH_AGAIN_APPLY()
-        {            
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 解密連線
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = $@"
+                                            UPDATE [TK].dbo.PURTG
+                                            SET UDF01 = 'Y'
+                                            WHERE {whereInClause}
+                                        ";
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                        int result = cmd.ExecuteNonQuery();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+                        if (result > 0)
+                        {
+                            tran.Commit();
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 加入錯誤處理（可用 Log 機制記錄）
+                Console.WriteLine("錯誤：" + ex.Message);
+                // 或記錄到 Log 檔
+            }
+        }
+        public DataTable FIND_NEWPURTGPURTH_AGAIN_APPLY()
+        {
+            try
+            {
+                // 解密連線字串
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-
-                sbSql.AppendFormat(@"                                      
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    var sbSql = new StringBuilder();
+                    sbSql.Append(@"
                                     SELECT 
-                                    TG001,TG002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
+                                        TG001, TG002, UDF01, STATUS, EXTERNAL_FORM_NBR, DOC_NBR, EXCEPTION_MSG
                                     FROM [192.168.1.105].[TK].dbo.PURTG
-                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TG001+TG002 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    WHERE UDF01 IN ('UOF')
-                                    AND STATUS  IN ('0')
-                                    AND TG013 IN ('N')                     
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
+                                        ON EXTERNAL_FORM_NBR = TG001 + TG002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE UDF01 = 'UOF'
+                                        AND STATUS = '0'
+                                        AND TG013 = 'N'
+                                ");
 
-                                    ");
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        DataSet ds = new DataSet();
+                        adapter.Fill(ds, "ds1");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                        return ds.Tables["ds1"].Rows.Count > 0 ? ds.Tables["ds1"] : null;
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-            
         }
+
 
         public void ADDUOFQCINVTAINVTB_AGAIN_APPLY()
         {
