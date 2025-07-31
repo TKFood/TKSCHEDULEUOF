@@ -5516,70 +5516,55 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                string connectionString = BuildDecryptedConnection("dberp");
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@" 
-                                    SELECT TE001,TE002,TE003,UDF01
-                                    FROM [TK].dbo.PURTE
-                                    WHERE TE017='N' AND (UDF01 IN ('Y','y') )
-                                    ORDER BY TE001,TE002,TE003
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (sqlConn = new SqlConnection(connectionString))
                 {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    DataTable purteData = new DataTable();
+                    sbSql.Clear();
+                    sbSql.AppendLine(@"
+                                    SELECT TE001, TE002, TE003, UDF01
+                                    FROM [TK].dbo.PURTE
+                                    WHERE TE017 = 'N' AND (UDF01 IN ('Y', 'y'))
+                                    ORDER BY TE001, TE002, TE003
+                                ");
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(dr["TE001"].ToString().Trim(), dr["TE002"].ToString().Trim(), dr["TE003"].ToString().Trim());
+                        adapter.Fill(purteData);
                     }
 
+                    if (purteData.Rows.Count > 0)
+                    {
+                        foreach (DataRow row in purteData.Rows)
+                        {
+                            string te001 = row["TE001"].ToString().Trim();
+                            string te002 = row["TE002"].ToString().Trim();
+                            string te003 = row["TE003"].ToString().Trim();
 
-                    //ADDTB_WKF_EXTERNAL_TASK("A311", "20210415007");
+                            // 將 ERP 請購單轉入 UOF 表單
+                            ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(te001, te002, te003);
+                        }
+                    }
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 建議可加入 log 紀錄錯誤訊息
+                // Console.WriteLine("NEWPURTEPURTF 發生錯誤：" + ex.Message);
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                {
+                    sqlConn.Close();
+                }
             }
 
+            // 將已處理過的單據做標記
             UPDATEPURTEUDF01();
         }
+
 
         public void ADD_PURTEPURTF_TB_WKF_EXTERNAL_TASK(string TE001, string TE002, string TE003)
         {
@@ -57484,6 +57469,7 @@ namespace TKSCHEDULEUOF
 
         private void button16_Click(object sender, EventArgs e)
         {
+            //ERP採購變更單 > 轉入UOF簽核
             NEWPURTEPURTF();
         }
         private void button17_Click(object sender, EventArgs e)
