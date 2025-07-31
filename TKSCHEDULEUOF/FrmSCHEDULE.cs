@@ -45882,426 +45882,202 @@ namespace TKSCHEDULEUOF
 
         public void NEW_TO_TKMK_TBSTOREDAILY_MORNING(DataTable DT)
         {
-            string xmlData = "";
-            string DOC_NBR = "";
-            string FIELD1 = "";
-            string FIELD2 = "";
-            string FIELD3 = "";
-            string FIELD4 = "";
-            string FIELD5 = "";
-            string FIELD6 = "";
-            string FIELD7 = "";
-            string FIELD8 = "";
-            string FIELD9 = "";
-            string FIELD10 = "";
-            string FIELD11 = "";
-            string FIELD12 = "";
-            string FIELD13 = "";
-            string FIELD14 = "";
-            string FIELD15 = "";
-            string FIELD16 = "";
-            string FIELD17 = "";
-            string FIELD18 = "";
-            string FIELD19 = "";
-            string FIELD20 = "";
-            string FIELD21 = "";
-
-
             foreach (DataRow row in DT.Rows)
             {
-                xmlData = "";
-                DOC_NBR = "";
-                FIELD1 = "";
-                FIELD2 = "";
-                FIELD3 = "";
-                FIELD4 = "";
-                FIELD5 = "";
-                FIELD6 = "";
-                FIELD7 = "";
-                FIELD8 = "";
-                FIELD9 = "";
-                FIELD10 = "";
-                FIELD11 = "";
-                FIELD12 = "";
-                FIELD13 = "";
-                FIELD14 = "";
-                FIELD15 = "";
-                FIELD16 = "";
-                FIELD17 = "";
-                FIELD18 = "";
-                FIELD19 = "";
-                FIELD20 = "";
-                FIELD21 = "";
-
-                xmlData = FIND_UOF_CURRENT_DOC(row["DOC_NBR"].ToString());
-
+                string xmlData = FIND_UOF_CURRENT_DOC(row["DOC_NBR"].ToString());
                 XDocument doc = XDocument.Parse(xmlData);
 
-                var fieldItems = doc.Descendants("FieldItem");
-
-                foreach (var fieldItem in fieldItems)
+                var fieldDict = new Dictionary<string, string>();
+                foreach (var fieldItem in doc.Descendants("FieldItem"))
                 {
+                    string fieldId = fieldItem.Attribute("fieldId")?.Value;
+                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value ?? "";
 
-                    string fieldId = fieldItem.Attribute("fieldId").Value;
+                    if (fieldId == null)
+                        continue;
 
-                    // 節點存在，取值       
-                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
+                    // 特殊欄位處理
+                    switch (fieldId)
+                    {
+                        case "ID":
+                            fieldDict["DOC_NBR"] = fieldValue;
+                            break;
 
-                    if (fieldId.Equals("ID"))
-                    {
-                        DOC_NBR = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD1"))
-                    {
-                        string S_fieldValue = fieldValue;
-                        string[] parts = S_fieldValue.Split('@');
+                        case "FIELD1":
+                        case "FIELD6":
+                        case "FIELD7":
+                            // 取 @ 前面部分
+                            fieldDict[fieldId] = fieldValue.Split('@').FirstOrDefault() ?? "";
+                            break;
 
-                        // 如果分割後的部分數量大於等於1，取第一部分
-                        if (parts.Length >= 1)
-                        {
-                            FIELD1 = parts[0];
-                        }
-                    }
-                    else if (fieldId.Equals("FIELD2"))
-                    {
-                        FIELD2 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD3"))
-                    {
-                        FIELD3 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD4"))
-                    {
-                        FIELD4 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD5"))
-                    {
-                        FIELD5 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD6"))
-                    {
-                        string S_fieldValue = fieldValue;
-                        string[] parts = S_fieldValue.Split('@');
+                        case "FIELD9":
+                        case "FIELD10":
+                        case "FIELD11":
+                        case "FIELD12":
+                        case "FIELD13":
+                            // 替換 @ 為 "、"
+                            fieldDict[fieldId] = fieldValue.Replace("@", "、");
+                            break;
 
-                        // 如果分割後的部分數量大於等於1，取第一部分
-                        if (parts.Length >= 1)
-                        {
-                            FIELD6 = parts[0];
-                        }
-                    }
-                    else if (fieldId.Equals("FIELD7"))
-                    {
-                        string S_fieldValue = fieldValue;
-                        string[] parts = S_fieldValue.Split('@');
-
-                        // 如果分割後的部分數量大於等於1，取第一部分
-                        if (parts.Length >= 1)
-                        {
-                            FIELD7 = parts[0];
-                        }
-                    }
-                    else if (fieldId.Equals("FIELD8"))
-                    {
-                        FIELD8 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD9"))
-                    {
-                        FIELD9 = fieldValue;
-                        FIELD9 = FIELD9.Replace("@", "、");
-                    }
-                    else if (fieldId.Equals("FIELD10"))
-                    {
-                        FIELD10 = fieldValue;
-                        FIELD10 = FIELD10.Replace("@", "、");
-                    }
-                    else if (fieldId.Equals("FIELD11"))
-                    {
-                        FIELD11 = fieldValue;
-                        FIELD11 = FIELD11.Replace("@", "、");
-                    }
-                    else if (fieldId.Equals("FIELD12"))
-                    {
-                        FIELD12 = fieldValue;
-                        FIELD12 = FIELD12.Replace("@", "、");
-                    }
-                    else if (fieldId.Equals("FIELD13"))
-                    {
-                        FIELD13 = fieldValue;
-                        FIELD13 = FIELD13.Replace("@", "、");
-                    }
-                    else if (fieldId.Equals("FIELD14"))
-                    {
-                        FIELD14 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD15"))
-                    {
-                        FIELD15 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD16"))
-                    {
-                        FIELD16 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD17"))
-                    {
-                        FIELD17 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD18"))
-                    {
-                        FIELD18 = fieldValue;
-                    }
-                    else if (fieldId.Equals("FIELD21"))
-                    {
-                        FIELD21 = fieldValue;
+                        default:
+                            // 其他欄位直接存
+                            fieldDict[fieldId] = fieldValue;
+                            break;
                     }
                 }
 
-              
-
                 ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
-                                            DOC_NBR
-                                            , FIELD1
-                                            , FIELD2
-                                            , FIELD3
-                                            , FIELD4
-                                            , FIELD5
-                                            , FIELD6
-                                            , FIELD7
-                                            , FIELD8
-                                            , FIELD9
-                                            , FIELD10
-                                            , FIELD11
-                                            , FIELD12
-                                            , FIELD13
-                                            , FIELD14
-                                            , FIELD15
-                                            , FIELD16
-                                            , FIELD17
-                                            , FIELD18
-                                            , FIELD19
-                                            , FIELD20
-                                            , FIELD21
-                                            );
+                    fieldDict.GetValueOrDefault("DOC_NBR", ""),
+                    fieldDict.GetValueOrDefault("FIELD1", ""),
+                    fieldDict.GetValueOrDefault("FIELD2", ""),
+                    fieldDict.GetValueOrDefault("FIELD3", ""),
+                    fieldDict.GetValueOrDefault("FIELD4", ""),
+                    fieldDict.GetValueOrDefault("FIELD5", ""),
+                    fieldDict.GetValueOrDefault("FIELD6", ""),
+                    fieldDict.GetValueOrDefault("FIELD7", ""),
+                    fieldDict.GetValueOrDefault("FIELD8", ""),
+                    fieldDict.GetValueOrDefault("FIELD9", ""),
+                    fieldDict.GetValueOrDefault("FIELD10", ""),
+                    fieldDict.GetValueOrDefault("FIELD11", ""),
+                    fieldDict.GetValueOrDefault("FIELD12", ""),
+                    fieldDict.GetValueOrDefault("FIELD13", ""),
+                    fieldDict.GetValueOrDefault("FIELD14", ""),
+                    fieldDict.GetValueOrDefault("FIELD15", ""),
+                    fieldDict.GetValueOrDefault("FIELD16", ""),
+                    fieldDict.GetValueOrDefault("FIELD17", ""),
+                    fieldDict.GetValueOrDefault("FIELD18", ""),
+                    fieldDict.GetValueOrDefault("FIELD19", ""),
+                    fieldDict.GetValueOrDefault("FIELD20", ""),
+                    fieldDict.GetValueOrDefault("FIELD21", "")
+                );
             }
         }
 
         public string FIND_UOF_CURRENT_DOC(string DOC_NBR)
         {
-            DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    DOC_NBR,CONVERT(nvarchar(MAX),CURRENT_DOC) CURRENT_DOC
-                                    FROM [UOF].[dbo].[TB_WKF_TASK]
-                                    WHERE DOC_NBR='{0}'
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString();
+                    string sql = @"
+                            SELECT DOC_NBR, CONVERT(nvarchar(MAX), CURRENT_DOC) AS CURRENT_DOC
+                            FROM [UOF].[dbo].[TB_WKF_TASK]
+                            WHERE DOC_NBR = @DocNbr";
+
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sql, sqlConn))
+                    {
+                        adapter1.SelectCommand.Parameters.AddWithValue("@DocNbr", DOC_NBR);
+
+                        DataSet ds1 = new DataSet();
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                        sqlConn.Close();
+
+                        if (ds1.Tables["ds1"].Rows.Count > 0)
+                        {
+                            return ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString();
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 建議捕捉例外時可以記錄 ex.Message 或拋出，方便偵錯
+                return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-
-            return null;
         }
 
+
         public void ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
-            string DOC_NBR
-            , string FIELD1
-            , string FIELD2
-            , string FIELD3
-            , string FIELD4
-            , string FIELD5
-            , string FIELD6
-            , string FIELD7
-            , string FIELD8
-            , string FIELD9
-            , string FIELD10
-            , string FIELD11
-            , string FIELD12
-            , string FIELD13
-            , string FIELD14
-            , string FIELD15
-            , string FIELD16
-            , string FIELD17
-            , string FIELD18
-            , string FIELD19
-            , string FIELD20
-            , string FIELD21
-
-            )
+          string DOC_NBR,
+          string FIELD1,
+          string FIELD2,
+          string FIELD3,
+          string FIELD4,
+          string FIELD5,
+          string FIELD6,
+          string FIELD7,
+          string FIELD8,
+          string FIELD9,
+          string FIELD10,
+          string FIELD11,
+          string FIELD12,
+          string FIELD13,
+          string FIELD14,
+          string FIELD15,
+          string FIELD16,
+          string FIELD17,
+          string FIELD18,
+          string FIELD19,
+          string FIELD20,
+          string FIELD21)
         {
-            try
+            string connString = BuildDecryptedConnection("dberp");
+
+            using (SqlConnection sqlConn = new SqlConnection(connString))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
                 sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                    
-                                    INSERT INTO [TKMK].[dbo].[TBSTOREDAILY_MORNING]
-                                    (
-                                    [DOC_NBR]                            
-                                    ,[FIELD1]
-                                    ,[FIELD2]
-                                    ,[FIELD3]
-                                    ,[FIELD4]
-                                    ,[FIELD5]
-                                    ,[FIELD6]
-                                    ,[FIELD7]
-                                    ,[FIELD8]
-                                    ,[FIELD9]
-                                    ,[FIELD10]
-                                    ,[FIELD11]
-                                    ,[FIELD12]
-                                    ,[FIELD13]
-                                    ,[FIELD14]
-                                    ,[FIELD15]
-                                    ,[FIELD16]
-                                    ,[FIELD17]
-                                    ,[FIELD18]
-                                    ,[FIELD19]
-                                    ,[FIELD20]
-                                    ,[FIELD21]
-
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    ,'{15}'
-                                    ,'{16}'
-                                    ,'{17}'
-                                    ,'{18}'
-                                    ,'{19}'
-                                    ,'{20}'
-                                    ,'{21}'
-                                   
-                                    )
-
-                                    ", DOC_NBR
-                                   , FIELD1
-                                   , FIELD2
-, FIELD3
-, FIELD4
-, FIELD5
-, FIELD6
-, FIELD7
-, FIELD8
-, FIELD9
-, FIELD10
-, FIELD11
-, FIELD12
-, FIELD13
-, FIELD14
-, FIELD15
-, FIELD16
-, FIELD17
-, FIELD18
-, FIELD19
-, FIELD20
-, FIELD21
-
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlTransaction tran = sqlConn.BeginTransaction())
+                using (SqlCommand cmd = sqlConn.CreateCommand())
                 {
-                    tran.Rollback();    //交易取消
+                    cmd.Transaction = tran;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = @"
+                                        INSERT INTO [TKMK].[dbo].[TBSTOREDAILY_MORNING] (
+                                            [DOC_NBR],[FIELD1],[FIELD2],[FIELD3],[FIELD4],[FIELD5],[FIELD6],[FIELD7],[FIELD8],[FIELD9],
+                                            [FIELD10],[FIELD11],[FIELD12],[FIELD13],[FIELD14],[FIELD15],[FIELD16],[FIELD17],[FIELD18],[FIELD19],[FIELD20],[FIELD21]
+                                        ) VALUES (
+                                            @DOC_NBR,@FIELD1,@FIELD2,@FIELD3,@FIELD4,@FIELD5,@FIELD6,@FIELD7,@FIELD8,@FIELD9,
+                                            @FIELD10,@FIELD11,@FIELD12,@FIELD13,@FIELD14,@FIELD15,@FIELD16,@FIELD17,@FIELD18,@FIELD19,@FIELD20,@FIELD21
+                                        );
+                                    ";
+
+                    cmd.Parameters.AddWithValue("@DOC_NBR", DOC_NBR ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD1", FIELD1 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD2", FIELD2 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD3", FIELD3 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD4", FIELD4 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD5", FIELD5 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD6", FIELD6 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD7", FIELD7 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD8", FIELD8 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD9", FIELD9 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD10", FIELD10 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD11", FIELD11 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD12", FIELD12 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD13", FIELD13 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD14", FIELD14 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD15", FIELD15 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD16", FIELD16 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD17", FIELD17 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD18", FIELD18 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD19", FIELD19 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD20", FIELD20 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD21", FIELD21 ?? (object)DBNull.Value);
+
+                    int result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();
+                        throw new Exception("新增失敗，無資料寫入");
+                    }
+                    else
+                    {
+                        tran.Commit();
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
-            }
-            catch
-            {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
