@@ -4038,73 +4038,50 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHUOFSTORE()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
-
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
+            string THISYEARS = DateTime.Now.ToString("yy"); // 直接取西元年後兩位
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 解密資料庫連線字串
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    // 組 SQL 查詢語句
+                    string sql = string.Format(@"
+                SELECT DOC_NBR
+                FROM [UOF].dbo.TB_WKF_TASK 
+                WHERE DOC_NBR LIKE 'STORE{0}%'
+                AND TASK_RESULT = '0'
+                
+                UNION ALL
+                SELECT 'STORE220300013'
+            ", THISYEARS);
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                //是門市督導單STORE
-                //核準過TASK_RESULT='0'
-                sbSql.AppendFormat(@"  
-                                     SELECT DOC_NBR
-                                     FROM [UOF].dbo.TB_WKF_TASK 
-                                     WHERE DOC_NBR LIKE 'STORE{0}%'
-                                     AND TASK_RESULT='0'
-                                    
-                                    UNION ALL
-                                    SELECT 'STORE220300013'
-                                    ", THISYEARS);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
+                    // 建立資料配接器並填入資料集
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sql, sqlConn))
+                    {
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
+                }
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     return ds1.Tables["ds1"];
-
                 }
                 else
                 {
                     return null;
                 }
-
             }
             catch
             {
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
