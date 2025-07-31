@@ -57746,71 +57746,33 @@ namespace TKSCHEDULEUOF
                 sqlConn?.Close();
             }
         }
-
         public DataTable FIND_ADDUOFQCINVTAINVTB_AGAIN_APPLY()
         {
-            try
+            DataTable dt = new DataTable();
+
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            string sql = @"
+                        SELECT 
+                            TA001, TA002, UDF01, STATUS, EXTERNAL_FORM_NBR, DOC_NBR, EXCEPTION_MSG
+                        FROM [192.168.1.105].[TK].dbo.INVTA
+                        LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                            ON EXTERNAL_FORM_NBR = TA001 + TA002 COLLATE Chinese_Taiwan_Stroke_BIN
+                        WHERE UDF01 = 'UOF'
+                            AND STATUS = '0'
+                            AND TA006 = 'N' ";
+
+            using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-
-                sbSql.AppendFormat(@"                                      
-                                    SELECT 
-                                    TA001,TA002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
-                                    FROM [192.168.1.105].[TK].dbo.INVTA
-                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TA001+TA002 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    WHERE UDF01 IN ('UOF')
-                                    AND STATUS  IN ('0')
-                                    AND TA006 IN ('N')                   
-
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
-                }
-
+                adapter.Fill(dt);
             }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
+
+            return dt.Rows.Count > 0 ? dt : null;
         }
 
         public void NEWPUR_MOCTH_MOCTI_AGAIN_APPLY()
