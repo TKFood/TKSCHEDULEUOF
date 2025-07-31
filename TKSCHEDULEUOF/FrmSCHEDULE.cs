@@ -57774,7 +57774,6 @@ namespace TKSCHEDULEUOF
 
             return dt.Rows.Count > 0 ? dt : null;
         }
-
         public void NEWPUR_MOCTH_MOCTI_AGAIN_APPLY()
         {
             DataTable DT = FIND_NEWPUR_MOCTH_MOCTI_AGAIN_APPLY();
@@ -57804,128 +57803,97 @@ namespace TKSCHEDULEUOF
             {
                 try
                 {
-                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                    //sqlConn = new SqlConnection(connectionString);
-
-                    //20210902密
-                    Class1 TKID = new Class1();//用new 建立類別實體
+                    Class1 TKID = new Class1();
                     SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                    //資料庫使用者密碼解密
                     sqlsb.Password = TKID.Decryption(sqlsb.Password);
                     sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                    String connectionString;
-                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                    sqlConn.Close();
-                    sqlConn.Open();
-                    tran = sqlConn.BeginTransaction();
-
-                    sbSql.Clear();
-
-                    sbSql.AppendFormat(@"
-                                    UPDATE [TK].dbo.MOCTH
-                                    SET UDF01='Y'
-                                    WHERE 1=1
-                                    AND {0}
-                                        ", SB_SQL_EXE.ToString());
-
-                    cmd.Connection = sqlConn;
-                    cmd.CommandTimeout = 60;
-                    cmd.CommandText = sbSql.ToString();
-                    cmd.Transaction = tran;
-                    result = cmd.ExecuteNonQuery();
-
-                    if (result == 0)
+                    using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                     {
-                        tran.Rollback();    //交易取消
-                    }
-                    else
-                    {
-                        tran.Commit();      //執行交易  
-                    }
+                        sqlConn.Open();
+                        using (SqlTransaction tran = sqlConn.BeginTransaction())
+                        {
+                            string updateSql = $@"
+                                                UPDATE [TK].dbo.MOCTH
+                                                SET UDF01 = 'Y'
+                                                WHERE 1 = 1
+                                                AND {SB_SQL_EXE.ToString()}
+                                            ";
 
+                            using (SqlCommand cmd = new SqlCommand(updateSql, sqlConn, tran))
+                            {
+                                cmd.CommandTimeout = 60;
+                                int result = cmd.ExecuteNonQuery();
+
+                                if (result == 0)
+                                {
+                                    tran.Rollback();
+                                }
+                                else
+                                {
+                                    tran.Commit();
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
-
+                    // 可選：寫入 log 或提示錯誤
+                    Console.WriteLine("錯誤：" + ex.Message);
                 }
-
-                finally
-                {
-                    sqlConn.Close();
-                }
-
             }
-
-               
         }
+
         public DataTable FIND_NEWPUR_MOCTH_MOCTI_AGAIN_APPLY()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-
-                sbSql.AppendFormat(@"                                      
+                    sbSql.Append(@"
                                     SELECT 
-                                    TH001,TH002,UDF01,STATUS,EXTERNAL_FORM_NBR,DOC_NBR,EXCEPTION_MSG
+                                        TH001, TH002, UDF01, STATUS, EXTERNAL_FORM_NBR, DOC_NBR, EXCEPTION_MSG
                                     FROM [192.168.1.105].[TK].dbo.MOCTH
-                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] ON EXTERNAL_FORM_NBR=TH001+TH002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
+                                        ON EXTERNAL_FORM_NBR = TH001 + TH002 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE UDF01 IN ('UOF')
-                                    AND STATUS  IN ('0')
-                                    AND TH023 IN ('N')           
+                                        AND STATUS IN ('0')
+                                        AND TH023 IN ('N')
+                                ");
 
-                                    ");
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        DataSet ds = new DataSet();
+                        sqlConn.Open();
+                        adapter.Fill(ds, "ds1");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                        if (ds.Tables["ds1"].Rows.Count > 0)
+                        {
+                            return ds.Tables["ds1"];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
 
         #endregion
