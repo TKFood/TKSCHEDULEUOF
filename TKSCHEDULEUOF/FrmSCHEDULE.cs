@@ -4036,38 +4036,64 @@ namespace TKSCHEDULEUOF
             }
         }
 
-       
 
+        /// <summary>
+        /// 匯入UOF的門市營業日誌
+        /// </summary>
         public void ADDTKMKdboTBSTOREDAILY()
         {
-            IEnumerable<DataRow> query2 = null;
+            string THISYEARS = DateTime.Now.ToString("yyyy");
+            //取西元年後2位
+            THISYEARS = THISYEARS.Substring(2, 2);
 
-            DataTable DT1 = SEARCHUOFSTOREDAILY();
-            DataTable DT2 = SEARCHTKMKTBSTOREDAILYCHECK();
+            DataTable dtResult = new DataTable();
 
-            //找DataTable差集
-            //要有相同的欄位名稱
-            //找DataTable差集
-            //要有相同的欄位名稱
-            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            try
             {
-                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
-            }
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-
-
-            if (query2.Count() > 0)
-            {
-                //差集集合
-                DataTable dt3 = query2.CopyToDataTable();
-
-                foreach (DataRow dr in dt3.Rows)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    SEARCHUOFTB_WKF_TASK_FRO_STOREDAILY(dr["DOC_NBR"].ToString());
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.AppendFormat(@" 
+                                SELECT DOC_NBR
+                                FROM [UOF].DBO.TB_WKF_TASK 
+                                WHERE DOC_NBR LIKE 'STOREDAILY{0}%'
+                                AND TASK_RESULT='0'
+                                AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                (
+	                                SELECT [ID] AS 'DOC_NBR'
+	                                FROM [TKMK].[dbo].[TBSTOREDAILY]
+                                )
+                            ", THISYEARS);
+
+                    using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlConn.Open();
+                            adapter.Fill(dtResult);
+                            sqlConn.Close();
+                        }
+                    }
+                }
+
+                if (dtResult.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dtResult.Rows)
+                    {
+                        SEARCHUOFTB_WKF_TASK_FRO_STOREDAILY(dr["DOC_NBR"].ToString());
+                    }
                 }
             }
-
-
+            catch (Exception ex)
+            {
+                Console.WriteLine("錯誤: " + ex.Message);
+            }
         }
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
@@ -60177,6 +60203,7 @@ namespace TKSCHEDULEUOF
         }
         private void button40_Click(object sender, EventArgs e)
         {
+            //取消不用
             //匯入UOF的門市營業日誌
             ADDTKMKdboTBSTOREDAILY();
         }
