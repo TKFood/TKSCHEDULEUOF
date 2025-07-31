@@ -764,8 +764,16 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                
 
+
+            }
+            catch { }
+            try
+            {
+                //把UOF的1003.雜項請購單，在核成後，轉到UOF的 	1005.雜項採購單
+                //請購單的廠商是未指定=空白
+                string DEFAUL_NAME = "王嘩芝";
+                ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL(DEFAUL_NAME);
             }
             catch { }
             try
