@@ -1571,9 +1571,11 @@ namespace TKSCHEDULEUOF
 
                 // 4. 組合批次 INSERT SQL
                 StringBuilder sbSql = new StringBuilder();
-                sbSql.AppendLine("INSERT INTO [TKIT].[dbo].[CALENDAR_MANULINE]");
-                sbSql.AppendLine("([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])");
-                sbSql.AppendLine("VALUES");
+                sbSql.AppendFormat(@"
+                                    INSERT INTO [TKIT].[dbo].[CALENDAR_MANULINE]
+                                    ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])
+                                    VALUES
+                                    ");
 
                 for (int i = 0; i < dtAll.Rows.Count; i++)
                 {
