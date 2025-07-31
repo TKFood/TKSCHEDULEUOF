@@ -545,7 +545,7 @@ namespace TKSCHEDULEUOF
         private void timer3_Tick(object sender, EventArgs e)
         {
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0801";
+            string HHmm = "0810";
 
             if (RUNTIME.Equals(HHmm))
             {
