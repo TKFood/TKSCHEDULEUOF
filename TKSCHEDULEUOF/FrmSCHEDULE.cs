@@ -45829,72 +45829,57 @@ namespace TKSCHEDULEUOF
         public DataTable FIND_UOF_TBSTOREDAILY_MORNING()
         {
             DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            SqlDataAdapter adapter1;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); // 用new建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"                                     
-                                    SELECT TB_WKF_FORM.FORM_NAME,DOC_NBR,*
-                                    FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE 1=1
-                                    AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
-                                    AND TB_WKF_FORM.FORM_NAME IN ('0901.門市營業日誌-早班')
-                                    AND TB_WKF_TASK.TASK_RESULT='0'
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [DOC_NBR] FROM [192.168.1.105].[TKMK].[dbo].[TBSTOREDAILY_MORNING])
-   
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append(@"
+                                    SELECT TB_WKF_FORM.FORM_NAME, DOC_NBR, *
+                                    FROM [UOF].dbo.TB_WKF_TASK
+                                    INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                    INNER JOIN [UOF].dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                    WHERE TB_WKF_FORM.FORM_NAME = '0901.門市營業日誌-早班'
+                                      AND TB_WKF_TASK.TASK_RESULT = '0'
+                                      AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                          (SELECT [DOC_NBR] FROM [192.168.1.105].[TKMK].[dbo].[TBSTOREDAILY_MORNING])
+                                ");
+
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
+
+                    if (ds1.Tables["ds1"].Rows.Count > 0)
+                    {
+                        return ds1.Tables["ds1"];
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 可考慮記錄錯誤，例如寫入 log 或 Console.WriteLine
+                return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-
-            return null;
         }
+
         public void NEW_TO_TKMK_TBSTOREDAILY_MORNING(DataTable DT)
         {
             string xmlData = "";
@@ -46070,47 +46055,7 @@ namespace TKSCHEDULEUOF
                     }
                 }
 
-                //var dataGrids = doc.Descendants("DataGrid");
-
-                //foreach (var dataGrid in dataGrids)
-                //{
-                //    var rows = dataGrid.Descendants("Row");
-
-                //    foreach (var rowdata in rows)
-                //    {
-                //        QC6007 = "";
-                //        var cells = rowdata.Descendants("Cell");
-
-                //        foreach (var cell in cells)
-                //        {
-
-                //            string cellFieldId = cell.Attribute("fieldId")?.Value;
-                //            string cellFieldValue = cell.Attribute("fieldValue")?.Value;
-
-                //            if (cellFieldId.Equals("QC60071"))
-                //            {
-                //                QC6007 = QC6007 + cellFieldValue + "-";
-                //            }
-                //            else if (cellFieldId.Equals("QC60072"))
-                //            {
-                //                QC6007 = QC6007 + cellFieldValue + "、";
-                //            }
-
-
-                //        }
-                //        //去除+"、";
-                //        if (QC6007.Length >= 1)
-                //        {
-                //            QC6007 = QC6007.Substring(0, QC6007.Length - 1);
-                //        }
-                //        //
-                //        if (QC6007.Length >= 250)
-                //        {
-                //            QC6007 = QC6007.Substring(0, 249);
-                //        }
-                //    }
-                //}
-
+              
 
                 ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
                                             DOC_NBR
@@ -60148,9 +60093,7 @@ namespace TKSCHEDULEUOF
         private void button71_Click(object sender, EventArgs e)
         {
             //門市日誌-早班
-            NEW_TBSTOREDAILY_MORNING();
-            NEW_TBSTOREDAILY_MORNING();
-            NEW_TBSTOREDAILY_MORNING();
+            NEW_TBSTOREDAILY_MORNING();           
             ///門市日誌-午班
             NEW_TBSTOREDAILY_AFTERMOON();
         }
