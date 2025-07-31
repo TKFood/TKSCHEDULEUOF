@@ -4099,168 +4099,217 @@ namespace TKSCHEDULEUOF
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
         public void SEARCHUOFTB_WKF_TASK_FRO_STOREDAILY(string DOC_NBR)
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
+        {     
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 建立解密物件
+                Class1 TKID = new Class1();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 取得並解密連線字串
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                // 建立 SQL 連線
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    // 組合 SQL 查詢語句
+                    StringBuilder sbSql = new StringBuilder();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+                    sbSql.AppendFormat(@"
+                                       SELECT 
+                                        T.DOC_NBR,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(200)') AS ID,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD1""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD1,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD2""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD2,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD3,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD4,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD5""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD5,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD6,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD7""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD7,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD8""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD8,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD9""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD9,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD10""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD10,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD11""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD11,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD12""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD12,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD13""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD13,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD14""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD14,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD15""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD15,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD16""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD16,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD17""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD17,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD18""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD18,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD19""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD19,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD20""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD20,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD21""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD21,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD22""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD22,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD23""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD23,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD24""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD24,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD25""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD25,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD26""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD26,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD27""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD27,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD28""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD28,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD29a""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD29a,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD30""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD30,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD31""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD31,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD32""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD32,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD33""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD33,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD34,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD35""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD35,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD36,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD37""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD37,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD38""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD38,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD39,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD40,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD41,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'nvarchar(200)') AS FIELD42
+                                    FROM 
+                                        [UOF].dbo.TB_WKF_TASK T
+                                    WHERE 
+                                        T.DOC_NBR LIKE 'STORE25%' 
+                                        AND T.TASK_RESULT = '0'
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
                                     ", DOC_NBR);
 
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    DataSet ds1 = new DataSet();
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
-
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
-                    string FIELD1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD1']").Attributes["fieldValue"].Value;
-                    string FIELD2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD2']").Attributes["fieldValue"].Value;
-                    string FIELD3 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD3']").Attributes["fieldValue"].Value;
-                    string FIELD4 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD4']").Attributes["fieldValue"].Value;
-                    string FIELD5 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD5']").Attributes["fieldValue"].Value;
-                    string FIELD6 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD6']").Attributes["fieldValue"].Value;
-                    string FIELD7 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD7']").Attributes["fieldValue"].Value;
-                    string FIELD8 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD8']").Attributes["fieldValue"].Value;
-                    string FIELD9 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD9']").Attributes["fieldValue"].Value;
-                    string FIELD10 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD10']").Attributes["fieldValue"].Value;
-                    string FIELD11 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD11']").Attributes["fieldValue"].Value;
-                    string FIELD12 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD12']").Attributes["fieldValue"].Value;
-                    string FIELD13 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD13']").Attributes["fieldValue"].Value;
-                    string FIELD14 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD14']").Attributes["fieldValue"].Value;
-                    string FIELD15 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD15']").Attributes["fieldValue"].Value;
-                    string FIELD16 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD16']").Attributes["fieldValue"].Value;
-                    string FIELD17 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD17']").Attributes["fieldValue"].Value;
-                    string FIELD18 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD18']").Attributes["fieldValue"].Value;
-                    string FIELD19 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD19']").Attributes["fieldValue"].Value;
-                    string FIELD20 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD20']").Attributes["fieldValue"].Value;
-                    string FIELD21 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD21']").Attributes["fieldValue"].Value;
-                    string FIELD22 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD22']").Attributes["fieldValue"].Value;
-                    string FIELD23 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD23']").Attributes["fieldValue"].Value;
-                    string FIELD24 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD24']").Attributes["fieldValue"].Value;
-                    string FIELD25 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD25']").Attributes["fieldValue"].Value;
-                    string FIELD26 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD26']").Attributes["fieldValue"].Value;
-                    string FIELD27 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD27']").Attributes["fieldValue"].Value;
-                    string FIELD28 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD28']").Attributes["fieldValue"].Value;
-                    string FIELD29 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD29']").Attributes["fieldValue"].Value;
-                    string FIELD29a = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD29a']").Attributes["fieldValue"].Value;
-                    string FIELD30 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD30']").Attributes["fieldValue"].Value;
-                    string FIELD31 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD31']").Attributes["fieldValue"].Value;
-                    string FIELD32 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD32']").Attributes["fieldValue"].Value;
-                    string FIELD33 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD33']").Attributes["fieldValue"].Value;
-                    string FIELD34 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD34']").Attributes["fieldValue"].Value;
-                    string FIELD35 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD35']").Attributes["fieldValue"].Value;
-                    //string FIELD36 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD36']").Attributes["fieldValue"].Value;
-                    string FIELD36 = null;
-                    string FIELD37 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD37']").Attributes["fieldValue"].Value;
-                    string FIELD38 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD38']").Attributes["fieldValue"].Value;
-                    string FIELD39 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD39']").Attributes["fieldValue"].Value;
-                    string FIELD40 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD40']").Attributes["fieldValue"].Value;
-                    string FIELD41 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD41']").Attributes["fieldValue"].Value;
-                    string FIELD42 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='FIELD42']").Attributes["fieldValue"].Value;
-
-                    int index1 = FIELD1.IndexOf("@");
-                    FIELD1 = FIELD1.Substring(0, index1);
-                    int index6 = FIELD6.IndexOf("@");
-                    FIELD6 = FIELD6.Substring(0, index6);
-                    int index7 = FIELD7.IndexOf("@");
-                    FIELD7 = FIELD7.Substring(0, index7);
-
-                    //string OK = "";
-                    ADDTOTKMKTBSTOREDAILY(
-                                             ID
-                                            , FIELD1
-                                            , FIELD2
-                                            , FIELD3
-                                            , FIELD4
-                                            , FIELD5
-                                            , FIELD6
-                                            , FIELD7
-                                            , FIELD8
-                                            , FIELD9
-                                            , FIELD10
-                                            , FIELD11
-                                            , FIELD12
-                                            , FIELD13
-                                            , FIELD14
-                                            , FIELD15
-                                            , FIELD16
-                                            , FIELD17
-                                            , FIELD18
-                                            , FIELD19
-                                            , FIELD20
-                                            , FIELD21
-                                            , FIELD22
-                                            , FIELD23
-                                            , FIELD24
-                                            , FIELD25
-                                            , FIELD26
-                                            , FIELD27
-                                            , FIELD28
-                                            , FIELD29
-                                            , FIELD29a
-                                            , FIELD30
-                                            , FIELD31
-                                            , FIELD32
-                                            , FIELD33
-                                            , FIELD34
-                                            , FIELD35
-                                            , FIELD36
-                                            , FIELD37
-                                            , FIELD38
-                                            , FIELD39
-                                            , FIELD40
-                                            , FIELD41
-                                            , FIELD42
-                                            , NAME
-                                            );
+                    sqlConn.Open();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
 
 
-                }
-                else
-                {
+                    if (ds1.Tables["ds1"].Rows.Count >= 1)
+                    {
+                        string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
 
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+
+                        //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
+                        string ID = ds1.Tables["ds1"].Rows[0]["ID"].ToString();
+                        string FIELD1 = ds1.Tables["ds1"].Rows[0]["FIELD1"].ToString();
+                        string FIELD2 = ds1.Tables["ds1"].Rows[0]["FIELD2"].ToString();
+                        string FIELD3 = ds1.Tables["ds1"].Rows[0]["FIELD3"].ToString();
+                        string FIELD4 = ds1.Tables["ds1"].Rows[0]["FIELD4"].ToString();
+                        string FIELD5 = ds1.Tables["ds1"].Rows[0]["FIELD5"].ToString();
+                        string FIELD6 = ds1.Tables["ds1"].Rows[0]["FIELD6"].ToString();
+                        string FIELD7 = ds1.Tables["ds1"].Rows[0]["FIELD7"].ToString();
+                        string FIELD8 = ds1.Tables["ds1"].Rows[0]["FIELD8"].ToString();
+                        string FIELD9 = ds1.Tables["ds1"].Rows[0]["FIELD9"].ToString();
+                        string FIELD10 = ds1.Tables["ds1"].Rows[0]["FIELD10"].ToString();
+                        string FIELD11 = ds1.Tables["ds1"].Rows[0]["FIELD11"].ToString();
+                        string FIELD12 = ds1.Tables["ds1"].Rows[0]["FIELD12"].ToString();
+                        string FIELD13 = ds1.Tables["ds1"].Rows[0]["FIELD13"].ToString();
+                        string FIELD14 = ds1.Tables["ds1"].Rows[0]["FIELD14"].ToString();
+                        string FIELD15 = ds1.Tables["ds1"].Rows[0]["FIELD15"].ToString();
+                        string FIELD16 = ds1.Tables["ds1"].Rows[0]["FIELD16"].ToString();
+                        string FIELD17 = ds1.Tables["ds1"].Rows[0]["FIELD17"].ToString();
+                        string FIELD18 = ds1.Tables["ds1"].Rows[0]["FIELD18"].ToString();
+                        string FIELD19 = ds1.Tables["ds1"].Rows[0]["FIELD19"].ToString();
+                        string FIELD20 = ds1.Tables["ds1"].Rows[0]["FIELD20"].ToString();
+                        string FIELD21 = ds1.Tables["ds1"].Rows[0]["FIELD21"].ToString();
+                        string FIELD22 = ds1.Tables["ds1"].Rows[0]["FIELD22"].ToString();
+                        string FIELD23 = ds1.Tables["ds1"].Rows[0]["FIELD23"].ToString();
+                        string FIELD24 = ds1.Tables["ds1"].Rows[0]["FIELD24"].ToString();
+                        string FIELD25 = ds1.Tables["ds1"].Rows[0]["FIELD25"].ToString();
+                        string FIELD26 = ds1.Tables["ds1"].Rows[0]["FIELD26"].ToString();
+                        string FIELD27 = ds1.Tables["ds1"].Rows[0]["FIELD27"].ToString();
+                        string FIELD28 = ds1.Tables["ds1"].Rows[0]["FIELD28"].ToString();
+                        string FIELD29 = ds1.Tables["ds1"].Rows[0]["FIELD29"].ToString();
+                        string FIELD29a = ds1.Tables["ds1"].Rows[0]["FIELD29a"].ToString();
+                        string FIELD30 = ds1.Tables["ds1"].Rows[0]["FIELD30"].ToString();
+                        string FIELD31 = ds1.Tables["ds1"].Rows[0]["FIELD31"].ToString();
+                        string FIELD32 = ds1.Tables["ds1"].Rows[0]["FIELD32"].ToString();
+                        string FIELD33 = ds1.Tables["ds1"].Rows[0]["FIELD33"].ToString();
+                        string FIELD34 = ds1.Tables["ds1"].Rows[0]["FIELD34"].ToString();
+                        string FIELD35 = ds1.Tables["ds1"].Rows[0]["FIELD35"].ToString();
+                        string FIELD36 = ds1.Tables["ds1"].Rows[0]["FIELD36"].ToString();
+                        string FIELD37 = ds1.Tables["ds1"].Rows[0]["FIELD37"].ToString();
+                        string FIELD38 = ds1.Tables["ds1"].Rows[0]["FIELD38"].ToString();
+                        string FIELD39 = ds1.Tables["ds1"].Rows[0]["FIELD39"].ToString();
+                        string FIELD40 = ds1.Tables["ds1"].Rows[0]["FIELD40"].ToString();
+                        string FIELD41 = ds1.Tables["ds1"].Rows[0]["FIELD41"].ToString();
+                        string FIELD42 = ds1.Tables["ds1"].Rows[0]["FIELD42"].ToString();
+
+                      
+
+                        // STORE 字串中「@」符號後的部分去掉，如果有「@」就截取前面部分，沒「@」要避免例外
+                        var storeValues = new Dictionary<string, string>()
+                        {
+                            {"FIELD1", FIELD1},
+                            {"FIELD6", FIELD6},
+                            {"FIELD7", FIELD7},                          
+                        };
+
+                        // 用迴圈呼叫函式處理所有字串
+                        foreach (var key in storeValues.Keys.ToList())
+                        {
+                            storeValues[key] = RemoveAfterAt(storeValues[key]);
+                        }
+
+                        // 再把處理結果回填回變數
+                        FIELD1 = storeValues["FIELD1"];
+                        FIELD6 = storeValues["FIELD6"];
+                        FIELD7 = storeValues["FIELD7"];
+                        //string OK = "";
+                        ADDTOTKMKTBSTOREDAILY(
+                                                 ID
+                                                , FIELD1
+                                                , FIELD2
+                                                , FIELD3
+                                                , FIELD4
+                                                , FIELD5
+                                                , FIELD6
+                                                , FIELD7
+                                                , FIELD8
+                                                , FIELD9
+                                                , FIELD10
+                                                , FIELD11
+                                                , FIELD12
+                                                , FIELD13
+                                                , FIELD14
+                                                , FIELD15
+                                                , FIELD16
+                                                , FIELD17
+                                                , FIELD18
+                                                , FIELD19
+                                                , FIELD20
+                                                , FIELD21
+                                                , FIELD22
+                                                , FIELD23
+                                                , FIELD24
+                                                , FIELD25
+                                                , FIELD26
+                                                , FIELD27
+                                                , FIELD28
+                                                , FIELD29
+                                                , FIELD29a
+                                                , FIELD30
+                                                , FIELD31
+                                                , FIELD32
+                                                , FIELD33
+                                                , FIELD34
+                                                , FIELD35
+                                                , FIELD36
+                                                , FIELD37
+                                                , FIELD38
+                                                , FIELD39
+                                                , FIELD40
+                                                , FIELD41
+                                                , FIELD42
+                                                , NAME
+                                                );
+                        
+                    }
+                    else
+                    {
+
+                    }
                 }
 
             }
-            catch
+            catch (Exception EX)
             {
 
             }
@@ -4271,388 +4320,107 @@ namespace TKSCHEDULEUOF
         }
 
         public void ADDTOTKMKTBSTOREDAILY(
-                                        string ID
-                                        , string FIELD1
-                                        , string FIELD2
-                                        , string FIELD3
-                                        , string FIELD4
-                                        , string FIELD5
-                                        , string FIELD6
-                                        , string FIELD7
-                                        , string FIELD8
-                                        , string FIELD9
-                                        , string FIELD10
-                                        , string FIELD11
-                                        , string FIELD12
-                                        , string FIELD13
-                                        , string FIELD14
-                                        , string FIELD15
-                                        , string FIELD16
-                                        , string FIELD17
-                                        , string FIELD18
-                                        , string FIELD19
-                                        , string FIELD20
-                                        , string FIELD21
-                                        , string FIELD22
-                                        , string FIELD23
-                                        , string FIELD24
-                                        , string FIELD25
-                                        , string FIELD26
-                                        , string FIELD27
-                                        , string FIELD28
-                                        , string FIELD29
-                                        , string FIELD29a
-                                        , string FIELD30
-                                        , string FIELD31
-                                        , string FIELD32
-                                        , string FIELD33
-                                        , string FIELD34
-                                        , string FIELD35
-                                        , string FIELD36
-                                        , string FIELD37
-                                        , string FIELD38
-                                        , string FIELD39
-                                        , string FIELD40
-                                        , string FIELD41
-                                        , string FIELD42
-                                        , string NAME
-                                            )
+            string ID, string FIELD1, string FIELD2, string FIELD3, string FIELD4, string FIELD5,
+            string FIELD6, string FIELD7, string FIELD8, string FIELD9, string FIELD10,
+            string FIELD11, string FIELD12, string FIELD13, string FIELD14, string FIELD15,
+            string FIELD16, string FIELD17, string FIELD18, string FIELD19, string FIELD20,
+            string FIELD21, string FIELD22, string FIELD23, string FIELD24, string FIELD25,
+            string FIELD26, string FIELD27, string FIELD28, string FIELD29, string FIELD29a,
+            string FIELD30, string FIELD31, string FIELD32, string FIELD33, string FIELD34,
+            string FIELD35, string FIELD36, string FIELD37, string FIELD38, string FIELD39,
+            string FIELD40, string FIELD41, string FIELD42, string NAME
+            )
         {
-            try
+            string connString = BuildDecryptedConnection("dberp");
+
+            using (SqlConnection sqlConn = new SqlConnection(connString))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
                 sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    INSERT INTO [TKMK].[dbo].[TBSTOREDAILY]
-                                    (
-                                    [ID]
-                                    ,[FIELD1]
-                                    ,[FIELD2]
-                                    ,[FIELD3]
-                                    ,[FIELD4]
-                                    ,[FIELD5]
-                                    ,[FIELD6]
-                                    ,[FIELD7]
-                                    ,[FIELD8]
-                                    ,[FIELD9]
-                                    ,[FIELD10]
-                                    ,[FIELD11]
-                                    ,[FIELD12]
-                                    ,[FIELD13]
-                                    ,[FIELD14]
-                                    ,[FIELD15]
-                                    ,[FIELD16]
-                                    ,[FIELD17]
-                                    ,[FIELD18]
-                                    ,[FIELD19]
-                                    ,[FIELD20]
-                                    ,[FIELD21]
-                                    ,[FIELD22]
-                                    ,[FIELD23]
-                                    ,[FIELD24]
-                                    ,[FIELD25]
-                                    ,[FIELD26]
-                                    ,[FIELD27]
-                                    ,[FIELD28]
-                                    ,[FIELD29]
-                                    ,[FIELD29a]
-                                    ,[FIELD30]
-                                    ,[FIELD31]
-                                    ,[FIELD32]
-                                    ,[FIELD33]
-                                    ,[FIELD34]
-                                    ,[FIELD35]
-                                    ,[FIELD36]
-                                    ,[FIELD37]
-                                    ,[FIELD38]
-                                    ,[FIELD39]
-                                    ,[FIELD40]
-                                    ,[FIELD41]
-                                    ,[FIELD42]
-                                    ,[NAME]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    ,'{15}'
-                                    ,'{16}'
-                                    ,'{17}'
-                                    ,'{18}'
-                                    ,'{19}'
-                                    ,'{20}'
-                                    ,'{21}'
-                                    ,'{22}'
-                                    ,'{23}'
-                                    ,'{24}'
-                                    ,'{25}'
-                                    ,'{26}'
-                                    ,'{27}'
-                                    ,'{28}'
-                                    ,'{29}'
-                                    ,'{30}'
-                                    ,'{31}'
-                                    ,'{32}'
-                                    ,'{33}'
-                                    ,'{34}'
-                                    ,'{35}'
-                                    ,'{36}'
-                                    ,'{37}'
-                                    ,'{38}'
-                                    ,'{39}'
-                                    ,'{40}'
-                                    ,'{41}'
-                                    ,'{42}'
-                                    ,'{43}'
-                                    ,'{44}'
-                                    )
-
-                                    ", ID
-                                    , FIELD1
-                                    , FIELD2
-                                    , FIELD3
-                                    , FIELD4
-                                    , FIELD5
-                                    , FIELD6
-                                    , FIELD7
-                                    , FIELD8
-                                    , FIELD9
-                                    , FIELD10
-                                    , FIELD11
-                                    , FIELD12
-                                    , FIELD13
-                                    , FIELD14
-                                    , FIELD15
-                                    , FIELD16
-                                    , FIELD17
-                                    , FIELD18
-                                    , FIELD19
-                                    , FIELD20
-                                    , FIELD21
-                                    , FIELD22
-                                    , FIELD23
-                                    , FIELD24
-                                    , FIELD25
-                                    , FIELD26
-                                    , FIELD27
-                                    , FIELD28
-                                    , FIELD29
-                                    , FIELD29a
-                                    , FIELD30
-                                    , FIELD31
-                                    , FIELD32
-                                    , FIELD33
-                                    , FIELD34
-                                    , FIELD35
-                                    , FIELD36
-                                    , FIELD37
-                                    , FIELD38
-                                    , FIELD39
-                                    , FIELD40
-                                    , FIELD41
-                                    , FIELD42
-                                    , NAME
-
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlTransaction tran = sqlConn.BeginTransaction())
+                using (SqlCommand cmd = sqlConn.CreateCommand())
                 {
-                    tran.Rollback();    //交易取消
+                    cmd.Transaction = tran;
+                    cmd.CommandTimeout = 60;
+                    cmd.CommandText = @"
+                                        INSERT INTO [TKMK].[dbo].[TBSTOREDAILY] (
+                                            [ID],[FIELD1],[FIELD2],[FIELD3],[FIELD4],[FIELD5],
+                                            [FIELD6],[FIELD7],[FIELD8],[FIELD9],[FIELD10],[FIELD11],
+                                            [FIELD12],[FIELD13],[FIELD14],[FIELD15],[FIELD16],[FIELD17],
+                                            [FIELD18],[FIELD19],[FIELD20],[FIELD21],[FIELD22],[FIELD23],
+                                            [FIELD24],[FIELD25],[FIELD26],[FIELD27],[FIELD28],[FIELD29],[FIELD29a],
+                                            [FIELD30],[FIELD31],[FIELD32],[FIELD33],[FIELD34],[FIELD35],[FIELD36],
+                                            [FIELD37],[FIELD38],[FIELD39],[FIELD40],[FIELD41],[FIELD42],[NAME]
+                                        ) VALUES (
+                                            @ID,@FIELD1,@FIELD2,@FIELD3,@FIELD4,@FIELD5,
+                                            @FIELD6,@FIELD7,@FIELD8,@FIELD9,@FIELD10,@FIELD11,
+                                            @FIELD12,@FIELD13,@FIELD14,@FIELD15,@FIELD16,@FIELD17,
+                                            @FIELD18,@FIELD19,@FIELD20,@FIELD21,@FIELD22,@FIELD23,
+                                            @FIELD24,@FIELD25,@FIELD26,@FIELD27,@FIELD28,@FIELD29,@FIELD29a,
+                                            @FIELD30,@FIELD31,@FIELD32,@FIELD33,@FIELD34,@FIELD35,@FIELD36,
+                                            @FIELD37,@FIELD38,@FIELD39,@FIELD40,@FIELD41,@FIELD42,@NAME
+                                        );
+                                    ";
+
+                    cmd.Parameters.AddWithValue("@ID", ID ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD1", FIELD1 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD2", FIELD2 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD3", FIELD3 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD4", FIELD4 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD5", FIELD5 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD6", FIELD6 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD7", FIELD7 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD8", FIELD8 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD9", FIELD9 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD10", FIELD10 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD11", FIELD11 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD12", FIELD12 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD13", FIELD13 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD14", FIELD14 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD15", FIELD15 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD16", FIELD16 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD17", FIELD17 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD18", FIELD18 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD19", FIELD19 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD20", FIELD20 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD21", FIELD21 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD22", FIELD22 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD23", FIELD23 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD24", FIELD24 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD25", FIELD25 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD26", FIELD26 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD27", FIELD27 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD28", FIELD28 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD29", FIELD29 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD29a", FIELD29a ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD30", FIELD30 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD31", FIELD31 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD32", FIELD32 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD33", FIELD33 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD34", FIELD34 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD35", FIELD35 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD36", FIELD36 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD37", FIELD37 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD38", FIELD38 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD39", FIELD39 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD40", FIELD40 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD41", FIELD41 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FIELD42", FIELD42 ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NAME", NAME ?? (object)DBNull.Value);
+
+                    int result = cmd.ExecuteNonQuery();
+
+                    if (result == 0)
+                    {
+                        tran.Rollback();
+                        throw new Exception("新增失敗，無資料寫入");
+                    }
+                    else
+                    {
+                        tran.Commit();
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
-            {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
-
-        public DataTable SEARCHUOFSTOREDAILY()
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                //是門市督導單STORE
-                //核準過TASK_RESULT='0'
-                sbSql.AppendFormat(@"  
-                                     SELECT DOC_NBR
-                                     FROM [UOF].DBO.TB_WKF_TASK 
-                                     WHERE DOC_NBR LIKE 'STOREDAILY{0}%'
-                                     AND TASK_RESULT='0'
-                                    ", THISYEARS);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
-                }
-
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
-
-
-        public DataTable SEARCHTKMKTBSTOREDAILYCHECK()
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //UNION ALL 
-                //SELECT 'A'
-                //避免回傳NULL
-
-                sbSql.AppendFormat(@"  
-                                     SELECT [ID] AS 'DOC_NBR'
-                                        FROM [TKMK].[dbo].[TBSTOREDAILY]
-                                        WHERE [ID] LIKE 'STOREDAILY{0}%'
-                                        UNION ALL 
-                                        SELECT 'A'
-                                    ", THISYEARS);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
-                }
-
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
+        }       
 
         public void CHECKADDTOUOFFORMEDUCATION()
         {
