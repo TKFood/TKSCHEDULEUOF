@@ -5123,7 +5123,7 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, formFieldValue, "TC037", DT.Rows[0]["TC037"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, formFieldValue, "TC038", DT.Rows[0]["TC038"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, formFieldValue, "TC021", DT.Rows[0]["TC021"].ToString(), fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, formFieldValue, "PURTD", "", fillerName, fillerUserGuid, account);
+          
 
             // 建立 DataGrid
             XmlElement tbField = AddFieldItem(xmlDoc, formFieldValue, "PURTD", "", fillerName, fillerUserGuid, account);
