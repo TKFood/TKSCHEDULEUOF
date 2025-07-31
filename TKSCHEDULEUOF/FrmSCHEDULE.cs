@@ -4734,187 +4734,111 @@ namespace TKSCHEDULEUOF
             }
 
         }
-
+        /// <summary>
+        /// 出差報告單
+        /// </summary>
         public void CHECKADDTOUOFFORBUSINESSTRIPS()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                //是門市督導單STORE
-                //核準過TASK_RESULT='0'
-
-                //AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                //AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
-
-                //AND [Z_SCSHR_LEAVE].DOC_NBR='FT101221000014'
-                sbSql.AppendFormat(@"  
+                StringBuilder sbSql = new StringBuilder();
+                sbSql.AppendFormat(@"
                                     SELECT *
-                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
-                                    WHERE 1=1
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
-                                    AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
-                                    AND [LEACODE]='050A1'
-                                    
-                                    
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
-                                    AND CONVERT(datetime,STARTTIME,112)>='20220506'
-                                    
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND APPLICANT NOT IN (SELECT  [APPLICANT]  FROM [UOF].[dbo].[Z_SCSHR_NOT])
-                                    
-                                 
+                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE]
+                                    JOIN [UOF].dbo.TB_WKF_TASK ON [Z_SCSHR_LEAVE].DOC_NBR = TB_WKF_TASK.DOC_NBR
+                                    WHERE [Z_SCSHR_LEAVE].TASK_STATUS = '2'
+                                      AND [Z_SCSHR_LEAVE].TASK_RESULT = '0'
+                                      AND [LEACODE] = '050A1'
+                                      AND [Z_SCSHR_LEAVE].DOC_NBR LIKE 'FT%'
+                                      AND CONVERT(datetime, STARTTIME, 112) >= '20220506'
+                                      AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (
+                                            SELECT EXTERNAL_FORM_NBR
+                                            FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                                            WHERE ISNULL(EXTERNAL_FORM_NBR,'') <> ''
+                                              AND EXTERNAL_FORM_NBR LIKE 'FT%'
+                                      )
+                                      AND APPLICANT NOT IN (
+                                            SELECT [APPLICANT]
+                                            FROM [UOF].[dbo].[Z_SCSHR_NOT]
+                                      )
                                     ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
-                                    ");
+                                ");
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                 {
+                    sqlConn.Open();
+                    DataSet ds1 = new DataSet();
+                    adapter1.Fill(ds1, "ds1");
+
                     foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
                         ADDTOUOFFORBUSINESSTRIPS(dr["DOC_NBR"].ToString());
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("發生錯誤：" + ex.Message);
             }
         }
 
+
         public void ADDTOUOFFORBUSINESSTRIPS(string DOC_NBR)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 解密連線字串
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                // SQL 語法
+                string sql = string.Format(@"
+                                            SELECT *
+                                                ,T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""KY004""]/@fieldValue)[1]', 'nvarchar(100)') AS KY004,
+                                                ,T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""KY005""]/@fieldValue)[1]', 'nvarchar(100)') AS KY005
+                                                ,CONVERT(nvarchar, STARTTIME, 111) AS NEWSTARTTIME
+                                                ,CONVERT(nvarchar, ENDTIME, 111) AS NEWENDTIME
+                                                ,USER_GUID
+                                                ,(SELECT TOP 1 GROUP_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = L.APPLICANTGUID) AS GROUP_ID
+                                                ,(SELECT TOP 1 TITLE_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = L.APPLICANTGUID) AS TITLE_ID
+                                                ,(SELECT TOP 1 NAME FROM [UOF].[dbo].[TB_EB_USER] WHERE USER_GUID = L.APPLICANTGUID) AS NAME
+                                            FROM [UOF].[dbo].[Z_SCSHR_LEAVE] L
+                                            JOIN [UOF].dbo.TB_WKF_TASK T ON L.DOC_NBR = T.DOC_NBR
+                                            WHERE L.TASK_STATUS = '2'
+                                                AND L.TASK_RESULT = '0'
+                                                AND L.LEACODE = '050A1'
+                                                AND L.DOC_NBR NOT IN (
+                                                    SELECT EXTERNAL_FORM_NBR 
+                                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
+                                                    WHERE ISNULL(EXTERNAL_FORM_NBR, '') <> '' AND EXTERNAL_FORM_NBR LIKE 'FT%'
+                                                )
+                                                AND L.DOC_NBR = '{0}'
+                                            ORDER BY L.DOC_NBR
+                                        ", DOC_NBR);
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+                DataSet ds1 = new DataSet();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT *
-                                    ,CONVERT(nvarchar,STARTTIME,111) NEWSTARTTIME,CONVERT(nvarchar,ENDTIME,111) NEWENDTIME
-                                    ,USER_GUID
-                                    ,(SELECT TOP 1 GROUP_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'TITLE_ID'
-                                    ,(SELECT TOP 1 NAME FROM [UOF].[dbo].[TB_EB_USER] WHERE [TB_EB_USER].USER_GUID=[Z_SCSHR_LEAVE].APPLICANTGUID) AS 'NAME'
-                                    FROM [UOF].[dbo].[Z_SCSHR_LEAVE],[UOF].dbo.TB_WKF_TASK
-                                    WHERE 1=1
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR=TB_WKF_TASK.DOC_NBR
-                                    AND [Z_SCSHR_LEAVE].TASK_STATUS='2' AND [Z_SCSHR_LEAVE].TASK_RESULT='0'
-                                    AND [LEACODE]='050A1'
-                                  
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR NOT IN (SELECT EXTERNAL_FORM_NBR FROM  [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>'' AND EXTERNAL_FORM_NBR LIKE 'FT%')
-                                    AND [Z_SCSHR_LEAVE].DOC_NBR='{0}'
-                                    ORDER BY [Z_SCSHR_LEAVE].DOC_NBR
-                              
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                //新建XML文件類別
-                XmlDocument Xmldoc = new XmlDocument();
-                //從指定的字串載入XML文件
-                Xmldoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-                //建立此物件，並輸入透過StringReader讀取Xmldoc中的Xmldoc字串輸出
-                //XmlReader Xmlreader = XmlReader.Create(new System.IO.StringReader(Xmldoc.OuterXml));
-                string KY004 = null;
-                string KY005 = null;
-
-                try
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))
                 {
-                    KY004 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY004']").Attributes["fieldValue"].Value;
+                    conn.Open();
+                    adapter.Fill(ds1, "ds1");
                 }
-                catch
-                {
-
-                }
-                try
-                {
-                    KY005 = Xmldoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='KY005']").Attributes["fieldValue"].Value;
-                }
-                catch
-                {
-
-                }
-
-
-
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    //建立userset xml
-                    XmlDocument XMLDOC = new XmlDocument();
 
-                    //建立表單xml
-                    XmlDocument xmlDoc = new XmlDocument();
-                    XmlDocument xmlDocqQuery = new XmlDocument();
-                    //建立根節點
-                    XmlElement Form = xmlDoc.CreateElement("Form");
-
+                    string KY004 = ds1.Tables["ds1"].Rows[0]["KY004"].ToString();
+                    string KY005 = ds1.Tables["ds1"].Rows[0]["KY005"].ToString();  
                     string account = ds1.Tables["ds1"].Rows[0]["APPLICANT"].ToString().Trim();
                     string groupId = ds1.Tables["ds1"].Rows[0]["GROUP_ID"].ToString().Trim();
                     string jobTitleId = ds1.Tables["ds1"].Rows[0]["TITLE_ID"].ToString().Trim();
@@ -4925,6 +4849,7 @@ namespace TKSCHEDULEUOF
 
                     int rowscounts = 0;
 
+                    XmlDocument xmlDocqQuery = new XmlDocument();
                     xmlDocqQuery.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
                     //string LeaveType = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
                     string APPLICANT = ds1.Tables["ds1"].Rows[0]["APPLICANT"].ToString();
@@ -4961,238 +4886,46 @@ namespace TKSCHEDULEUOF
 
 
 
-                    //建立userset子節點
-                    XmlElement XMLELEUserSet = XMLDOC.CreateElement("UserSet");
-                    XMLDOC.AppendChild(XMLELEUserSet);
-                    XmlElement XMLELEUElement = XMLDOC.CreateElement("Element");
-                    XMLELEUElement.SetAttribute("type", "user");//設定屬性
-                    XMLELEUserSet.AppendChild(XMLELEUElement);
-                    XmlElement XMLELEUuserId = XMLDOC.CreateElement("userId");
-                    XMLELEUuserId.InnerText = fillerUserGuid;
-                    XMLELEUElement.AppendChild(XMLELEUuserId);
-                    XMLDOC = XMLDOC;
+                    // 建立 XML 文件和根節點 Form
+                    XmlDocument xmlDoc = new XmlDocument();
+                    XmlElement form = xmlDoc.CreateElement("Form");
 
-                    //正式的id
-                    string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("2002.出差報告單");
-
-                    if (!string.IsNullOrEmpty(VERSION_ID))
+                    // 取得表單版本ID並設定
+                    string versionId = SEARCHFORM_UOF_VERSION_ID("2002.出差報告單");
+                    if (!string.IsNullOrEmpty(versionId))
                     {
-                        Form.SetAttribute("formVersionId", VERSION_ID);
+                        form.SetAttribute("formVersionId", versionId);
                     }
+                    form.SetAttribute("urgentLevel", "2");
+                    xmlDoc.AppendChild(form);
 
+                    // 建立 Applicant 節點 (用自訂方法)
+                    XmlElement applicant = CreateApplicant(xmlDoc, account, groupId, jobTitleId);
+                    form.AppendChild(applicant);
 
-                    Form.SetAttribute("urgentLevel", "2");
-                    //加入節點底下
-                    xmlDoc.AppendChild(Form);
+                    // 建立 Comment 節點並加入 Applicant
+                    XmlElement comment = xmlDoc.CreateElement("Comment");
+                    comment.InnerText = "申請者意見";
+                    applicant.AppendChild(comment);
 
-                    ////建立節點Applicant
-                    XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-                    Applicant.SetAttribute("account", account);
-                    Applicant.SetAttribute("groupId", groupId);
-                    Applicant.SetAttribute("jobTitleId", jobTitleId);
-                    //加入節點底下
-                    Form.AppendChild(Applicant);
+                    // 建立 FormFieldValue 節點
+                    XmlElement formFieldValue = xmlDoc.CreateElement("FormFieldValue");
+                    form.AppendChild(formFieldValue);
 
-                    //建立節點 Comment
-                    XmlElement Comment = xmlDoc.CreateElement("Comment");
-                    Comment.InnerText = "申請者意見";
-                    //加入至節點底下
-                    Applicant.AppendChild(Comment);
-
-                    //建立節點 FormFieldValue
-                    XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-                    //加入至節點底下
-                    Form.AppendChild(FormFieldValue);
-
-                    //建立節點FieldItem
-                    //ID 表單編號	
-                    XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "2001");
-                    FieldItem.SetAttribute("fieldValue", "");
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripUserName
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripUserName");
-                    FieldItem.SetAttribute("fieldValue", BTripUserName);
-                    FieldItem.SetAttribute("realValue", XMLDOC.InnerXml);
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripUserDept
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripUserDept");
-                    FieldItem.SetAttribute("fieldValue", BTripUserDeptfieldValue);
-                    FieldItem.SetAttribute("realValue", BTripUserDeptrealValue);
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripUserLevel
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripUserLevel");
-                    FieldItem.SetAttribute("fieldValue", BTripUserLevel);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //LeaveType
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "LeaveType");
-                    FieldItem.SetAttribute("fieldValue", LeaveType);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //LeaveName
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "LeaveName");
-                    FieldItem.SetAttribute("fieldValue", LeaveName);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //LeaveHouLeaveDayrs
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "LeaveDay");
-                    FieldItem.SetAttribute("fieldValue", LeaveDay);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripLocation
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripLocation");
-                    FieldItem.SetAttribute("fieldValue", BTripLocation);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("customValue", "@null");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripCashAdvance
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripCashAdvance");
-                    FieldItem.SetAttribute("fieldValue", BTripCashAdvance);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("customValue", "@null");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //SourceTableNum
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "SourceTableNum");
-                    FieldItem.SetAttribute("fieldValue", SourceTableNum);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripDate
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripDate");
-                    FieldItem.SetAttribute("fieldValue", BTripDate);
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripPurpose
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripPurpose");
-                    FieldItem.SetAttribute("fieldValue", BTripPurpose);
-                    //FieldItem.SetAttribute("fieldValue", "2022/04/04");
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //建立節點FieldItem
-                    //BTripContent
-                    FieldItem = xmlDoc.CreateElement("FieldItem");
-                    FieldItem.SetAttribute("fieldId", "BTripContent");
-                    FieldItem.SetAttribute("fieldValue", BTripContent);
-                    //FieldItem.SetAttribute("fieldValue", "2022/04/04");
-                    FieldItem.SetAttribute("realValue", "");
-                    FieldItem.SetAttribute("enableSearch", "True");
-                    FieldItem.SetAttribute("fillerName", fillerName);
-                    FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-                    FieldItem.SetAttribute("fillerAccount", account);
-                    FieldItem.SetAttribute("fillSiteId", "");
-                    //加入至members節點底下
-                    FormFieldValue.AppendChild(FieldItem);
-
-                    //DataGrid
-                    XmlElement FieldItemDataGrid = xmlDoc.CreateElement("DataGrid");
-                    FieldItem.AppendChild(FieldItemDataGrid);
+                    // 用 AddFieldItem 建立各個 FieldItem 節點
+                    AddFieldItem(xmlDoc, formFieldValue, "2001", "", fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripUserName", BTripUserName, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripUserDept", BTripUserDeptfieldValue, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripUserLevel", BTripUserLevel, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "LeaveType", LeaveType, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "LeaveName", LeaveName, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "LeaveDay", LeaveDay, fillerName, fillerUserGuid, account);
+                    AddFieldItem_customValue(xmlDoc, formFieldValue, "BTripLocation", BTripLocation, fillerName, fillerUserGuid, account, customValue: "@null");
+                    AddFieldItem_customValue(xmlDoc, formFieldValue, "BTripCashAdvance", BTripCashAdvance, fillerName, fillerUserGuid, account, customValue: "@null");
+                    AddFieldItem(xmlDoc, formFieldValue, "SourceTableNum", SourceTableNum, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripDate", BTripDate, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripPurpose", BTripPurpose, fillerName, fillerUserGuid, account);
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripContent", BTripContent, fillerName, fillerUserGuid, account);
 
 
 
@@ -5222,10 +4955,11 @@ namespace TKSCHEDULEUOF
 
 
 
-                    queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
+                    queryString.AppendFormat(@" 
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                             (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                            VALUES (NEWID(),@XML,2,'{1}')
-                                            ", DBNAME, EXTERNAL_FORM_NBR);
+                                            VALUES (NEWID(),@XML,2,@EXTERNAL_FORM_NBR)
+                                            ");
 
                     try
                     {
@@ -5233,7 +4967,8 @@ namespace TKSCHEDULEUOF
                         {
 
                             SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                            command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                            command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = form.OuterXml;
+                            command.Parameters.Add("@EXTERNAL_FORM_NBR", SqlDbType.NVarChar).Value = EXTERNAL_FORM_NBR;
 
                             command.Connection.Open();
 
@@ -5252,8 +4987,6 @@ namespace TKSCHEDULEUOF
                     {
 
                     }
-
-
                 }
                 else
                 {
@@ -5268,20 +5001,7 @@ namespace TKSCHEDULEUOF
             {
 
             }
-
-
-
-
         }
-
-        public void TEST()
-        {
-
-
-
-
-        }
-
         public void NEWTBUOFQC1002()
         {
             IEnumerable<DataRow> query2 = null;
