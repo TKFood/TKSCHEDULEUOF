@@ -57660,15 +57660,14 @@ namespace TKSCHEDULEUOF
                 return null;
             }
         }
-
-
         public void ADDUOFQCINVTAINVTB_AGAIN_APPLY()
         {
             DataTable DT = FIND_ADDUOFQCINVTAINVTB_AGAIN_APPLY();
             StringBuilder SB_SQL_EXE = new StringBuilder();
 
-            if (DT != null && DT.Rows.Count >= 1)
+            if (DT != null && DT.Rows.Count > 0)
             {
+                // 組成 WHERE IN 條件
                 SB_SQL_EXE.Append(" TA001 + TA002 IN (");
 
                 for (int i = 0; i < DT.Rows.Count; i++)
@@ -57686,67 +57685,68 @@ namespace TKSCHEDULEUOF
 
                 SB_SQL_EXE.Append(")");
             }
-
-            if (DT != null && DT.Rows.Count >= 1)
+            else
             {
-                try
-                {
-                    //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                    //sqlConn = new SqlConnection(connectionString);
-
-                    //20210902密
-                    Class1 TKID = new Class1();//用new 建立類別實體
-                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                    //資料庫使用者密碼解密
-                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                    String connectionString;
-                    sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                    sqlConn.Close();
-                    sqlConn.Open();
-                    tran = sqlConn.BeginTransaction();
-
-                    sbSql.Clear();
-
-                    sbSql.AppendFormat(@"
-                                    UPDATE [TK].dbo.INVTA
-                                    SET UDF01='Y'
-                                    WHERE 1=1
-                                    AND {0}
-                                        ", SB_SQL_EXE.ToString());
-
-                    cmd.Connection = sqlConn;
-                    cmd.CommandTimeout = 60;
-                    cmd.CommandText = sbSql.ToString();
-                    cmd.Transaction = tran;
-                    result = cmd.ExecuteNonQuery();
-
-                    if (result == 0)
-                    {
-                        tran.Rollback();    //交易取消
-                    }
-                    else
-                    {
-                        tran.Commit();      //執行交易  
-                    }
-
-                }
-                catch (Exception ex)
-                {
-
-                }
-
-                finally
-                {
-                    sqlConn.Close();
-                }
+                // 無資料就直接結束
+                return;
             }
 
-               
+            SqlConnection sqlConn = null;
+            SqlTransaction tran = null;
+            SqlCommand cmd = new SqlCommand();
+            StringBuilder sbSql = new StringBuilder();
+            int result = 0;
+
+            try
+            {
+                // 解密連線字串
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                // 組 UPDATE 語法
+                sbSql.AppendFormat(@"
+                                    UPDATE [TK].dbo.INVTA
+                                    SET UDF01 = 'Y'
+                                    WHERE 1=1
+                                      AND {0}
+                                ", SB_SQL_EXE.ToString());
+
+                // 執行 SQL
+                cmd.Connection = sqlConn;
+                cmd.Transaction = tran;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();
+                }
+                else
+                {
+                    tran.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                tran?.Rollback();
+                // 建議寫入 log 或顯示錯誤
+                Console.WriteLine("更新 INVTA 時發生錯誤：" + ex.Message);
+            }
+            finally
+            {
+                sqlConn?.Close();
+            }
         }
+
         public DataTable FIND_ADDUOFQCINVTAINVTB_AGAIN_APPLY()
         {
             try
