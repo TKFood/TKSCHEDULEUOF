@@ -45927,30 +45927,35 @@ namespace TKSCHEDULEUOF
                 }
 
                 ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
-                    fieldDict.GetValueOrDefault("DOC_NBR", ""),
-                    fieldDict.GetValueOrDefault("FIELD1", ""),
-                    fieldDict.GetValueOrDefault("FIELD2", ""),
-                    fieldDict.GetValueOrDefault("FIELD3", ""),
-                    fieldDict.GetValueOrDefault("FIELD4", ""),
-                    fieldDict.GetValueOrDefault("FIELD5", ""),
-                    fieldDict.GetValueOrDefault("FIELD6", ""),
-                    fieldDict.GetValueOrDefault("FIELD7", ""),
-                    fieldDict.GetValueOrDefault("FIELD8", ""),
-                    fieldDict.GetValueOrDefault("FIELD9", ""),
-                    fieldDict.GetValueOrDefault("FIELD10", ""),
-                    fieldDict.GetValueOrDefault("FIELD11", ""),
-                    fieldDict.GetValueOrDefault("FIELD12", ""),
-                    fieldDict.GetValueOrDefault("FIELD13", ""),
-                    fieldDict.GetValueOrDefault("FIELD14", ""),
-                    fieldDict.GetValueOrDefault("FIELD15", ""),
-                    fieldDict.GetValueOrDefault("FIELD16", ""),
-                    fieldDict.GetValueOrDefault("FIELD17", ""),
-                    fieldDict.GetValueOrDefault("FIELD18", ""),
-                    fieldDict.GetValueOrDefault("FIELD19", ""),
-                    fieldDict.GetValueOrDefault("FIELD20", ""),
-                    fieldDict.GetValueOrDefault("FIELD21", "")
+                    GetFieldValue(fieldDict, "DOC_NBR"),
+                    GetFieldValue(fieldDict, "FIELD1"),
+                    GetFieldValue(fieldDict, "FIELD2"),
+                    GetFieldValue(fieldDict, "FIELD3"),
+                    GetFieldValue(fieldDict, "FIELD4"),
+                    GetFieldValue(fieldDict, "FIELD5"),
+                    GetFieldValue(fieldDict, "FIELD6"),
+                    GetFieldValue(fieldDict, "FIELD7"),
+                    GetFieldValue(fieldDict, "FIELD8"),
+                    GetFieldValue(fieldDict, "FIELD9"),
+                    GetFieldValue(fieldDict, "FIELD10"),
+                    GetFieldValue(fieldDict, "FIELD11"),
+                    GetFieldValue(fieldDict, "FIELD12"),
+                    GetFieldValue(fieldDict, "FIELD13"),
+                    GetFieldValue(fieldDict, "FIELD14"),
+                    GetFieldValue(fieldDict, "FIELD15"),
+                    GetFieldValue(fieldDict, "FIELD16"),
+                    GetFieldValue(fieldDict, "FIELD17"),
+                    GetFieldValue(fieldDict, "FIELD18"),
+                    GetFieldValue(fieldDict, "FIELD19"),
+                    GetFieldValue(fieldDict, "FIELD20"),
+                    GetFieldValue(fieldDict, "FIELD21")
                 );
             }
+        }
+
+        public string GetFieldValue(Dictionary<string, string> dict, string key)
+        {
+            return dict.ContainsKey(key) ? dict[key] : "";
         }
 
         public string FIND_UOF_CURRENT_DOC(string DOC_NBR)
