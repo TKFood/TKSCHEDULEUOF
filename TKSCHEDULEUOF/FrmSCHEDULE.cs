@@ -2421,27 +2421,12 @@ namespace TKSCHEDULEUOF
         /// <param name="fillerAccount"></param>
         /// <param name="realValue"></param>
         /// <returns></returns>
-        private XmlElement AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "")
+        private XmlElement AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
         {
             XmlElement fieldItem = xmlDoc.CreateElement("FieldItem");
             fieldItem.SetAttribute("fieldId", fieldId);
             fieldItem.SetAttribute("fieldValue", fieldValue);
             fieldItem.SetAttribute("realValue", realValue);
-            fieldItem.SetAttribute("enableSearch", "True");
-            fieldItem.SetAttribute("fillerName", fillerName);
-            fieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            fieldItem.SetAttribute("fillerAccount", fillerAccount);
-            fieldItem.SetAttribute("fillSiteId", "");
-            parent.AppendChild(fieldItem);
-            return fieldItem;
-        }
-
-        private XmlElement AddFieldItem_customValue(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
-        {
-            XmlElement fieldItem = xmlDoc.CreateElement("FieldItem");
-            fieldItem.SetAttribute("fieldId", fieldId);
-            fieldItem.SetAttribute("fieldValue", fieldValue);
-            fieldItem.SetAttribute("realValue", "");
             fieldItem.SetAttribute("customValue", customValue);
             fieldItem.SetAttribute("enableSearch", "True");
             fieldItem.SetAttribute("fillerName", fillerName);
@@ -2451,6 +2436,7 @@ namespace TKSCHEDULEUOF
             parent.AppendChild(fieldItem);
             return fieldItem;
         }
+            
         /// <summary>
         /// 建立 Cell
         /// </summary>
@@ -2841,6 +2827,7 @@ namespace TKSCHEDULEUOF
             // AddFieldItem(XmlDocument doc, XmlElement parentNode, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string fillSiteId = "")
 
             // 建立欄位資料
+            //(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
             AddFieldItem(xmlDoc, formFieldValue, "ID", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, formFieldValue, "TC001", DT.Rows[0]["TC001"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, formFieldValue, "TC002", DT.Rows[0]["TC002"].ToString(), fillerName, fillerUserGuid, account);
@@ -4669,7 +4656,7 @@ namespace TKSCHEDULEUOF
                             AddFieldItem(xmlDoc, formFieldValue, "LeaveName", LeaveName, fillerName, fillerUserGuid, account);
                             AddFieldItem(xmlDoc, formFieldValue, "LeaveHours", LeaveHours, fillerName, fillerUserGuid, account);
                             AddFieldItem(xmlDoc, formFieldValue, "LeaveDay", LeaveDay, fillerName, fillerUserGuid, account);
-                            AddFieldItem_customValue(xmlDoc, formFieldValue, "TrainLocation", TrainLocation, fillerName, fillerUserGuid, account, "@null");
+                            AddFieldItem(xmlDoc, formFieldValue, "TrainLocation", TrainLocation, fillerName, fillerUserGuid, account,"" ,"@null");
                             AddFieldItem(xmlDoc, formFieldValue, "TrainFee", TrainFee, fillerName, fillerUserGuid, account);
                             AddFieldItem(xmlDoc, formFieldValue, "TrainType", TrainType, fillerName, fillerUserGuid, account);
                             AddFieldItem(xmlDoc, formFieldValue, "TrainDateStart", TrainDateStart, fillerName, fillerUserGuid, account);
@@ -4920,8 +4907,8 @@ namespace TKSCHEDULEUOF
                     AddFieldItem(xmlDoc, formFieldValue, "LeaveType", LeaveType, fillerName, fillerUserGuid, account);
                     AddFieldItem(xmlDoc, formFieldValue, "LeaveName", LeaveName, fillerName, fillerUserGuid, account);
                     AddFieldItem(xmlDoc, formFieldValue, "LeaveDay", LeaveDay, fillerName, fillerUserGuid, account);
-                    AddFieldItem_customValue(xmlDoc, formFieldValue, "BTripLocation", BTripLocation, fillerName, fillerUserGuid, account, customValue: "@null");
-                    AddFieldItem_customValue(xmlDoc, formFieldValue, "BTripCashAdvance", BTripCashAdvance, fillerName, fillerUserGuid, account, customValue: "@null");
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripLocation", BTripLocation, fillerName, fillerUserGuid, account, "",customValue: "@null");
+                    AddFieldItem(xmlDoc, formFieldValue, "BTripCashAdvance", BTripCashAdvance, fillerName, fillerUserGuid, account,"" ,customValue: "@null");
                     AddFieldItem(xmlDoc, formFieldValue, "SourceTableNum", SourceTableNum, fillerName, fillerUserGuid, account);
                     AddFieldItem(xmlDoc, formFieldValue, "BTripDate", BTripDate, fillerName, fillerUserGuid, account);
                     AddFieldItem(xmlDoc, formFieldValue, "BTripPurpose", BTripPurpose, fillerName, fillerUserGuid, account);
