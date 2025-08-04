@@ -44027,7 +44027,24 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(dr["GG004"].ToString(), ACCOUNT, DEFAUL_NAME);
+                    string DOC_NBR = dr["DOC_NBR"].ToString();
+                    string GG004 = dr["GG004"].ToString();
+                    string GG002 = dr["GG002"].ToString();
+                    string GG010 = dr["GG010"].ToString();
+                    string GG005 = dr["GG005"].ToString();
+                    string GG009 = dr["GG009"].ToString();
+                    string GG006 = dr["GG006"].ToString();
+
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(
+                        DOC_NBR
+                        , GG004
+                        , GG002
+                        , GG010
+                        , GG005
+                        , GG009
+                        , GG006
+                        , ACCOUNT
+                        , DEFAUL_NAME);
                 }
             }
         }
@@ -44064,52 +44081,61 @@ namespace TKSCHEDULEUOF
                 // --AND GG004_fieldValue = '東昇'
                 sbSql.AppendFormat(@" 
                                     SELECT 
-                                        T.GG004, 
-                                        COUNT(*) AS ROWS_COUNT
-                                    FROM
-                                    (
+	                                    T.DOC_NBR,
+                                        Extracted.GG004Val AS GG004,
+                                        Extracted.GG002Val AS GG002,
+	                                    Extracted.GG010Val AS GG010,
+                                        Extracted.GG005Val AS GG005,
+                                        Extracted.GG009Val AS GG009,
+	                                    Extracted.GG006Val AS GG006
+                                    FROM [UOF].dbo.TB_WKF_TASK T
+                                    CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(GG004)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(GG002)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node(GG005)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node(GG009)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010Node(GG010)
+                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(GG006)
+                                    OUTER APPLY (
                                         SELECT 
-                                            GG004Val AS GG004
-                                        FROM [UOF].dbo.TB_WKF_TASK T
-                                        CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
-    
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(GG004)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(GG002)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(GG006)
-    
-                                        OUTER APPLY (
-                                            SELECT 
-                                                GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val,
-                                                GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val,
-                                                GG006.value('@fieldValue', 'nvarchar(200)') AS GG006Val
-                                        ) AS Extracted
+                                            GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val,
+                                            GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val,
+                                            GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val,
+                                            GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val,
+                                            GG006.value('@fieldValue', 'nvarchar(200)') AS GG006Val,
+		                                    GG010.value('@fieldValue', 'nvarchar(200)') AS GG010Val
+                                    ) AS Extracted
+                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
+                                    WHERE
+                                        T.DOC_NBR >= 'GA1003250600139'
+                                        AND F.FORM_NAME = '1003.雜項請購單'
+                                        AND T.TASK_RESULT = '0'
+                                        AND ISNULL(Extracted.GG004Val, '') <> ''
+                                        AND Extracted.GG004Val NOT LIKE '無%'
+                                        AND NOT EXISTS (
+                                            SELECT 1
+                                            FROM [UOF].dbo.TB_WKF_TASK T2
+                                            CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
+                                            OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node2(GG004)
+                                            OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node2(GG002)
+                                            OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node2(GG005)
+                                            OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node2(GG009)
+                                            OUTER APPLY RowNode.nodes('Cell[@fieldId=""EXTERNAL_FORM_NBR""]') AS ExternalNode([EXTERNAL_NODE])
+                                            OUTER APPLY (
+                                                SELECT 
+                                                    GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val2,
+                                                    GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val2,
+                                                    GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val2,
+                                                    GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val2
+                                            ) AS Extracted2
+                                            WHERE 
+                                                T2.DOC_NBR LIKE 'GA1005%'
+                                                AND ISNULL(Extracted2.GG004Val2, '') <> ''
+                                                AND (Extracted2.GG004Val2 + Extracted2.GG002Val2 + Extracted2.GG005Val2 + Extracted2.GG009Val2) =
+                                                    (Extracted.GG004Val + Extracted.GG002Val + Extracted.GG005Val + Extracted.GG009Val)
+                                        )
 
-                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
-                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
-
-                                        WHERE
-                                            T.DOC_NBR >= 'GA1003250600080'
-                                            AND F.FORM_NAME = '1003.雜項請購單'
-                                            AND T.TASK_RESULT = '0'
-                                            AND ISNULL(Extracted.GG004Val, '') <> ''
-                                            AND Extracted.GG004Val NOT LIKE '無%'
-                                            AND TRY_CONVERT(datetime, Extracted.GG006Val) >= DATEADD(MONTH, -1, GETDATE())
-                                            AND NOT EXISTS (
-                                                SELECT 1
-                                                FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] E
-                                                WHERE E.EXTERNAL_FORM_NBR = T.DOC_NBR
-                                                  AND E.STATUS IN ('1', '2')
-                                                  AND ISNULL(E.EXTERNAL_FORM_NBR, '') <> ''
-                                            )
-                                            AND NOT EXISTS (
-                                                SELECT 1
-                                                FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE] V
-                                                WHERE REPLACE(V.EXTERNAL_FORM_NBR_fieldValue + V.GG002_fieldValue, ' ', '') = 
-                                                      REPLACE(T.DOC_NBR + Extracted.GG002Val, ' ', '')
-                                            )
-                                    ) AS T
-                                    GROUP BY T.GG004
-                                    ORDER BY T.GG004
 
 
                                     ");
@@ -44143,7 +44169,16 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(string GG004, string ACCOUNT,string DEFAUL_NAME)
+        public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(
+            string DOC_NBR
+            , string GG004
+            , string GG002
+            , string GG010
+            , string GG005
+            , string GG009
+            , string GG006
+            , string ACCOUNT
+            ,string DEFAUL_NAME)
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
@@ -44173,82 +44208,94 @@ namespace TKSCHEDULEUOF
                 //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
 
                 sbSql.AppendFormat(@"                                   
+                                  SELECT 
+	                                T.DOC_NBR,
+	                                Extracted.GG002Val AS GG002,
+	                                Extracted.GG003Val AS GG003,
+                                    Extracted.GG004Val AS GG004,
+	                                Extracted.GG005Val AS GG005,
+	                                Extracted.GG006Val AS GG006,
+	                                Extracted.GG007Val AS GG007,
+	                                Extracted.GG008Val AS GG008,
+	                                Extracted.GG009Val AS GG009,
+	                                Extracted.GG010Val AS GG010,
+	                                Extracted.GG011Val AS GG011,
+	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010,
+	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+	                                F.FORM_NAME,
+                                    U.NAME,
+                                    U.ACCOUNT,
+                                    U.USER_GUID,
+                                    D.GROUP_ID,
+                                    D.TITLE_ID
+                                FROM [UOF].dbo.TB_WKF_TASK T
+                                CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
+
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(GG002)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG003Node(GG003)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(GG004)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node(GG005)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(GG006)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007Node(GG007)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008Node(GG008)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node(GG009)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010Node(GG010)
+                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG011""]') AS GG011Node(GG011)
+                                OUTER APPLY (
                                     SELECT 
-                                        DOC_NBR,
-                                        CURRENT_DOC,
-                                        GA.GA001, GA.GA002, GA.GA003, GA.GA004, GA.GA005,
-                                        GA.GA006, GA.GA007, GA.GA008, GA.GA009, GA.GA010,
-                                        GG.GG002, GG.GG010, GG.GG003, GG.GG004, GG.GG005,
-                                        GG.GG009, GG.GG006, GG.GG007, GG.GG008,
-                                        TASK_RESULT,
-                                        FORM.FORM_NAME,
-                                        U.NAME AS NAME,
-                                        U.ACCOUNT,
-                                        U.USER_GUID,
-                                        D.GROUP_ID,
-                                        D.TITLE_ID
-                                    FROM [UOF].dbo.TB_WKF_TASK T
-                                    CROSS APPLY (
-                                        SELECT 
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
-                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
-                                    ) AS GA
-                                    CROSS APPLY CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(GG002)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010Node(GG010)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG003""]') AS GG003Node(GG003)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(GG004)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node(GG005)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node(GG009)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(GG006)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007Node(GG007)
-                                    OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008Node(GG008)
-                                    OUTER APPLY (
-                                        SELECT 
-                                            GG002.value('@fieldValue', 'nvarchar(100)') AS GG002,
-                                            GG010.value('@fieldValue', 'nvarchar(200)') AS GG010,
-                                            GG003.value('@fieldValue', 'nvarchar(200)') AS GG003,
-                                            GG004.value('@fieldValue', 'nvarchar(200)') AS GG004,
-                                            GG005.value('@fieldValue', 'nvarchar(200)') AS GG005,
-                                            GG009.value('@fieldValue', 'nvarchar(200)') AS GG009,
-                                            GG006.value('@fieldValue', 'nvarchar(200)') AS GG006,
-                                            GG007.value('@fieldValue', 'nvarchar(200)') AS GG007,
-                                            GG008.value('@fieldValue', 'nvarchar(200)') AS GG008
-                                    ) AS GG
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON U.USER_GUID = T.USER_GUID
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] D ON D.USER_GUID = U.USER_GUID AND D.ORDERS = '0'
-                                    JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
-                                    JOIN [UOF].[dbo].[TB_WKF_FORM] FORM ON FORM.FORM_ID = FV.FORM_ID
-                                    WHERE 
-                                        T.DOC_NBR >= 'GA1003250600080'
-                                        AND FORM.FORM_NAME = '1003.雜項請購單'
-                                        AND T.TASK_RESULT = '0'
-                                        AND ISNULL(GG.GG004, '') <> ''
-                                        AND GG.GG004 NOT LIKE '無%'
-                                        AND TRY_CONVERT(datetime, GG.GG006) >= DATEADD(MONTH, -1, GETDATE())
-                                        AND NOT EXISTS (
-                                            SELECT 1
-                                            FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] EXT
-                                            WHERE EXT.EXTERNAL_FORM_NBR = T.DOC_NBR
-                                            AND EXT.STATUS IN ('1', '2')
-                                            AND ISNULL(EXT.EXTERNAL_FORM_NBR, '') <> ''
-                                        )
-                                        AND NOT EXISTS (
-                                            SELECT 1
-                                            FROM [UOF].[dbo].[View_TB_WKF_TASK_APPLYBUY_MERGE] V
-                                            WHERE REPLACE(V.EXTERNAL_FORM_NBR_fieldValue + V.GG002_fieldValue, ' ', '') = 
-                                                  REPLACE(T.DOC_NBR + GG.GG002, ' ', '')
-                                        )
-                                        AND GG.GG004 = '{0}'
-                                    ", GG004);
+                                        GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val,
+		                                GG003.value('@fieldValue', 'nvarchar(100)') AS GG003Val,
+		                                GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val,
+                                        GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val,
+		                                GG006.value('@fieldValue', 'nvarchar(200)') AS GG006Val,
+		                                GG007.value('@fieldValue', 'nvarchar(200)') AS GG007Val,
+		                                GG008.value('@fieldValue', 'nvarchar(200)') AS GG008Val,
+                                        GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val,
+		                                GG010.value('@fieldValue', 'nvarchar(200)') AS GG010Val,
+		                                GG011.value('@fieldValue', 'nvarchar(200)') AS GG011Val
+                                ) AS Extracted
+                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
+                                LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON T.USER_GUID = U.USER_GUID
+                                LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] D ON U.USER_GUID = D.USER_GUID AND D.ORDERS = '0'
+                                WHERE
+                                    T.DOC_NBR >= 'GA1003250600139'
+                                    AND F.FORM_NAME = '1003.雜項請購單'
+                                    AND T.TASK_RESULT = '0'
+                                    AND ISNULL(Extracted.GG004Val, '') <> ''
+                                    AND Extracted.GG004Val NOT LIKE '無%'
+                                    AND NOT EXISTS (
+                                        SELECT 1
+                                        FROM [UOF].dbo.TB_WKF_TASK T2
+                                        CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
+                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node2(GG004)
+                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node2(GG002)
+                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node2(GG005)
+                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node2(GG009)
+                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""EXTERNAL_FORM_NBR""]') AS ExternalNode([EXTERNAL_NODE])
+                                        OUTER APPLY (
+                                            SELECT 
+                                                GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val2,
+                                                GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val2,
+                                                GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val2,
+                                                GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val2
+                                        ) AS Extracted2
+                                        WHERE 
+                                            T2.DOC_NBR LIKE 'GA1005%'
+                                            AND ISNULL(Extracted2.GG004Val2, '') <> ''
+                                            AND (Extracted2.GG004Val2 + Extracted2.GG002Val2 + Extracted2.GG005Val2 + Extracted2.GG009Val2) =
+                                                (Extracted.GG004Val + Extracted.GG002Val + Extracted.GG005Val + Extracted.GG009Val)
+                                    ) 
+                                    AND DOC_NBR='{0}'
+                                    AND Extracted.GG004Val='{1}'
+                                    AND Extracted.GG002Val='{2}'
+                                    AND Extracted.GG010Val='{3}'
+                                    AND Extracted.GG005Val='{4}'
+                                    AND Extracted.GG009Val='{5}'
+
+
+                                    ", DOC_NBR, GG004, GG002, GG010, GG005, GG009);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
