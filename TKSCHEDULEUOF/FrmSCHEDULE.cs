@@ -1508,23 +1508,23 @@ namespace TKSCHEDULEUOF
                 using (var conn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     string query = @"
-                                SELECT 
+                                SELECT TOP 1
                                     CONVERT(varchar(100), GETDATE(), 21) AS CREATE_TIME,
                                     '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS CREATE_USER,
                                     TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS DESCRIPTION,
-                                    CONVERT(NVARCHAR, TD012, 112) AS END_TIME,
-                                    NEWID() AS MEMO_GUID,
+                                    CAST(SWITCHOFFSET(CAST(CONVERT(datetime, TD012, 112) AS datetimeoffset), '+08:00') AS datetimeoffset) AS END_TIME,
+                                    CONVERT(NVARCHAR(36), NEWID()) AS MEMO_GUID,
                                     'Display' AS PERSONAL_TYPE,
                                     NULL AS REPEAT_GUID,
-                                    CONVERT(NVARCHAR, TD012, 112) AS START_TIME,
+                                     CAST(SWITCHOFFSET(CAST(CONVERT(datetime, TD012, 112) AS datetimeoffset), '+08:00') AS datetimeoffset) AS START_TIME,
                                     TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS SUBJECT,
                                     NULL AS REMINDER_GUID,
                                     '1' AS ALL_DAY,
                                     '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS OWNER,
                                     NULL AS UID,
                                     NULL AS ICS_GUID
-                                FROM [TK].[dbo].[PURTD]
-                                JOIN [TK].[dbo].[INVMB] ON TD004 = MB001
+                                FROM [TK].[dbo].[PURTD] WITH (NOLOCK)
+                                JOIN [TK].[dbo].[INVMB] WITH (NOLOCK) ON TD004 = MB001
                                 WHERE TD016 = 'N'
                                     AND (TD004 LIKE '1%' OR TD004 LIKE '2%')
                                     AND TD012 >= @Sday
