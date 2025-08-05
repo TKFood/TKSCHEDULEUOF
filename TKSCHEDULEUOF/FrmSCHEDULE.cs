@@ -1508,7 +1508,7 @@ namespace TKSCHEDULEUOF
                 using (var conn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     string query = @"
-                                SELECT TOP 1
+                                SELECT 
                                     CONVERT(varchar(100), GETDATE(), 21) AS CREATE_TIME,
                                     '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS CREATE_USER,
                                     TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS DESCRIPTION,
@@ -1519,7 +1519,7 @@ namespace TKSCHEDULEUOF
                                      CAST(SWITCHOFFSET(CAST(CONVERT(datetime, TD012, 112) AS datetimeoffset), '+08:00') AS datetimeoffset) AS START_TIME,
                                     TD005 + '-' + CONVERT(NVARCHAR, (TD008 - TD015)) + ' ' + TD009 AS SUBJECT,
                                     NULL AS REMINDER_GUID,
-                                    '1' AS ALL_DAY,
+                                    CAST('1' AS bit)  AS ALL_DAY,
                                     '701e642b-c4d5-43ce-8289-c7dffb7ba016' AS OWNER,
                                     NULL AS UID,
                                     NULL AS ICS_GUID
