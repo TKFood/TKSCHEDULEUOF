@@ -140,7 +140,7 @@ namespace TKSCHEDULEUOF
             label2.Text = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
 
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0830";
+            string HHmm = "0810";
 
             // DayOfWeek 0 開始 (表示星期日) 到 6 (表示星期六)
             string RUNDATE = DateTime.Now.DayOfWeek.ToString("d");//tmp2 = 4 
@@ -149,20 +149,24 @@ namespace TKSCHEDULEUOF
 
             if (RUNTIME.Equals(HHmm))
             {
+                try
+                {
+                    BASELIMITHRSBAR1 = SEARCHBASELIMITHRS("製一線桶數");
+                    BASELIMITHRSBAR1 = Math.Round(BASELIMITHRSBAR1, 0);
+                    BASELIMITHRSBAR2 = SEARCHBASELIMITHRS("製二線桶數");
+                    BASELIMITHRSBAR2 = Math.Round(BASELIMITHRSBAR2, 0);
 
-                BASELIMITHRSBAR1 = SEARCHBASELIMITHRS("製一線桶數");
-                BASELIMITHRSBAR1 = Math.Round(BASELIMITHRSBAR1, 0);
-                BASELIMITHRSBAR2 = SEARCHBASELIMITHRS("製二線桶數");
-                BASELIMITHRSBAR2 = Math.Round(BASELIMITHRSBAR2, 0);
+                    BASELIMITHRS1 = SEARCHBASELIMITHRS("製一線稼動率時數");
+                    BASELIMITHRS2 = SEARCHBASELIMITHRS("製二線稼動率時數");
+                    BASELIMITHRS3 = SEARCHBASELIMITHRS("手工線稼動率時數");
+                    BASELIMITHRS9 = SEARCHBASELIMITHRS("包裝線稼動率時數");
 
-                BASELIMITHRS1 = SEARCHBASELIMITHRS("製一線稼動率時數");
-                BASELIMITHRS2 = SEARCHBASELIMITHRS("製二線稼動率時數");
-                BASELIMITHRS3 = SEARCHBASELIMITHRS("手工線稼動率時數");
-                BASELIMITHRS9 = SEARCHBASELIMITHRS("包裝線稼動率時數");
-
-                ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
-                ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
-                ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
+                    ADDTOUOFTB_EIP_SCH_MEMO_MOC(DateTime.Now.ToString("yyyyMMdd"));
+                    ADDTOUOFTB_EIP_SCH_MEMO_PUR(DateTime.Now.ToString("yyyyMMdd"));
+                    ADDTOUOFTB_EIP_SCH_MEMO_COP(DateTime.Now.ToString("yyyyMMdd"));
+                }
+                catch { }
+                
                 //UPDATEtb_COMPANYSTATUS1();
                 //UPDATEtb_COMPANYSTATUS2();
                 //UPDATEtb_COMPANYOWNER_ID();
