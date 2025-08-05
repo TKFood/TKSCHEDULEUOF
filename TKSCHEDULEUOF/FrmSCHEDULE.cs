@@ -1448,48 +1448,56 @@ namespace TKSCHEDULEUOF
 
         public void ADDTOUOFTB_EIP_SCH_MEMO_PUR(string Sday)
         {
-            DataSet ds5 = SEARCHMANULINE5(Sday);
-            if (ds5 == null || ds5.Tables.Count == 0 || ds5.Tables[0].Rows.Count == 0)
-                return; // 沒資料就不執行
-
-            Class1 TKID = new Class1();//解密
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+            try
             {
-                sqlConn.Open();
+                DataSet ds = SEARCHMANULINE5(Sday);
+                if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return; // 沒資料就不執行
 
-                // 刪除資料
-                using (SqlCommand cmd = new SqlCommand("DELETE FROM [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112) >= @Sday AND [CREATE_USER] = @CreateUser", sqlConn))
+                Class1 TKID = new Class1(); // 解密
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    cmd.Parameters.AddWithValue("@Sday", Sday);
-                    cmd.Parameters.AddWithValue("@CreateUser", "701e642b-c4d5-43ce-8289-c7dffb7ba016");
-                    cmd.ExecuteNonQuery();
-                }
+                    sqlConn.Open();
 
-                // 批次匯入
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConn))
-                {
-                    bulkCopy.DestinationTableName = "[UOF].[dbo].[TB_EIP_SCH_MEMO]";
-                    bulkCopy.ColumnMappings.Add("CREATE_TIME", "CREATE_TIME");
-                    bulkCopy.ColumnMappings.Add("CREATE_USER", "CREATE_USER");
-                    bulkCopy.ColumnMappings.Add("DESCRIPTION", "DESCRIPTION");
-                    bulkCopy.ColumnMappings.Add("END_TIME", "END_TIME");
-                    bulkCopy.ColumnMappings.Add("MEMO_GUID", "MEMO_GUID");
-                    bulkCopy.ColumnMappings.Add("PERSONAL_TYPE", "PERSONAL_TYPE");
-                    bulkCopy.ColumnMappings.Add("REPEAT_GUID", "REPEAT_GUID");
-                    bulkCopy.ColumnMappings.Add("START_TIME", "START_TIME");
-                    bulkCopy.ColumnMappings.Add("SUBJECT", "SUBJECT");
-                    bulkCopy.ColumnMappings.Add("REMINDER_GUID", "REMINDER_GUID");
-                    bulkCopy.ColumnMappings.Add("ALL_DAY", "ALL_DAY");
-                    bulkCopy.ColumnMappings.Add("OWNER", "OWNER");
-                    bulkCopy.ColumnMappings.Add("UID", "UID");
-                    bulkCopy.ColumnMappings.Add("ICS_GUID", "ICS_GUID");
+                    // 刪除資料
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112) >= @Sday AND [CREATE_USER] = @CreateUser", sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@Sday", Sday);
+                        cmd.Parameters.AddWithValue("@CreateUser", "4eda2bfc-bf4b-4df2-a39c-1cc46e68598a");
+                        cmd.ExecuteNonQuery();
+                    }
 
-                    bulkCopy.WriteToServer(ds5.Tables[0]);
+                    // 批次匯入
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConn))
+                    {
+                        bulkCopy.DestinationTableName = "[UOF].[dbo].[TB_EIP_SCH_MEMO]";
+                        bulkCopy.ColumnMappings.Add("CREATE_TIME", "CREATE_TIME");
+                        bulkCopy.ColumnMappings.Add("CREATE_USER", "CREATE_USER");
+                        bulkCopy.ColumnMappings.Add("DESCRIPTION", "DESCRIPTION");
+                        bulkCopy.ColumnMappings.Add("END_TIME", "END_TIME");
+                        bulkCopy.ColumnMappings.Add("MEMO_GUID", "MEMO_GUID");
+                        bulkCopy.ColumnMappings.Add("PERSONAL_TYPE", "PERSONAL_TYPE");
+                        bulkCopy.ColumnMappings.Add("REPEAT_GUID", "REPEAT_GUID");
+                        bulkCopy.ColumnMappings.Add("START_TIME", "START_TIME");
+                        bulkCopy.ColumnMappings.Add("SUBJECT", "SUBJECT");
+                        bulkCopy.ColumnMappings.Add("REMINDER_GUID", "REMINDER_GUID");
+                        bulkCopy.ColumnMappings.Add("ALL_DAY", "ALL_DAY");
+                        bulkCopy.ColumnMappings.Add("OWNER", "OWNER");
+                        bulkCopy.ColumnMappings.Add("UID", "UID");
+                        bulkCopy.ColumnMappings.Add("ICS_GUID", "ICS_GUID");
+
+                        bulkCopy.WriteToServer(ds.Tables[0]);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // 錯誤處理，例如寫Log或顯示錯誤訊息
+                MessageBox.Show("執行失敗：" + ex.Message);
             }
         }
 
@@ -1551,78 +1559,113 @@ namespace TKSCHEDULEUOF
 
         public void ADDTOUOFTB_EIP_SCH_MEMO_COP(string sDate)
         {
+            //國內訂單
             try
             {
-                // 1. 建立連線字串
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                DataSet ds = SEARCHMANULINE6(sDate);
+                if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return; // 沒資料就不執行
+
+                Class1 TKID = new Class1(); // 解密
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
-                // 2. 查詢三個產線資料
-                DataSet ds6 = SEARCHMANULINE5(sDate); // 製一線
-                DataSet ds7 = SEARCHMANULINE6(sDate); // 包裝線
-                DataSet ds8 = SEARCHMANULINE7(sDate); // 手工線
-
-                // 3. 合併資料
-                DataTable dtAll = ds6.Tables[0].Clone(); // 複製結構
-                dtAll.Merge(ds6.Tables[0]);
-                dtAll.Merge(ds7.Tables[0]);
-                dtAll.Merge(ds8.Tables[0]);
-
-                if (dtAll.Rows.Count == 0) return;
-
-                // 4. 組合批次 INSERT SQL
-                StringBuilder sbSql = new StringBuilder();
-                sbSql.AppendFormat(@"
-                                    INSERT INTO [TKIT].[dbo].[CALENDAR_MANULINE]
-                                    ([CREATE_TIME],[CREATE_USER],[DESCRIPTION],[END_TIME],[MEMO_GUID],[PERSONAL_TYPE],[REPEAT_GUID],[START_TIME],[SUBJECT],[REMINDER_GUID],[ALL_DAY],[OWNER],[UID],[ICS_GUID])
-                                    VALUES
-                                    ");
-
-                for (int i = 0; i < dtAll.Rows.Count; i++)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    DataRow dr = dtAll.Rows[i];
+                    sqlConn.Open();
 
-                    sbSql.AppendFormat("('{0}','{1}','{2}','{3}','{4}','{5}',{6},'{7}','{8}',{9},'{10}','{11}',{12},{13})",
-                        dr["CREATE_TIME"],
-                        dr["CREATE_USER"],
-                        dr["DESCRIPTION"].ToString().Replace("'", "''"),
-                        dr["END_TIME"],
-                        dr["MEMO_GUID"],
-                        dr["PERSONAL_TYPE"],
-                        dr["REPEAT_GUID"] == DBNull.Value ? "NULL" : $"'{dr["REPEAT_GUID"]}'",
-                        dr["START_TIME"],
-                        dr["SUBJECT"].ToString().Replace("'", "''"),
-                        dr["REMINDER_GUID"] == DBNull.Value ? "NULL" : $"'{dr["REMINDER_GUID"]}'",
-                        dr["ALL_DAY"],
-                        dr["OWNER"],
-                        dr["UID"] == DBNull.Value ? "NULL" : $"'{dr["UID"]}'",
-                        dr["ICS_GUID"] == DBNull.Value ? "NULL" : $"'{dr["ICS_GUID"]}'"
-                    );
+                    // 刪除資料
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112) >= @Sday AND [CREATE_USER] = @CreateUser", sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@Sday", sDate);
+                        cmd.Parameters.AddWithValue("@CreateUser", "4eda2bfc-bf4b-4df2-a39c-1cc46e68598a");
+                        cmd.ExecuteNonQuery();
+                    }
 
-                    if (i < dtAll.Rows.Count - 1)
-                        sbSql.AppendLine(",");
-                    else
-                        sbSql.AppendLine(";");
+                    // 批次匯入
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConn))
+                    {
+                        bulkCopy.DestinationTableName = "[UOF].[dbo].[TB_EIP_SCH_MEMO]";
+                        bulkCopy.ColumnMappings.Add("CREATE_TIME", "CREATE_TIME");
+                        bulkCopy.ColumnMappings.Add("CREATE_USER", "CREATE_USER");
+                        bulkCopy.ColumnMappings.Add("DESCRIPTION", "DESCRIPTION");
+                        bulkCopy.ColumnMappings.Add("END_TIME", "END_TIME");
+                        bulkCopy.ColumnMappings.Add("MEMO_GUID", "MEMO_GUID");
+                        bulkCopy.ColumnMappings.Add("PERSONAL_TYPE", "PERSONAL_TYPE");
+                        bulkCopy.ColumnMappings.Add("REPEAT_GUID", "REPEAT_GUID");
+                        bulkCopy.ColumnMappings.Add("START_TIME", "START_TIME");
+                        bulkCopy.ColumnMappings.Add("SUBJECT", "SUBJECT");
+                        bulkCopy.ColumnMappings.Add("REMINDER_GUID", "REMINDER_GUID");
+                        bulkCopy.ColumnMappings.Add("ALL_DAY", "ALL_DAY");
+                        bulkCopy.ColumnMappings.Add("OWNER", "OWNER");
+                        bulkCopy.ColumnMappings.Add("UID", "UID");
+                        bulkCopy.ColumnMappings.Add("ICS_GUID", "ICS_GUID");
+
+                        bulkCopy.WriteToServer(ds.Tables[0]);
+                    }
                 }
-
-                // 5. 執行 SQL
-                sqlConn.Open();
-                SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn);
-                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                throw new Exception("寫入 CALENDAR_MANULINE 發生錯誤：" + ex.Message, ex);
+                // 錯誤處理，例如寫Log或顯示錯誤訊息
+                MessageBox.Show("執行失敗：" + ex.Message);
             }
-            finally
+
+            //國外訂單
+            try
             {
-                if (sqlConn.State == ConnectionState.Open)
-                    sqlConn.Close();
+                DataSet ds = SEARCHMANULINE7(sDate);
+                if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                    return; // 沒資料就不執行
+
+                Class1 TKID = new Class1(); // 解密
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    // 刪除資料
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM [UOF].[dbo].[TB_EIP_SCH_MEMO] WHERE CONVERT(NVARCHAR,[START_TIME],112) >= @Sday AND [CREATE_USER] = @CreateUser", sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@Sday", sDate);
+                        cmd.Parameters.AddWithValue("@CreateUser", "8e841f56-0a77-4b5c-9c7e-1fd05b089900");
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // 批次匯入
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConn))
+                    {
+                        bulkCopy.DestinationTableName = "[UOF].[dbo].[TB_EIP_SCH_MEMO]";
+                        bulkCopy.ColumnMappings.Add("CREATE_TIME", "CREATE_TIME");
+                        bulkCopy.ColumnMappings.Add("CREATE_USER", "CREATE_USER");
+                        bulkCopy.ColumnMappings.Add("DESCRIPTION", "DESCRIPTION");
+                        bulkCopy.ColumnMappings.Add("END_TIME", "END_TIME");
+                        bulkCopy.ColumnMappings.Add("MEMO_GUID", "MEMO_GUID");
+                        bulkCopy.ColumnMappings.Add("PERSONAL_TYPE", "PERSONAL_TYPE");
+                        bulkCopy.ColumnMappings.Add("REPEAT_GUID", "REPEAT_GUID");
+                        bulkCopy.ColumnMappings.Add("START_TIME", "START_TIME");
+                        bulkCopy.ColumnMappings.Add("SUBJECT", "SUBJECT");
+                        bulkCopy.ColumnMappings.Add("REMINDER_GUID", "REMINDER_GUID");
+                        bulkCopy.ColumnMappings.Add("ALL_DAY", "ALL_DAY");
+                        bulkCopy.ColumnMappings.Add("OWNER", "OWNER");
+                        bulkCopy.ColumnMappings.Add("UID", "UID");
+                        bulkCopy.ColumnMappings.Add("ICS_GUID", "ICS_GUID");
+
+                        bulkCopy.WriteToServer(ds.Tables[0]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 錯誤處理，例如寫Log或顯示錯誤訊息
+                MessageBox.Show("執行失敗：" + ex.Message);
             }
         }
+
 
 
         //訂單-國內
@@ -1645,14 +1688,14 @@ namespace TKSCHEDULEUOF
                                         CONVERT(varchar(100), GETDATE(), 21) AS [CREATE_TIME],
                                         '4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [CREATE_USER],
                                         TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [DESCRIPTION],
-                                        CONVERT(NVARCHAR, [TD013], 112) AS [END_TIME],
-                                        NEWID() AS [MEMO_GUID],
+                                        CONVERT(datetime, [TD013], 112) AS [END_TIME],
+                                        CONVERT(NVARCHAR(36), NEWID()) AS [MEMO_GUID],
                                         'Display' AS [PERSONAL_TYPE],
                                         NULL AS [REPEAT_GUID],
-                                        CONVERT(NVARCHAR, [TD013], 112) AS [START_TIME],
+                                        CONVERT(datetime, [TD013], 112) AS [START_TIME],
                                         TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [SUBJECT],
                                         NULL AS [REMINDER_GUID],
-                                        '1' AS [ALL_DAY],
+                                        CAST('1' AS bit)  AS ALL_DAY,
                                         '4eda2bfc-bf4b-4df2-a39c-1cc46e68598a' AS [OWNER],
                                         NULL AS [UID],
                                         NULL AS [ICS_GUID]
@@ -1704,14 +1747,14 @@ namespace TKSCHEDULEUOF
                                         CONVERT(varchar(100), GETDATE(), 21) AS [CREATE_TIME],
                                         '8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [CREATE_USER],
                                         TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [DESCRIPTION],
-                                        CONVERT(NVARCHAR, [TD013], 112) AS [END_TIME],
-                                        NEWID() AS [MEMO_GUID],
+                                        CAST(SWITCHOFFSET(CAST(CONVERT(datetime, [TD013], 112) AS datetimeoffset), '+08:00') AS datetimeoffset) AS [END_TIME],
+                                        CONVERT(NVARCHAR(36), NEWID()) AS [MEMO_GUID],
                                         'Display' AS [PERSONAL_TYPE],
                                         NULL AS [REPEAT_GUID],
-                                        CONVERT(NVARCHAR, [TD013], 112) AS [START_TIME],
+                                        CAST(SWITCHOFFSET(CAST(CONVERT(datetime, [TD013], 112) AS datetimeoffset), '+08:00') AS datetimeoffset) AS [START_TIME],
                                         TC053 + '-' + TD005 + '-' + CONVERT(NVARCHAR, CONVERT(INT, (TD008 - TD009))) + ' (' + TD010 + ') 贈品' + CONVERT(NVARCHAR, CONVERT(INT, (TD024 - TD025))) + ' (' + TD010 + ')' AS [SUBJECT],
                                         NULL AS [REMINDER_GUID],
-                                        '1' AS [ALL_DAY],
+                                         CAST('1' AS bit)  AS ALL_DAY,
                                         '8e841f56-0a77-4b5c-9c7e-1fd05b089900' AS [OWNER],
                                         NULL AS [UID],
                                         NULL AS [ICS_GUID]
