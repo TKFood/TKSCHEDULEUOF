@@ -6164,117 +6164,88 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHPURTLPURTMPURTN(string TL001, string TL002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dt = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string connectionString = sqlsb.ConnectionString;
 
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT *
+                string sql = @"
+                                SELECT *
                                     ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS GROUP_ID
+                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS TITLE_ID
                                     ,MA002 AS TL004NAME
                                     ,NAME AS NAME
-                                    FROM 
-                                    (
+                                FROM 
+                                (
                                     SELECT 
+                                        PURMA.MA001
+                                        ,PURMA.MA002
+                                        ,PURMA.MA003
+                                        ,PURTL.TL001
+                                        ,PURTL.TL002
+                                        ,PURTL.TL003
+                                        ,PURTL.TL004
+                                        ,PURTL.TL005
+                                        ,PURTL.TL006
+                                        ,PURTL.TL007
+                                        ,PURTL.TL008
+                                        ,PURTL.TL010
+                                        ,PURTM.TM003
+                                        ,PURTM.TM004
+                                        ,PURTM.TM005
+                                        ,PURTM.TM006
+                                        ,PURTM.TM007
+                                        ,PURTM.TM008
+                                        ,PURTM.TM009
+                                        ,PURTM.TM010
+                                        ,PURTM.TM012
+                                        ,PURTM.TM014
+                                        ,PURTM.TM015
+                                        ,PURTN.TN007
+                                        ,PURTN.TN008
+                                        ,PURTN.TN009
+                                        ,PURTM.CREATOR
+                                        ,[TB_EB_USER].USER_GUID
+                                        ,[TB_EB_USER].NAME
+                                        ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTM.CREATOR) AS MV002
+                                    FROM [TK].dbo.PURMA
+                                    INNER JOIN [TK].dbo.PURTL ON MA001 = TL004
+                                    INNER JOIN [TK].dbo.PURTM ON TL001 = TM001 AND TL002 = TM002
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT = PURTM.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [TK].dbo.PURTN ON TM001 = TN001 AND TM002 = TN002 AND TM003 = TN003
+                                    WHERE TL001 = @TL001 AND TL002 = @TL002
+                                ) AS TEMP";
 
-                                    PURMA.MA001
-                                    ,PURMA.MA002
-                                    ,PURMA.MA003
-
-                                    ,PURTL.TL001
-                                    ,PURTL.TL002
-                                    ,PURTL.TL003
-                                    ,PURTL.TL004
-                                    ,PURTL.TL005
-                                    ,PURTL.TL006
-                                    ,PURTL.TL007
-                                    ,PURTL.TL008
-                                    ,PURTL.TL010
-                                    ,PURTM.TM003
-                                    ,PURTM.TM004
-                                    ,PURTM.TM005
-                                    ,PURTM.TM006
-                                    ,PURTM.TM007
-                                    ,PURTM.TM008
-                                    ,PURTM.TM009
-                                    ,PURTM.TM010
-                                    ,PURTM.TM012
-                                    ,PURTM.TM014
-                                    ,PURTM.TM015
-
-                                    ,PURTN.TN007
-                                    ,PURTN.TN008
-                                    ,PURTN.TN009
-                                    
-                                    ,PURTM.CREATOR
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTM.CREATOR) AS 'MV002'
-
-                                    FROM [TK].dbo.PURMA,[TK].dbo.PURTL,[TK].dbo.PURTM
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTM.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [TK].dbo.PURTN ON TM001=TN001 AND TM002=TN002 AND TM003=TN003
-                                    WHERE 1=1
-                                    AND MA001=TL004
-                                    AND TL001=TM001 AND TL002=TM002
-                                    AND TL001='{0}' AND TL002='{1}'
-
-                                    ) AS TEMP
-                              
-                                    ", TL001, TL002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    return ds1.Tables["ds1"];
+                    cmd.Parameters.AddWithValue("@TL001", TL001);
+                    cmd.Parameters.AddWithValue("@TL002", TL002);
 
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        conn.Open();
+                        adapter.Fill(dt);
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+            }
+            catch (Exception ex)
+            {
+                // TODO: 加入錯誤記錄 (Log)
+                // ex.Message 或 ex.ToString()
+                dt.Clear(); // 出錯回傳空資料表
+            }
 
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
+            return dt;
         }
+
 
         public void UPDATEPURTLUDF01()
         {
