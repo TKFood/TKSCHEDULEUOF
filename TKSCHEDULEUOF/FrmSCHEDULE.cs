@@ -5872,7 +5872,7 @@ namespace TKSCHEDULEUOF
             }
         }
         //將MOCMANULINEMERGE 預排的訂單，新增到MOCUE中
-        //20250806取消不用了
+        //20250806 停用
         public void ADDTOERPTKMOCUE()
         {
             try
@@ -5935,119 +5935,78 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //停用-轉入進貨單到品保檢
+        //20250806 停用
         public void ADDTKQCQCPURTH()
         {
+            StringBuilder sql = new StringBuilder();
+
+            sql.AppendLine(@"
+                            INSERT INTO [TKQC].[dbo].[QCPURTH]
+                            (
+                                [TH001], [TH002], [TH003], [TG003], [TG005], [TG021],
+                                [TH004], [TH005], [TH006], [TH007], [TH008], [TH009],
+                                [SAMPLENUMS], [CARNO], [CHECKITEMS], [COA], [INNERCHECKS],
+                                [INUMS], [BACKNUMS], [DATES], [QCMAN], [COMMENTS], [ISIN]
+                            )
+                            SELECT 
+                                TH001, TH002, TH003, TG003, TG005, TG021,
+                                TH004, TH005, TH006, TH007, TH008, TH009,
+                                0 AS SAMPLENUMS, 
+                                '' AS CARNO,
+                                '' AS CHECKITEMS,
+                                '' AS COA,
+                                '' AS INNERCHECKS,
+                                0 AS INUMS,
+                                0 AS BACKNUMS,
+                                '' AS DATES,
+                                '' AS QCMAN,
+                                '' AS COMMENTS,
+                                'N' AS ISIN
+                            FROM [TK].dbo.PURTG, [TK].dbo.PURTH
+                            WHERE TG001 = TH001 AND TG002 = TH002
+                                AND TG003 >= '20220726'
+                                AND TH001 + TH002 + TH003 NOT IN (
+                                    SELECT TH001 + TH002 + TH003 FROM [TKQC].[dbo].[QCPURTH]
+                                )");
+
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                   
-                                   
-                                        INSERT INTO [TKQC].[dbo].[QCPURTH]
-                                        (
-
-                                        [TH001]
-                                        ,[TH002]
-                                        ,[TH003]
-                                        ,[TG003]
-                                        ,[TG005]
-                                        ,[TG021]
-                                        ,[TH004]
-                                        ,[TH005]
-                                        ,[TH006]
-                                        ,[TH007]
-                                        ,[TH008]
-                                        ,[TH009]
-                                        ,[SAMPLENUMS]
-                                        ,[CARNO]
-                                        ,[CHECKITEMS]
-                                        ,[COA]
-                                        ,[INNERCHECKS]
-                                        ,[INUMS]
-                                        ,[BACKNUMS]
-                                        ,[DATES]
-                                        ,[QCMAN]
-                                        ,[COMMENTS]
-                                        ,[ISIN]
-
-                                        )
-
-                                        SELECT 
-                                        [TH001]
-                                        ,[TH002]
-                                        ,[TH003]
-                                        ,[TG003]
-                                        ,[TG005]
-                                        ,[TG021]
-                                        ,[TH004]
-                                        ,[TH005]
-                                        ,[TH006]
-                                        ,[TH007]
-                                        ,[TH008]
-                                        ,[TH009]
-                                        ,0 [SAMPLENUMS]
-                                        ,'' [CARNO]
-                                        ,'' [CHECKITEMS]
-                                        ,'' [COA]
-                                        ,'' [INNERCHECKS]
-                                        ,0 [INUMS]
-                                        ,0 [BACKNUMS]
-                                        ,'' [DATES]
-                                        ,'' [QCMAN]
-                                        ,'' [COMMENTS]
-                                        ,'N' [ISIN]
-                                        FROM [TK].dbo.PURTG,[TK].dbo.PURTH
-                                        WHERE TG001=TH001 AND TG002=TH002
-                                        AND TG003>='20220726'
-                                        AND TH001+TH002+TH003 NOT IN (SELECT  TH001+TH002+TH003 FROM  [TKQC].[dbo].[QCPURTH])
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    conn.Open();
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(sql.ToString(), conn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result > 0)
+                        {
+                            tran.Commit();
+                            Console.WriteLine("新增筆數：" + result);
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                            Console.WriteLine("未新增任何資料。");
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("錯誤：" + ex.Message);
             }
         }
+
 
         public void NEWPURTLPURTMPURTN()
         {
@@ -56627,11 +56586,13 @@ namespace TKSCHEDULEUOF
         private void button17_Click(object sender, EventArgs e)
         {
             //將MOCMANULINEMERGE 預排的訂單，新增到MOCUE中
-            //20250806取消不用了
+            //20250806 停用
             ADDTOERPTKMOCUE();
         }
         private void button18_Click(object sender, EventArgs e)
         {
+            //停用-轉入進貨單到品保檢
+            //20250806 停用
             ADDTKQCQCPURTH();
         }
 
