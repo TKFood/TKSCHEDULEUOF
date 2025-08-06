@@ -5871,178 +5871,70 @@ namespace TKSCHEDULEUOF
                 }
             }
         }
-
+        //將MOCMANULINEMERGE 預排的訂單，新增到MOCUE中
+        //20250806取消不用了
         public void ADDTOERPTKMOCUE()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                StringBuilder sql = new StringBuilder();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                   
-                                    INSERT INTO [TK].dbo.MOCUE
-                                    (
-
-                                    [COMPANY]
-                                    ,[CREATOR]
-                                    ,[USR_GROUP]
-                                    ,[CREATE_DATE]
-                                    ,[MODIFIER]
-                                    ,[MODI_DATE]
-                                    ,[FLAG]
-                                    ,[CREATE_TIME]
-                                    ,[MODI_TIME]
-                                    ,[TRANS_TYPE]
-                                    ,[TRANS_NAME]
-                                    ,[sync_date]
-                                    ,[sync_time]
-                                    ,[sync_mark]
-                                    ,[sync_count]
-                                    ,[DataUser]
-                                    ,[DataGroup]
-                                    ,[UE001]
-                                    ,[UE002]
-                                    ,[UE003]
-                                    ,[UE004]
-                                    ,[UE005]
-                                    ,[UE006]
-                                    ,[UE007]
-                                    ,[UE008]
-                                    ,[UE009]
-                                    ,[UE010]
-                                    ,[UE011]
-                                    ,[UE012]
-                                    ,[UE013]
-                                    ,[UE014]
-                                    ,[UE015]
-                                    ,[UE016]
-                                    ,[UE017]
-                                    ,[UE018]
-                                    ,[UE019]
-                                    ,[UE020]
-                                    ,[UE021]
-                                    ,[UE022]
-                                    ,[UDF01]
-                                    ,[UDF02]
-                                    ,[UDF03]
-                                    ,[UDF04]
-                                    ,[UDF05]
-                                    ,[UDF06]
-                                    ,[UDF07]
-                                    ,[UDF08]
-                                    ,[UDF09]
-                                    ,[UDF10]
+                sql.AppendLine(@"
+                                INSERT INTO [TK].dbo.MOCUE (
+                                    [COMPANY], [CREATOR], [USR_GROUP], [CREATE_DATE], [MODIFIER],
+                                    [MODI_DATE], [FLAG], [CREATE_TIME], [MODI_TIME], [TRANS_TYPE],
+                                    [TRANS_NAME], [sync_date], [sync_time], [sync_mark], [sync_count],
+                                    [DataUser], [DataGroup], [UE001], [UE002], [UE003], [UE004], [UE005],
+                                    [UE006], [UE007], [UE008], [UE009], [UE010], [UE011], [UE012], [UE013],
+                                    [UE014], [UE015], [UE016], [UE017], [UE018], [UE019], [UE020], [UE021],
+                                    [UE022], [UDF01], [UDF02], [UDF03], [UDF04], [UDF05], [UDF06], [UDF07],
+                                    [UDF08], [UDF09], [UDF10]
+                                )
+                                SELECT 
+                                    '' AS [COMPANY], '' AS [CREATOR], '' AS [USR_GROUP], '' AS [CREATE_DATE],
+                                    '' AS [MODIFIER], '' AS [MODI_DATE], 0 AS [FLAG], '' AS [CREATE_TIME],
+                                    '' AS [MODI_TIME], '' AS [TRANS_TYPE], '' AS [TRANS_NAME], '' AS [sync_date],
+                                    '' AS [sync_time], '' AS [sync_mark], 0 AS [sync_count], '' AS [DataUser],
+                                    '' AS [DataGroup],
+                                    MOCTA.TA001 AS [UE001],
+                                    MOCTA.TA002 AS [UE002],
+                                    RIGHT('0000'+CAST(ROW_NUMBER() OVER(PARTITION BY MOCTA.TA001+MOCTA.TA002 ORDER BY MOCTA.TA001+MOCTA.TA002) AS nvarchar(50)),4) AS [UE003],
+                                    MOCMANULINE.COPTD001 AS [UE004],
+                                    MOCMANULINE.COPTD002 AS [UE005],
+                                    MOCMANULINE.COPTD003 AS [UE006],
+                                    '' AS [UE007],
+                                    '0' AS [UE008],
+                                    '' AS [UE009], '' AS [UE010], '' AS [UE011], '' AS [UE012],
+                                    '' AS [UE013], '' AS [UE014], '' AS [UE015], '' AS [UE016],
+                                    '' AS [UE017], 0 AS [UE018], 0 AS [UE019], 0 AS [UE020],
+                                    '' AS [UE021], '' AS [UE022],
+                                    '' AS [UDF01], '' AS [UDF02], '' AS [UDF03], '' AS [UDF04], '' AS [UDF05],
+                                    0 AS [UDF06], 0 AS [UDF07], 0 AS [UDF08], 0 AS [UDF09], 0 AS [UDF10]
+                                FROM [TKMOC].[dbo].[MOCMANULINEMERGE]
+                                JOIN [TKMOC].[dbo].[MOCMANULINE] ON MOCMANULINEMERGE.SID = MOCMANULINE.ID
+                                JOIN [TK].dbo.MOCTA ON MOCMANULINEMERGE.NO = MOCTA.TA033
+                                WHERE MOCTA.TA013 = 'Y'
+                                    AND MOCTA.TA033 LIKE CONVERT(nvarchar, DATEPART(YEAR, GETDATE())) + '%'
+                                    AND MOCTA.TA001 + MOCTA.TA002 NOT IN (
+                                        SELECT UE001 + UE002 FROM [TK].dbo.MOCUE GROUP BY UE001 + UE002
                                     )
-                                    SELECT 
-                                    '' AS [COMPANY]
-                                    ,'' AS [CREATOR]
-                                    ,'' AS [USR_GROUP]
-                                    ,'' AS [CREATE_DATE]
-                                    ,'' AS [MODIFIER]
-                                    ,'' AS [MODI_DATE]
-                                    ,0 AS [FLAG]
-                                    ,'' AS [CREATE_TIME]
-                                    ,'' AS [MODI_TIME]
-                                    ,'' AS [TRANS_TYPE]
-                                    ,'' AS [TRANS_NAME]
-                                    ,'' AS [sync_date]
-                                    ,'' AS [sync_time]
-                                    ,'' AS [sync_mark]
-                                    ,0 AS [sync_count]
-                                    ,'' AS [DataUser]
-                                    ,'' AS [DataGroup]
-                                    ,MOCTA.TA001 AS [UE001]
-                                    ,MOCTA.TA002 AS [UE002]
-                                    ,RIGHT('0000'+CAST(row_number() OVER(PARTITION BY MOCTA.TA001+MOCTA.TA002 ORDER BY MOCTA.TA001+MOCTA.TA002) AS nvarchar(50)),4)    AS [UE003]
-                                    ,[MOCMANULINE].COPTD001 AS [UE004]
-                                    ,[MOCMANULINE].COPTD002 AS [UE005]
-                                    ,[MOCMANULINE].COPTD003 AS [UE006]
-                                    ,'' AS [UE007]
-                                    ,'0' AS [UE008]
-                                    ,'' AS [UE009]
-                                    ,'' AS [UE010]
-                                    ,'' AS [UE011]
-                                    ,'' AS [UE012]
-                                    ,'' AS [UE013]
-                                    ,'' AS [UE014]
-                                    ,'' AS [UE015]
-                                    ,'' AS [UE016]
-                                    ,'' AS [UE017]
-                                    ,0 AS [UE018]
-                                    ,0 AS [UE019]
-                                    ,0 AS [UE020]
-                                    ,'' AS [UE021]
-                                    ,'' AS [UE022]
-                                    ,'' AS [UDF01]
-                                    ,'' AS [UDF02]
-                                    ,'' AS [UDF03]
-                                    ,'' AS [UDF04]
-                                    ,'' AS [UDF05]
-                                    ,0 AS [UDF06]
-                                    ,0 AS [UDF07]
-                                    ,0 AS [UDF08]
-                                    ,0 AS [UDF09]
-                                    ,0 AS [UDF10]
-                                    FROM [TKMOC].[dbo].[MOCMANULINEMERGE],[TKMOC].[dbo].[MOCMANULINE],[TK].dbo.MOCTA
-                                    WHERE 1=1
-                                    AND [MOCMANULINEMERGE].[SID]=[MOCMANULINE].ID
-                                    AND [MOCMANULINEMERGE].[NO]=MOCTA.TA033
-                                    AND MOCTA.TA013 IN ('Y')
-                                    AND MOCTA.TA033 LIKE CONVERT(nvarchar,DATEPART(YEAR,GETDATE()))+'%'
-                                    AND MOCTA.TA001+MOCTA.TA002 NOT IN 
-                                    (
-                                    SELECT UE001+UE002
-                                    FROM [TK].dbo.MOCUE
-                                    GROUP BY UE001+UE002
-                                    )
-                                    ORDER BY MOCTA.TA001,MOCTA.TA002,MOCTA.TA033,[MOCMANULINE].COPTD001,[MOCMANULINE].COPTD002,[MOCMANULINE].COPTD003
+                                ORDER BY MOCTA.TA001, MOCTA.TA002, MOCTA.TA033, MOCMANULINE.COPTD001, MOCMANULINE.COPTD002, MOCMANULINE.COPTD003
+                            ");
 
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(BuildDecryptedConnection("dberp")))
                 {
-                    tran.Rollback();    //交易取消
+                    int result = ExecuteSqlWithTransaction(conn, sql.ToString());
+
+                    // 這裡如果是 WinForm 可用 MessageBox 或 Label 顯示
+                    Console.WriteLine($"新增筆數：{result}", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine($"執行失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         public void ADDTKQCQCPURTH()
         {
@@ -56734,6 +56626,8 @@ namespace TKSCHEDULEUOF
         }
         private void button17_Click(object sender, EventArgs e)
         {
+            //將MOCMANULINEMERGE 預排的訂單，新增到MOCUE中
+            //20250806取消不用了
             ADDTOERPTKMOCUE();
         }
         private void button18_Click(object sender, EventArgs e)
