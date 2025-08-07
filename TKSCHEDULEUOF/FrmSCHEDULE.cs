@@ -7981,33 +7981,73 @@ namespace TKSCHEDULEUOF
 
         public void ADDTKQCUOFQCPURTGPURTH()
         {
-            IEnumerable<DataRow> query2 = null;
+            // 建立解密物件
+            Class1 TKID = new Class1();
 
-            DataTable DT1 = SEARCHUOFQCPURTGPURTH();
-            DataTable DT2 = SEARCHTKQCUOFQCPURTGPURTH();
+            var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            //找DataTable差集
-            //要有相同的欄位名稱
-            //找DataTable差集
-            //要有相同的欄位名稱
-            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            string connectionString = sqlsb.ConnectionString;
+
+            try
             {
-                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
-            }
-
-
-
-            if (query2.Count() > 0)
-            {
-                //差集集合
-                DataTable dt3 = query2.CopyToDataTable();
-
-                foreach (DataRow dr in dt3.Rows)
+                using (var sqlConn = new SqlConnection(connectionString))
                 {
-                    SEARCHUOFQCPURTGPURTH_TB_WKF_TASK(dr["DOC_NBR"].ToString());
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append(@"                                 
+                                SELECT TOP 1
+                                CONVERT(NVARCHAR, RemoteData.DOC_NBR) AS DOC_NBR,
+                                RemoteData.TG001,
+                                RemoteData.TG002,
+                                RemoteData.TH003
+                                FROM OPENQUERY([192.168.1.223], '
+                                    SELECT 
+                                    T.DOC_NBR,
+                                    T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""TG001""]/@fieldValue)[1]'', ''nvarchar(max)'') AS TG001,
+                                    T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""TG002""]/@fieldValue)[1]'', ''nvarchar(max)'') AS TG002,
+                                    Row.value(''(Cell[@fieldId=""TH003""]/@fieldValue)[1]'', ''nvarchar(max)'') AS TH003
+                                FROM UOF.DBO.TB_WKF_TASK T WITH(NOLOCK)
+                                CROSS APPLY 
+                                    T.CURRENT_DOC.nodes(''/Form/FormFieldValue/FieldItem[@fieldId=""PURTH""]/DataGrid/Row'') AS R(Row)
+                                WHERE 
+                                    T.DOC_NBR LIKE ''PURTH%'' 
+                                    AND T.TASK_RESULT = ''0''
+                                ') AS RemoteData
+                                LEFT JOIN[TKQC].[dbo].[UOFQCPURTGPURTH] AS local
+                                ON local.TG001 COLLATE Chinese_Taiwan_Stroke_BIN = RemoteData.TG001 COLLATE Chinese_Taiwan_Stroke_BIN
+                                AND local.TG002 COLLATE Chinese_Taiwan_Stroke_BIN = RemoteData.TG002 COLLATE Chinese_Taiwan_Stroke_BIN
+                                AND local.TH003 COLLATE Chinese_Taiwan_Stroke_BIN = RemoteData.TH003 COLLATE Chinese_Taiwan_Stroke_BIN
+                                WHERE local.ID IS NULL;
+                    ");
+
+                    using (var adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        adapter.SelectCommand.CommandTimeout = 180; // 單位：秒
+
+                        using (var ds = new DataSet())
+                        {
+                            sqlConn.Open();
+                            ds.Clear();
+                            adapter.Fill(ds, "ds1");
+
+                            if (ds.Tables["ds1"].Rows.Count > 0)
+                            {
+                                foreach (DataRow dr in ds.Tables["ds1"].Rows)
+                                {
+                                    SEARCHUOFQCPURTGPURTH_TB_WKF_TASK(dr["DOC_NBR"].ToString());
+                                }
+                            }
+                        }
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                // 可加入錯誤日誌，例如 Logger.LogError("NEWBOMTABOMTBBOMTC 失敗", ex);
+                throw;
+            }
         }
 
         public DataTable SEARCHUOFQCPURTGPURTH()
@@ -8156,410 +8196,238 @@ namespace TKSCHEDULEUOF
 
         public void SEARCHUOFQCPURTGPURTH_TB_WKF_TASK(string DOC_NBR)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 建立解密物件
+                Class1 TKID = new Class1();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string connectionString = sqlsb.ConnectionString;
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-
-                              
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (var sqlConn = new SqlConnection(connectionString))
                 {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
+                    StringBuilder sbSql = new StringBuilder();
 
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
+                    sbSql.AppendFormat(@"                                
+                                    SELECT 
+                                        T.DOC_NBR,
+	                                    T.CURRENT_DOC.value('(/Form/Applicant/@name)[1]', 'nvarchar(max)') AS Applicantname,
+	                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)') AS ID,
+                                        -- 主表欄位（只抓一次）
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(max)')      AS ID,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""TG001""]/@fieldValue)[1]', 'nvarchar(max)')   AS TG001,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""TG002""]/@fieldValue)[1]', 'nvarchar(max)')   AS TG002,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""TG003""]/@fieldValue)[1]', 'nvarchar(max)')   AS TG003,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""TG005""]/@fieldValue)[1]', 'nvarchar(max)')   AS TG005,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""TG021""]/@fieldValue)[1]', 'nvarchar(max)')   AS TG021,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""MAIN01""]/@fieldValue)[1]', 'nvarchar(max)')  AS MAIN01,
+                                        T.CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""MAIN2""]/@fieldValue)[1]', 'nvarchar(max)')   AS MAIN2,
 
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string Applicantname = xmlDoc.SelectSingleNode($"/Form/Applicant").Attributes["name"].Value;
-                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
-                    string TG003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG003']").Attributes["fieldValue"].Value;
-                    string TG005 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG005']").Attributes["fieldValue"].Value;
-                    string TG021 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG021']").Attributes["fieldValue"].Value;
-                    string TG001 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG001']").Attributes["fieldValue"].Value;
-                    string TG002 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='TG002']").Attributes["fieldValue"].Value;
+                                        -- 明細欄位（每列為一筆）
+                                        Row.value('(Cell[@fieldId=""TH003""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH003,
+                                        Row.value('(Cell[@fieldId=""TH004""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH004,
+                                        Row.value('(Cell[@fieldId=""TH005""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH005,
+                                        Row.value('(Cell[@fieldId=""TH006""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH006,
+                                        Row.value('(Cell[@fieldId=""TH007""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH007,
+                                        Row.value('(Cell[@fieldId=""TH008""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH008,
+                                        Row.value('(Cell[@fieldId=""DETAIL01""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL01,
+                                        Row.value('(Cell[@fieldId=""DETAIL02""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL02,
+                                        Row.value('(Cell[@fieldId=""DETAIL03""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL03,
+                                        Row.value('(Cell[@fieldId=""DETAIL04""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL04,
+                                        Row.value('(Cell[@fieldId=""TH010""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH010,
+                                        Row.value('(Cell[@fieldId=""TH117""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH117,
+                                        Row.value('(Cell[@fieldId=""TH036""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH036,
+                                        Row.value('(Cell[@fieldId=""TH015""]/@fieldValue)[1]', 'nvarchar(max)')      AS TH015,
+                                        Row.value('(Cell[@fieldId=""CHECK""]/@fieldValue)[1]', 'nvarchar(max)')      AS [CHECK],
+                                        Row.value('(Cell[@fieldId=""DETAIL05""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL05,
+                                        Row.value('(Cell[@fieldId=""DETAIL06""]/@fieldValue)[1]', 'nvarchar(max)')   AS DETAIL06,
+                                        Row.value('(Cell[@fieldId=""VALIDDAYS""]/@fieldValue)[1]', 'nvarchar(max)')  AS VALIDDAYS,
+                                        Row.value('(Cell[@fieldId=""STILLDAYS""]/@fieldValue)[1]', 'nvarchar(max)')  AS STILLDAYS,
+                                        Row.value('(Cell[@fieldId=""STILLPCTS""]/@fieldValue)[1]', 'nvarchar(max)')  AS STILLPCTS
 
-                    foreach (XmlNode node in xmlDoc.SelectNodes("./Form/FormFieldValue/FieldItem[@fieldId='PURTH']/DataGrid/Row"))
+                                    FROM 
+                                        [UOF].DBO.TB_WKF_TASK  T
+                                    CROSS APPLY 
+                                        T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""PURTH""]/DataGrid/Row') AS R(Row)
+
+                                    WHERE 
+                                        T.DOC_NBR = '{0}'  
+                            ", DOC_NBR);
+
+                    using (var adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        string TH003 = "";
-                        string TH004 = "";
-                        string TH005 = "";
-                        string TH006 = "";
-                        string TH007 = "";
-                        string TH008 = "";
-                        string TH010 = "";
-                        string TH015 = "";
-                        string CHECK = "";
-                        string DETAIL01 = "";
-                        string DETAIL02 = "";
-                        string DETAIL03 = "";
-                        string DETAIL04 = "";
-                        string DETAIL05 = "";
-                        string DETAIL06 = "";
+                        using (var ds = new DataSet())
+                        {
+                            sqlConn.Open();
+                            ds.Clear();
+                            adapter.Fill(ds, "ds1");
 
-                        try
-                        {
-                            TH003 = node.SelectSingleNode("./Cell[@fieldId='TH003']").Attributes["fieldValue"].Value;
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH004 = node.SelectSingleNode("./Cell[@fieldId='TH004']").Attributes["fieldValue"].Value;
+                            if (ds.Tables["ds1"].Rows.Count > 0)
+                            {
+                                foreach (DataRow dr in ds.Tables["ds1"].Rows)
+                                {
+                                    string Applicantname = dr["Applicantname"].ToString();
+                                    string ID = dr["ID"].ToString();
+                                    string TG003 = dr["TG003"].ToString();
+                                    string TG005 = dr["TG005"].ToString();
+                                    string TG021 = dr["TG021"].ToString();
+                                    string TG001 = dr["TG001"].ToString();
+                                    string TG002 = dr["TG002"].ToString();
+                                    string TH003 = dr["TH003"].ToString();
+                                    string TH004 = dr["TH004"].ToString();
+                                    string TH005 = dr["TH005"].ToString();
+                                    string TH006 = dr["TH006"].ToString();
+                                    string TH007 = dr["TH007"].ToString();
+                                    string TH008 = dr["TH008"].ToString();
+                                    string TH010 = dr["TH010"].ToString();
+                                    string TH015 = dr["TH015"].ToString();
+                                    string CHECK = dr["CHECK"].ToString();
+                                    string DETAIL01 = dr["DETAIL01"].ToString();
+                                    string DETAIL02 = dr["DETAIL02"].ToString();
+                                    string DETAIL03 = dr["DETAIL03"].ToString();
+                                    string DETAIL04 = dr["DETAIL04"].ToString();
+                                    string DETAIL05 = dr["DETAIL05"].ToString();
+                                    string DETAIL06 = dr["DETAIL06"].ToString();
 
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH005 = node.SelectSingleNode("./Cell[@fieldId='TH005']").Attributes["fieldValue"].Value;
+                                    ADDTOTKQCUOFQCPURTGPURTH(
+                                       ID
+                                       , TG003
+                                       , TG005
+                                       , TG021
+                                       , TG001
+                                       , TG002
+                                       , TH003
+                                       , TH004
+                                       , TH005
+                                       , TH006
+                                       , TH007
+                                       , TH008
+                                       , TH010
+                                       , TH015
+                                       , CHECK
+                                       , DETAIL01
+                                       , DETAIL02
+                                       , DETAIL03
+                                       , DETAIL04
+                                       , DETAIL05
+                                       , DETAIL06
+                                       , Applicantname
+                                       );
 
-
+                                    //更新第1站的簽核人當Applicantname
+                                    UPDATE_UOFQCPURTGPURTH_Applicantname();
+                                }
+                            }
                         }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH006 = node.SelectSingleNode("./Cell[@fieldId='TH006']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH007 = node.SelectSingleNode("./Cell[@fieldId='TH007']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH008 = node.SelectSingleNode("./Cell[@fieldId='TH008']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH010 = node.SelectSingleNode("./Cell[@fieldId='TH010']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            TH015 = node.SelectSingleNode("./Cell[@fieldId='TH015']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            CHECK = node.SelectSingleNode("./Cell[@fieldId='CHECK']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            DETAIL01 = node.SelectSingleNode("./Cell[@fieldId='DETAIL01']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            DETAIL02 = node.SelectSingleNode("./Cell[@fieldId='DETAIL02']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            //DETAIL03 = node.SelectSingleNode("./Cell[@fieldId='DETAIL03']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            DETAIL04 = node.SelectSingleNode("./Cell[@fieldId='DETAIL04']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            DETAIL05 = node.SelectSingleNode("./Cell[@fieldId='DETAIL05']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        {
-                        }
-                        try
-                        {
-                            DETAIL06 = node.SelectSingleNode("./Cell[@fieldId='DETAIL06']").Attributes["fieldValue"].Value;
-                        }
-                        catch
-                        {
-                        }
-
-
-
-
-                        ADDTOTKQCUOFQCPURTGPURTH(
-                            ID
-                            , TG003
-                            , TG005
-                            , TG021
-                            , TG001
-                            , TG002
-                            , TH003
-                            , TH004
-                            , TH005
-                            , TH006
-                            , TH007
-                            , TH008
-                            , TH010
-                            , TH015
-                            , CHECK
-                            , DETAIL01
-                            , DETAIL02
-                            , DETAIL03
-                            , DETAIL04
-                            , DETAIL05
-                            , DETAIL06
-                            , Applicantname
-                            );
-
-                        //更新第1站的簽核人當Applicantname
-                        UPDATE_UOFQCPURTGPURTH_Applicantname();
-
-                        //MessageBox.Show(TH003+' ' +TH004 + ' ' + TH005 + ' ' + TH006 + ' ' + TH007 + ' ' + TH008 + ' ' + TH010 + ' ' + TH015 + ' ' + CHECK);
                     }
-                    //string OK = "";
-
-                    //ADDTOTKMKTBSTORESCHECK(
-                    //                        ID
-
-                    //                        );
-
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 建議加上 Log 或錯誤處理
+                Console.WriteLine("發生錯誤：" + ex.Message);
             }
         }
 
         public void ADDTOTKQCUOFQCPURTGPURTH(
-                                        string ID
-                                        , string TG003
-                                        , string TG005
-                                        , string TG021
-                                        , string TG001
-                                        , string TG002
-                                        , string TH003
-                                        , string TH004
-                                        , string TH005
-                                        , string TH006
-                                        , string TH007
-                                        , string TH008
-                                        , string TH010
-                                        , string TH015
-                                        , string CHECK
-                                        , string DETAIL01
-                                        , string DETAIL02
-                                        , string DETAIL03
-                                        , string DETAIL04
-                                        , string DETAIL05
-                                        , string DETAIL06
-                                        , string Applicantname
-                                        )
+             string ID, string TG003, string TG005, string TG021, string TG001, string TG002,
+             string TH003, string TH004, string TH005, string TH006, string TH007, string TH008,
+             string TH010, string TH015, string CHECK,
+             string DETAIL01, string DETAIL02, string DETAIL03, string DETAIL04, string DETAIL05, string DETAIL06,
+             string Applicantname)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立加解密後的連線
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                  INSERT INTO [TKQC].[dbo].[UOFQCPURTGPURTH]
-                                    (
-                                    [ID]
-                                    ,[TG003]
-                                    ,[TG005]
-                                    ,[TG021]
-                                    ,[TG001]
-                                    ,[TG002]
-                                    ,[TH003]
-                                    ,[TH004]
-                                    ,[TH005]
-                                    ,[TH006]
-                                    ,[TH007]
-                                    ,[TH008]
-                                    ,[TH010]
-                                    ,[TH015]
-                                    ,[CHECK]
-                                    ,[DETAIL01]
-                                    ,[DETAIL02]
-                                    ,[DETAIL03]
-                                    ,[DETAIL04]
-                                    ,[DETAIL05]
-                                    ,[DETAIL06]
-                                    ,[Applicantname]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    ,'{15}'
-                                    ,'{16}'
-                                    ,'{17}'
-                                    ,'{18}'
-                                    ,'{19}'
-                                    ,'{20}'
-                                    ,'{21}'
-                                    )
-
-                                   ", ID
-                                    , TG003
-                                    , TG005
-                                    , TG021
-                                    , TG001
-                                    , TG002
-                                    , TH003
-                                    , TH004
-                                    , TH005
-                                    , TH006
-                                    , TH007
-                                    , TH008
-                                    , TH010
-                                    , TH015
-                                    , CHECK
-                                    , DETAIL01
-                                    , DETAIL02
-                                    , DETAIL03
-                                    , DETAIL04
-                                    , DETAIL05
-                                    , DETAIL06
-                                    , Applicantname
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    {
+                        try
+                        {
+                            using (SqlCommand cmd = sqlConn.CreateCommand())
+                            {
+                                cmd.Transaction = tran;
+                                cmd.CommandTimeout = 60;
+                                cmd.CommandText = @"
+                                            INSERT INTO [TKQC].[dbo].[UOFQCPURTGPURTH]
+                                            (
+                                                [ID], [TG003], [TG005], [TG021], [TG001], [TG002],
+                                                [TH003], [TH004], [TH005], [TH006], [TH007], [TH008],
+                                                [TH010], [TH015], [CHECK],
+                                                [DETAIL01], [DETAIL02], [DETAIL03], [DETAIL04], [DETAIL05], [DETAIL06],
+                                                [Applicantname]
+                                            )
+                                            VALUES
+                                            (
+                                                @ID, @TG003, @TG005, @TG021, @TG001, @TG002,
+                                                @TH003, @TH004, @TH005, @TH006, @TH007, @TH008,
+                                                @TH010, @TH015, @CHECK,
+                                                @DETAIL01, @DETAIL02, @DETAIL03, @DETAIL04, @DETAIL05, @DETAIL06,
+                                                @Applicantname
+                                            )";
+
+                                // 加入參數
+                                cmd.Parameters.AddWithValue("@ID", ID);
+                                cmd.Parameters.AddWithValue("@TG003", TG003);
+                                cmd.Parameters.AddWithValue("@TG005", TG005);
+                                cmd.Parameters.AddWithValue("@TG021", TG021);
+                                cmd.Parameters.AddWithValue("@TG001", TG001);
+                                cmd.Parameters.AddWithValue("@TG002", TG002);
+                                cmd.Parameters.AddWithValue("@TH003", TH003);
+                                cmd.Parameters.AddWithValue("@TH004", TH004);
+                                cmd.Parameters.AddWithValue("@TH005", TH005);
+                                cmd.Parameters.AddWithValue("@TH006", TH006);
+                                cmd.Parameters.AddWithValue("@TH007", TH007);
+                                cmd.Parameters.AddWithValue("@TH008", TH008);
+                                cmd.Parameters.AddWithValue("@TH010", TH010);
+                                cmd.Parameters.AddWithValue("@TH015", TH015);
+                                cmd.Parameters.AddWithValue("@CHECK", CHECK);
+                                cmd.Parameters.AddWithValue("@DETAIL01", DETAIL01);
+                                cmd.Parameters.AddWithValue("@DETAIL02", DETAIL02);
+                                cmd.Parameters.AddWithValue("@DETAIL03", DETAIL03);
+                                cmd.Parameters.AddWithValue("@DETAIL04", DETAIL04);
+                                cmd.Parameters.AddWithValue("@DETAIL05", DETAIL05);
+                                cmd.Parameters.AddWithValue("@DETAIL06", DETAIL06);
+                                cmd.Parameters.AddWithValue("@Applicantname", Applicantname);
+
+                                int result = cmd.ExecuteNonQuery();
+                                if (result > 0)
+                                {
+                                    tran.Commit();
+                                }
+                                else
+                                {
+                                    tran.Rollback();
+                                }
+                            }
+                        }
+                        catch (Exception ex1)
+                        {
+                            tran.Rollback();
+                            // 可加上 log 或 throw 出去
+                            throw new Exception("新增失敗：" + ex1.Message);
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 顯示或記錄錯誤
+                Console.WriteLine("外部錯誤：" + ex.Message);
+                // 或 Log(ex.ToString());
             }
         }
+
 
         public void UPDATE_UOFQCPURTGPURTH_Applicantname()
         {
@@ -55663,6 +55531,7 @@ namespace TKSCHEDULEUOF
 
         private void button22_Click(object sender, EventArgs e)
         {
+            //UOF PURA0.進貨-原物料品質驗收單轉入DB           
             ADDTKQCUOFQCPURTGPURTH();
         }
         private void button23_Click(object sender, EventArgs e)
