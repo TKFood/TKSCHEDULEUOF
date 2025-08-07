@@ -7997,7 +7997,7 @@ namespace TKSCHEDULEUOF
                     StringBuilder sbSql = new StringBuilder();
 
                     sbSql.Append(@"                                 
-                                SELECT TOP 1
+                                SELECT 
                                 CONVERT(NVARCHAR, RemoteData.DOC_NBR) AS DOC_NBR,
                                 RemoteData.TG001,
                                 RemoteData.TG002,
