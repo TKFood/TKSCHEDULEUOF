@@ -55763,7 +55763,9 @@ namespace TKSCHEDULEUOF
         }
         private void button23_Click(object sender, EventArgs e)
         {
-            //MOCI02.製令單 
+            //ERP製令單>轉入UOF簽核
+            //停用
+            //改用訂單協調
             ADDUOFMOCTAMOCTB();
         }
         private void button24_Click(object sender, EventArgs e)
