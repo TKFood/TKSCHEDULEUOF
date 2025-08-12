@@ -9291,103 +9291,85 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHMOCTAMOCTB(string TA001, string TA002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
+                    sbSql.AppendFormat(@"
+                                        SELECT *
+                                              ,USER_GUID,NAME
+                                              ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                              ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                        FROM (
+                                            SELECT 
+                                                MOCTA.CREATOR
+                                                ,TA001
+                                                ,TA002
+                                                ,TA003
+                                                ,TA006
+                                                ,TA034
+                                                ,TA035
+                                                ,TA015
+                                                ,TA007
+                                                ,TA020
+                                                ,TA021
+                                                ,TA026
+                                                ,TA027
+                                                ,TA028
+                                                ,TA029
+                                                ,TA036
+                                                ,TB001
+                                                ,TB002
+                                                ,TB003
+                                                ,TB012
+                                                ,TB013
+                                                ,TB004
+                                                ,TB007
+                                                ,TB017
+                                                ,[TB_EB_USER].USER_GUID
+                                                ,NAME
+                                                ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTA.CREATOR) AS 'MV002'
+                                            FROM [TK].dbo.MOCTB, [TK].dbo.MOCTA
+                                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                                ON [TB_EB_USER].ACCOUNT = MOCTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                            WHERE TA001 = TB001 AND TA002 = TB002
+                                              AND TA001 = '{0}' AND TA002 = '{1}'
+                                        ) AS TEMP
+                                        ", TA001, TA002);
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    FROM 
-                                    (
-                                    SELECT 
-                                    MOCTA.CREATOR
-                                    ,TA001
-                                    ,TA002
-                                    ,TA003
-                                    ,TA006
-                                    ,TA034
-                                    ,TA035
-                                    ,TA015
-                                    ,TA007
-                                    ,TA020
-                                    ,TA021
-                                    ,TA026
-                                    ,TA027
-                                    ,TA028
-                                    ,TA029
-                                    ,TA036
-                                    ,TB001
-                                    ,TB002
-                                    ,TB003
-                                    ,TB012
-                                    ,TB013
-                                    ,TB004
-                                    ,TB007
-                                    ,TB017
-
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTA.CREATOR) AS 'MV002'
-                                    FROM [TK].dbo.MOCTB,[TK].dbo.MOCTA
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= MOCTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-
-                                    WHERE TA001=TB001 AND TA002=TB002 
-                                    AND TA001='{0}' AND TA002='{1}'
-                                    ) AS TEMP
-                              
-                                    ", TA001, TA002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                        sqlConn.Open();
+                        ds1.Clear();
+                        adapter1.Fill(ds1, "ds1");
+                        sqlConn.Close();
+                    }
+                }
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     return ds1.Tables["ds1"];
-
                 }
                 else
                 {
                     return null;
                 }
-
             }
             catch
             {
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
