@@ -14819,6 +14819,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG002B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG002B");
+                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	GG010
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG010");
@@ -14849,6 +14859,17 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG004B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG004B");
+                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+
                 //Row	GG005
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG005");
@@ -14859,9 +14880,29 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG005B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG005B");
+                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	GG009
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG009");
+                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG009B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG009B");
                 Cell.SetAttribute("fieldValue", od["GG009"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
@@ -40091,6 +40132,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG002B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG002B");
+                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	GG010
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG010");
@@ -40121,6 +40172,16 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG004B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG004B");
+                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	GG005
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG005");
@@ -40131,9 +40192,29 @@ namespace TKSCHEDULEUOF
                 //Row
                 Row.AppendChild(Cell);
 
+                //Row	GG005B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG005B");
+                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
                 //Row	GG009
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "GG009");
+                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                //Row
+                Row.AppendChild(Cell);
+
+                //Row	GG009B
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "GG009B");
                 Cell.SetAttribute("fieldValue", od["GG009"].ToString());
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
