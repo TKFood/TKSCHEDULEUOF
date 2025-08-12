@@ -11259,112 +11259,63 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHACPTCACPTD(string TC001, string TC002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                     SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                using (var sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    string sql = $@"
+                                    SELECT *
+                                         , USER_GUID, NAME
+                                         , (SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = TEMP.USER_GUID) AS GROUP_ID
+                                         , (SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = TEMP.USER_GUID) AS TITLE_ID
                                     FROM 
                                     (
-                                    SELECT 
-                                    ACPTC.CREATOR
-                                    ,TC001
-                                    ,TC002
-                                    ,TC003
-                                    ,TC004
-                                    ,TC005
-                                    ,TC011
-                                    ,TC012
-                                    ,TC013
-                                    ,TC014
-                                    ,TC016
-                                    ,TD001
-                                    ,TD002
-                                    ,TD003
-                                    ,TD004
-                                    ,TD005
-                                    ,TD006
-                                    ,TD007
-                                    ,TD008
-                                    ,TD009
-                                    ,TD010
-                                    ,TD011
-                                    ,TD012
-                                    ,TD013
-                                    ,TD014
-                                    ,TD015
-                                    ,TD022
-                                    ,TD023
-                                    ,TD017
-                                    ,TD016
-                                   
-
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ACPTC.CREATOR) AS 'MV002'
-                                    FROM [TK].dbo.ACPTD,[TK].dbo.ACPTC
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= ACPTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-
-                                    WHERE TC001=TD001 AND TC002=TD002 
-                                    AND TC001='{0}' AND TC002='{1}'
+                                        SELECT 
+                                            ACPTC.CREATOR,
+                                            TC001, TC002, TC003, TC004, TC005, TC011, TC012, TC013, TC014, TC016,
+                                            TD001, TD002, TD003, TD004, TD005, TD006, TD007, TD008, TD009, TD010, TD011,
+                                            TD012, TD013, TD014, TD015, TD022, TD023, TD017, TD016,
+                                            [TB_EB_USER].USER_GUID, NAME,
+                                            (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001 = ACPTC.CREATOR) AS MV002
+                                        FROM [TK].dbo.ACPTD, [TK].dbo.ACPTC
+                                        LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER]
+                                            ON [TB_EB_USER].ACCOUNT = ACPTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                        WHERE TC001 = TD001 AND TC002 = TD002
+                                          AND TC001 = @TC001 AND TC002 = @TC002
                                     ) AS TEMP
-                              
-                                    ", TC001, TC002);
+                                ";
 
+                    using (var cmd = new SqlCommand(sql, sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@TC001", TC001);
+                        cmd.Parameters.AddWithValue("@TC002", TC002);
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            DataSet ds = new DataSet();
+                            sqlConn.Open();
+                            adapter.Fill(ds, "ds1");
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                            if (ds.Tables["ds1"].Rows.Count > 0)
+                                return ds.Tables["ds1"];
+                            else
+                                return null;
+                        }
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
         //ERP會計傳票 >轉入UOF簽核
         public void ADDUOFACTTAACTTB()
         {
