@@ -16118,24 +16118,10 @@ namespace TKSCHEDULEUOF
                 Row.SetAttribute("order", rowscounts.ToString());
 
                 AppendCellToRow(xmlDoc, Row, od, "TC003");
-                AppendCellToRow(xmlDoc, Row, od, "TC004");
-                AppendCellToRow(xmlDoc, Row, od, "TC005");
-                AppendCellToRow(xmlDoc, Row, od, "TC006");
-                AppendCellToRow(xmlDoc, Row, od, "TC007");
-                AppendCellToRow(xmlDoc, Row, od, "TC008");
-                AppendCellToRow(xmlDoc, Row, od, "TC009");
-                AppendCellToRow(xmlDoc, Row, od, "TC010");
-                AppendCellToRow(xmlDoc, Row, od, "TC019");
-                AppendCellToRow(xmlDoc, Row, od, "TC020");
+                AppendCellToRow(xmlDoc, Row, od, "TC004");               
+                AppendCellToRow(xmlDoc, Row, od, "TC010");                
                 AppendCellToRow(xmlDoc, Row, od, "TC033");
-                AppendCellToRow(xmlDoc, Row, od, "TC037");
-                AppendCellToRow(xmlDoc, Row, od, "TC038");
-                AppendCellToRow(xmlDoc, Row, od, "TC039");
-                AppendCellToRow(xmlDoc, Row, od, "TC040");
-                AppendCellToRow(xmlDoc, Row, od, "TC041");
-                AppendCellToRow(xmlDoc, Row, od, "TC042");
-                AppendCellToRow(xmlDoc, Row, od, "TC043");
-                AppendCellToRow(xmlDoc, Row, od, "TC076");
+                AppendCellToRow(xmlDoc, Row, od, "TC036");               
 
                 rowscounts++;
                 DataGrid.AppendChild(Row);
