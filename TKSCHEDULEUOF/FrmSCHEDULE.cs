@@ -16141,29 +16141,35 @@ namespace TKSCHEDULEUOF
                 DataGrid.AppendChild(Row);
             }
 
-            // 以下為資料庫連線與插入 TB_WKF_EXTERNAL_TASK
-            Class1 TKID = new Class1();//解密類別實體
+            // 寫入資料庫
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
             string connectionString = sqlsb.ConnectionString;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+
+            string queryString = $@"
+                                INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')";
+
+            try
             {
-                StringBuilder queryString = new StringBuilder();
-                queryString.AppendFormat(@"
-                                            NSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
-                                            (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
-                                            VALUES (NEWID(), @XML, 2, '{1}')",
-                                            DBNAME, EXTERNAL_FORM_NBR);
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(queryString, connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = xmlDoc.OuterXml;
 
-                SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                connection.Open();
-                command.ExecuteNonQuery();
-                connection.Close();
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
             }
+            catch
+            {
+                // 例外處理，可擴充
+            }
+
         }
 
 
