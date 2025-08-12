@@ -10932,120 +10932,65 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public DataTable SEARCHACPTAACPTB(string TA001, string TA002)
+        public DataTable  SEARCHACPTAACPTB(string TA001, string TA002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                     SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                using (var sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    string sql = $@"
+                                    SELECT *
+                                         , USER_GUID, NAME
+                                         , (SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = TEMP.USER_GUID) AS GROUP_ID
+                                         , (SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE USER_GUID = TEMP.USER_GUID) AS TITLE_ID
                                     FROM 
                                     (
-                                    SELECT 
-                                    ACPTA.CREATOR                                   
-                                    ,TA001
-                                    ,TA002
-                                    ,TA003
-                                    ,TA004
-                                    ,TA006
-                                    ,TA008
-                                    ,TA009
-                                    ,TA010
-                                    ,TA011
-                                    ,TA012
-                                    ,TA014
-                                    ,TA015
-                                    ,TA016
-                                    ,TA017
-                                    ,TA019
-                                    ,TA028
-                                    ,TA029
-                                    ,TA030
-                                    ,TA037
-                                    ,TA038
-                                    ,TB001
-                                    ,TB002
-                                    ,TB003
-                                    ,TB004
-                                    ,TB005
-                                    ,TB006
-                                    ,TB007
-                                    ,TB008
-                                    ,TB009
-                                    ,TB013
-                                    ,TB014
-                                    ,TB017
-                                    ,TB018
-                                   
-
-                                    
-
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ACPTA.CREATOR) AS 'MV002'
-                                    FROM [TK].dbo.ACPTB,[TK].dbo.ACPTA
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= ACPTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-
-                                    WHERE TA001=TB001 AND TA002=TB002 
-                                    AND TA001='{0}' AND TA002='{1}'
+                                        SELECT 
+                                            ACPTA.CREATOR,
+                                            TA001, TA002, TA003, TA004, TA006, TA008, TA009, TA010, TA011,
+                                            TA012, TA014, TA015, TA016, TA017, TA019, TA028, TA029, TA030,
+                                            TA037, TA038, TB001, TB002, TB003, TB004, TB005, TB006, TB007,
+                                            TB008, TB009, TB013, TB014, TB017, TB018,
+                                            [TB_EB_USER].USER_GUID, NAME,
+                                            (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001 = ACPTA.CREATOR) AS MV002
+                                        FROM [TK].dbo.ACPTB, [TK].dbo.ACPTA
+                                        LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER]
+                                            ON [TB_EB_USER].ACCOUNT = ACPTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                        WHERE TA001 = TB001 AND TA002 = TB002
+                                          AND TA001 = @TA001 AND TA002 = @TA002
                                     ) AS TEMP
-                              
-                                    ", TA001, TA002);
+                                ";
 
+                    using (var cmd = new SqlCommand(sql, sqlConn))
+                    {
+                        cmd.Parameters.AddWithValue("@TA001", TA001);
+                        cmd.Parameters.AddWithValue("@TA002", TA002);
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                        using (var adapter = new SqlDataAdapter(cmd))
+                        {
+                            DataSet ds = new DataSet();
+                            sqlConn.Open();
+                            adapter.Fill(ds, "ds1");
+                            if (ds.Tables["ds1"].Rows.Count > 0)
+                                return ds.Tables["ds1"];
+                            else
+                                return null;
+                        }
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
         //ERP付款單>轉入UOF簽核
         public void ADDUOFACPTCACPTB()
         {
