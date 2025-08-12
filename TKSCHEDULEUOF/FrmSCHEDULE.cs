@@ -15571,7 +15571,7 @@ namespace TKSCHEDULEUOF
                                 SELECT TC001, TC002
                                 FROM [TK].dbo.ASTTC
                                 WHERE UDF01 IN ('Y','y')
-                                AND TC001 IN ('AC21')
+                                AND TC001 IN ('AC11')
                                 ORDER BY TC001, TC002
                             ");
 
@@ -15586,7 +15586,9 @@ namespace TKSCHEDULEUOF
                         {
                             foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                             {
-                                ADD_ASTTC_TB_WKF_EXTERNAL_TASK(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                                string TC001 = dr["TC001"].ToString().Trim();
+                                string TC002 = dr["TC002"].ToString().Trim();
+                                ADD_ASTTC_TB_WKF_EXTERNAL_TASK(TC001, TC002);
                             }
                         }
                     }
@@ -15952,72 +15954,53 @@ namespace TKSCHEDULEUOF
                 return null;
             }
         }
-
+        //ERP資產重估>轉入UOF簽核
         public void ADDUOFASTMBASTMCASTTCASTTD_ACTI07()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); // 解密類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                    SELECT TC001,TC002
-                                    FROM [TK].dbo.ASTTC
-                                    WHERE  UDF01 IN ('Y','y')
-                                    AND TC001 IN ('AC21')
-                                    ORDER BY TC001,TC002
-
-
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    DataSet ds1 = new DataSet();
+                    SqlDataAdapter adapter1;
+                    SqlCommandBuilder sqlCmdBuilder1;
+
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append(@"
+                                SELECT TC001, TC002
+                                FROM [TK].dbo.ASTTC
+                                WHERE UDF01 IN ('Y', 'y')
+                                AND TC001 IN ('AC21')
+                                ORDER BY TC001, TC002
+                            ");
+
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
+
+                    if (ds1.Tables["ds1"].Rows.Count >= 1)
                     {
-                        ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI07(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                        foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                        {
+                            ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI07(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 可考慮記錄錯誤 ex.Message
             }
 
             UPDATE_ASTTC_UDF01_ACTI07();
@@ -52325,6 +52308,7 @@ namespace TKSCHEDULEUOF
         private void button31_Click(object sender, EventArgs e)
         {
             //ASTI07.資產重估建立作業
+            //ERP資產重估>轉入UOF簽核
             ADDUOFASTMBASTMCASTTCASTTD_ACTI07();
         }
 
