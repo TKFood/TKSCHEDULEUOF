@@ -15649,9 +15649,9 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK(string TC001, string TC002)
+        public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI07(string TC001, string TC002)
         {
-            DataTable DT = SEARCH_ASTTC(TC001, TC002);
+            DataTable DT = SEARCH_ASTTC_ACTI07(TC001, TC002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -15668,9 +15668,11 @@ namespace TKSCHEDULEUOF
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
+
+            // 建立根節點 Form
             XmlElement Form = xmlDoc.CreateElement("Form");
 
-            string FORMID = SEARCHFORM_UOF_VERSION_ID("ASTI06.資產改良建立作業");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("ASTI07.資產重估建立作業");
             if (!string.IsNullOrEmpty(FORMID))
             {
                 Form.SetAttribute("formVersionId", FORMID);
@@ -15679,6 +15681,7 @@ namespace TKSCHEDULEUOF
             Form.SetAttribute("urgentLevel", "2");
             xmlDoc.AppendChild(Form);
 
+            // Applicant 節點
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
@@ -15689,10 +15692,11 @@ namespace TKSCHEDULEUOF
             Comment.InnerText = "申請者意見";
             Applicant.AppendChild(Comment);
 
+            // FormFieldValue 節點
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
             Form.AppendChild(FormFieldValue);
 
-            // 主表欄位，全部用 AddFieldItem
+            // 主表欄位用 AddFieldItem 逐行建立
             AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "TC001", DT.Rows[0]["TC001"].ToString().Trim(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "TC002", DT.Rows[0]["TC002"].ToString().Trim(), fillerName, fillerUserGuid, account);
@@ -15706,66 +15710,45 @@ namespace TKSCHEDULEUOF
             XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
             DETAILS.AppendChild(DataGrid);
 
+            // 明細資料逐筆加入 DataGrid
             foreach (DataRow od in DT.Rows)
             {
                 XmlElement Row = xmlDoc.CreateElement("Row");
                 Row.SetAttribute("order", rowscounts.ToString());
 
-                // 逐欄建立 Cell，跟欄位一一對應
                 AppendCellToRow(xmlDoc, Row, od, "TC003");
                 AppendCellToRow(xmlDoc, Row, od, "TC004");
-                AppendCellToRow(xmlDoc, Row, od, "TC005");
-                AppendCellToRow(xmlDoc, Row, od, "TC006");
-                AppendCellToRow(xmlDoc, Row, od, "TC007");
-                AppendCellToRow(xmlDoc, Row, od, "TC008");
-                AppendCellToRow(xmlDoc, Row, od, "TC009");
+                AppendCellToRow(xmlDoc, Row, od, "TC036");
                 AppendCellToRow(xmlDoc, Row, od, "TC010");
-                AppendCellToRow(xmlDoc, Row, od, "TC019");
-                AppendCellToRow(xmlDoc, Row, od, "TC020");
                 AppendCellToRow(xmlDoc, Row, od, "TC033");
-                AppendCellToRow(xmlDoc, Row, od, "TC037");
-                AppendCellToRow(xmlDoc, Row, od, "TC038");
-                AppendCellToRow(xmlDoc, Row, od, "TC039");
-                AppendCellToRow(xmlDoc, Row, od, "TC040");
-                AppendCellToRow(xmlDoc, Row, od, "TC041");
-                AppendCellToRow(xmlDoc, Row, od, "TC042");
-                AppendCellToRow(xmlDoc, Row, od, "TC043");
-                AppendCellToRow(xmlDoc, Row, od, "TC076");
-
-                rowscounts++;
 
                 DataGrid.AppendChild(Row);
+                rowscounts++;
             }
 
-            // 寫入資料庫
-            Class1 TKID = new Class1();
+            // 寫入資料庫 TB_WKF_EXTERNAL_TASK
+            Class1 TKID = new Class1(); // 解密類別
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-            string connectionString = sqlsb.ConnectionString;
 
-            string queryString = $@"
+            using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+            {
+                string sql = $@"
                                 INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                 (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
-                                VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')";
+                                VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                            ";
 
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(sql, sqlConn))
                 {
-                    SqlCommand command = new SqlCommand(queryString, connection);
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = xmlDoc.OuterXml;
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
+                    cmd.Parameters.Add("@XML", SqlDbType.NVarChar).Value = xmlDoc.OuterXml;
+                    sqlConn.Open();
+                    cmd.ExecuteNonQuery();
                 }
             }
-            catch
-            {
-                // 例外處理，可擴充
-            }
         }
+
 
 
 
@@ -16010,61 +15993,50 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    UPDATE  [TK].dbo.ASTTC
-                                    SET UDF01 = 'UOF'
-
-                                    WHERE UDF01 IN ('Y','y')         
-                                    AND TC001 IN ('AC21')                    
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                        UPDATE [TK].dbo.ASTTC
+                                        SET UDF01 = 'UOF'
+                                        WHERE UDF01 IN ('Y','y')
+                                        AND TC001 IN ('AC21')
+                                    ";
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議加上日誌或例外處理
+                // e.g. Log.Error("更新 ASTTC UDF01 發生錯誤", ex);
+                throw;
             }
         }
+
         public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI07(string TC001, string TC002)
         {
 
@@ -16359,212 +16331,192 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCH_ASTTC_ACTI07(string TC001, string TC002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dt = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); // 用new建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
 
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    FROM 
-                                    (
-                                    SELECT   
-                                    ASTTC.[COMPANY]
-                                    ,ASTTC.[CREATOR]
-                                    ,ASTTC.[USR_GROUP]
-                                    ,ASTTC.[CREATE_DATE]
-                                    ,ASTTC.[MODIFIER]
-                                    ,ASTTC.[MODI_DATE]
-                                    ,ASTTC.[FLAG]
-                                    ,ASTTC.[CREATE_TIME]
-                                    ,ASTTC.[MODI_TIME]
-                                    ,ASTTC.[TRANS_TYPE]
-                                    ,ASTTC.[TRANS_NAME]
-                                    ,ASTTC.[sync_date]
-                                    ,ASTTC.[sync_time]
-                                    ,ASTTC.[sync_mark]
-                                    ,ASTTC.[sync_count]
-                                    ,ASTTC.[DataUser]
-                                    ,ASTTC.[DataGroup]                                 
-                                    ,[TC001]
-                                    ,[TC002]
-                                    ,[TC003]
-                                    ,[TC004]
-                                    ,[TC005]
-                                    ,[TC006]
-                                    ,[TC007]
-                                    ,[TC008]
-                                    ,[TC009]
-                                    ,[TC010]
-                                    ,[TC011]
-                                    ,[TC012]
-                                    ,[TC013]
-                                    ,[TC014]
-                                    ,[TC015]
-                                    ,[TC016]
-                                    ,[TC017]
-                                    ,[TC018]
-                                    ,[TC019]
-                                    ,[TC020]
-                                    ,[TC021]
-                                    ,[TC022]
-                                    ,[TC023]
-                                    ,[TC024]
-                                    ,[TC025]
-                                    ,[TC026]
-                                    ,[TC027]
-                                    ,[TC028]
-                                    ,[TC029]
-                                    ,[TC030]
-                                    ,[TC031]
-                                    ,[TC032]
-                                    ,[TC033]
-                                    ,[TC034]
-                                    ,[TC035]
-                                    ,[TC036]
-                                    ,[TC037]
-                                    ,[TC038]
-                                    ,[TC039]
-                                    ,[TC040]
-                                    ,[TC041]
-                                    ,[TC042]
-                                    ,[TC043]
-                                    ,[TC044]
-                                    ,[TC045]
-                                    ,[TC046]
-                                    ,[TC047]
-                                    ,[TC048]
-                                    ,[TC049]
-                                    ,[TC050]
-                                    ,[TC051]
-                                    ,[TC052]
-                                    ,[TC053]
-                                    ,[TC054]
-                                    ,[TC055]
-                                    ,[TC056]
-                                    ,[TC057]
-                                    ,[TC058]
-                                    ,[TC059]
-                                    ,[TC060]
-                                    ,[TC061]
-                                    ,[TC062]
-                                    ,[TC063]
-                                    ,[TC064]
-                                    ,[TC065]
-                                    ,[TC066]
-                                    ,[TC067]
-                                    ,[TC068]
-                                    ,[TC069]
-                                    ,[TC070]
-                                    ,[TC071]
-                                    ,[TC072]
-                                    ,[TC073]
-                                    ,[TC074]
-                                    ,[TC075]
-                                    ,[TC076]
-                                    ,[TC077]
-                                    ,[TC078]
-                                    ,[TC079]
-                                    ,[TC080]
-                                    ,[TC081]
-                                    ,[TC082]
-                                    ,[TC083]
-                                    ,[TC084]
-                                    ,[TC085]
-                                    ,[TC086]
-                                    ,[TC087]
-                                    ,[TC088]
-                                    ,[TC089]
-                                    ,[TC090]
-                                    ,[TC091]
-                                    ,[TC092]
-                                    ,[TC093]
-                                    ,[TC094]
-                                    ,[TC095]
-                                    ,[TC096]
-                                    ,[TC097]
-                                    ,[TC098]
-                                    ,[TC099]
-                                    ,[TC100]
-                                    ,[TC101]
-                                    ,[TC102]
-                                    ,[TC103]
-                                    ,[TC104]
-                                    ,[TC105]
-                                    ,[TC106]
-                                    ,[TC107]
-                                    ,[MB001]
-                                    ,[MB002]
-                                    ,[MB003]
-                                   
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ASTTC.CREATOR) AS 'MV002'
-
-                                    FROM [TK].dbo.ASTTC
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= ASTTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    ,[TK].dbo.ASTMB
-
-                                    WHERE 1=1
-                                    AND TC004=MB001
-                                    AND TC001='{0}' AND TC002='{1}'
-
-                                    ) AS TEMP
-                              
+                    sbSql.AppendFormat(@"
+                                        SELECT *
+                                        ,USER_GUID,NAME
+                                        ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                        ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                        FROM 
+                                        (
+                                            SELECT   
+                                                ASTTC.[COMPANY]
+                                                ,ASTTC.[CREATOR]
+                                                ,ASTTC.[USR_GROUP]
+                                                ,ASTTC.[CREATE_DATE]
+                                                ,ASTTC.[MODIFIER]
+                                                ,ASTTC.[MODI_DATE]
+                                                ,ASTTC.[FLAG]
+                                                ,ASTTC.[CREATE_TIME]
+                                                ,ASTTC.[MODI_TIME]
+                                                ,ASTTC.[TRANS_TYPE]
+                                                ,ASTTC.[TRANS_NAME]
+                                                ,ASTTC.[sync_date]
+                                                ,ASTTC.[sync_time]
+                                                ,ASTTC.[sync_mark]
+                                                ,ASTTC.[sync_count]
+                                                ,ASTTC.[DataUser]
+                                                ,ASTTC.[DataGroup]                                 
+                                                ,[TC001]
+                                                ,[TC002]
+                                                ,[TC003]
+                                                ,[TC004]
+                                                ,[TC005]
+                                                ,[TC006]
+                                                ,[TC007]
+                                                ,[TC008]
+                                                ,[TC009]
+                                                ,[TC010]
+                                                ,[TC011]
+                                                ,[TC012]
+                                                ,[TC013]
+                                                ,[TC014]
+                                                ,[TC015]
+                                                ,[TC016]
+                                                ,[TC017]
+                                                ,[TC018]
+                                                ,[TC019]
+                                                ,[TC020]
+                                                ,[TC021]
+                                                ,[TC022]
+                                                ,[TC023]
+                                                ,[TC024]
+                                                ,[TC025]
+                                                ,[TC026]
+                                                ,[TC027]
+                                                ,[TC028]
+                                                ,[TC029]
+                                                ,[TC030]
+                                                ,[TC031]
+                                                ,[TC032]
+                                                ,[TC033]
+                                                ,[TC034]
+                                                ,[TC035]
+                                                ,[TC036]
+                                                ,[TC037]
+                                                ,[TC038]
+                                                ,[TC039]
+                                                ,[TC040]
+                                                ,[TC041]
+                                                ,[TC042]
+                                                ,[TC043]
+                                                ,[TC044]
+                                                ,[TC045]
+                                                ,[TC046]
+                                                ,[TC047]
+                                                ,[TC048]
+                                                ,[TC049]
+                                                ,[TC050]
+                                                ,[TC051]
+                                                ,[TC052]
+                                                ,[TC053]
+                                                ,[TC054]
+                                                ,[TC055]
+                                                ,[TC056]
+                                                ,[TC057]
+                                                ,[TC058]
+                                                ,[TC059]
+                                                ,[TC060]
+                                                ,[TC061]
+                                                ,[TC062]
+                                                ,[TC063]
+                                                ,[TC064]
+                                                ,[TC065]
+                                                ,[TC066]
+                                                ,[TC067]
+                                                ,[TC068]
+                                                ,[TC069]
+                                                ,[TC070]
+                                                ,[TC071]
+                                                ,[TC072]
+                                                ,[TC073]
+                                                ,[TC074]
+                                                ,[TC075]
+                                                ,[TC076]
+                                                ,[TC077]
+                                                ,[TC078]
+                                                ,[TC079]
+                                                ,[TC080]
+                                                ,[TC081]
+                                                ,[TC082]
+                                                ,[TC083]
+                                                ,[TC084]
+                                                ,[TC085]
+                                                ,[TC086]
+                                                ,[TC087]
+                                                ,[TC088]
+                                                ,[TC089]
+                                                ,[TC090]
+                                                ,[TC091]
+                                                ,[TC092]
+                                                ,[TC093]
+                                                ,[TC094]
+                                                ,[TC095]
+                                                ,[TC096]
+                                                ,[TC097]
+                                                ,[TC098]
+                                                ,[TC099]
+                                                ,[TC100]
+                                                ,[TC101]
+                                                ,[TC102]
+                                                ,[TC103]
+                                                ,[TC104]
+                                                ,[TC105]
+                                                ,[TC106]
+                                                ,[TC107]
+                                                ,[MB001]
+                                                ,[MB002]
+                                                ,[MB003]
+                                                ,[TB_EB_USER].USER_GUID,NAME
+                                                ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ASTTC.CREATOR) AS 'MV002'
+                                            FROM [TK].dbo.ASTTC
+                                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                                ON [TB_EB_USER].ACCOUNT= ASTTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                            ,[TK].dbo.ASTMB
+                                            WHERE TC004=MB001
+                                            AND TC001='{0}' AND TC002='{1}'
+                                        ) AS TEMP
                                     ", TC001, TC002);
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        sqlConn.Open();
+                        ds1.Clear();
+                        adapter1.Fill(ds1, "ds1");
+                        sqlConn.Close();
+                    }
+                }
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    return ds1.Tables["ds1"];
-
+                    dt = ds1.Tables["ds1"];
+                    return dt;
                 }
                 else
                 {
                     return null;
                 }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         public void ADDUOFASTMBASTMCASTTCASTTD_ACTI08()
         {
