@@ -10301,122 +10301,66 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHACRTAACRTB(string TA001, string TA002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
+                    sbSql.AppendFormat(@"
+                                        SELECT *
+                                            , USER_GUID, NAME
+                                            , (SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID = TEMP.USER_GUID) AS 'GROUP_ID'
+                                            , (SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID = TEMP.USER_GUID) AS 'TITLE_ID'
+                                        FROM 
+                                        (
+                                            SELECT 
+                                                ACRTA.CREATOR
+                                                , TA001, TA002, TA003, TA004, TA005, TA007, TA008, TA009, TA010, TA011, TA012
+                                                , TA015, TA016, TA017, TA018, TA020, TA029, TA030, TA031, TA041, TA042, TA043
+                                                , TB001, TB002, TB003, TB004, TB005, TB006, TB007, TB008, TB009, TB010, TB011
+                                                , TB013, TB017, TB018, TB019, TB020, TB021
+                                                , [TB_EB_USER].USER_GUID, NAME
+                                                , (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001 = ACRTA.CREATOR) AS 'MV002'
+                                            FROM [TK].dbo.ACRTB, [TK].dbo.ACRTA
+                                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT = ACRTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                            WHERE TA001 = TB001 AND TA002 = TB002
+                                                AND TA001 = '{0}' AND TA002 = '{1}'
+                                        ) AS TEMP
+                                    ", TA001, TA002);   
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                   SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    FROM 
-                                    (
-                                    SELECT 
-                                    ACRTA.CREATOR
-                                    ,TA001
-                                    ,TA002
-                                    ,TA003
-                                    ,TA004
-                                    ,TA005
-                                    ,TA007
-                                    ,TA008
-                                    ,TA009
-                                    ,TA010
-                                    ,TA011
-                                    ,TA012
-                                    ,TA015
-                                    ,TA016
-                                    ,TA017
-                                    ,TA018
-                                    ,TA020
-                                    ,TA029
-                                    ,TA030
-                                    ,TA031
-                                    ,TA041
-                                    ,TA042
-                                    ,TA043
-                                    ,TB001
-                                    ,TB002
-                                    ,TB003
-                                    ,TB004
-                                    ,TB005
-                                    ,TB006
-                                    ,TB007
-                                    ,TB008
-                                    ,TB009
-                                    ,TB010
-                                    ,TB011
-                                    ,TB013
-                                    ,TB017
-                                    ,TB018
-                                    ,TB019
-                                    ,TB020
-                                    ,TB021
-                                    
-
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ACRTA.CREATOR) AS 'MV002'
-                                    FROM [TK].dbo.ACRTB,[TK].dbo.ACRTA
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= ACRTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-
-                                    WHERE TA001=TB001 AND TA002=TB002 
-                                    AND TA001='{0}' AND TA002='{1}'
-                                    ) AS TEMP
-                              
-                                    ", TA001, TA002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        using (SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1))
+                        {
+                            sqlConn.Open();
+                            ds1.Clear();
+                            adapter1.Fill(ds1, "ds1");
+                            sqlConn.Close();
+                        }
+                    }
+                }
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
                     return ds1.Tables["ds1"];
-
-                }
                 else
-                {
                     return null;
-                }
-
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         //ERP收款單 >轉入UOF簽核
         public void ADDUOFACRTCACRTD()
