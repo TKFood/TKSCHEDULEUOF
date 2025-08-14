@@ -16366,136 +16366,112 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //ERP資產報廢>轉入UOF簽核
         public void ADDUOFASTMBASTMCASTTCASTTD_ACTI08()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902密碼解密
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    DataSet ds1 = new DataSet();
+                    SqlDataAdapter adapter1 = new SqlDataAdapter();
+                    SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                    SELECT TC001,TC002
-                                    FROM [TK].dbo.ASTTC
-                                    WHERE  UDF01 IN ('Y','y')
-                                    AND TC001 IN ('AC31','AC32','AC33','AC34')
-                                    ORDER BY TC001,TC002
-
-
+                    sbSql.AppendFormat(@"
+                                        SELECT TC001, TC002
+                                        FROM [TK].dbo.ASTTC
+                                        WHERE UDF01 IN ('Y','y')
+                                        AND TC001 IN ('AC31','AC32','AC33','AC34')
+                                        ORDER BY TC001, TC002
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
 
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    if (ds1.Tables["ds1"].Rows.Count > 0)
                     {
-                        ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI08(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                        foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                        {
+                            string TC001 = dr["TC001"].ToString().Trim();
+                            string TC002 = dr["TC002"].ToString().Trim();
+
+                            ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI08(TC001,TC002);
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
             catch
             {
-
+                // 可視需求記錄 log
             }
             finally
             {
-                sqlConn.Close();
+                UPDATE_ASTTC_UDF01_ACTI08();
             }
-
-            UPDATE_ASTTC_UDF01_ACTI08();
         }
+
 
         public void UPDATE_ASTTC_UDF01_ACTI08()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902 密碼解密
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    UPDATE  [TK].dbo.ASTTC
-                                    SET UDF01 = 'UOF'
-
-                                    WHERE UDF01 IN ('Y','y')         
-                                    AND TC001 IN ('AC31','AC32','AC33','AC34')   
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    {
+                        sbSql.Clear();
+                        sbSql.AppendFormat(@"
+                                            UPDATE [TK].dbo.ASTTC
+                                            SET UDF01 = 'UOF'
+                                            WHERE UDF01 IN ('Y','y')
+                                            AND TC001 IN ('AC31','AC32','AC33','AC34')
+                                        ");
 
+                        using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
+                        {
+                            cmd.CommandTimeout = 60;
+                            int result = cmd.ExecuteNonQuery();
+
+                            if (result == 0)
+                            {
+                                tran.Rollback(); // 交易取消
+                            }
+                            else
+                            {
+                                tran.Commit(); // 執行交易
+                            }
+                        }
+                    }
+                }
             }
             catch
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 可加 log 記錄錯誤
             }
         }
+
         public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI08(string TC001, string TC002)
         {
 
@@ -52133,6 +52109,7 @@ namespace TKSCHEDULEUOF
         private void button32_Click(object sender, EventArgs e)
         {
             //ASTI08.資產報廢建立作業
+            //ERP資產報廢>轉入UOF簽核
             ADDUOFASTMBASTMCASTTCASTTD_ACTI08();
         }
 
