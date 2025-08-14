@@ -17261,140 +17261,123 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        ///ERP資產折舊>轉入UOF簽核
         public void ADDUOFASTMBASTMCASTTCASTTD_ACTI11()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立資料庫連線並解密帳號密碼
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                SqlDataAdapter adapter1;
+                SqlCommandBuilder sqlCmdBuilder1;
 
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                    SELECT TC001,TC002
+                // SQL 保留原樣
+                sbSql.AppendFormat(@"
+                                    SELECT TC001, TC002
                                     FROM [TK].dbo.ASTTC
-                                    WHERE  UDF01 IN ('Y','y')
+                                    WHERE UDF01 IN ('Y','y')
                                     AND TC001 IN ('AC61')
-                                    ORDER BY TC001,TC002
+                                    ORDER BY TC001, TC002
+                                ");
 
-
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
-
+                sqlConn.Close();
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
-                        ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI11(dr["TC001"].ToString().Trim(), dr["TC002"].ToString().Trim());
+                        string TC001 = dr["TC001"].ToString().Trim();
+                        string TC002 = dr["TC002"].ToString().Trim();
+                        ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI11(TC001, TC002);
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
             catch
             {
-
+                // 可視需求加 log
             }
             finally
             {
                 sqlConn.Close();
             }
 
+            // 更新 UDF01 狀態
             UPDATE_ASTTC_UDF01_ACTI11();
         }
+
 
         public void UPDATE_ASTTC_UDF01_ACTI11()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立資料庫連線並解密帳號密碼
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
-                sqlConn.Close();
                 sqlConn.Open();
                 tran = sqlConn.BeginTransaction();
 
                 sbSql.Clear();
 
-                sbSql.AppendFormat(@"  
-                                    UPDATE  [TK].dbo.ASTTC
+                // SQL 保留原樣
+                sbSql.AppendFormat(@"
+                                    UPDATE [TK].dbo.ASTTC
                                     SET UDF01 = 'UOF'
-
-                                    WHERE UDF01 IN ('Y','y')         
-                                    AND TC001 IN ('AC61')   
-
-                                    ");
+                                    WHERE UDF01 IN ('Y','y')
+                                    AND TC001 IN ('AC61')
+                                ");
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
                 cmd.CommandText = sbSql.ToString();
                 cmd.Transaction = tran;
+
                 result = cmd.ExecuteNonQuery();
 
                 if (result == 0)
                 {
-                    tran.Rollback();    //交易取消
+                    tran.Rollback(); // 交易取消
                 }
                 else
                 {
-                    tran.Commit();      //執行交易  
+                    tran.Commit();   // 執行交易
                 }
-
             }
             catch
             {
-
+                // 可視需求加入 log
             }
-
             finally
             {
                 sqlConn.Close();
             }
         }
+
         public void ADD_ASTTC_TB_WKF_EXTERNAL_TASK_ACTI11(string TC001, string TC002)
         {
+            DataTable DT = SEARCH_ASTTC_ACTI11(TC001, TC002);
+            if (DT.Rows.Count == 0) return;
 
-            DataTable DT = SEARCH_ASTTC_ACTI10(TC001, TC002);
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -17411,677 +17394,181 @@ namespace TKSCHEDULEUOF
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
-
-            //正式的id
             string FORMID = SEARCHFORM_UOF_VERSION_ID("ASTI11.資產折舊建立作業");
-
             if (!string.IsNullOrEmpty(FORMID))
-            {
                 Form.SetAttribute("formVersionId", FORMID);
-            }
-
-
             Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
             xmlDoc.AppendChild(Form);
 
-            ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
             Form.AppendChild(Applicant);
 
-            //建立節點 Comment
             XmlElement Comment = xmlDoc.CreateElement("Comment");
             Comment.InnerText = "申請者意見";
-            //加入至節點底下
             Applicant.AppendChild(Comment);
 
-            //建立節點 FormFieldValue
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
             Form.AppendChild(FormFieldValue);
 
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // 單獨加入每個欄位
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC001", DT.Rows[0]["TC001"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC002", DT.Rows[0]["TC002"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MB001", DT.Rows[0]["MB001"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MB002", DT.Rows[0]["MB002"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MB003", DT.Rows[0]["MB003"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC003", DT.Rows[0]["TC003"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC005", DT.Rows[0]["TC005"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC006", DT.Rows[0]["TC006"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC007", DT.Rows[0]["TC007"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC008", DT.Rows[0]["TC008"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC009", DT.Rows[0]["TC009"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC010", DT.Rows[0]["TC010"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC013", DT.Rows[0]["TC013"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC018", DT.Rows[0]["TC018"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC019", DT.Rows[0]["TC019"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC020", DT.Rows[0]["TC020"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC021", DT.Rows[0]["TC021"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC022", DT.Rows[0]["TC022"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TC033", DT.Rows[0]["TC033"].ToString().Trim(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
 
-            //建立節點FieldItem
-            //TC001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC001"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC002"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //MB001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB001"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //MB002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB002"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //MB003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB003"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC003"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC005");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC005"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC006	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC006");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC006"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC007	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC007");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC007"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC008	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC008");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC008"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC009	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC009");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC009"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC010	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC010");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC010"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TC013	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC013");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC013"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC018	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC018");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC018"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC019	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC019");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC019"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC020	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC020");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC020"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC021	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC021");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC021"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC022	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC022");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC022"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //建立節點FieldItem
-            //TC033	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TC033");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TC033"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-
-
-            //DataGrid
-            //建立節點FieldItem
-            //DETAILS
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
-            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
+            // 建立 DataGrid 節點
             XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
             DETAILS.AppendChild(DataGrid);
-
 
             foreach (DataRow od in DT.Rows)
             {
-                // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
+                Row.SetAttribute("order", rowscounts.ToString());
 
+                AppendCellToRow(xmlDoc, Row, od, "TD003");
+                AppendCellToRow(xmlDoc, Row, od, "TD004");
+                AppendCellToRow(xmlDoc, Row, od, "TD005");
+                AppendCellToRow(xmlDoc, Row, od, "TD008");
 
-                //Row	TD003
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TD003");
-                Cell.SetAttribute("fieldValue", od["TD003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TD004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TD004");
-                Cell.SetAttribute("fieldValue", od["TD004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TD005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TD005");
-                Cell.SetAttribute("fieldValue", od["TD005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TD008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TD008");
-                Cell.SetAttribute("fieldValue", od["TD008"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-
-                rowscounts = rowscounts + 1;
-
-                //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-                DataGridS.AppendChild(Row);
-
+                rowscounts++;
+                DataGrid.AppendChild(Row);
             }
 
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 寫入 TB_WKF_EXTERNAL_TASK
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
+            string connectionString = sqlsb.ConnectionString;
             StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
+            queryString.AppendFormat(@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{0}')"
+                                    ,  EXTERNAL_FORM_NBR);
 
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-
                     SqlCommand command = new SqlCommand(queryString.ToString(), connection);
                     command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
 
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
+                    connection.Open();
+                    command.ExecuteNonQuery();
                     connection.Close();
-                    connection.Dispose();
-
                 }
             }
             catch
             {
-
-            }
-            finally
-            {
-
+                // 可加 log
             }
         }
 
 
+
         public DataTable SEARCH_ASTTC_ACTI11(string TC001, string TC002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立資料庫連線並解密帳號密碼
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
 
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
+                // SQL 完全保留原樣
+                sbSql.AppendFormat(@"
                                     SELECT *
                                     ,USER_GUID,NAME
                                     ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
                                     ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     FROM 
                                     (
-                                    SELECT   
-                                    ASTTC.[COMPANY]
-                                    ,ASTTC.[CREATOR]
-                                    ,ASTTC.[USR_GROUP]
-                                    ,ASTTC.[CREATE_DATE]
-                                    ,ASTTC.[MODIFIER]
-                                    ,ASTTC.[MODI_DATE]
-                                    ,ASTTC.[FLAG]
-                                    ,ASTTC.[CREATE_TIME]
-                                    ,ASTTC.[MODI_TIME]
-                                    ,ASTTC.[TRANS_TYPE]
-                                    ,ASTTC.[TRANS_NAME]
-                                    ,ASTTC.[sync_date]
-                                    ,ASTTC.[sync_time]
-                                    ,ASTTC.[sync_mark]
-                                    ,ASTTC.[sync_count]
-                                    ,ASTTC.[DataUser]
-                                    ,ASTTC.[DataGroup]                                 
-                                    ,[TC001]
-                                    ,[TC002]
-                                    ,[TC003]
-                                    ,[TC004]
-                                    ,[TC005]
-                                    ,[TC006]
-                                    ,[TC007]
-                                    ,[TC008]
-                                    ,[TC009]
-                                    ,[TC010]
-                                    ,[TC011]
-                                    ,[TC012]
-                                    ,[TC013]
-                                    ,[TC014]
-                                    ,[TC015]
-                                    ,[TC016]
-                                    ,[TC017]
-                                    ,[TC018]
-                                    ,[TC019]
-                                    ,[TC020]
-                                    ,[TC021]
-                                    ,[TC022]
-                                    ,[TC023]
-                                    ,[TC024]
-                                    ,[TC025]
-                                    ,[TC026]
-                                    ,[TC027]
-                                    ,[TC028]
-                                    ,[TC029]
-                                    ,[TC030]
-                                    ,[TC031]
-                                    ,[TC032]
-                                    ,[TC033]
-                                    ,[TC034]
-                                    ,[TC035]
-                                    ,[TC036]
-                                    ,[TC037]
-                                    ,[TC038]
-                                    ,[TC039]
-                                    ,[TC040]
-                                    ,[TC041]
-                                    ,[TC042]
-                                    ,[TC043]
-                                    ,[TC044]
-                                    ,[TC045]
-                                    ,[TC046]
-                                    ,[TC047]
-                                    ,[TC048]
-                                    ,[TC049]
-                                    ,[TC050]
-                                    ,[TC051]
-                                    ,[TC052]
-                                    ,[TC053]
-                                    ,[TC054]
-                                    ,[TC055]
-                                    ,[TC056]
-                                    ,[TC057]
-                                    ,[TC058]
-                                    ,[TC059]
-                                    ,[TC060]
-                                    ,[TC061]
-                                    ,[TC062]
-                                    ,[TC063]
-                                    ,[TC064]
-                                    ,[TC065]
-                                    ,[TC066]
-                                    ,[TC067]
-                                    ,[TC068]
-                                    ,[TC069]
-                                    ,[TC070]
-                                    ,[TC071]
-                                    ,[TC072]
-                                    ,[TC073]
-                                    ,[TC074]
-                                    ,[TC075]
-                                    ,[TC076]
-                                    ,[TC077]
-                                    ,[TC078]
-                                    ,[TC079]
-                                    ,[TC080]
-                                    ,[TC081]
-                                    ,[TC082]
-                                    ,[TC083]
-                                    ,[TC084]
-                                    ,[TC085]
-                                    ,[TC086]
-                                    ,[TC087]
-                                    ,[TC088]
-                                    ,[TC089]
-                                    ,[TC090]
-                                    ,[TC091]
-                                    ,[TC092]
-                                    ,[TC093]
-                                    ,[TC094]
-                                    ,[TC095]
-                                    ,[TC096]
-                                    ,[TC097]
-                                    ,[TC098]
-                                    ,[TC099]
-                                    ,[TC100]
-                                    ,[TC101]
-                                    ,[TC102]
-                                    ,[TC103]
-                                    ,[TC104]
-                                    ,[TC105]
-                                    ,[TC106]
-                                    ,[TC107]
-                                    ,[MB001]
-                                    ,[MB002]
-                                    ,[MB003]
-                                    ,[TD001]
-                                    ,[TD002]
-                                    ,[TD003]
-                                    ,[TD004]
-                                    ,[TD005]
-                                    ,[TD006]
-                                    ,[TD007]
-                                    ,[TD008]
-           
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ASTTC.CREATOR) AS 'MV002'
-
-                                    FROM [TK].dbo.ASTTC
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= ASTTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [TK].dbo.ASTTD ON TC001=TD001 AND TC002=TD002
-
-                                    ,[TK].dbo.ASTMB
-
-                                    WHERE 1=1
-                                    AND TC004=MB001
-                                    AND TC001='{0}' AND TC002='{1}'
-
+                                        SELECT   
+                                            ASTTC.[COMPANY]
+                                            ,ASTTC.[CREATOR]
+                                            ,ASTTC.[USR_GROUP]
+                                            ,ASTTC.[CREATE_DATE]
+                                            ,ASTTC.[MODIFIER]
+                                            ,ASTTC.[MODI_DATE]
+                                            ,ASTTC.[FLAG]
+                                            ,ASTTC.[CREATE_TIME]
+                                            ,ASTTC.[MODI_TIME]
+                                            ,ASTTC.[TRANS_TYPE]
+                                            ,ASTTC.[TRANS_NAME]
+                                            ,ASTTC.[sync_date]
+                                            ,ASTTC.[sync_time]
+                                            ,ASTTC.[sync_mark]
+                                            ,ASTTC.[sync_count]
+                                            ,ASTTC.[DataUser]
+                                            ,ASTTC.[DataGroup]                                 
+                                            ,[TC001],[TC002],[TC003],[TC004],[TC005],[TC006],[TC007],[TC008]
+                                            ,[TC009],[TC010],[TC011],[TC012],[TC013],[TC014],[TC015],[TC016]
+                                            ,[TC017],[TC018],[TC019],[TC020],[TC021],[TC022],[TC023],[TC024]
+                                            ,[TC025],[TC026],[TC027],[TC028],[TC029],[TC030],[TC031],[TC032]
+                                            ,[TC033],[TC034],[TC035],[TC036],[TC037],[TC038],[TC039],[TC040]
+                                            ,[TC041],[TC042],[TC043],[TC044],[TC045],[TC046],[TC047],[TC048]
+                                            ,[TC049],[TC050],[TC051],[TC052],[TC053],[TC054],[TC055],[TC056]
+                                            ,[TC057],[TC058],[TC059],[TC060],[TC061],[TC062],[TC063],[TC064]
+                                            ,[TC065],[TC066],[TC067],[TC068],[TC069],[TC070],[TC071],[TC072]
+                                            ,[TC073],[TC074],[TC075],[TC076],[TC077],[TC078],[TC079],[TC080]
+                                            ,[TC081],[TC082],[TC083],[TC084],[TC085],[TC086],[TC087],[TC088]
+                                            ,[TC089],[TC090],[TC091],[TC092],[TC093],[TC094],[TC095],[TC096]
+                                            ,[TC097],[TC098],[TC099],[TC100],[TC101],[TC102],[TC103],[TC104]
+                                            ,[TC105],[TC106],[TC107],[MB001],[MB002],[MB003],[TD001],[TD002]
+                                            ,[TD003],[TD004],[TD005],[TD006],[TD007],[TD008]
+                                            ,[TB_EB_USER].USER_GUID,NAME
+                                            ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=ASTTC.CREATOR) AS 'MV002'
+                                        FROM [TK].dbo.ASTTC
+                                        LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                            ON [TB_EB_USER].ACCOUNT= ASTTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                        LEFT JOIN [TK].dbo.ASTTD ON TC001=TD001 AND TC002=TD002
+                                        ,[TK].dbo.ASTMB
+                                        WHERE 1=1
+                                        AND TC004=MB001
+                                        AND TC001='{0}' AND TC002='{1}'
                                     ) AS TEMP
-                              
-                                    ", TC001, TC002);
+                                ", TC001, TC002);
 
+                SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
 
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
-                }
-
+                return ds1.Tables["ds1"].Rows.Count > 0 ? ds1.Tables["ds1"] : null;
             }
             catch
             {
@@ -18092,6 +17579,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
 
 
         public void ADDUOFASTMBASTMCASTTEASTTE()
@@ -50646,6 +50134,7 @@ namespace TKSCHEDULEUOF
         private void button35_Click(object sender, EventArgs e)
         {
             //ASTI11.資產折舊建立作業
+            //ERP資產折舊>轉入UOF簽核
             ADDUOFASTMBASTMCASTTCASTTD_ACTI11();
         }
 
