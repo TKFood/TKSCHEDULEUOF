@@ -17735,11 +17735,11 @@ namespace TKSCHEDULEUOF
             Form.AppendChild(FormFieldValue);
 
             // 主表欄位
-            AddFieldItem(xmlDoc, FormFieldValue, "", "ID", fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, DT.Rows[0]["TE001"].ToString(), "TE001", fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, DT.Rows[0]["TE002"].ToString(), "TE002", fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, DT.Rows[0]["TE003"].ToString(), "TE003", fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, DT.Rows[0]["TE004"].ToString(), "TE004", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TE001", DT.Rows[0]["TE001"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TE002", DT.Rows[0]["TE002"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TE003", DT.Rows[0]["TE003"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "TE004", DT.Rows[0]["TE004"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
             
             // 建立 DataGrid 節點
