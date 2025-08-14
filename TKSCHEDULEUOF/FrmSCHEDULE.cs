@@ -9372,19 +9372,15 @@ namespace TKSCHEDULEUOF
                 return null;
             }
         }
-
+        //ERP製令變更單>轉入UOF簽核
         public void ADDUOFMOCTOMOCTP()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902密碼解密連線
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
@@ -9398,42 +9394,35 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                    SELECT TO001,TO002,UDF01
-                                    FROM [TK].dbo.MOCTO
-                                    WHERE TO041='N'
-                                    AND UDF01 IN ('Y','y')
-                                    ORDER BY TO001,TO002
+                sbSql.AppendFormat(@"
+                                SELECT TO001,TO002,UDF01
+                                FROM [TK].dbo.MOCTO
+                                WHERE TO041='N'
+                                AND UDF01 IN ('Y','y')
+                                ORDER BY TO001,TO002
+                              ");
 
-
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
-
+                sqlConn.Close();
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
-                        ADD_MOCTOMOCTP_TB_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                        string TO001 = dr["TO001"].ToString().Trim();
+                        string TO002 = dr["TO002"].ToString().Trim();
+                        ADD_MOCTOMOCTP_TB_WKF_EXTERNAL_TASK(TO001,TO002);
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
             catch
             {
-
+                // 可加上 Log 紀錄錯誤
             }
             finally
             {
@@ -9447,59 +9436,53 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902 密碼解密連線
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
                 String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
-                sqlConn.Close();
                 sqlConn.Open();
                 tran = sqlConn.BeginTransaction();
 
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [TK].dbo.MOCTO
-                                    SET UDF01 = 'UOF'
-                                    WHERE  UDF01 IN ('Y','y')                                        
-
-                                    ");
+                                UPDATE [TK].dbo.MOCTO
+                                SET UDF01 = 'UOF'
+                                WHERE UDF01 IN ('Y','y')
+                              ");
 
                 cmd.Connection = sqlConn;
                 cmd.CommandTimeout = 60;
                 cmd.CommandText = sbSql.ToString();
                 cmd.Transaction = tran;
+
                 result = cmd.ExecuteNonQuery();
 
                 if (result == 0)
                 {
-                    tran.Rollback();    //交易取消
+                    tran.Rollback(); // 交易取消
                 }
                 else
                 {
-                    tran.Commit();      //執行交易  
+                    tran.Commit(); // 執行交易
                 }
-
             }
             catch
             {
-
+                // 可加上 Log 紀錄錯誤
             }
-
             finally
             {
                 sqlConn.Close();
             }
         }
+
 
         public void ADD_MOCTOMOCTP_TB_WKF_EXTERNAL_TASK(string TO001, string TO002)
         {
@@ -9928,79 +9911,54 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHMOCTOMOCTP(string TA001, string TA002)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            SqlDataAdapter adapter1;
+            SqlCommandBuilder sqlCmdBuilder1;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902 密碼解密連線
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
 
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                   SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                sbSql.AppendFormat(@"
+                                    SELECT *
+                                          ,USER_GUID,NAME
+                                          ,(SELECT TOP 1 GROUP_ID 
+                                            FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                            WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                          ,(SELECT TOP 1 TITLE_ID 
+                                            FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                            WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
                                     FROM 
                                     (
-                                    SELECT 
-                                    MOCTO.CREATOR
-                                    ,TO001
-                                    ,TO002
-                                    ,TO003
-                                    ,TO004
-                                    ,TO005
-                                    ,TO006
-                                    ,TO009
-                                    ,TO012
-                                    ,TO013
-                                    ,TO014
-                                    ,TO017
-                                    ,TO022
-                                    ,TO023
-                                    ,TO035
-                                    ,TO036
-                                    ,TP001
-                                    ,TP002
-                                    ,TP003
-                                    ,TP004
-                                    ,TP005
-                                    ,TP010
-
-
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTO.CREATOR) AS 'MV002'
-                                    FROM [TK].dbo.MOCTP,[TK].dbo.MOCTO
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= MOCTO.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-
-                                    WHERE TO001=TP001 AND TO002=TP002 
-                                    AND TO001='{0}' AND TO002='{1}'
+                                        SELECT 
+                                            MOCTO.CREATOR
+                                            ,TO001,TO002,TO003,TO004,TO005,TO006,TO009
+                                            ,TO012,TO013,TO014,TO017,TO022,TO023,TO035,TO036
+                                            ,TP001,TP002,TP003,TP004,TP005,TP010
+                                            ,[TB_EB_USER].USER_GUID,NAME
+                                            ,(SELECT TOP 1 MV002 
+                                              FROM [TK].dbo.CMSMV 
+                                              WHERE MV001=MOCTO.CREATOR) AS 'MV002'
+                                        FROM [TK].dbo.MOCTP,[TK].dbo.MOCTO
+                                        LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                            ON [TB_EB_USER].ACCOUNT = MOCTO.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                        WHERE TO001=TP001 AND TO002=TP002
+                                        AND TO001='{0}' AND TO002='{1}'
                                     ) AS TEMP
-                              
-                                    ", TA001, TA002);
+                                  ", TA001, TA002);
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
@@ -10009,13 +9967,11 @@ namespace TKSCHEDULEUOF
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
                     return ds1.Tables["ds1"];
-
                 }
                 else
                 {
                     return null;
                 }
-
             }
             catch
             {
@@ -10026,6 +9982,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
+
         //ERP結帳單>轉入UOF簽核
         public void ADDUOFACRTAACRTB()
         {
@@ -49898,6 +49855,9 @@ namespace TKSCHEDULEUOF
         private void button37_Click(object sender, EventArgs e)
         {
             //MOCI12.製令變更單
+            //ERP製令變更單>轉入UOF簽核
+            //沒有使用
+            //改用UOF的訂單變更協調
             ADDUOFMOCTOMOCTP();
         }
         private void button38_Click(object sender, EventArgs e)
