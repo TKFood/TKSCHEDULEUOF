@@ -11440,640 +11440,293 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //ERP報價單 >轉入UOF簽核
         public void ADDCOPMACOPMBCOPMC()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@" 
-                                    SELECT TA001,TA002
+                    sbSql.AppendFormat(@"
+                                    SELECT TA001, TA002
                                     FROM [TK].dbo.COPTA
-                                    WHERE TA019='N' AND  (UDF01 IN ('Y','y') ) 
+                                    WHERE TA019='N' AND (UDF01 IN ('Y','y')) 
                                     ORDER BY TA001,TA002
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    using (SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder(adapter1))
                     {
-                        ADD_COPTACOPTBCOPTC_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                        DataSet ds1 = new DataSet();
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+
+                        if (ds1.Tables["ds1"].Rows.Count >= 1)
+                        {
+                            foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                            {
+                                string TA001Value = dr["TA001"].ToString().Trim(); // 新增變數 TA001Value 來處理
+                                string TA002Value = dr["TA002"].ToString().Trim();
+
+                                ADD_COPTACOPTBCOPTC_WKF_EXTERNAL_TASK(TA001Value, TA002Value);
+                            }
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 可視情況補充 Log
             }
 
             UPDATECOPTAUDF01();
         }
 
+
         public void UPDATECOPTAUDF01()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
+                        sbSql.Clear();
+                        sbSql.AppendFormat(@"
                                     UPDATE  [TK].dbo.COPTA 
                                     SET UDF01 = 'UOF'
                                     WHERE TA019='N' AND  (UDF01 IN ('Y','y') )                                   
-
                                     ");
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
+                        cmd.CommandText = sbSql.ToString();
 
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議加上 Log 記錄錯誤
             }
         }
+
 
         public void ADD_COPTACOPTBCOPTC_WKF_EXTERNAL_TASK(string TA001, string TA002)
         {
-            DataTable DT = SEARCHCOPTACOPTBCOPTC(TA001, TA002);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["TA005"].ToString());
-
-            string account = DT.Rows[0]["TA005"].ToString();
-            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName = DT.Rows[0]["MV002"].ToString();
-            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
-
-            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
-            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
-
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
-
-            int rowscounts = 0;
-
-            XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
-            XmlElement Form = xmlDoc.CreateElement("Form");
-
-            //正式的id
-            string COPTAID = SEARCHFORM_UOF_VERSION_ID("COP01.報價單");
-
-            if (!string.IsNullOrEmpty(COPTAID))
-            {
-                Form.SetAttribute("formVersionId", COPTAID);
-            }
-
-
-            Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
-            xmlDoc.AppendChild(Form);
-
-            ////建立節點Applicant
-            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account);
-            Applicant.SetAttribute("groupId", groupId);
-            Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
-            Form.AppendChild(Applicant);
-
-            //建立節點 Comment
-            XmlElement Comment = xmlDoc.CreateElement("Comment");
-            Comment.InnerText = "申請者意見";
-            //加入至節點底下
-            Applicant.AppendChild(Comment);
-
-            //建立節點 FormFieldValue
-            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
-            Form.AppendChild(FormFieldValue);
-
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA001"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA002"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA003"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA004"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA006	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA006");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA006"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA005");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA005"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA022
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA022");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA022"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA026	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA026");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA026"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA011NAME	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA011NAME");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA011"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA007	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA007");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA007"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //TA008	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA008");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA008"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //MA010
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MA010");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MA010"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-            //建立節點FieldItem
-            //DETAILS 
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
-            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode TB = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
-            TB.AppendChild(DataGrid);
-
-
-            foreach (DataRow od in DT.Rows)
-            {
-                // 新增 Row
-                XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
-
-                //Row	TB003
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB003");
-                Cell.SetAttribute("fieldValue", od["TB003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB004");
-                Cell.SetAttribute("fieldValue", od["TB004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB005");
-                Cell.SetAttribute("fieldValue", od["TB005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB007");
-                Cell.SetAttribute("fieldValue", od["TB007"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB008");
-                Cell.SetAttribute("fieldValue", od["TB008"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB009
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB009");
-                Cell.SetAttribute("fieldValue", od["TB009"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB010
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB010");
-                Cell.SetAttribute("fieldValue", od["TB010"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB016
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB016");
-                Cell.SetAttribute("fieldValue", od["TB016"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TK004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TK004");
-                Cell.SetAttribute("fieldValue", od["TK004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TK006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TK006");
-                Cell.SetAttribute("fieldValue", od["TK006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                rowscounts = rowscounts + 1;
-
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-                DataGridS.AppendChild(Row);
-
-            }
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
-            StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
-
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                DataTable DT = SEARCHCOPTACOPTBCOPTC(TA001, TA002);
+                if (DT == null || DT.Rows.Count == 0) return;
+
+                DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["TA005"].ToString());
+
+                string account = DT.Rows[0]["TA005"].ToString();
+                string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+                string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+                string fillerName = DT.Rows[0]["MV002"].ToString();
+                string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+                string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+                string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+                string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement Form = xmlDoc.CreateElement("Form");
+                string COPTAID = SEARCHFORM_UOF_VERSION_ID("COP01.報價單");
+                if (!string.IsNullOrEmpty(COPTAID)) Form.SetAttribute("formVersionId", COPTAID);
+                Form.SetAttribute("urgentLevel", "2");
+                xmlDoc.AppendChild(Form);
+
+                XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+                Applicant.SetAttribute("account", account);
+                Applicant.SetAttribute("groupId", groupId);
+                Applicant.SetAttribute("jobTitleId", jobTitleId);
+                Form.AppendChild(Applicant);
+
+                XmlElement Comment = xmlDoc.CreateElement("Comment");
+                Comment.InnerText = "申請者意見";
+                Applicant.AppendChild(Comment);
+
+                XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+                Form.AppendChild(FormFieldValue);
+
+                // 主表欄位逐個 AddFieldItem
+                AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA001", DT.Rows[0]["TA001"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA002", DT.Rows[0]["TA002"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA003", DT.Rows[0]["TA003"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA004", DT.Rows[0]["TA004"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA006", DT.Rows[0]["TA006"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA005", DT.Rows[0]["TA005"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA022", DT.Rows[0]["TA022"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA026", DT.Rows[0]["TA026"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA011NAME", DT.Rows[0]["TA011"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA007", DT.Rows[0]["TA007"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA008", DT.Rows[0]["TA008"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "MA010", DT.Rows[0]["MA010"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
+
+                // DataGrid
+                XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
+                XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+                DETAILS.AppendChild(DataGrid);
+
+                int rowscounts = 0;
+                foreach (DataRow od in DT.Rows)
                 {
+                    XmlElement Row = xmlDoc.CreateElement("Row");
+                    Row.SetAttribute("order", rowscounts.ToString());
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                    // 明細欄位逐個 AppendCellToRow
+                    AppendCellToRow(xmlDoc, Row, od, "TB003");
+                    AppendCellToRow(xmlDoc, Row, od, "TB004");
+                    AppendCellToRow(xmlDoc, Row, od, "TB005");
+                    AppendCellToRow(xmlDoc, Row, od, "TB007");
+                    AppendCellToRow(xmlDoc, Row, od, "TB008");
+                    AppendCellToRow(xmlDoc, Row, od, "TB009");
+                    AppendCellToRow(xmlDoc, Row, od, "TB010");
+                    AppendCellToRow(xmlDoc, Row, od, "TB016");
+                    AppendCellToRow(xmlDoc, Row, od, "TK004");
+                    AppendCellToRow(xmlDoc, Row, od, "TK006");
 
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    DataGrid.AppendChild(Row);
+                    rowscounts++;
                 }
-            }
-            catch
-            {
 
-            }
-            finally
-            {
-
-            }
-
-
-
-
-
-        }
-
-        public DataTable SEARCHCOPTACOPTBCOPTC(string TA001, string TA002)
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 寫入資料庫
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                   SELECT TEMP.*
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-
-                                    FROM 
-                                    (
-                                    SELECT COPTA.CREATOR,TA001,TA002,TA003,TA004,TA005,TA006,TA007,TA008,TA009,TA010,TA011,TA026
-                                    ,(CASE WHEN TA022='1' THEN '內含'  WHEN TA022='2' THEN '外加'  WHEN TA022='3' THEN '零稅率'   WHEN TA022='4' THEN '免稅' WHEN TA022='9' THEN '不計稅' ELSE '空白' END ) TA022
-                                    ,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB011,TB016
-                                    ,ISNULL(TK004,0) AS TK004,ISNULL(TK006,0) AS TK006
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA005) AS 'MV002'
-                                    ,MA010
-
-                                    FROM [TK].dbo.COPTA
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TA005 COLLATE Chinese_Taiwan_Stroke_BIN
-                                    INNER JOIN [TK].dbo.COPTB ON TA001=TB001 AND TA002=TB002
-                                    LEFT JOIN [TK].dbo.COPTK ON  TK001=TB001 AND TK002=TB002 AND TK003=TB003
-                                    LEFT JOIN [TK].dbo.COPMA ON MA001=TA004
-
-                                    WHERE 
-                                    TA001='{0}' AND TA002='{1}'
-                                    ) AS TEMP
-                              
-                                    ", TA001, TA002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    string queryString = $@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                                    ";
 
+                    using (SqlCommand command = new SqlCommand(queryString, connection))
+                    {
+                        command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ADD_COPTACOPTBCOPTC_WKF_EXTERNAL_TASK 發生例外: " + ex.ToString());
+                throw;
+            }
+        }
+
+
+        public DataTable SEARCHCOPTACOPTBCOPTC(string TA001, string TA002)
+        {
+            try
+            {
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+
+                // 資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return null;
-                }
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
+                    sbSql.AppendFormat(@"  
+                                       SELECT TEMP.*
+                                        ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                          WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                        ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                          WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+
+                                        FROM 
+                                        (
+                                            SELECT COPTA.CREATOR,TA001,TA002,TA003,TA004,TA005,TA006,TA007,TA008,TA009,TA010,TA011,TA026
+                                            ,(CASE WHEN TA022='1' THEN '內含'  
+                                                   WHEN TA022='2' THEN '外加'  
+                                                   WHEN TA022='3' THEN '零稅率'   
+                                                   WHEN TA022='4' THEN '免稅' 
+                                                   WHEN TA022='9' THEN '不計稅' 
+                                                   ELSE '空白' END ) TA022
+                                            ,TB003,TB004,TB005,TB006,TB007,TB008,TB009,TB010,TB011,TB016
+                                            ,ISNULL(TK004,0) AS TK004,ISNULL(TK006,0) AS TK006
+                                            ,[TB_EB_USER].USER_GUID,NAME
+                                            ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TA005) AS 'MV002'
+                                            ,MA010
+
+                                            FROM [TK].dbo.COPTA
+                                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                                ON [TB_EB_USER].ACCOUNT= TA005 COLLATE Chinese_Taiwan_Stroke_BIN
+                                            INNER JOIN [TK].dbo.COPTB ON TA001=TB001 AND TA002=TB002
+                                            LEFT JOIN [TK].dbo.COPTK ON TK001=TB001 AND TK002=TB002 AND TK003=TB003
+                                            LEFT JOIN [TK].dbo.COPMA ON MA001=TA004
+
+                                            WHERE TA001='{0}' AND TA002='{1}'
+                                        ) AS TEMP
+                                        ", TA001, TA002);
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        DataSet ds = new DataSet();
+                        sqlConn.Open();
+                        adapter.Fill(ds, "ds1");
+
+                        if (ds.Tables["ds1"].Rows.Count > 0)
+                        {
+                            return ds.Tables["ds1"];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
+
         //ERP資產資料>轉入UOF簽核
         public void ADDUOFASTMBASTMC()
         {
