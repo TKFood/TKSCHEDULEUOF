@@ -48768,6 +48768,9 @@ namespace TKSCHEDULEUOF
         }
         private void button39_Click(object sender, EventArgs e)
         {
+            //取消不用
+            //UOF送單
+            //ERP報價單 >轉入UOF簽核
             ADDCOPMACOPMBCOPMC();
         }
         private void button40_Click(object sender, EventArgs e)
