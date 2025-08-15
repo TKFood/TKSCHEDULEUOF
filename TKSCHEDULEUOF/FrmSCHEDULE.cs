@@ -11318,8 +11318,8 @@ namespace TKSCHEDULEUOF
                 AppendCellToRow(xmlDoc, Row, od, "TB007");
                 AppendCellToRow(xmlDoc, Row, od, "TB008");
                 AppendCellToRow(xmlDoc, Row, od, "TB014");
-                AppendCellToRow(xmlDoc, Row, od, "TH015");
-                AppendCellToRow(xmlDoc, Row, od, "CHECK", true);
+                AppendCellToRow(xmlDoc, Row, od, "TH015", true, od["TB007"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "CHECK", true,"Y");
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL01", true);
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL02", true,"V");
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL03", true,"N");
