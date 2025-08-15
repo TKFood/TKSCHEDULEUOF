@@ -4107,10 +4107,7 @@ namespace TKSCHEDULEUOF
         /// </summary>
         public void ADDTKMKdboTBSTOREDAILY()
         {
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
-
+            string THISYEARS = DateTime.Now.ToString("yyyy").Substring(2, 2);
             DataTable dtResult = new DataTable();
 
             try
@@ -4123,26 +4120,23 @@ namespace TKSCHEDULEUOF
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     StringBuilder sbSql = new StringBuilder();
-
-                    sbSql.AppendFormat(@" 
-                                SELECT DOC_NBR
-                                FROM [UOF].DBO.TB_WKF_TASK 
-                                WHERE DOC_NBR LIKE 'STOREDAILY{0}%'
-                                AND TASK_RESULT='0'
-                                AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
-                                (
-	                                SELECT [ID] AS 'DOC_NBR'
-	                                FROM [TKMK].[dbo].[TBSTOREDAILY]
-                                )
-                            ", THISYEARS);
+                    sbSql.AppendFormat(@"
+                                        SELECT DOC_NBR
+                                        FROM [UOF].DBO.TB_WKF_TASK 
+                                        WHERE DOC_NBR LIKE 'STOREDAILY{0}%'
+                                        AND TASK_RESULT='0'
+                                        AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                                        (
+                                            SELECT [ID] AS 'DOC_NBR'
+                                            FROM [TKMK].[dbo].[TBSTOREDAILY]
+                                        )
+                                    ", THISYEARS);
 
                     using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
                     {
                         using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                         {
-                            sqlConn.Open();
                             adapter.Fill(dtResult);
-                            sqlConn.Close();
                         }
                     }
                 }
@@ -4160,6 +4154,7 @@ namespace TKSCHEDULEUOF
                 Console.WriteLine("錯誤: " + ex.Message);
             }
         }
+
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
