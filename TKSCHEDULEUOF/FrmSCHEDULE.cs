@@ -2493,9 +2493,15 @@ namespace TKSCHEDULEUOF
         /// <param name="fid"></param>
         /// <param name="fid"></param>
         /// <param name="withFieldMessage"></param>
-        private void AppendCellToRow(XmlDocument xmlDoc, XmlElement row, DataRow od, string fid, bool withFieldMessage = false)
+        private void AppendCellToRow(XmlDocument xmlDoc, XmlElement row, DataRow od, string fid, bool withFieldMessage = false,string cellfieldValue = "")
         {
             string value = od.Table.Columns.Contains(fid) ? od[fid].ToString() : "";
+
+            if (!string.IsNullOrEmpty(cellfieldValue))
+            {
+                value = cellfieldValue;
+            }
+           
 
             XmlElement cell = xmlDoc.CreateElement("Cell");
             cell.SetAttribute("fieldId", fid);
@@ -11315,15 +11321,15 @@ namespace TKSCHEDULEUOF
                 AppendCellToRow(xmlDoc, Row, od, "TH015");
                 AppendCellToRow(xmlDoc, Row, od, "CHECK", true);
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL01", true);
-                AppendCellToRow(xmlDoc, Row, od, "DETAIL02", true);
-                AppendCellToRow(xmlDoc, Row, od, "DETAIL03", true);
-                AppendCellToRow(xmlDoc, Row, od, "DETAIL05", true);
+                AppendCellToRow(xmlDoc, Row, od, "DETAIL02", true,"V");
+                AppendCellToRow(xmlDoc, Row, od, "DETAIL03", true,"N");
+                AppendCellToRow(xmlDoc, Row, od, "DETAIL05", true,"0");
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL06", true);
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL07", true);
                 AppendCellToRow(xmlDoc, Row, od, "DETAIL08", true);
-                AppendCellToRow(xmlDoc, Row, od, "VALIDDAYS", true);
-                AppendCellToRow(xmlDoc, Row, od, "STILLDAYS", true);
-                AppendCellToRow(xmlDoc, Row, od, "STILLPCTS", true);
+                AppendCellToRow(xmlDoc, Row, od, "VALIDDAYS", true,"0");
+                AppendCellToRow(xmlDoc, Row, od, "STILLDAYS", true,"0");
+                AppendCellToRow(xmlDoc, Row, od, "STILLPCTS", true,"0.00%");
 
                 DataGrid.AppendChild(Row);
                 rowscounts++;
