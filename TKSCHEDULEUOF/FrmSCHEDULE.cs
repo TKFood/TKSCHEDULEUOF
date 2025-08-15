@@ -36392,7 +36392,13 @@ namespace TKSCHEDULEUOF
             {
                 foreach (DataRow dr in DT1003.Rows)
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(dr["DOC_NBR"].ToString(), dr["GG004"].ToString(), dr["GG002"].ToString(), dr["GG005"].ToString(),DEFAUL_NAME);
+                    string DOC_NBR = dr["DOC_NBR"].ToString();
+                    string GG004 = dr["GG004"].ToString();
+                    string GG002 = dr["GG002"].ToString();
+                    string GG005 = dr["GG005"].ToString();
+                    string GG010 = dr["GG010"].ToString();
+            
+                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NULL(DOC_NBR, GG004, GG002, GG005, GG010, DEFAUL_NAME);
                 }
             }
         }
@@ -36540,6 +36546,7 @@ namespace TKSCHEDULEUOF
             string GG004,
             string GG002,
             string GG005,
+            string GG010,
             string DEFAUL_NAME
             )
         {
@@ -36615,8 +36622,9 @@ namespace TKSCHEDULEUOF
                                         AND R.Cell.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') = '{1}'
                                         AND R.Cell.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') = '{2}'
                                         AND R.Cell.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') = '{3}'
+                                        AND R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)') = '{4}'
 
-                                    ", DOC_NBR, GG004, GG002, GG005);
+                                    ", DOC_NBR, GG004, GG002, GG005, GG010);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -36654,7 +36662,7 @@ namespace TKSCHEDULEUOF
                     string GA098 = "";
                     string GA099 = ds1.Tables["ds1"].Rows[0]["GA009"].ToString();
                     string GA999 = ds1.Tables["ds1"].Rows[0]["GA010"].ToString().Trim();
-                    string GG010 = "";
+                  
 
                     //採購單的「負責採購人員」是空白，預設GA999
                     if (string.IsNullOrEmpty(GA999))
