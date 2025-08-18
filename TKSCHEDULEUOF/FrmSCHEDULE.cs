@@ -12083,76 +12083,61 @@ namespace TKSCHEDULEUOF
         //找出表單建立者
         public DataTable FIND_TB_EB_USER(string USER_GUID)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號與密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    [TB_EB_USER].[USER_GUID] AS 'USER_GUID'
-                                    ,[ACCOUNT] AS 'CREATOR'
-                                    ,[NAME] AS 'NAME'
-                                    ,[TB_EB_EMPL_DEP].[GROUP_ID] AS 'GROUP_ID'
-                                    ,[TB_EB_EMPL_DEP].[TITLE_ID] AS 'TITLE_ID'
-                                    ,[GROUP_NAME] AS 'GROUP_NAME'
-                                    ,[TITLE_NAME] AS 'TITLE_NAME'
-                                    ,[GROUP_CODE] AS 'GROUP_CODE'
-
-                                    FROM [UOF].[dbo].[TB_EB_USER],[UOF].[dbo].[TB_EB_EMPL_DEP],[UOF].[dbo].[TB_EB_GROUP],[UOF].[dbo].[TB_EB_JOB_TITLE]
-                                    WHERE [TB_EB_USER].USER_GUID=[TB_EB_EMPL_DEP].USER_GUID
-                                    AND [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID]
-                                    AND [TB_EB_EMPL_DEP].TITLE_ID=[TB_EB_JOB_TITLE].TITLE_ID
-                                    AND [TB_EB_USER].USER_GUID='{0}'
-                                 
-                                    ", USER_GUID);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    StringBuilder sbSql = new StringBuilder();
+                    sbSql.AppendFormat(@"
+                                        SELECT 
+                                            [TB_EB_USER].[USER_GUID] AS USER_GUID,
+                                            [ACCOUNT] AS CREATOR,
+                                            [NAME] AS NAME,
+                                            [TB_EB_EMPL_DEP].[GROUP_ID] AS GROUP_ID,
+                                            [TB_EB_EMPL_DEP].[TITLE_ID] AS TITLE_ID,
+                                            [GROUP_NAME] AS GROUP_NAME,
+                                            [TITLE_NAME] AS TITLE_NAME,
+                                            [GROUP_CODE] AS GROUP_CODE
+                                        FROM [UOF].[dbo].[TB_EB_USER]
+                                        JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_USER].USER_GUID = [TB_EB_EMPL_DEP].USER_GUID
+                                        JOIN [UOF].[dbo].[TB_EB_GROUP] ON [TB_EB_EMPL_DEP].[GROUP_ID] = [TB_EB_GROUP].[GROUP_ID]
+                                        JOIN [UOF].[dbo].[TB_EB_JOB_TITLE] ON [TB_EB_EMPL_DEP].TITLE_ID = [TB_EB_JOB_TITLE].TITLE_ID
+                                        WHERE [TB_EB_USER].USER_GUID = @USER_GUID
+                                    ");
 
-                }
-                else
-                {
-                    return null;
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        adapter.SelectCommand.Parameters.AddWithValue("@USER_GUID", USER_GUID);
+
+                        DataSet ds = new DataSet();
+                        sqlConn.Open();
+                        adapter.Fill(ds, "ds1");
+
+                        if (ds.Tables["ds1"].Rows.Count > 0)
+                        {
+                            return ds.Tables["ds1"];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("錯誤: " + ex.Message);
                 return null;
             }
         }
+
         //新增到品保1001表單
         public void NEW_UOF_QC1001(string QCFrm002SN_FieldValue, DataTable DT)
         {
@@ -12582,69 +12567,71 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號與密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                    
-                                    UPDATE [UOF].[dbo].TB_WKF_TASK
-                                    SET ATTACH_ID=TEMP.NEW_ATTACH_ID
-                                    FROM 
-                                    (
-                                    SELECT TB_WKF_TASK.DOC_NBR,TB_WKF_TASK.TASK_ID,TB_WKF_TASK.ATTACH_ID,[TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,TB_WKF_TASK2.ATTACH_ID AS  'NEW_ATTACH_ID'
-                                    FROM [UOF].[dbo].TB_WKF_TASK,[UOF].[dbo].[TB_WKF_EXTERNAL_TASK],  [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2
-                                    WHERE TB_WKF_TASK.DOC_NBR=[TB_WKF_EXTERNAL_TASK].DOC_NBR
-                                    AND [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR =TB_WKF_TASK2.DOC_NBR
-                                    AND TB_WKF_TASK.DOC_NBR LIKE 'QC%'
-                                    AND ISNULL(TB_WKF_TASK.ATTACH_ID,'')<>ISNULL(TB_WKF_TASK2.ATTACH_ID,'')
-                                    ) AS TEMP
-                                    WHERE TEMP.TASK_ID=TB_WKF_TASK.TASK_ID
-
-                                    "
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    {
+                        try
+                        {
+                            StringBuilder sbSql = new StringBuilder();
+                            sbSql.AppendFormat(@"
+                                                UPDATE [UOF].[dbo].TB_WKF_TASK
+                                                SET ATTACH_ID = TEMP.NEW_ATTACH_ID
+                                                FROM (
+                                                    SELECT 
+                                                        TB_WKF_TASK.DOC_NBR,
+                                                        TB_WKF_TASK.TASK_ID,
+                                                        TB_WKF_TASK.ATTACH_ID,
+                                                        [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,
+                                                        TB_WKF_TASK2.ATTACH_ID AS NEW_ATTACH_ID
+                                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                                    JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
+                                                        ON TB_WKF_TASK.DOC_NBR = [TB_WKF_EXTERNAL_TASK].DOC_NBR
+                                                    JOIN [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2 
+                                                        ON [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR = TB_WKF_TASK2.DOC_NBR
+                                                    WHERE TB_WKF_TASK.DOC_NBR LIKE 'QC%'
+                                                      AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+                                                ) AS TEMP
+                                                WHERE TEMP.TASK_ID = TB_WKF_TASK.TASK_ID
+                                            ");
+
+                            using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
+                            {
+                                cmd.CommandTimeout = 60;
+                                int result = cmd.ExecuteNonQuery();
+
+                                if (result == 0)
+                                {
+                                    tran.Rollback(); // 沒有更新 → 回滾
+                                }
+                                else
+                                {
+                                    tran.Commit();   // 有更新 → 提交
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            tran.Rollback(); // 發生錯誤 → 回滾
+                            throw;
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("錯誤: " + ex.Message);
             }
         }
+
 
         //DOC_NBR新增到[TKQC].[dbo].[TBUOFQC1002HCECK]
         public void ADD_TO_TBUOFQC1002HCECK(DataTable DT)
