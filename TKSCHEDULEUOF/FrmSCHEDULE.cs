@@ -13796,228 +13796,171 @@ namespace TKSCHEDULEUOF
         //找出昨天，已核單完成的採購單-1005.雜項採購單
         public DataTable SEARCHUOF_GRAFFAIRS_1005()
         {
-            StringBuilder MESS = new StringBuilder();
-            DataSet DS_FIND_UOF_TASK_APPLICATION_FORM = new DataSet();
-
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
-
-            string END_TIME = DateTime.Now.AddDays(0).ToString("yyyyMMdd");
+            DataSet ds = new DataSet();
+            string endTime = DateTime.Now.ToString("yyyyMMdd");
 
             try
             {
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 解密連線字串
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+                );
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-                sbSql.AppendFormat(@"                                    
-                                    SELECT CURRENT_DOC,* 
-                                   
-                                    FROM [UOF].[dbo].TB_WKF_TASK ,[UOF].[dbo].[TB_EB_USER],[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE TB_WKF_TASK.USER_GUID=[TB_EB_USER].USER_GUID
-                                    AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
-                                    AND TB_WKF_FORM.FORM_NAME='1005.雜項採購單'
-                                    AND TASK_RESULT='0' AND TASK_STATUS='2'
-                                    AND CONVERT(NVARCHAR,END_TIME,112)='{0}'
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [ID] FROM [192.168.1.105].[TKGAFFAIRS].[dbo].[BUYITEMREPORTS]) 
-
-                                   ", END_TIME);
-
-                adapter = new SqlDataAdapter(@"" + sbSql.ToString(), sqlConn);
-
-                sqlCmdBuilder = new SqlCommandBuilder(adapter);
-                sqlConn.Open();
-                DS_FIND_UOF_TASK_APPLICATION_FORM.Clear();
-                adapter.Fill(DS_FIND_UOF_TASK_APPLICATION_FORM, "DS_FIND_UOF_TASK_APPLICATION_FORM");
-                sqlConn.Close();
-
-
-
-                if (DS_FIND_UOF_TASK_APPLICATION_FORM.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"].Rows.Count > 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
+                    StringBuilder sbSql = new StringBuilder();
+                    sbSql.AppendFormat(@"
+                                         SELECT 
+                                            CURRENT_DOC,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(50)') AS ID,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA011""]/@fieldValue)[1]', 'nvarchar(200)') AS GA011,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA012""]/@fieldValue)[1]', 'nvarchar(200)') AS GA012,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA013""]/@fieldValue)[1]', 'nvarchar(200)') AS GA013,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA014""]/@fieldValue)[1]', 'nvarchar(200)') AS GA014,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA015""]/@fieldValue)[1]', 'nvarchar(200)') AS GA015,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA016""]/@fieldValue)[1]', 'nvarchar(200)') AS GA016,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA017""]/@fieldValue)[1]', 'nvarchar(200)') AS GA017,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA018""]/@fieldValue)[1]', 'nvarchar(200)') AS GA018,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA099""]/@fieldValue)[1]', 'nvarchar(200)') AS GA099,
+                                            CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA999""]/@fieldValue)[1]', 'nvarchar(200)') AS GA999,
+                                            TB_WKF_TASK.*,
+                                            TB_EB_USER.ACCOUNT,
+                                            TB_EB_USER.NAME,
+                                            TB_WKF_FORM.FORM_NAME,
+                                            TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                        FROM [UOF].[dbo].[TB_WKF_TASK] 
+                                        INNER JOIN [UOF].[dbo].[TB_EB_USER] ON TB_WKF_TASK.USER_GUID = TB_EB_USER.USER_GUID
+                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM] ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                        WHERE TB_WKF_FORM.FORM_NAME = '1005.雜項採購單'
+                                          AND TB_WKF_TASK.TASK_RESULT = '0'
+                                          AND TB_WKF_TASK.TASK_STATUS = '2'
+                                          AND CONVERT(NVARCHAR, TB_WKF_TASK.END_TIME, 112) = '{0}'
+                                          AND TB_WKF_TASK.DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (
+                                                SELECT [ID] 
+                                                FROM [192.168.1.105].[TKGAFFAIRS].[dbo].[BUYITEMREPORTS]
+                                          )
+                                          
+                                     ", endTime);
 
-                    return DS_FIND_UOF_TASK_APPLICATION_FORM.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"];
+                    SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), conn);
+                    adapter.Fill(ds, "DS_FIND_UOF_TASK_APPLICATION_FORM");
+                }
+
+                if (ds.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"].Rows.Count > 0)
+                {
+                    return ds.Tables["DS_FIND_UOF_TASK_APPLICATION_FORM"];
                 }
                 else
                 {
                     return null;
                 }
-
             }
-            catch
+            catch (Exception ex)
             {
+                // 建議 log 錯誤，方便 debug
+                Console.WriteLine("SEARCHUOF_GRAFFAIRS_1005 error: " + ex.Message);
                 return null;
             }
-            finally
-            {
-
-            }
-
         }
 
+
         public void ADD_TO_TKGAFFAIRS_BUYITEMREPORTS(
-                                         string ID
-                                        , string GA001
-                                        , string GA002
-                                        , string GA003
-                                        , string GA004
-                                        , string GA005
-                                        , string GA006
-                                        , string GA007
-                                        , string GA008
-                                        , string GA009
-                                        , string GA010
-                                        , string GA011
-                                        , string GA012
-                                        , string GA013
-                                        , string GA014
-                                        , string GA015
-                                        , string GA016
-                                        , string GA017
-                                        , string GA018
-                                        , string GA099
-                                        , string GA999
-                                                    )
+             string ID, string GA001, string GA002, string GA003, string GA004,
+             string GA005, string GA006, string GA007, string GA008, string GA009,
+             string GA010, string GA011, string GA012, string GA013, string GA014,
+             string GA015, string GA016, string GA017, string GA018, string GA099, string GA999
+            )
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    INSERT INTO [TKGAFFAIRS].[dbo].[BUYITEMREPORTS]
-                                    (
-                                    [ID]
-                                    ,[GA001]
-                                    ,[GA002]
-                                    ,[GA003]
-                                    ,[GA004]
-                                    ,[GA005]
-                                    ,[GA006]
-                                    ,[GA007]
-                                    ,[GA008]
-                                    ,[GA009]
-                                    ,[GA010]
-                                    ,[GA011]
-                                    ,[GA012]
-                                    ,[GA013]
-                                    ,[GA014]
-                                    ,[GA015]
-                                    ,[GA016]
-                                    ,[GA017]
-                                    ,[GA018]
-                                    ,[GA099]
-                                    ,[GA999]
-                                  
-                                
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    ,'{15}'
-                                    ,'{16}'
-                                    ,'{17}'
-                                    ,'{18}'
-                                    ,'{19}'
-                                    ,'{20}'
-
-                                    )
-
-                                    ", ID
-                                    , GA001
-                                    , GA002
-                                    , GA003
-                                    , GA004
-                                    , GA005
-                                    , GA006
-                                    , GA007
-                                    , GA008
-                                    , GA009
-                                    , GA010
-                                    , GA011
-                                    , GA012
-                                    , GA013
-                                    , GA014
-                                    , GA015
-                                    , GA016
-                                    , GA017
-                                    , GA018
-                                    , GA099
-                                    , GA999
-
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+
+                        cmd.CommandText = @"
+                                            INSERT INTO [TKGAFFAIRS].[dbo].[BUYITEMREPORTS]
+                                            (
+                                                [ID],[GA001],[GA002],[GA003],[GA004],
+                                                [GA005],[GA006],[GA007],[GA008],[GA009],
+                                                [GA010],[GA011],[GA012],[GA013],[GA014],
+                                                [GA015],[GA016],[GA017],[GA018],[GA099],[GA999]
+                                            )
+                                            VALUES
+                                            (
+                                                @ID,@GA001,@GA002,@GA003,@GA004,
+                                                @GA005,@GA006,@GA007,@GA008,@GA009,
+                                                @GA010,@GA011,@GA012,@GA013,@GA014,
+                                                @GA015,@GA016,@GA017,@GA018,@GA099,@GA999
+                                            )
+                                        ";
+
+                        cmd.Parameters.AddWithValue("@ID", ID);
+                        cmd.Parameters.AddWithValue("@GA001", GA001);
+                        cmd.Parameters.AddWithValue("@GA002", GA002);
+                        cmd.Parameters.AddWithValue("@GA003", GA003);
+                        cmd.Parameters.AddWithValue("@GA004", GA004);
+                        cmd.Parameters.AddWithValue("@GA005", GA005);
+                        cmd.Parameters.AddWithValue("@GA006", GA006);
+                        cmd.Parameters.AddWithValue("@GA007", GA007);
+                        cmd.Parameters.AddWithValue("@GA008", GA008);
+                        cmd.Parameters.AddWithValue("@GA009", GA009);
+                        cmd.Parameters.AddWithValue("@GA010", GA010);
+                        cmd.Parameters.AddWithValue("@GA011", GA011);
+                        cmd.Parameters.AddWithValue("@GA012", GA012);
+                        cmd.Parameters.AddWithValue("@GA013", GA013);
+                        cmd.Parameters.AddWithValue("@GA014", GA014);
+                        cmd.Parameters.AddWithValue("@GA015", GA015);
+                        cmd.Parameters.AddWithValue("@GA016", GA016);
+                        cmd.Parameters.AddWithValue("@GA017", GA017);
+                        cmd.Parameters.AddWithValue("@GA018", GA018);
+                        cmd.Parameters.AddWithValue("@GA099", GA099);
+                        cmd.Parameters.AddWithValue("@GA999", GA999);
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                MessageBox.Show($"發生錯誤：{ex.Message}");
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
+
 
         public void ADDUOFASTMBASTMCASTTCASTTD()
         {
