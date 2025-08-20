@@ -13747,7 +13747,9 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void ADD_TKGAFFAIRS_BUYITEMREPORTS()
         {
             DataTable DTSEARCHUOF_GRAFFAIRS_1005 = SEARCHUOF_GRAFFAIRS_1005();
@@ -13759,164 +13761,37 @@ namespace TKSCHEDULEUOF
                     string USER_GUID = DR["USER_GUID"].ToString();
                     string EMAILTO = DR["EMAIL"].ToString();
 
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(DR["CURRENT_DOC"].ToString());
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-
-                    string ID = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']").Attributes["fieldValue"].Value;
-                    string GA001 = "";
-                    string GA002 = "";
-                    string GA003 = "";
-                    string GA004 = "";
-                    string GA005 = "";
-                    string GA006 = "";
-                    string GA007 = "";
-                    string GA008 = "";
-                    string GA009 = "";
-                    string GA010 = "";
-                    string GA011 = "";
-                    string GA012 = "";
-                    string GA013 = "";
-                    string GA014 = "";
-                    string GA015 = "";
-                    string GA016 = "";
-                    string GA017 = "";
-                    string GA018 = "";
-                    string GA099 = "";
-                    string GA999 = "";
-
-                    try
-                    {
-                        GA001 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA001']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA002 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA002']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA003 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA003']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA004 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA004']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA005 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA005']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA006 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA006']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA007 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA007']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA008 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA008']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA009 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA009']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA010 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA010']").Attributes["fieldValue"].Value;
-
-
-                    }
-                    catch { }
-                    try
-                    {
-                        GA011 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA011']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA012 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA012']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA013 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA013']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA014 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA014']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA015 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA015']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA016 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA016']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA017 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA017']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA018 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA018']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA099 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA099']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        GA999 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA999']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
+                    string ID = DR["ID"].ToString();
+                    string GA001 = DR["GA001"].ToString();
+                    string GA002 = DR["GA002"].ToString();
+                    string GA003 = DR["GA003"].ToString();
+                    string GA004 = DR["GA004"].ToString();
+                    string GA005 = DR["GA005"].ToString();
+                    string GA006 = DR["GA006"].ToString();
+                    string GA007 = DR["GA007"].ToString();
+                    string GA008 = DR["GA008"].ToString();
+                    string GA009 = DR["GA009"].ToString();
+                    string GA010 = DR["GA010"].ToString();
+                    string GA011 = DR["GA011"].ToString();
+                    string GA012 = DR["GA012"].ToString();
+                    string GA013 = DR["GA013"].ToString();
+                    string GA014 = DR["GA014"].ToString();
+                    string GA015 = DR["GA015"].ToString();
+                    string GA016 = DR["GA016"].ToString();
+                    string GA017 = DR["GA017"].ToString();
+                    string GA018 = DR["GA018"].ToString();
+                    string GA099 = DR["GA099"].ToString();
+                    string GA999 = DR["GA999"].ToString();
 
                     ADD_TO_TKGAFFAIRS_BUYITEMREPORTS(
-                                         ID
-                                        , GA001
-                                        , GA002
-                                        , GA003
-                                        , GA004
-                                        , GA005
-                                        , GA006
-                                        , GA007
-                                        , GA008
-                                        , GA009
-                                        , GA010
-                                        , GA011
-                                        , GA012
-                                        , GA013
-                                        , GA014
-                                        , GA015
-                                        , GA016
-                                        , GA017
-                                        , GA018
-                                        , GA099
-                                        , GA999
-                                                    );
-
+                        ID, GA001, GA002, GA003, GA004, GA005, GA006,
+                        GA007, GA008, GA009, GA010, GA011, GA012, GA013,
+                        GA014, GA015, GA016, GA017, GA018, GA099, GA999
+                    );
                 }
             }
-
         }
+
 
         //找出昨天，已核單完成的採購單-1005.雜項採購單
         public DataTable SEARCHUOF_GRAFFAIRS_1005()
@@ -48096,6 +47971,7 @@ namespace TKSCHEDULEUOF
         private void button44_Click(object sender, EventArgs e)
         {
             //把UOF的1005.雜項採購單 ，在核成後，轉到 [TKGAFFAIRS].[dbo].[BUYITEMREPORTS] 當報表
+            //1005.雜項採購單入總務系統
             ADD_TKGAFFAIRS_BUYITEMREPORTS();
         }
 
