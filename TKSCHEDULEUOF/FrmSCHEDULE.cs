@@ -12481,29 +12481,56 @@ namespace TKSCHEDULEUOF
 
         public void NEWBUYITEM()
         {
-            IEnumerable<DataRow> query2 = null;
+            DataTable dtResult = new DataTable();
 
-            DataTable DT1 = SEARCHUOFGA();
-            DataTable DT2 = SEARCHBUYITEM();
-
-
-            //找DataTable差集
-            //要有相同的欄位名稱
-            if (DT1.Rows.Count > 0 && DT2.Rows.Count > 0)
+            try
             {
-                query2 = DT1.AsEnumerable().Except(DT2.AsEnumerable(), DataRowComparer.Default);
-            }
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-
-            if (query2.Count() > 0)
-            {
-                //差集集合
-                DataTable dt3 = query2.CopyToDataTable();
-
-                foreach (DataRow dr in dt3.Rows)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003(dr["DOC_NBR"].ToString());
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.AppendFormat(@" 
+                                        SELECT T.DOC_NBR
+                                        FROM [UOF].dbo.TB_WKF_TASK AS T
+                                        WHERE T.DOC_NBR LIKE 'GA1003%'
+                                          AND T.TASK_RESULT = '0'
+                                          AND NOT EXISTS (
+                                                SELECT 1
+                                                FROM [192.168.1.105].[TKGAFFAIRS].dbo.BUYITEM AS B
+                                                WHERE ISNULL(B.DOC_NBR,'') <> ''
+                                                  AND B.DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN 
+                                                      = T.DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN
+                                        );
+
+                            ");
+
+                    using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlConn.Open();
+                            adapter.Fill(dtResult);
+                            sqlConn.Close();
+                        }
+                    }
                 }
+
+                if (dtResult.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dtResult.Rows)
+                    {
+                        SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003(dr["DOC_NBR"].ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("錯誤: " + ex.Message);
             }
         }
 
@@ -12659,193 +12686,81 @@ namespace TKSCHEDULEUOF
             SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
             DataSet ds1 = new DataSet();
 
-            int ROWS = 0;
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立連線字串 (解密)
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                // 直接在 SQL 解析 XML 欄位
+                sbSql.AppendFormat(@"
+            SELECT 
+                T.DOC_NBR,
+                U.NAME,
+                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(50)') AS BUYNO,
+                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(50)') AS BUYDATES,
+                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(50)') AS INDATES,
+                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(50)') AS GA007,
+                X.Data.value('./Cell[@fieldId=""GG001""]/@fieldValue','nvarchar(200)') AS SPEC,
+                X.Data.value('./Cell[@fieldId=""GG002""]/@fieldValue','nvarchar(200)') AS BUYNAME,
+                X.Data.value('./Cell[@fieldId=""GG003""]/@fieldValue','nvarchar(200)') AS GG003,
+                X.Data.value('./Cell[@fieldId=""GG004""]/@fieldValue','nvarchar(200)') AS VENDOR,
+                X.Data.value('./Cell[@fieldId=""GG005""]/@fieldValue','nvarchar(200)') AS NUM,
+                X.Data.value('./Cell[@fieldId=""GG006""]/@fieldValue','nvarchar(200)') AS GG006,
+                X.Data.value('./Cell[@fieldId=""GG007""]/@fieldValue','nvarchar(200)') AS DEP,
+                X.Data.value('./Cell[@fieldId=""GG008""]/@fieldValue','nvarchar(200)') AS GG008,
+                X.Data.value('./Cell[@fieldId=""GG009""]/@fieldValue','nvarchar(200)') AS UNIT
+            FROM [UOF].dbo.TB_WKF_TASK AS T
+            LEFT JOIN [UOF].dbo.TB_EB_USER AS U 
+                ON U.USER_GUID = T.USER_GUID
+            CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS X(Data)
+            WHERE T.DOC_NBR LIKE '{0}%'
+        ", DOC_NBR);
 
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
                 sqlConn.Close();
 
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                if (ds1.Tables["ds1"].Rows.Count > 0)
                 {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
-
-                    XmlDocument xmlDoc = new XmlDocument();
-
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    string BUYNO = "";
-                    string BUYDATES = "";
-                    string INDATES = "";
-                    string GA007 = "";
-                    XmlNode XNODES = null;
-
-                    try
+                    // 這裡直接可以用 ds1.Tables["ds1"] 當結果集，每一筆就是一個明細
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
-                        BUYNO = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA001']").Attributes["fieldValue"].Value;
+                        string docNbr = dr["DOC_NBR"].ToString();
+                        string name = dr["NAME"].ToString();
+                        string buyNo = dr["BUYNO"].ToString();
+                        string buyDates = dr["BUYDATES"].ToString();
+                        string inDates = dr["INDATES"].ToString();
+                        string ga007 = dr["GA007"].ToString();
+                        string spec = dr["SPEC"].ToString();
+                        string buyName = dr["BUYNAME"].ToString();
+                        string gg003 = dr["GG003"].ToString();
+                        string vendor = dr["VENDOR"].ToString();
+                        string num = dr["NUM"].ToString();
+                        string gg006 = dr["GG006"].ToString();
+                        string dep = dr["DEP"].ToString();
+                        string gg008 = dr["GG008"].ToString();
+                        string unit = dr["UNIT"].ToString();
 
-
+                        // 你可以在這裡呼叫 ADDBUYITEM(...) 或處理後續邏輯
+                        // string STATUS = "1.詢價中";
+                        // ADDBUYITEM(buyDates, buyNo, name, dep, buyName, spec, vendor, num, unit, inDates, STATUS, docNbr);
                     }
-                    catch { }
-                    try
-                    {
-                        BUYDATES = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA005']").Attributes["fieldValue"].Value;
-
-                    }
-                    catch { }
-                    try
-                    {
-                        INDATES = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA005']").Attributes["fieldValue"].Value;
-
-                    }
-                    catch { }
-                    try
-                    {
-                        GA007 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA007']").Attributes["fieldValue"].Value;
-
-                    }
-                    catch { }
-                    try
-                    {
-                        XNODES = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='GA008']/DataGrid");
-
-                    }
-                    catch { }
-
-                    string SPEC = "";
-                    string BUYNAME = "";
-                    string GG003 = "";
-                    string VENDOR = "";
-                    string NUM = "";
-                    string GG006 = "";
-                    string DEP = "";
-                    string GG008 = "";
-                    string UNIT = "";
-
-
-                    foreach (XmlNode nodeDataGrid in XNODES)
-                    {
-                        try
-                        {
-                            SPEC = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG001']").Attributes["fieldValue"].Value;
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            BUYNAME = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG002']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GG003 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG003']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            VENDOR = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG004']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            NUM = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG005']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GG006 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG006']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            DEP = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG007']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            GG008 = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG008']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-                        try
-                        {
-                            UNIT = nodeDataGrid.SelectSingleNode("./Cell[@fieldId='GG009']").Attributes["fieldValue"].Value;
-
-                        }
-                        catch
-                        { }
-
-
-                        ROWS = ROWS + 1;
-                        BUYNO = DOC_NBR + '-' + ROWS;
-
-                        string STATUS = "1.詢價中";
-                        //ADDBUYITEM(BUYDATES, BUYNO, NAME, DEP, BUYNAME, SPEC, VENDOR, NUM, UNIT, INDATES, STATUS, DOC_NBR);
-                    }
-
-                    //string OK = "";
-
-
-
-
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                MessageBox.Show("錯誤: " + ex.Message);
             }
             finally
             {
@@ -12853,65 +12768,68 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADDBUYITEM(string BUYDATES, string BUYNO, string NAME, string DEP, string BUYNAME, string SPEC, string VENDOR, string NUM, string UNIT, string INDATES, string STATUS, string DOC_NBR)
+
+        public void ADDBUYITEM(
+            string BUYDATES, string BUYNO, string NAME, string DEP, string BUYNAME,
+            string SPEC, string VENDOR, string NUM, string UNIT,
+            string INDATES, string STATUS, string DOC_NBR)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    INSERT INTO 
-                                    [TKGAFFAIRS].[dbo].[BUYITEM]
-                                    ([BUYDATES],[BUYNO],[NAME],[DEP],[BUYNAME],[SPEC],[VENDOR],[NUM],[UNIT],[INDATES],[STATUS],[DOC_NBR])
-                                    VALUES
-                                    ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}')
-                                    ", BUYDATES, BUYNO, NAME, DEP, BUYNAME, SPEC, VENDOR, NUM, UNIT, INDATES, STATUS, DOC_NBR);
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                            INSERT INTO [TKGAFFAIRS].[dbo].[BUYITEM]
+                                            ([BUYDATES],[BUYNO],[NAME],[DEP],[BUYNAME],[SPEC],[VENDOR],[NUM],[UNIT],[INDATES],[STATUS],[DOC_NBR])
+                                            VALUES (@BUYDATES,@BUYNO,@NAME,@DEP,@BUYNAME,@SPEC,@VENDOR,@NUM,@UNIT,@INDATES,@STATUS,@DOC_NBR)
+                                        ";
+
+                        cmd.Parameters.AddWithValue("@BUYDATES", BUYDATES);
+                        cmd.Parameters.AddWithValue("@BUYNO", BUYNO);
+                        cmd.Parameters.AddWithValue("@NAME", NAME);
+                        cmd.Parameters.AddWithValue("@DEP", DEP);
+                        cmd.Parameters.AddWithValue("@BUYNAME", BUYNAME);
+                        cmd.Parameters.AddWithValue("@SPEC", SPEC);
+                        cmd.Parameters.AddWithValue("@VENDOR", VENDOR);
+                        cmd.Parameters.AddWithValue("@NUM", NUM);
+                        cmd.Parameters.AddWithValue("@UNIT", UNIT);
+                        cmd.Parameters.AddWithValue("@INDATES", INDATES);
+                        cmd.Parameters.AddWithValue("@STATUS", STATUS);
+                        cmd.Parameters.AddWithValue("@DOC_NBR", DOC_NBR);
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                MessageBox.Show($"發生錯誤：{ex.Message}");
             }
         }
-             
+
+
 
         public DataTable SEARCH_UOF_GRAFFIRS_1003()
         {
@@ -48154,7 +48072,7 @@ namespace TKSCHEDULEUOF
         {
             //暫停不轉入總務的外掛
             //改轉入UOF表單 1005.雜項採購單中 
-            //NEWBUYITEM();
+            NEWBUYITEM();
         }
         private void button43_Click(object sender, EventArgs e)
         {
