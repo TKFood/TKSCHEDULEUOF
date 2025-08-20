@@ -12971,52 +12971,20 @@ namespace TKSCHEDULEUOF
         }
 
 
-        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(string USER_GUID, string DOC_NBR
-            , string GA001
-            , string GA002
-            , string GA003
-            , string GA004
-            , string GA005
-            , string GA006
-            , string GA007
-            , string GA008
-            , string GA009
-            , string GA010
-            , string GA011
-            , string GA012
-            , string GA013
-            , string GA014
-            , string GA015
-            , string GA016
-            , string GA017
-            , string GA098
-            , string GA099
-            , string GA999
-            , string GA019
-            , DataTable DT
-            , string DEFAUL_NAME
-
+        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK(
+            string USER_GUID, string DOC_NBR,
+            string GA001, string GA002, string GA003, string GA004, string GA005,
+            string GA006, string GA007, string GA008, string GA009, string GA010,
+            string GA011, string GA012, string GA013, string GA014, string GA015,
+            string GA016, string GA017, string GA098, string GA099, string GA999,
+            string GA019, DataTable DT, string DEFAUL_NAME
             )
         {
-
-            //DataTable FORM_USERS = FIND_Z_UOF_SET_FORM_USERS("1005.雜項採購單");
-            //DataTable DTUSERDEP = SEARCHUOFUSERDEP(FORM_USERS.Rows[0]["USER_GUID"].ToString());
-
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
             DataTable DTUSERDEP_Defalut = SEARCHUOFUSERDEP_Defalut(DEFAUL_NAME);
-            //DataTable DTUSERDEP_SET = SEARCHUOFUSERDEP(USER_GUID);
-            //string account_SET = DTUSERDEP_SET.Rows[0]["ACCOUNT"].ToString();
-            //string groupId_SET = DTUSERDEP_SET.Rows[0]["GROUP_ID"].ToString();
-            //string jobTitleId_SET = DTUSERDEP_SET.Rows[0]["TITLE_ID"].ToString();
 
-            string account = "";
-            string groupId = "";
-            string jobTitleId = "";
-            string fillerName = "";
-            string fillerUserGuid = "";
-
-            string DEPNAME = "";
-            string DEPNO = "";
+            string account, groupId, jobTitleId, fillerName, fillerUserGuid;
+            string DEPNAME, DEPNO;
 
             if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1)
             {
@@ -13025,10 +12993,8 @@ namespace TKSCHEDULEUOF
                 jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
                 fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
                 fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
-
                 DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
                 DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
-
             }
             else
             {
@@ -13037,547 +13003,110 @@ namespace TKSCHEDULEUOF
                 jobTitleId = DTUSERDEP_Defalut.Rows[0]["TITLE_ID"].ToString();
                 fillerName = DTUSERDEP_Defalut.Rows[0]["NAME"].ToString();
                 fillerUserGuid = DTUSERDEP_Defalut.Rows[0]["USER_GUID"].ToString();
-
                 DEPNAME = DTUSERDEP_Defalut.Rows[0]["DEPNAME"].ToString();
                 DEPNO = DTUSERDEP_Defalut.Rows[0]["DEPNO"].ToString();
             }
 
             string EXTERNAL_FORM_NBR = DOC_NBR;
-
-
-
-
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
-
-            //正式的id
             string FORMID = SEARCHFORM_UOF_VERSION_ID("1005.雜項採購單");
-
             if (!string.IsNullOrEmpty(FORMID))
             {
                 Form.SetAttribute("formVersionId", FORMID);
             }
-
-
             Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
             xmlDoc.AppendChild(Form);
 
-            ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
             Form.AppendChild(Applicant);
 
-            //建立節點 Comment
             XmlElement Comment = xmlDoc.CreateElement("Comment");
             Comment.InnerText = "申請者意見";
-            //加入至節點底下
             Applicant.AppendChild(Comment);
 
-            //建立節點 FormFieldValue
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
             Form.AppendChild(FormFieldValue);
 
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // 一般欄位
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA001", GA001, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA002", GA002, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA003", GA003, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA004", GA004, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA005", GA005, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA006", GA006, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA007", GA007, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA008", GA008, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA009", GA009, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA010", GA010, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA011", GA011, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA012", GA012, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA013", GA013, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA014", GA014, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA015", GA015, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA016", GA016, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA017", GA017, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA019", GA019, fillerName, fillerUserGuid, account);
 
-            //建立節點FieldItem
-            //GA001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA001");
-            FieldItem.SetAttribute("fieldValue", GA001);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA002");
-            FieldItem.SetAttribute("fieldValue", GA002);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA003");
-            FieldItem.SetAttribute("fieldValue", GA003);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA004");
-            FieldItem.SetAttribute("fieldValue", GA004);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA005");
-            FieldItem.SetAttribute("fieldValue", GA005);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA006	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA006");
-            FieldItem.SetAttribute("fieldValue", GA006);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA007	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA007");
-            FieldItem.SetAttribute("fieldValue", GA007);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA008	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA008");
-            FieldItem.SetAttribute("fieldValue", GA008);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA009	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA009");
-            FieldItem.SetAttribute("fieldValue", GA009);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA010	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA010");
-            FieldItem.SetAttribute("fieldValue", GA010);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA011	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA011");
-            FieldItem.SetAttribute("fieldValue", GA011);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA012	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA012");
-            FieldItem.SetAttribute("fieldValue", GA012);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA013	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA013");
-            FieldItem.SetAttribute("fieldValue", GA013);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA014	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA014");
-            FieldItem.SetAttribute("fieldValue", GA014);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA015	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA015");
-            FieldItem.SetAttribute("fieldValue", GA015);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA016	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA016");
-            FieldItem.SetAttribute("fieldValue", GA016);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA017	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA017");
-            FieldItem.SetAttribute("fieldValue", GA017);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            
-            //GA999	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", GA999);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA019	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA019");
-            FieldItem.SetAttribute("fieldValue", GA019);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //DataGrid
-            //建立節點FieldItem
-            //INVTB
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
+            // DataGrid 欄位
+            XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
             XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
-            DETAILS.AppendChild(DataGrid);
-
+            FieldItem.AppendChild(DataGrid);
 
             foreach (DataRow od in DT.Rows)
             {
-
-                // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
+                Row.SetAttribute("order", rowscounts.ToString());
 
-                //Row	TGG002B004
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG002");
-                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
+                AppendCellToRow(xmlDoc, Row, od, "GG002");
+                AppendCellToRow(xmlDoc, Row, od, "GG002B", false, od["GG002"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG010");
+                AppendCellToRow(xmlDoc, Row, od, "GG003");
+                AppendCellToRow(xmlDoc, Row, od, "GG004");
+                AppendCellToRow(xmlDoc, Row, od, "GG004B", false, od["GG004"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG005");
+                AppendCellToRow(xmlDoc, Row, od, "GG005B", false, od["GG005"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG009");
+                AppendCellToRow(xmlDoc, Row, od, "GG009B", false, od["GG009"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG006");
+                AppendCellToRow(xmlDoc, Row, od, "GG007"); // 空值
+                AppendCellToRow(xmlDoc, Row, od, "GG008"); // 空值
+                AppendCellToRow(xmlDoc, Row, od, "GG011", false, GA004); // 指定值
+                AppendCellToRow(xmlDoc, Row, od, "EXTERNAL_FORM_NBR", false, od["DOC_NBR"].ToString());
 
-                //Row	GG002B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG002B");
-                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG010
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG010");
-                Cell.SetAttribute("fieldValue", od["GG010"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG003
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG003");
-                Cell.SetAttribute("fieldValue", od["GG003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG004");
-                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG004B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG004B");
-                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                //Row	GG005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG005");
-                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG005B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG005B");
-                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG009
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG009");
-                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG009B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG009B");
-                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG006");
-                Cell.SetAttribute("fieldValue", od["GG006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG007");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG008");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG011
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG011");
-                Cell.SetAttribute("fieldValue", GA004);
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                //Row	EXTERNAL_FORM_NBR
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "EXTERNAL_FORM_NBR");
-                Cell.SetAttribute("fieldValue", od["DOC_NBR"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                rowscounts = rowscounts + 1;
-
-                //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-                DataGridS.AppendChild(Row);
-
+                DataGrid.AppendChild(Row);
+                rowscounts++;
             }
 
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 寫入資料庫
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
-            StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
-
-            try
+            using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                string queryString = $@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                                    ";
+                using (SqlCommand command = new SqlCommand(queryString, connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
                     command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
-            catch
-            {
-
-            }
-            finally
-            {
-
-            }
         }
+
 
         public DataTable SEARCHUOFUSERDEP(string USER_GUID)
         {
@@ -35057,8 +34586,6 @@ namespace TKSCHEDULEUOF
                                                     (Extracted.GG004Val + Extracted.GG002Val + Extracted.GG005Val + Extracted.GG009Val)
                                         )
 
-
-
                                     ");
 
 
@@ -35091,792 +34618,279 @@ namespace TKSCHEDULEUOF
             }
         }
         public void SEARCHUOFTB_WKF_TASK_TKGRAFFAIRS_1003_GG004_NOT_NULL(
-            string DOC_NBR
-            , string GG004
-            , string GG002
-            , string GG010
-            , string GG005
-            , string GG009
-            , string GG006
-            , string ACCOUNT
-            ,string DEFAUL_NAME)
+             string DOC_NBR,
+             string GG004,
+             string GG002,
+             string GG010,
+             string GG005,
+             string GG009,
+             string GG006,
+             string ACCOUNT,
+             string DEFAUL_NAME
+            )
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            int ROWS = 0;
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter())
+                {
+                    StringBuilder sbSql = new StringBuilder();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"                                   
-                                  SELECT 
-	                                T.DOC_NBR,
-	                                Extracted.GG002Val AS GG002,
-	                                Extracted.GG003Val AS GG003,
-                                    Extracted.GG004Val AS GG004,
-	                                Extracted.GG005Val AS GG005,
-	                                Extracted.GG006Val AS GG006,
-	                                Extracted.GG007Val AS GG007,
-	                                Extracted.GG008Val AS GG008,
-	                                Extracted.GG009Val AS GG009,
-	                                Extracted.GG010Val AS GG010,
-	                                Extracted.GG011Val AS GG011,
-	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
-	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010,
-	                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
-	                                F.FORM_NAME,
-                                    U.NAME,
-                                    U.ACCOUNT,
-                                    U.USER_GUID,
-                                    D.GROUP_ID,
-                                    D.TITLE_ID
-                                FROM [UOF].dbo.TB_WKF_TASK T
-                                CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
-
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node(GG002)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG003Node(GG003)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node(GG004)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node(GG005)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG006""]') AS GG006Node(GG006)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG007""]') AS GG007Node(GG007)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG008""]') AS GG008Node(GG008)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node(GG009)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG010""]') AS GG010Node(GG010)
-                                OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG011""]') AS GG011Node(GG011)
-                                OUTER APPLY (
-                                    SELECT 
-                                        GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val,
-		                                GG003.value('@fieldValue', 'nvarchar(100)') AS GG003Val,
-		                                GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val,
-                                        GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val,
-		                                GG006.value('@fieldValue', 'nvarchar(200)') AS GG006Val,
-		                                GG007.value('@fieldValue', 'nvarchar(200)') AS GG007Val,
-		                                GG008.value('@fieldValue', 'nvarchar(200)') AS GG008Val,
-                                        GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val,
-		                                GG010.value('@fieldValue', 'nvarchar(200)') AS GG010Val,
-		                                GG011.value('@fieldValue', 'nvarchar(200)') AS GG011Val
-                                ) AS Extracted
-                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
-                                INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
-                                LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON T.USER_GUID = U.USER_GUID
-                                LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] D ON U.USER_GUID = D.USER_GUID AND D.ORDERS = '0'
-                                WHERE
-                                    T.DOC_NBR >= 'GA1003250600139'
-                                    AND F.FORM_NAME = '1003.雜項請購單'
-                                    AND T.TASK_RESULT = '0'
-                                    AND ISNULL(Extracted.GG004Val, '') <> ''
-                                    AND Extracted.GG004Val NOT LIKE '無%'
-                                    AND NOT EXISTS (
-                                        SELECT 1
-                                        FROM [UOF].dbo.TB_WKF_TASK T2
-                                        CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG004""]') AS GG004Node2(GG004)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG002""]') AS GG002Node2(GG002)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG005""]') AS GG005Node2(GG005)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""GG009""]') AS GG009Node2(GG009)
-                                        OUTER APPLY RowNode.nodes('Cell[@fieldId=""EXTERNAL_FORM_NBR""]') AS ExternalNode([EXTERNAL_NODE])
+                    sbSql.AppendFormat(@"
+                                        SELECT 
+                                            T.DOC_NBR,
+                                            Extracted.GG002Val AS GG002,
+                                            Extracted.GG003Val AS GG003,
+                                            Extracted.GG004Val AS GG004,
+                                            Extracted.GG005Val AS GG005,
+                                            Extracted.GG006Val AS GG006,
+                                            Extracted.GG007Val AS GG007,
+                                            Extracted.GG008Val AS GG008,
+                                            Extracted.GG009Val AS GG009,
+                                            Extracted.GG010Val AS GG010,
+                                            Extracted.GG011Val AS GG011,
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010,
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+                                            F.FORM_NAME,
+                                            U.NAME,
+                                            U.ACCOUNT,
+                                            U.USER_GUID,
+                                            D.GROUP_ID,
+                                            D.TITLE_ID
+                                        FROM [UOF].dbo.TB_WKF_TASK T
+                                        CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
                                         OUTER APPLY (
-                                            SELECT 
-                                                GG004.value('@fieldValue', 'nvarchar(200)') AS GG004Val2,
-                                                GG002.value('@fieldValue', 'nvarchar(100)') AS GG002Val2,
-                                                GG005.value('@fieldValue', 'nvarchar(100)') AS GG005Val2,
-                                                GG009.value('@fieldValue', 'nvarchar(100)') AS GG009Val2
-                                        ) AS Extracted2
-                                        WHERE 
-                                            T2.DOC_NBR LIKE 'GA1005%'
-                                            AND ISNULL(Extracted2.GG004Val2, '') <> ''
-                                            AND (Extracted2.GG004Val2 + Extracted2.GG002Val2 + Extracted2.GG005Val2 + Extracted2.GG009Val2) =
-                                                (Extracted.GG004Val + Extracted.GG002Val + Extracted.GG005Val + Extracted.GG009Val)
-                                    ) 
-                                    AND DOC_NBR='{0}'
-                                    AND Extracted.GG004Val='{1}'
-                                    AND Extracted.GG002Val='{2}'
-                                    AND Extracted.GG010Val='{3}'
-                                    AND Extracted.GG005Val='{4}'
-                                    AND Extracted.GG009Val='{5}'
-
-
+                                            SELECT
+                                                RowNode.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') AS GG002Val,
+                                                RowNode.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') AS GG003Val,
+                                                RowNode.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') AS GG004Val,
+                                                RowNode.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(100)') AS GG005Val,
+                                                RowNode.value('(Cell[@fieldId=""GG006""]/@fieldValue)[1]', 'nvarchar(200)') AS GG006Val,
+                                                RowNode.value('(Cell[@fieldId=""GG007""]/@fieldValue)[1]', 'nvarchar(200)') AS GG007Val,
+                                                RowNode.value('(Cell[@fieldId=""GG008""]/@fieldValue)[1]', 'nvarchar(200)') AS GG008Val,
+                                                RowNode.value('(Cell[@fieldId=""GG009""]/@fieldValue)[1]', 'nvarchar(100)') AS GG009Val,
+                                                RowNode.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)') AS GG010Val,
+                                                RowNode.value('(Cell[@fieldId=""GG011""]/@fieldValue)[1]', 'nvarchar(200)') AS GG011Val
+                                        ) AS Extracted
+                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON T.USER_GUID = U.USER_GUID
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] D ON U.USER_GUID = D.USER_GUID AND D.ORDERS = '0'
+                                        WHERE
+                                            T.DOC_NBR = '{0}'
+                                            AND Extracted.GG004Val = '{1}'
+                                            AND Extracted.GG002Val = '{2}'
+                                            AND Extracted.GG010Val = '{3}'
+                                            AND Extracted.GG005Val = '{4}'
+                                            AND Extracted.GG009Val = '{5}'
+                                            AND F.FORM_NAME = '1003.雜項請購單'
+                                            AND T.TASK_RESULT = '0'
+                                            AND ISNULL(Extracted.GG004Val,'') <> ''
+                                            AND Extracted.GG004Val NOT LIKE '無%'
+                                            AND NOT EXISTS (
+                                                SELECT 1
+                                                FROM [UOF].dbo.TB_WKF_TASK T2
+                                                CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
+                                                OUTER APPLY (
+                                                    SELECT
+                                                        RowNode.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') AS GG004Val2,
+                                                        RowNode.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') AS GG002Val2,
+                                                        RowNode.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(100)') AS GG005Val2,
+                                                        RowNode.value('(Cell[@fieldId=""GG009""]/@fieldValue)[1]', 'nvarchar(100)') AS GG009Val2
+                                                ) AS Extracted2
+                                                WHERE 
+                                                    T2.DOC_NBR LIKE 'GA1005%'
+                                                    AND ISNULL(Extracted2.GG004Val2,'') <> ''
+                                                    AND (Extracted2.GG004Val2 + Extracted2.GG002Val2 + Extracted2.GG005Val2 + Extracted2.GG009Val2) =
+                                                        (Extracted.GG004Val + Extracted.GG002Val + Extracted.GG005Val + Extracted.GG009Val)
+                                            )
                                     ", DOC_NBR, GG004, GG002, GG010, GG005, GG009);
 
+                    adapter.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    DataSet ds = new DataSet();
+                    adapter.Fill(ds, "ds1");
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    string NAME = ds1.Tables["ds1"].Rows[0]["NAME"].ToString();
-                    string USER_GUID = ds1.Tables["ds1"].Rows[0]["USER_GUID"].ToString();
-
-                    //指定採購人員(由總務填寫)	
-                    string TEMP = ds1.Tables["ds1"].Rows[0]["GA010"].ToString();
-                    string NAMES = "";
-                    if (!string.IsNullOrEmpty(TEMP))
+                    if (ds.Tables["ds1"].Rows.Count >= 1)
                     {
-                        NAMES = TEMP.Substring(0, 3);                      
-                    }
-                    else
-                    {
-                        NAMES = DEFAUL_NAME;
-                    }
+                        string TEMP = ds.Tables["ds1"].Rows[0]["GA010"].ToString();
+                        string NAMES = !string.IsNullOrEmpty(TEMP) ? TEMP.Substring(0, 3) : DEFAUL_NAME;
 
-                    DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
-                    if (DT != null && DT.Rows.Count >= 1)
-                    {
-                        USER_GUID = DT.Rows[0]["USER_GUID"].ToString();
-                    }
+                        DataTable DT = SEARCH_UOF_TB_EB_USER(NAMES);
+                        string USER_GUID = (DT != null && DT.Rows.Count >= 1) ? DT.Rows[0]["USER_GUID"].ToString() : "";
 
-                    ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(USER_GUID, ds1.Tables["ds1"], ACCOUNT);
+                        ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(USER_GUID, ds.Tables["ds1"], ACCOUNT);
+                    }
                 }
-
-
-
-
-
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 可在此記錄 Exception
             }
         }
-
-        public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(string USER_GUID, DataTable DT,string ACCOUNT)
+        
+        
+       public void ADD_GRAFFAIRS_1005_TB_WKF_EXTERNAL_TASK_NOT_NULL(
+            string USER_GUID, DataTable DT, string ACCOUNT
+           )
         {
-            //請購人原本的部門
+            // 請購人原本的部門
             DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
 
-            //預設總務請購人
-            //ACCOUNT
+            // 預設總務請購人
             DataTable DTUSERDEP_DEFAULT = FIND_Z_UOF_FORM1005_DEFAULT_PERSON(ACCOUNT);
-            //總務部人員
-            DataTable DT_Z_UOF_FORM1005_FLOW = FIND_Z_UOF_FORM1005_FLOW();
 
+            // 總務部人員
+            DataTable DT_Z_UOF_FORM1005_FLOW = FIND_Z_UOF_FORM1005_FLOW();
 
             string account = "";
             string groupId = "";
             string jobTitleId = "";
             string fillerName = "";
             string fillerUserGuid = "";
-
             string DEPNAME = "";
             string DEPNO = "";
 
-            //表單申請人要在總務部中
-            //如果不在總務部，就改成  DTUSERDEP_DEFAULT
-            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1 && DT_Z_UOF_FORM1005_FLOW != null && DT_Z_UOF_FORM1005_FLOW.Rows.Count >= 1)
+            // 表單申請人要在總務部中
+            bool foundInFlow = false;
+            if (DTUSERDEP != null && DTUSERDEP.Rows.Count >= 1 &&
+                DT_Z_UOF_FORM1005_FLOW != null && DT_Z_UOF_FORM1005_FLOW.Rows.Count >= 1)
             {
-                foreach (DataRow DATAROW_DTUSERDEP in DTUSERDEP.Rows)
+                foreach (DataRow userRow in DTUSERDEP.Rows)
                 {
-                    foreach (DataRow DATAROW_DT_Z_UOF_FORM1005_FLOW in DT_Z_UOF_FORM1005_FLOW.Rows)
+                    foreach (DataRow flowRow in DT_Z_UOF_FORM1005_FLOW.Rows)
                     {
-                        string SOURCE_account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
-                        string TARGET_account = DATAROW_DT_Z_UOF_FORM1005_FLOW["ID"].ToString();
-
-                        if (SOURCE_account.Equals(TARGET_account))
+                        if (userRow["ACCOUNT"].ToString() == flowRow["ID"].ToString())
                         {
-                            account = DATAROW_DTUSERDEP["ACCOUNT"].ToString();
-                            groupId = DATAROW_DTUSERDEP["GROUP_ID"].ToString();
-                            jobTitleId = DATAROW_DTUSERDEP["TITLE_ID"].ToString();
-                            fillerName = DATAROW_DTUSERDEP["NAME"].ToString();
-                            fillerUserGuid = DATAROW_DTUSERDEP["USER_GUID"].ToString();
-
-                            DEPNAME = DATAROW_DTUSERDEP["DEPNAME"].ToString();
-                            DEPNO = DATAROW_DTUSERDEP["DEPNO"].ToString();
-
-                            //找到就停止
+                            account = userRow["ACCOUNT"].ToString();
+                            groupId = userRow["GROUP_ID"].ToString();
+                            jobTitleId = userRow["TITLE_ID"].ToString();
+                            fillerName = userRow["NAME"].ToString();
+                            fillerUserGuid = userRow["USER_GUID"].ToString();
+                            DEPNAME = userRow["DEPNAME"].ToString();
+                            DEPNO = userRow["DEPNO"].ToString();
+                            foundInFlow = true;
                             break;
                         }
-                        else
-                        {
-                            account = DTUSERDEP_DEFAULT.Rows[0]["ACCOUNT"].ToString();
-                            groupId = DTUSERDEP_DEFAULT.Rows[0]["GROUP_ID"].ToString();
-                            jobTitleId = DTUSERDEP_DEFAULT.Rows[0]["TITLE_ID"].ToString();
-                            fillerName = DTUSERDEP_DEFAULT.Rows[0]["NAME"].ToString();
-                            fillerUserGuid = DTUSERDEP_DEFAULT.Rows[0]["USER_GUID"].ToString();
-
-                            DEPNAME = DTUSERDEP_DEFAULT.Rows[0]["DEPNAME"].ToString();
-                            DEPNO = DTUSERDEP_DEFAULT.Rows[0]["DEPNO"].ToString();
-                        }
                     }
+                    if (foundInFlow) break;
                 }
-
-
             }
 
-            //account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
-            //groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
-            //jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
-            //fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
-            //fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+            if (!foundInFlow)
+            {
+                account = DTUSERDEP_DEFAULT.Rows[0]["ACCOUNT"].ToString();
+                groupId = DTUSERDEP_DEFAULT.Rows[0]["GROUP_ID"].ToString();
+                jobTitleId = DTUSERDEP_DEFAULT.Rows[0]["TITLE_ID"].ToString();
+                fillerName = DTUSERDEP_DEFAULT.Rows[0]["NAME"].ToString();
+                fillerUserGuid = DTUSERDEP_DEFAULT.Rows[0]["USER_GUID"].ToString();
+                DEPNAME = DTUSERDEP_DEFAULT.Rows[0]["DEPNAME"].ToString();
+                DEPNO = DTUSERDEP_DEFAULT.Rows[0]["DEPNO"].ToString();
+            }
 
-            //DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
-            //DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
-
-            string EXTERNAL_FORM_NBR = "MERGE1003-"+ DT.Rows[0]["DOC_NBR"].ToString();
-
-
-
-
+            string EXTERNAL_FORM_NBR = "MERGE1003-" + DT.Rows[0]["DOC_NBR"].ToString();
             int rowscounts = 0;
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
-
-            //正式的id
             string FORMID = SEARCHFORM_UOF_VERSION_ID("1005.雜項採購單");
-
             if (!string.IsNullOrEmpty(FORMID))
             {
                 Form.SetAttribute("formVersionId", FORMID);
             }
-
-
             Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
             xmlDoc.AppendChild(Form);
 
-            ////建立節點Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
             Form.AppendChild(Applicant);
 
-            //建立節點 Comment
             XmlElement Comment = xmlDoc.CreateElement("Comment");
             Comment.InnerText = "申請者意見";
-            //加入至節點底下
             Applicant.AppendChild(Comment);
 
-            //建立節點 FormFieldValue
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
             Form.AppendChild(FormFieldValue);
 
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // 使用 AddFieldItem 建立表單欄位
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA001", "如明細", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA002", "如明細", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA003", fillerName + "(" + account + ")", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA004", "如明細", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA005", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA006", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA007", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA008", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA009", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA010", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA011", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA012", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA013", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA014", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA015", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA016", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA017", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA999", fillerName, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA019", "如明細", fillerName, fillerUserGuid, account);
 
-            //建立節點FieldItem
-            //GA001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA001");
-            FieldItem.SetAttribute("fieldValue", "如明細");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA002");
-            FieldItem.SetAttribute("fieldValue", "如明細");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA003");
-            FieldItem.SetAttribute("fieldValue", fillerName + "(" + account + ")");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA004");
-            FieldItem.SetAttribute("fieldValue", "如明細");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA005");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA006	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA006");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA007	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA007");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA008	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA008");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA009	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA009");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA010	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA010");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA011	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA011");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA012	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA012");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA013	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA013");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA014	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA014");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA015	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA015");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA016	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA016");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA017	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA017");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-          
-            //GA999	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA999");
-            FieldItem.SetAttribute("fieldValue", fillerName);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //GA019	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "GA019");
-            FieldItem.SetAttribute("fieldValue", "如明細");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-
-
-
-            //DataGrid
-            //建立節點FieldItem
-            //INVTB
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
+            // DataGrid
+            XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
             XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
-            DETAILS.AppendChild(DataGrid);
-
+            FieldItem.AppendChild(DataGrid);
 
             foreach (DataRow od in DT.Rows)
             {
-
-                // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
+                Row.SetAttribute("order", rowscounts.ToString());
 
-                //Row	TGG002B004
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG002");
-                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
+                AppendCellToRow(xmlDoc, Row, od, "GG002");
+                AppendCellToRow(xmlDoc, Row, od, "GG002B", false, od["GG002"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG010");
+                AppendCellToRow(xmlDoc, Row, od, "GG003");
+                AppendCellToRow(xmlDoc, Row, od, "GG004");
+                AppendCellToRow(xmlDoc, Row, od, "GG004B", false, od["GG004"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG005");
+                AppendCellToRow(xmlDoc, Row, od, "GG005B", false, od["GG005"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG009");
+                AppendCellToRow(xmlDoc, Row, od, "GG009B", false, od["GG009"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG006");
+                AppendCellToRow(xmlDoc, Row, od, "GG007", false, "");
+                AppendCellToRow(xmlDoc, Row, od, "GG008", false, "");
+                AppendCellToRow(xmlDoc, Row, od, "GG011", false, od["GA007"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "EXTERNAL_FORM_NBR", false, od["DOC_NBR"].ToString());
 
-                //Row	GG002B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG002B");
-                Cell.SetAttribute("fieldValue", od["GG002"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG010
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG010");
-                Cell.SetAttribute("fieldValue", od["GG010"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG003
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG003");
-                Cell.SetAttribute("fieldValue", od["GG003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG004");
-                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG004B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG004B");
-                Cell.SetAttribute("fieldValue", od["GG004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG005");
-                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG005B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG005B");
-                Cell.SetAttribute("fieldValue", od["GG005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG009
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG009");
-                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG009B
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG009B");
-                Cell.SetAttribute("fieldValue", od["GG009"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG006");
-                Cell.SetAttribute("fieldValue", od["GG006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG007");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG008");
-                Cell.SetAttribute("fieldValue", "");
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	GG011
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "GG011");
-                Cell.SetAttribute("fieldValue", od["GA007"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                //Row	EXTERNAL_FORM_NBR
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "EXTERNAL_FORM_NBR");
-                Cell.SetAttribute("fieldValue", od["DOC_NBR"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                rowscounts = rowscounts + 1;
-
-                //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-                DataGridS.AppendChild(Row);
-
+                DataGrid.AppendChild(Row);
+                rowscounts++;
             }
 
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 寫入資料庫
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
-            StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
-
-            try
+            using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                string queryString = $@"
+                                    INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                    (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                    VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                                ";
+                using (SqlCommand command = new SqlCommand(queryString, connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
                     command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
-            }
-            catch
-            {
-
-            }
-            finally
-            {
-
             }
         }
 
