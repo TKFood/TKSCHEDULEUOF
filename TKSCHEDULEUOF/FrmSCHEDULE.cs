@@ -16955,76 +16955,67 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //ERP COP40.銷退單>轉入UOF簽核
         public void NEW_COPTICOPTJ()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
                 //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); //用new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    DataSet ds1 = new DataSet();
+                    SqlDataAdapter adapter1 = new SqlDataAdapter();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
+                    sbSql.Append(@"
                                     SELECT TI001,TI002,UDF01
-                                    FROM [test0923].dbo.COPTI
+                                    FROM [TK].dbo.COPTI
                                     WHERE TI019='N'
-                                    AND UDF01 IN ('Y','y')
+                                      AND UDF01 IN ('Y','y')
                                     ORDER BY TI001,TI002
+                                ");
 
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
 
-                                    ");
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    if (ds1.Tables["ds1"].Rows.Count > 0)
                     {
-                        ADD_COPTICOPTJ_TB_WKF_EXTERNAL_TASK(dr["TI001"].ToString().Trim(), dr["TI002"].ToString().Trim());
+                        foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                        {
+                            string TI001 = dr["TI001"].ToString().Trim();
+                            string TI002 = dr["TI002"].ToString().Trim();
+
+                            ADD_COPTICOPTJ_TB_WKF_EXTERNAL_TASK(TI001,TI002);
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 可以視情況加上 log
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                {
+                    sqlConn.Close();
+                }
             }
 
             UPDATE_COPTI_UDF01();
         }
+
         public void ADD_COPTICOPTJ_TB_WKF_EXTERNAL_TASK(string TI001, string TI002)
         {
 
@@ -17946,59 +17937,49 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立類別實體解密帳號密碼
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.COPTI
+                        sbSql.Clear();
+                        sbSql.Append(@"
+                                    UPDATE [TK].dbo.COPTI
                                     SET UDF01 = 'UOF'
-                                    WHERE  UDF01 IN ('Y','y')
+                                    WHERE UDF01 IN ('Y','y')
+                                ");
 
-                                    ");
+                        cmd.CommandText = sbSql.ToString();
+                        int result = cmd.ExecuteNonQuery();
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 沒有更新任何資料 → 回滾
+                        }
+                        else
+                        {
+                            tran.Commit();   // 更新成功 → 提交交易
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // TODO: 可加入記錄 log 機制
             }
         }
+
 
         public void NEW_INVTAINVTB()
         {
@@ -46432,15 +46413,19 @@ namespace TKSCHEDULEUOF
         private void button45_Click(object sender, EventArgs e)
         {
             //ERP PUR70.退貨單>轉入UOF簽核
+            //沒有使用
             NEW_PURTGPURIJ();
         }
         private void button46_Click(object sender, EventArgs e)
         {
             //ERP COP30.銷貨單 > 轉入UOF簽核
+            //沒有使用
             NEW_COPTGCOPTH();
         }
         private void button47_Click(object sender, EventArgs e)
         {
+            //ERP COP40.銷退單>轉入UOF簽核
+            //沒有使用
             NEW_COPTICOPTJ();
         }
         private void button48_Click(object sender, EventArgs e)
