@@ -16405,6 +16405,11 @@ namespace TKSCHEDULEUOF
         public void ADD_COPTGCOPTH_TB_WKF_EXTERNAL_TASK(string TG001, string TG002)
         {
             DataTable DT = SEARCH_COPTG_COPTH(TG001, TG002);
+            // 如果沒有資料就直接結束
+            if (DT == null || DT.Rows.Count == 0)
+            {
+                return;
+            }
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -17019,6 +17024,10 @@ namespace TKSCHEDULEUOF
         public void ADD_COPTICOPTJ_TB_WKF_EXTERNAL_TASK(string TI001, string TI002)
         {
             DataTable DT = SEARCH_COPTI_COPTJ(TI001, TI002);
+            if (DT == null || DT.Rows.Count == 0)
+            {
+                return;
+            }
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -17122,7 +17131,7 @@ namespace TKSCHEDULEUOF
             queryString.AppendFormat(@"
                                 INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                 (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                 VALUES (NEWID(),@XML,2,'{1}')", EXTERNAL_FORM_NBR);
+                                 VALUES (NEWID(),@XML,2,'{0}')", EXTERNAL_FORM_NBR);
 
             try
             {
@@ -17430,7 +17439,7 @@ namespace TKSCHEDULEUOF
                                         ,[TB_EB_USER].USER_GUID,NAME
                                         ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=COPTI.CREATOR) AS 'MV002'
 
-                                        FROM [test0923].dbo.COPMA,[test0923].dbo.COPTI,[test0923].dbo.COPTJ
+                                        FROM [TK].dbo.COPMA,[TK].dbo.COPTI,[TK].dbo.COPTJ
                                         LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= COPTJ.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                         WHERE 1=1
                                         AND TI001=TJ001 AND TI002=TJ002
