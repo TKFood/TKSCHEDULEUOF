@@ -17523,717 +17523,426 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //ERP-INVI05.庫存異動單>轉入UOF簽核
         public void NEW_INVTAINVTB()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
                 //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1(); // 用new建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    DataSet ds1 = new DataSet();
+                    SqlDataAdapter adapter1 = new SqlDataAdapter();
+                    SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
+                    sbSql.AppendFormat(@"
                                     SELECT TA001,TA002,UDF02
-                                    FROM [test0923].dbo.INVTA
+                                    FROM [TK].dbo.INVTA
                                     WHERE TA006='N'
                                     AND TA009='11'
                                     AND UDF02 IN ('Y','y')
                                     ORDER BY TA001,TA002
-
-
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
 
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    if (ds1.Tables["ds1"].Rows.Count >= 1)
                     {
-                        ADD_INVTAINVTB_TB_WKF_EXTERNAL_TASK(dr["TA001"].ToString().Trim(), dr["TA002"].ToString().Trim());
+                        foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                        {
+                            string TA001 = dr["TA001"].ToString().Trim();
+                            string TA002 = dr["TA002"].ToString().Trim();
+                            ADD_INVTAINVTB_TB_WKF_EXTERNAL_TASK(TA001, TA002);
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 這裡你可以加 log，方便除錯
+                // e.g. Console.WriteLine(ex.Message);
             }
             finally
             {
-                sqlConn.Close();
+                UPDATE_INVTA_UDF02();
             }
-
-            UPDATE_INVTA_UDF02();
         }
+
         public void ADD_INVTAINVTB_TB_WKF_EXTERNAL_TASK(string TA001, string TA002)
         {
-
-            DataTable DT = SEARCH_INVTA_INVTB(TA001, TA002);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
-
-            string account = DT.Rows[0]["CREATOR"].ToString();
-            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName = DT.Rows[0]["MV002"].ToString();
-            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
-
-            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
-            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
-
-            string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
-
-            int rowscounts = 0;
-
-            XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
-            XmlElement Form = xmlDoc.CreateElement("Form");
-
-            //正式的id
-            string PURTGID = SEARCHFORM_UOF_VERSION_ID("INVI05.庫存異動單");
-
-            if (!string.IsNullOrEmpty(PURTGID))
-            {
-                Form.SetAttribute("formVersionId", PURTGID);
-            }
-
-
-            Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
-            xmlDoc.AppendChild(Form);
-
-            ////建立節點Applicant
-            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account);
-            Applicant.SetAttribute("groupId", groupId);
-            Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
-            Form.AppendChild(Applicant);
-
-            //建立節點 Comment
-            XmlElement Comment = xmlDoc.CreateElement("Comment");
-            Comment.InnerText = "申請者意見";
-            //加入至節點底下
-            Applicant.AppendChild(Comment);
-
-            //建立節點 FormFieldValue
-            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
-            Form.AppendChild(FormFieldValue);
-
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-            //建立節點FieldItem
-            //TA001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA001"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-
-            //TA002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA002"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA003"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA008	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA008");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA008"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA004"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA005	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA005");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA005"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA011	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA011");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA011"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //TA012	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "TA012");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["TA012"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-
-
-            //DataGrid
-            //建立節點FieldItem
-            //INVTB
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "INVTB");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
-            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='INVTB']");
-            PURTD.AppendChild(DataGrid);
-
-
-            foreach (DataRow od in DT.Rows)
-            {
-                // 新增 Row
-                XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
-
-                //Row	TB003
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB003");
-                Cell.SetAttribute("fieldValue", od["TB003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB004");
-                Cell.SetAttribute("fieldValue", od["TB004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB005
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB005");
-                Cell.SetAttribute("fieldValue", od["TB005"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB006");
-                Cell.SetAttribute("fieldValue", od["TB006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB007");
-                Cell.SetAttribute("fieldValue", od["TB007"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB008");
-                Cell.SetAttribute("fieldValue", od["TB008"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB012
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB012");
-                Cell.SetAttribute("fieldValue", od["TB012"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB013
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB013");
-                Cell.SetAttribute("fieldValue", od["TB013"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB014
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB014");
-                Cell.SetAttribute("fieldValue", od["TB014"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	TB017
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TB017");
-                Cell.SetAttribute("fieldValue", od["TB017"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-
-
-                rowscounts = rowscounts + 1;
-
-                //DataGrid PURTM
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='INVTB']/DataGrid");
-                DataGridS.AppendChild(Row);
-
-            }
-
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
-            StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
-
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                DataTable DT = SEARCH_INVTA_INVTB(TA001, TA002);
+                if (DT == null || DT.Rows.Count == 0) return;
+
+                DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
+                if (DTUPFDEP == null || DTUPFDEP.Rows.Count == 0) return;
+
+                string account = DT.Rows[0]["CREATOR"].ToString();
+                string groupId = DT.Rows[0]["GROUP_ID"].ToString();
+                string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
+                string fillerName = DT.Rows[0]["MV002"].ToString();
+                string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+
+                string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
+                string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+
+                string EXTERNAL_FORM_NBR = DT.Rows[0]["TA001"].ToString().Trim() + DT.Rows[0]["TA002"].ToString().Trim();
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement Form = xmlDoc.CreateElement("Form");
+
+                // 取得表單版本 ID
+                string PURTGID = SEARCHFORM_UOF_VERSION_ID("INVI05.庫存異動單");
+                if (!string.IsNullOrEmpty(PURTGID))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    Form.SetAttribute("formVersionId", PURTGID);
                 }
-            }
-            catch
-            {
+                Form.SetAttribute("urgentLevel", "2");
+                xmlDoc.AppendChild(Form);
 
-            }
-            finally
-            {
+                // Applicant
+                XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+                Applicant.SetAttribute("account", account);
+                Applicant.SetAttribute("groupId", groupId);
+                Applicant.SetAttribute("jobTitleId", jobTitleId);
+                Form.AppendChild(Applicant);
 
-            }
-        }
+                XmlElement Comment = xmlDoc.CreateElement("Comment");
+                Comment.InnerText = "申請者意見";
+                Applicant.AppendChild(Comment);
 
-        public DataTable SEARCH_INVTA_INVTB(string TA001, string TA002)
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+                // FormFieldValue
+                XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+                Form.AppendChild(FormFieldValue);
 
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 表單欄位
+                AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA001", DT.Rows[0]["TA001"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA002", DT.Rows[0]["TA002"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA003", DT.Rows[0]["TA003"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA004", DT.Rows[0]["TA004"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA005", DT.Rows[0]["TA005"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA008", DT.Rows[0]["TA008"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA011", DT.Rows[0]["TA011"].ToString().Trim(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "TA012", DT.Rows[0]["TA012"].ToString().Trim(), fillerName, fillerUserGuid, account);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                // DataGrid INVTB
+                XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
+                FieldItem.SetAttribute("fieldId", "INVTB");
+                FieldItem.SetAttribute("fieldValue", "");
+                FieldItem.SetAttribute("realValue", "");
+                FieldItem.SetAttribute("enableSearch", "True");
+                FieldItem.SetAttribute("fillerName", fillerName);
+                FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+                FieldItem.SetAttribute("fillerAccount", account);
+                FieldItem.SetAttribute("fillSiteId", "");
+                FormFieldValue.AppendChild(FieldItem);
 
-                //資料庫使用者密碼解密
+                XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+                FieldItem.AppendChild(DataGrid);
+
+                int rowCounts = 0;
+                foreach (DataRow od in DT.Rows)
+                {
+                    XmlElement Row = xmlDoc.CreateElement("Row");
+                    Row.SetAttribute("order", rowCounts.ToString());
+
+                    AppendCellToRow(xmlDoc, Row, od, "TB003");
+                    AppendCellToRow(xmlDoc, Row, od, "TB004");
+                    AppendCellToRow(xmlDoc, Row, od, "TB005");
+                    AppendCellToRow(xmlDoc, Row, od, "TB006");
+                    AppendCellToRow(xmlDoc, Row, od, "TB007");
+                    AppendCellToRow(xmlDoc, Row, od, "TB008");
+                    AppendCellToRow(xmlDoc, Row, od, "TB012");
+                    AppendCellToRow(xmlDoc, Row, od, "TB013");
+                    AppendCellToRow(xmlDoc, Row, od, "TB014");
+                    AppendCellToRow(xmlDoc, Row, od, "TB017");
+
+                    DataGrid.AppendChild(Row);
+                    rowCounts++;
+                }
+
+                // 寫入 DB
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string connectionString = sqlsb.ConnectionString;
+                StringBuilder queryString = new StringBuilder();
+                queryString.AppendFormat(@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{0}')"
+                                        , EXTERNAL_FORM_NBR);
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                // 這裡你可以加上 log
+                Console.WriteLine("錯誤：" + ex.Message);
+            }
+        }
 
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+        public DataTable SEARCH_INVTA_INVTB(string TA001, string TA002)
+        {
+            DataTable dt = new DataTable();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+            try
+            {
+                // 建立連線字串
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                sbSql.AppendFormat(@"  
-                                    
-                                    SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    FROM 
-                                    (
+                // 解密使用者帳號與密碼
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sbSql.Clear();
+
+                    sbSql.Append(@"
+                                SELECT *
+                                      ,USER_GUID,NAME
+                                      ,(SELECT TOP 1 GROUP_ID 
+                                          FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                          WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS GROUP_ID
+                                      ,(SELECT TOP 1 TITLE_ID 
+                                          FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                          WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS TITLE_ID
+                                FROM 
+                                (
                                     SELECT 
-                                    [INVTA].[COMPANY]
-                                    ,[INVTA].[CREATOR]
-                                    ,[INVTA].[USR_GROUP]
-                                    ,[INVTA].[CREATE_DATE]
-                                    ,[INVTA].[MODIFIER]
-                                    ,[INVTA].[MODI_DATE]
-                                    ,[INVTA].[FLAG]
-                                    ,[INVTA].[CREATE_TIME]
-                                    ,[INVTA].[MODI_TIME]
-                                    ,[INVTA].[TRANS_TYPE]
-                                    ,[INVTA].[TRANS_NAME]
-                                    ,[INVTA].[sync_date]
-                                    ,[INVTA].[sync_time]
-                                    ,[INVTA].[sync_mark]
-                                    ,[INVTA].[sync_count]
-                                    ,[INVTA].[DataUser]
-                                    ,[INVTA].[DataGroup]
-                                    ,[INVTA].[TA001]
-                                    ,[INVTA].[TA002]
-                                    ,[INVTA].[TA003]
-                                    ,[INVTA].[TA004]
-                                    ,[INVTA].[TA005]
-                                    ,[INVTA].[TA006]
-                                    ,[INVTA].[TA007]
-                                    ,[INVTA].[TA008]
-                                    ,[INVTA].[TA009]
-                                    ,[INVTA].[TA010]
-                                    ,[INVTA].[TA011]
-                                    ,[INVTA].[TA012]
-                                    ,[INVTA].[TA013]
-                                    ,[INVTA].[TA014]
-                                    ,[INVTA].[TA015]
-                                    ,[INVTA].[TA016]
-                                    ,[INVTA].[TA017]
-                                    ,[INVTA].[TA018]
-                                    ,[INVTA].[TA019]
-                                    ,[INVTA].[TA020]
-                                    ,[INVTA].[TA021]
-                                    ,[INVTA].[TA022]
-                                    ,[INVTA].[TA023]
-                                    ,[INVTA].[TA024]
-                                    ,[INVTA].[TA025]
-                                    ,[INVTA].[TA026]
-                                    ,[INVTA].[TA027]
-                                    ,[INVTA].[TA028]
-                                    ,[INVTA].[TA029]
-                                    ,[INVTA].[TA030]
-                                    ,[INVTA].[TA031]
-                                    ,[INVTA].[TA032]
-                                    ,[INVTA].[TA033]
-                                    ,[INVTA].[TA034]
-                                    ,[INVTA].[TA035]
-                                    ,[INVTA].[TA036]
-                                    ,[INVTA].[TA037]
-                                    ,[INVTA].[TA038]
-                                    ,[INVTA].[TA039]
-                                    ,[INVTA].[TA040]
-                                    ,[INVTA].[TA041]
-                                    ,[INVTA].[TA042]
-                                    ,[INVTA].[TA043]
-                                    ,[INVTA].[TA044]
-                                    ,[INVTA].[TA045]
-                                    ,[INVTA].[TA046]
-                                    ,[INVTA].[TA047]
-                                    ,[INVTA].[TA048]
-                                    ,[INVTA].[TA049]
-                                    ,[INVTA].[TA050]
-                                    ,[INVTA].[TA051]
-                                    ,[INVTA].[TA052]
-                                    ,[INVTA].[TA053]
-                                    ,[INVTA].[TA054]
-                                    ,[INVTA].[TA055]
-                                    ,[INVTA].[TA056]
-                                    ,[INVTA].[TA057]
-                                    ,[INVTA].[TA058]
-                                    ,[INVTA].[TA059]
-                                    ,[INVTA].[TA060]
-                                    ,[INVTA].[TA061]
-                                    ,[INVTA].[TA062]
-                                    ,[INVTA].[TA063]
-                                    ,[INVTA].[TA064]
-                                    ,[INVTA].[TA065]
-                                    ,[INVTA].[TA066]
-                                    ,[INVTA].[TA067]
-                                    ,[INVTA].[TA068]
-                                    ,[INVTA].[TA200]
-                                    ,[INVTA].[UDF01] AS 'INVTAUDF01'
-                                    ,[INVTA].[UDF02] AS 'INVTAUDF02'
-                                    ,[INVTA].[UDF03] AS 'INVTAUDF03'
-                                    ,[INVTA].[UDF04] AS 'INVTAUDF04'
-                                    ,[INVTA].[UDF05] AS 'INVTAUDF05'
-                                    ,[INVTA].[UDF06] AS 'INVTAUDF06'
-                                    ,[INVTA].[UDF07] AS 'INVTAUDF07'
-                                    ,[INVTA].[UDF08] AS 'INVTAUDF08'
-                                    ,[INVTA].[UDF09] AS 'INVTAUDF09'
-                                    ,[INVTA].[UDF10] AS 'INVTAUDF10'
-                                    ,[INVTB].[TB001]
-                                    ,[INVTB].[TB002]
-                                    ,[INVTB].[TB003]
-                                    ,[INVTB].[TB004]
-                                    ,[INVTB].[TB005]
-                                    ,[INVTB].[TB006]
-                                    ,[INVTB].[TB007]
-                                    ,[INVTB].[TB008]
-                                    ,[INVTB].[TB009]
-                                    ,[INVTB].[TB010]
-                                    ,[INVTB].[TB011]
-                                    ,[INVTB].[TB012]
-                                    ,[INVTB].[TB013]
-                                    ,[INVTB].[TB014]
-                                    ,[INVTB].[TB015]
-                                    ,[INVTB].[TB016]
-                                    ,[INVTB].[TB017]
-                                    ,[INVTB].[TB018]
-                                    ,[INVTB].[TB019]
-                                    ,[INVTB].[TB020]
-                                    ,[INVTB].[TB021]
-                                    ,[INVTB].[TB022]
-                                    ,[INVTB].[TB023]
-                                    ,[INVTB].[TB024]
-                                    ,[INVTB].[TB025]
-                                    ,[INVTB].[TB026]
-                                    ,[INVTB].[TB027]
-                                    ,[INVTB].[TB028]
-                                    ,[INVTB].[TB029]
-                                    ,[INVTB].[TB030]
-                                    ,[INVTB].[TB031]
-                                    ,[INVTB].[TB032]
-                                    ,[INVTB].[TB033]
-                                    ,[INVTB].[TB034]
-                                    ,[INVTB].[TB035]
-                                    ,[INVTB].[TB036]
-                                    ,[INVTB].[TB037]
-                                    ,[INVTB].[TB038]
-                                    ,[INVTB].[TB039]
-                                    ,[INVTB].[TB040]
-                                    ,[INVTB].[TB041]
-                                    ,[INVTB].[TB042]
-                                    ,[INVTB].[TB043]
-                                    ,[INVTB].[TB044]
-                                    ,[INVTB].[TB045]
-                                    ,[INVTB].[TB046]
-                                    ,[INVTB].[TB047]
-                                    ,[INVTB].[TB048]
-                                    ,[INVTB].[TB049]
-                                    ,[INVTB].[TB050]
-                                    ,[INVTB].[TB051]
-                                    ,[INVTB].[TB052]
-                                    ,[INVTB].[TB053]
-                                    ,[INVTB].[TB054]
-                                    ,[INVTB].[TB055]
-                                    ,[INVTB].[TB056]
-                                    ,[INVTB].[TB057]
-                                    ,[INVTB].[TB058]
-                                    ,[INVTB].[TB059]
-                                    ,[INVTB].[TB060]
-                                    ,[INVTB].[TB061]
-                                    ,[INVTB].[TB062]
-                                    ,[INVTB].[TB063]
-                                    ,[INVTB].[TB064]
-                                    ,[INVTB].[TB065]
-                                    ,[INVTB].[TB066]
-                                    ,[INVTB].[TB067]
-                                    ,[INVTB].[TB068]
-                                    ,[INVTB].[TB069]
-                                    ,[INVTB].[TB070]
-                                    ,[INVTB].[TB071]
-                                    ,[INVTB].[TB072]
-                                    ,[INVTB].[TB073]
-                                    ,[INVTB].[UDF01] AS 'INVTBUDF01'
-                                    ,[INVTB].[UDF02] AS 'INVTBUDF02'
-                                    ,[INVTB].[UDF03] AS 'INVTBUDF03'
-                                    ,[INVTB].[UDF04] AS 'INVTBUDF04'
-                                    ,[INVTB].[UDF05] AS 'INVTBUDF05'
-                                    ,[INVTB].[UDF06] AS 'INVTBUDF06'
-                                    ,[INVTB].[UDF07] AS 'INVTBUDF07'
-                                    ,[INVTB].[UDF08] AS 'INVTBUDF08'
-                                    ,[INVTB].[UDF09] AS 'INVTBUDF09'
-                                    ,[INVTB].[UDF10] AS 'INVTBUDF10'
+                                        [INVTA].[COMPANY]
+                                        ,[INVTA].[CREATOR]
+                                        ,[INVTA].[USR_GROUP]
+                                        ,[INVTA].[CREATE_DATE]
+                                        ,[INVTA].[MODIFIER]
+                                        ,[INVTA].[MODI_DATE]
+                                        ,[INVTA].[FLAG]
+                                        ,[INVTA].[CREATE_TIME]
+                                        ,[INVTA].[MODI_TIME]
+                                        ,[INVTA].[TRANS_TYPE]
+                                        ,[INVTA].[TRANS_NAME]
+                                        ,[INVTA].[sync_date]
+                                        ,[INVTA].[sync_time]
+                                        ,[INVTA].[sync_mark]
+                                        ,[INVTA].[sync_count]
+                                        ,[INVTA].[DataUser]
+                                        ,[INVTA].[DataGroup]
+                                        ,[INVTA].[TA001]
+                                        ,[INVTA].[TA002]
+                                        ,[INVTA].[TA003]
+                                        ,[INVTA].[TA004]
+                                        ,[INVTA].[TA005]
+                                        ,[INVTA].[TA006]
+                                        ,[INVTA].[TA007]
+                                        ,[INVTA].[TA008]
+                                        ,[INVTA].[TA009]
+                                        ,[INVTA].[TA010]
+                                        ,[INVTA].[TA011]
+                                        ,[INVTA].[TA012]
+                                        ,[INVTA].[TA013]
+                                        ,[INVTA].[TA014]
+                                        ,[INVTA].[TA015]
+                                        ,[INVTA].[TA016]
+                                        ,[INVTA].[TA017]
+                                        ,[INVTA].[TA018]
+                                        ,[INVTA].[TA019]
+                                        ,[INVTA].[TA020]
+                                        ,[INVTA].[TA021]
+                                        ,[INVTA].[TA022]
+                                        ,[INVTA].[TA023]
+                                        ,[INVTA].[TA024]
+                                        ,[INVTA].[TA025]
+                                        ,[INVTA].[TA026]
+                                        ,[INVTA].[TA027]
+                                        ,[INVTA].[TA028]
+                                        ,[INVTA].[TA029]
+                                        ,[INVTA].[TA030]
+                                        ,[INVTA].[TA031]
+                                        ,[INVTA].[TA032]
+                                        ,[INVTA].[TA033]
+                                        ,[INVTA].[TA034]
+                                        ,[INVTA].[TA035]
+                                        ,[INVTA].[TA036]
+                                        ,[INVTA].[TA037]
+                                        ,[INVTA].[TA038]
+                                        ,[INVTA].[TA039]
+                                        ,[INVTA].[TA040]
+                                        ,[INVTA].[TA041]
+                                        ,[INVTA].[TA042]
+                                        ,[INVTA].[TA043]
+                                        ,[INVTA].[TA044]
+                                        ,[INVTA].[TA045]
+                                        ,[INVTA].[TA046]
+                                        ,[INVTA].[TA047]
+                                        ,[INVTA].[TA048]
+                                        ,[INVTA].[TA049]
+                                        ,[INVTA].[TA050]
+                                        ,[INVTA].[TA051]
+                                        ,[INVTA].[TA052]
+                                        ,[INVTA].[TA053]
+                                        ,[INVTA].[TA054]
+                                        ,[INVTA].[TA055]
+                                        ,[INVTA].[TA056]
+                                        ,[INVTA].[TA057]
+                                        ,[INVTA].[TA058]
+                                        ,[INVTA].[TA059]
+                                        ,[INVTA].[TA060]
+                                        ,[INVTA].[TA061]
+                                        ,[INVTA].[TA062]
+                                        ,[INVTA].[TA063]
+                                        ,[INVTA].[TA064]
+                                        ,[INVTA].[TA065]
+                                        ,[INVTA].[TA066]
+                                        ,[INVTA].[TA067]
+                                        ,[INVTA].[TA068]
+                                        ,[INVTA].[TA200]
+                                        ,[INVTA].[UDF01] AS INVTAUDF01
+                                        ,[INVTA].[UDF02] AS INVTAUDF02
+                                        ,[INVTA].[UDF03] AS INVTAUDF03
+                                        ,[INVTA].[UDF04] AS INVTAUDF04
+                                        ,[INVTA].[UDF05] AS INVTAUDF05
+                                        ,[INVTA].[UDF06] AS INVTAUDF06
+                                        ,[INVTA].[UDF07] AS INVTAUDF07
+                                        ,[INVTA].[UDF08] AS INVTAUDF08
+                                        ,[INVTA].[UDF09] AS INVTAUDF09
+                                        ,[INVTA].[UDF10] AS INVTAUDF10
+                                        ,[INVTB].[TB001]
+                                        ,[INVTB].[TB002]
+                                        ,[INVTB].[TB003]
+                                        ,[INVTB].[TB004]
+                                        ,[INVTB].[TB005]
+                                        ,[INVTB].[TB006]
+                                        ,[INVTB].[TB007]
+                                        ,[INVTB].[TB008]
+                                        ,[INVTB].[TB009]
+                                        ,[INVTB].[TB010]
+                                        ,[INVTB].[TB011]
+                                        ,[INVTB].[TB012]
+                                        ,[INVTB].[TB013]
+                                        ,[INVTB].[TB014]
+                                        ,[INVTB].[TB015]
+                                        ,[INVTB].[TB016]
+                                        ,[INVTB].[TB017]
+                                        ,[INVTB].[TB018]
+                                        ,[INVTB].[TB019]
+                                        ,[INVTB].[TB020]
+                                        ,[INVTB].[TB021]
+                                        ,[INVTB].[TB022]
+                                        ,[INVTB].[TB023]
+                                        ,[INVTB].[TB024]
+                                        ,[INVTB].[TB025]
+                                        ,[INVTB].[TB026]
+                                        ,[INVTB].[TB027]
+                                        ,[INVTB].[TB028]
+                                        ,[INVTB].[TB029]
+                                        ,[INVTB].[TB030]
+                                        ,[INVTB].[TB031]
+                                        ,[INVTB].[TB032]
+                                        ,[INVTB].[TB033]
+                                        ,[INVTB].[TB034]
+                                        ,[INVTB].[TB035]
+                                        ,[INVTB].[TB036]
+                                        ,[INVTB].[TB037]
+                                        ,[INVTB].[TB038]
+                                        ,[INVTB].[TB039]
+                                        ,[INVTB].[TB040]
+                                        ,[INVTB].[TB041]
+                                        ,[INVTB].[TB042]
+                                        ,[INVTB].[TB043]
+                                        ,[INVTB].[TB044]
+                                        ,[INVTB].[TB045]
+                                        ,[INVTB].[TB046]
+                                        ,[INVTB].[TB047]
+                                        ,[INVTB].[TB048]
+                                        ,[INVTB].[TB049]
+                                        ,[INVTB].[TB050]
+                                        ,[INVTB].[TB051]
+                                        ,[INVTB].[TB052]
+                                        ,[INVTB].[TB053]
+                                        ,[INVTB].[TB054]
+                                        ,[INVTB].[TB055]
+                                        ,[INVTB].[TB056]
+                                        ,[INVTB].[TB057]
+                                        ,[INVTB].[TB058]
+                                        ,[INVTB].[TB059]
+                                        ,[INVTB].[TB060]
+                                        ,[INVTB].[TB061]
+                                        ,[INVTB].[TB062]
+                                        ,[INVTB].[TB063]
+                                        ,[INVTB].[TB064]
+                                        ,[INVTB].[TB065]
+                                        ,[INVTB].[TB066]
+                                        ,[INVTB].[TB067]
+                                        ,[INVTB].[TB068]
+                                        ,[INVTB].[TB069]
+                                        ,[INVTB].[TB070]
+                                        ,[INVTB].[TB071]
+                                        ,[INVTB].[TB072]
+                                        ,[INVTB].[TB073]
+                                        ,[INVTB].[UDF01] AS INVTBUDF01
+                                        ,[INVTB].[UDF02] AS INVTBUDF02
+                                        ,[INVTB].[UDF03] AS INVTBUDF03
+                                        ,[INVTB].[UDF04] AS INVTBUDF04
+                                        ,[INVTB].[UDF05] AS INVTBUDF05
+                                        ,[INVTB].[UDF06] AS INVTBUDF06
+                                        ,[INVTB].[UDF07] AS INVTBUDF07
+                                        ,[INVTB].[UDF08] AS INVTBUDF08
+                                        ,[INVTB].[UDF09] AS INVTBUDF09
+                                        ,[INVTB].[UDF10] AS INVTBUDF10
+                                        ,[TB_EB_USER].USER_GUID,NAME
+                                        ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVTA.CREATOR) AS MV002
+                                    FROM [TK].dbo.INVTB
+                                    JOIN [TK].dbo.INVTA ON TA001=TB001 AND TA002=TB002
+                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                           ON [TB_EB_USER].ACCOUNT=INVTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    WHERE TA001=@TA001 AND TA002=@TA002
+                                ) AS TEMP
+                            ");
 
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVTA.CREATOR) AS 'MV002'
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        adapter.SelectCommand.Parameters.AddWithValue("@TA001", TA001);
+                        adapter.SelectCommand.Parameters.AddWithValue("@TA002", TA002);
 
-                                    FROM [test0923].dbo.INVTB,[test0923].dbo.INVTA
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=INVTA.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    WHERE 1=1
-                                    AND TA001=TB001 AND TA002=TB002
-                                    AND TA001='{0}' AND TA002='{1}'
-                                    ) AS TEMP
-                                    
-                              
-                                    ", TA001, TA002);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
+                        adapter.Fill(dt);
+                    }
                 }
 
+                return dt.Rows.Count > 0 ? dt : null;
             }
-            catch
+            catch (Exception ex)
             {
+                // 建議加 log
+                // Console.WriteLine(ex.ToString());
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
@@ -18241,60 +17950,52 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.INVTA
-                                    SET UDF02 = 'UOF'
-                                    AND TA009='12'
-                                    WHERE  UDF02 IN ('Y','y')
-
+                        sbSql.Clear();
+                        sbSql.AppendFormat(@"
+                                        UPDATE [TK].dbo.INVTA
+                                        SET UDF02 = 'UOF',
+                                            TA009  = '12'
+                                        WHERE UDF02 IN ('Y','y')
                                     ");
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
+                        cmd.CommandText = sbSql.ToString();
+                        int result = cmd.ExecuteNonQuery();
 
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 交易取消
+                        }
+                        else
+                        {
+                            tran.Commit();   // 執行交易
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議加 log，方便日後除錯
+                // e.g. Console.WriteLine(ex.ToString());
             }
         }
+
 
         public void NEW_INVTAINVTB_TRANS()
         {
@@ -45973,6 +45674,8 @@ namespace TKSCHEDULEUOF
         }
         private void button48_Click(object sender, EventArgs e)
         {
+            //ERP-INVI05.庫存異動單>轉入UOF簽核
+            //沒有使用
             NEW_INVTAINVTB();
         }
 
