@@ -18645,7 +18645,7 @@ namespace TKSCHEDULEUOF
                 Console.WriteLine("Insert Error: " + ex.Message);
             }
         }
-
+        //ERP MOC單>轉入UOF簽核
         public void NEW_INVTJINVTK()
         {
             try
@@ -18674,7 +18674,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TJ001,TJ002,UDF01
-                                    FROM [test0923].dbo.INVTJ
+                                    FROM [TK].dbo.INVTJ
                                     WHERE TJ010='N'                                  
                                     AND UDF01 IN ('Y','y')
                                     ORDER BY TJ001,TJ002
@@ -19265,7 +19265,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVTJ.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.INVTK,[test0923].dbo.INVTJ
+                                    FROM [TK].dbo.INVTK,[TK].dbo.INVTJ
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=INVTJ.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TJ001=TK001 AND TJ002=TK002
@@ -19330,7 +19330,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.INVTJ
+                                    UPDATE  [TK].dbo.INVTJ
                                     SET UDF01 = 'UOF'                                   
                                     WHERE  UDF01 IN ('Y','y')
 
@@ -19392,7 +19392,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TH001,TH002,UDF01
-                                    FROM [test0923].dbo.MOCTH
+                                    FROM [TK].dbo.MOCTH
                                     WHERE TH023='N'                                  
                                     AND UDF01 IN ('Y','y')
                                     ORDER BY TH001,TH002
@@ -20137,7 +20137,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTH.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.MOCTI,[test0923].dbo.MOCTH
+                                    FROM [TK].dbo.MOCTI,[TK].dbo.MOCTH
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTH.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TH001=TI001 AND TH002=TI002
@@ -20202,7 +20202,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.MOCTH
+                                    UPDATE  [TK].dbo.MOCTH
                                     SET UDF01 = 'UOF'                                   
                                     WHERE  UDF01 IN ('Y','y')
 
@@ -20264,7 +20264,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TK001,TK002,UDF01
-                                    FROM [test0923].dbo.MOCTK
+                                    FROM [TK].dbo.MOCTK
                                     WHERE TK021='N'                                  
                                     AND UDF01 IN ('Y','y')
                                     ORDER BY TK001,TK002
@@ -20924,7 +20924,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTK.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.MOCTL,[test0923].dbo.MOCTK
+                                    FROM [TK].dbo.MOCTL,[TK].dbo.MOCTK
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTK.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TK001=TL001 AND TK002=TL002
@@ -20989,7 +20989,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.MOCTK
+                                    UPDATE  [TK].dbo.MOCTK
                                     SET UDF01 = 'UOF'                                   
                                     WHERE  UDF01 IN ('Y','y')
 
@@ -21051,7 +21051,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TF001,TF002,UDF01
-                                    FROM [test0923].dbo.MOCTF
+                                    FROM [TK].dbo.MOCTF
                                     WHERE TF006='N'                                  
                                     AND UDF01 IN ('Y','y')
                                     ORDER BY TF001,TF002
@@ -21622,7 +21622,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTF.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.MOCTG,[test0923].dbo.MOCTF
+                                    FROM [TK].dbo.MOCTG,[TK].dbo.MOCTF
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTF.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TF001=TG001 AND TF002=TG002
@@ -21687,7 +21687,7 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.MOCTF
+                                    UPDATE  [TK].dbo.MOCTF
                                     SET UDF01 = 'UOF'                                   
                                     WHERE  UDF01 IN ('Y','y')
 
@@ -22573,7 +22573,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TC001,TC002,MOCTC.UDF01
-                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    FROM [TK].dbo.MOCTC,[TK].dbo.CMSMQ
                                     WHERE TC001=MQ001
                                     AND MQ010='-1'
                                     AND TC009='N'                                  
@@ -23116,7 +23116,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTC.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.MOCTE,[test0923].dbo.MOCTC
+                                    FROM [TK].dbo.MOCTE,[TK].dbo.MOCTC
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TC001=TE001 AND TC002=TE002
@@ -23182,9 +23182,9 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.MOCTC
+                                    UPDATE  [TK].dbo.MOCTC
                                     SET UDF01 = 'UOF' 
-                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    FROM [TK].dbo.MOCTC,[TK].dbo.CMSMQ
                                     WHERE TC001=MQ001
                                     AND MQ010='-1'
                                     AND TC009='N'                                  
@@ -24632,7 +24632,7 @@ namespace TKSCHEDULEUOF
                 //TL006='N' AND (UDF01 IN ('Y','y') ) 
                 sbSql.AppendFormat(@" 
                                     SELECT TC001,TC002,MOCTC.UDF01
-                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    FROM [TK].dbo.MOCTC,[TK].dbo.CMSMQ
                                     WHERE TC001=MQ001
                                     AND MQ010='1'
                                     AND TC009='N'                                  
@@ -25175,7 +25175,7 @@ namespace TKSCHEDULEUOF
                                     ,[TB_EB_USER].USER_GUID,NAME
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=MOCTC.CREATOR) AS 'MV002'
 
-                                    FROM [test0923].dbo.MOCTE,[test0923].dbo.MOCTC
+                                    FROM [TK].dbo.MOCTE,[TK].dbo.MOCTC
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=MOCTC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TC001=TE001 AND TC002=TE002
@@ -25241,9 +25241,9 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
 
                 sbSql.AppendFormat(@"
-                                    UPDATE  [test0923].dbo.MOCTC
+                                    UPDATE  [TK].dbo.MOCTC
                                     SET UDF01 = 'UOF' 
-                                    FROM [test0923].dbo.MOCTC,[TK].dbo.CMSMQ
+                                    FROM [TK].dbo.MOCTC,[TK].dbo.CMSMQ
                                     WHERE TC001=MQ001
                                     AND MQ010='1'
                                     AND TC009='N'                                  
