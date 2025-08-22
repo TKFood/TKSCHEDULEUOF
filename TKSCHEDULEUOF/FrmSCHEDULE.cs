@@ -44979,6 +44979,8 @@ namespace TKSCHEDULEUOF
 
         private void button51_Click(object sender, EventArgs e)
         {
+            //ERP MOC單>轉入UOF簽核
+            //沒有使用
             NEW_INVTJINVTK();
         }
 
@@ -45469,10 +45471,5 @@ namespace TKSCHEDULEUOF
         }
 
         #endregion
-
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
     }
 }
