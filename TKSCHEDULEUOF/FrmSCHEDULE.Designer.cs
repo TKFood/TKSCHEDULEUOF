@@ -587,7 +587,7 @@
             this.button53.Name = "button53";
             this.button53.Size = new System.Drawing.Size(165, 34);
             this.button53.TabIndex = 59;
-            this.button53.Text = "ERP MMOCI07.託外退貨單>轉入UOF簽核";
+            this.button53.Text = "ERP-MOCI07.託外退貨單>轉入UOF簽核";
             this.button53.UseVisualStyleBackColor = true;
             this.button53.Click += new System.EventHandler(this.button53_Click);
             // 

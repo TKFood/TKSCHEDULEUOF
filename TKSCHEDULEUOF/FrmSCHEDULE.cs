@@ -18607,7 +18607,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-
+        //ERP-MOCI06託外進貨單>轉入UOF簽核
         public void NEW_MOCTH_MOCTI()
         {
 
@@ -19479,7 +19479,7 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-
+        //ERP-MOCI07.託外退貨單>轉入UOF簽核
         public void NEW_MOCTK_MOCTL()
         {
 
@@ -44231,10 +44231,14 @@ namespace TKSCHEDULEUOF
 
         private void button52_Click(object sender, EventArgs e)
         {
+            //ERP-MOCI06託外進貨單>轉入UOF簽核
+            //沒有使用
             NEW_MOCTH_MOCTI();
         }
         private void button53_Click(object sender, EventArgs e)
         {
+            //ERP-MOCI07.託外退貨單>轉入UOF簽核
+            //沒有使用
             NEW_MOCTK_MOCTL();
         }
         private void button54_Click(object sender, EventArgs e)
