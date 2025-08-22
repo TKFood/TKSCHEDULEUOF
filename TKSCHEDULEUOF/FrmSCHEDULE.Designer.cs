@@ -692,7 +692,7 @@
             this.button51.Name = "button51";
             this.button51.Size = new System.Drawing.Size(155, 34);
             this.button51.TabIndex = 57;
-            this.button51.Text = "ERP MOC單>轉入UOF簽核";
+            this.button51.Text = "ERP-INVI07成本開帳調整單>轉入UOF簽核";
             this.button51.UseVisualStyleBackColor = true;
             this.button51.Click += new System.EventHandler(this.button51_Click);
             // 
