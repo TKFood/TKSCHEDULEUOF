@@ -21137,7 +21137,7 @@ namespace TKSCHEDULEUOF
 
             StringBuilder queryString = new StringBuilder();
             queryString.AppendFormat(@"
-                                    INSERT INTO [UOF.dbo.TB_WKF_EXTERNAL_TASK
+                                    INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                         (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
                                     VALUES (NEWID(), @XML, 2, '{0}')",  EXTERNAL_FORM_NBR);
 
