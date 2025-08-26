@@ -20992,80 +20992,66 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //ERP-BOM表>轉入UOF簽核
         public void NEW_BOMMC_BOMMD()
         {
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立解密後的 SqlConnection
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
 
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                    SELECT MC001,UDF01
-                                    FROM [TK].dbo.BOMMC
-                                    WHERE UDF01 IN ('Y','y')
-                                    ORDER BY MC001
-
-
+                    // 保留原始 SQL
+                    sbSql.AppendFormat(@"
+                                        SELECT MC001, UDF01
+                                        FROM [TK].dbo.BOMMC
+                                        WHERE UDF01 IN ('Y','y')
+                                        ORDER BY MC001
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        ADD_BOMMC_BOMMD_TB_WKF_EXTERNAL_TASK(dr["MC001"].ToString().Trim());
+                        DataSet ds = new DataSet();
+                        adapter.Fill(ds, "ds1");
+
+                        if (ds.Tables["ds1"].Rows.Count > 0)
+                        {
+                            foreach (DataRow dr in ds.Tables["ds1"].Rows)
+                            {
+                                string mc001 = dr["MC001"].ToString().Trim();
+                                ADD_BOMMC_BOMMD_TB_WKF_EXTERNAL_TASK(mc001);
+                            }
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                Console.WriteLine("NEW_BOMMC_BOMMD Error: " + ex.Message);
             }
             finally
             {
-                sqlConn.Close();
+                // 不需要手動 Close，因為 using 已處理
             }
 
+            // 更新 BOMMC.UDF01
             UPDATE_BOMMC_UDF01();
         }
+
         public void ADD_BOMMC_BOMMD_TB_WKF_EXTERNAL_TASK(string MC001)
         {
-
             DataTable DT = SEARCH_BOMMC_BOMMD(MC001);
+            if (DT == null || DT.Rows.Count == 0) return;
+
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
 
             string account = DT.Rows[0]["CREATOR"].ToString();
@@ -21079,577 +21065,320 @@ namespace TKSCHEDULEUOF
 
             string EXTERNAL_FORM_NBR = DT.Rows[0]["MC001"].ToString().Trim();
 
-            int rowscounts = 0;
-
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
             XmlElement Form = xmlDoc.CreateElement("Form");
 
-            //正式的id
             string FORM_ID = SEARCHFORM_UOF_VERSION_ID("BOM02.BOM表");
-
             if (!string.IsNullOrEmpty(FORM_ID))
-            {
                 Form.SetAttribute("formVersionId", FORM_ID);
-            }
-
 
             Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
             xmlDoc.AppendChild(Form);
 
-            ////建立節點Applicant
+            // Applicant
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
             Form.AppendChild(Applicant);
 
-            //建立節點 Comment
             XmlElement Comment = xmlDoc.CreateElement("Comment");
             Comment.InnerText = "申請者意見";
-            //加入至節點底下
             Applicant.AppendChild(Comment);
 
-            //建立節點 FormFieldValue
+            // FormFieldValue
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
             Form.AppendChild(FormFieldValue);
 
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // ------- 單頭欄位 -------
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC001", DT.Rows[0]["MC001"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC024", DT.Rows[0]["MC024"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC025", DT.Rows[0]["MC025"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC002", DT.Rows[0]["MB004"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC004", DT.Rows[0]["MC004"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC009", DT.Rows[0]["MC009"].ToString(), fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "MC010", DT.Rows[0]["MC010"].ToString(), fillerName, fillerUserGuid, account);
 
-
-            //建立節點FieldItem
-            //MC001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC001"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC024	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC024");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC024"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC025	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC025");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC025"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MB004"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC004"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC009	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC009");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC009"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MC010	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MC010");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["MC010"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-
-            //DataGrid
-            //建立節點FieldItem
-            //BOMMD
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "BOMMD");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
+            // ------- DataGrid (BOMMD) -------
+            AddFieldItem(xmlDoc, FormFieldValue, "BOMMD", "", fillerName, fillerUserGuid, account);
             XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode PURTD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='BOMMD']");
-            PURTD.AppendChild(DataGrid);
+            XmlNode BOMMD = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='BOMMD']");
+            BOMMD.AppendChild(DataGrid);
 
-
+            int rowCount = 0;
             foreach (DataRow od in DT.Rows)
             {
-                // 新增 Row
                 XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
+                Row.SetAttribute("order", rowCount.ToString());
 
-                //Row	MD002
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD002");
-                Cell.SetAttribute("fieldValue", od["MD002"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
+                AppendCellToRow(xmlDoc, Row, od, "MD002");
+                AppendCellToRow(xmlDoc, Row, od, "MD003");
+                AppendCellToRow(xmlDoc, Row, od, "MD035");
+                AppendCellToRow(xmlDoc, Row, od, "MD036");
+                AppendCellToRow(xmlDoc, Row, od, "MD004");
+                AppendCellToRow(xmlDoc, Row, od, "MD006");
+                AppendCellToRow(xmlDoc, Row, od, "MD007");
+                AppendCellToRow(xmlDoc, Row, od, "MD008");
+                AppendCellToRow(xmlDoc, Row, od, "MD016");
 
-                //Row	MD003
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD003");
-                Cell.SetAttribute("fieldValue", od["MD003"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD035
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD035");
-                Cell.SetAttribute("fieldValue", od["MD035"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD036
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD036");
-                Cell.SetAttribute("fieldValue", od["MD036"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD004
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD004");
-                Cell.SetAttribute("fieldValue", od["MD004"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD006
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD006");
-                Cell.SetAttribute("fieldValue", od["MD006"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD007
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD007");
-                Cell.SetAttribute("fieldValue", od["MD007"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD008
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD008");
-                Cell.SetAttribute("fieldValue", od["MD008"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-                //Row	MD016
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "MD016");
-                Cell.SetAttribute("fieldValue", od["MD016"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                Row.AppendChild(Cell);
-
-
-
-                rowscounts = rowscounts + 1;
-
-                //DataGrid PURTM
+                rowCount++;
                 XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='BOMMD']/DataGrid");
                 DataGridS.AppendChild(Row);
-
             }
 
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // ------- 寫入資料庫 -------
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
+            string connectionString = sqlsb.ConnectionString;
 
             StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
+            queryString.AppendFormat(@"
+                                    INSERT INTO [UOF.dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                    VALUES (NEWID(), @XML, 2, '{0}')",  EXTERNAL_FORM_NBR);
 
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
                     command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
             catch
             {
-
-            }
-            finally
-            {
-
+                // 可以加 Log
             }
         }
+
 
         public DataTable SEARCH_BOMMC_BOMMD(string MC001)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立解密後的 SqlConnection
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                     SELECT *
-                                    ,USER_GUID,NAME
-                                    ,(SELECT TOP 1 GROUP_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
-                                    ,(SELECT TOP 1 TITLE_ID FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
-                                    FROM 
-                                    (
-                                    SELECT 
-                                    [BOMMC].[COMPANY]
-                                    ,[BOMMC].[CREATOR]
-                                    ,[BOMMC].[USR_GROUP]
-                                    ,[BOMMC].[CREATE_DATE]
-                                    ,[BOMMC].[MODIFIER]
-                                    ,[BOMMC].[MODI_DATE]
-                                    ,[BOMMC].[FLAG]
-                                    ,[BOMMC].[CREATE_TIME]
-                                    ,[BOMMC].[MODI_TIME]
-                                    ,[BOMMC].[TRANS_TYPE]
-                                    ,[BOMMC].[TRANS_NAME]
-                                    ,[BOMMC].[sync_date]
-                                    ,[BOMMC].[sync_time]
-                                    ,[BOMMC].[sync_mark]
-                                    ,[BOMMC].[sync_count]
-                                    ,[BOMMC].[DataUser]
-                                    ,[BOMMC].[DataGroup]
-                                    ,[BOMMC].[MC001]
-                                    ,[BOMMC].[MC002]
-                                    ,[BOMMC].[MC003]
-                                    ,[BOMMC].[MC004]
-                                    ,[BOMMC].[MC005]
-                                    ,[BOMMC].[MC006]
-                                    ,[BOMMC].[MC007]
-                                    ,[BOMMC].[MC008]
-                                    ,[BOMMC].[MC009]
-                                    ,[BOMMC].[MC010]
-                                    ,[BOMMC].[MC011]
-                                    ,[BOMMC].[MC012]
-                                    ,[BOMMC].[MC013]
-                                    ,[BOMMC].[MC014]
-                                    ,[BOMMC].[MC015]
-                                    ,[BOMMC].[MC016]
-                                    ,[BOMMC].[MC017]
-                                    ,[BOMMC].[MC018]
-                                    ,[BOMMC].[MC019]
-                                    ,[BOMMC].[MC020]
-                                    ,[BOMMC].[MC021]
-                                    ,[BOMMC].[MC022]
-                                    ,[BOMMC].[MC023]
-                                    ,[BOMMC].[MC024]
-                                    ,[BOMMC].[MC025]
-                                    ,[BOMMC].[MC026]
-                                    ,[BOMMC].[MC027]
-                                    ,[BOMMC].[UDF01] AS 'BOMMCUDF01'
-                                    ,[BOMMC].[UDF02] AS 'BOMMCUDF02'
-                                    ,[BOMMC].[UDF03] AS 'BOMMCUDF03'
-                                    ,[BOMMC].[UDF04] AS 'BOMMCUDF04'
-                                    ,[BOMMC].[UDF05] AS 'BOMMCUDF05'
-                                    ,[BOMMC].[UDF06] AS 'BOMMCUDF06'
-                                    ,[BOMMC].[UDF07] AS 'BOMMCUDF07'
-                                    ,[BOMMC].[UDF08] AS 'BOMMCUDF08'
-                                    ,[BOMMC].[UDF09] AS 'BOMMCUDF09'
-                                    ,[BOMMC].[UDF10] AS 'BOMMCUDF10'
-                                    ,[BOMMD].[MD001]
-                                    ,[BOMMD].[MD002]
-                                    ,[BOMMD].[MD003]
-                                    ,[BOMMD].[MD004]
-                                    ,[BOMMD].[MD005]
-                                    ,[BOMMD].[MD006]
-                                    ,[BOMMD].[MD007]
-                                    ,[BOMMD].[MD008]
-                                    ,[BOMMD].[MD009]
-                                    ,[BOMMD].[MD010]
-                                    ,[BOMMD].[MD011]
-                                    ,[BOMMD].[MD012]
-                                    ,[BOMMD].[MD013]
-                                    ,[BOMMD].[MD014]
-                                    ,[BOMMD].[MD015]
-                                    ,[BOMMD].[MD016]
-                                    ,[BOMMD].[MD017]
-                                    ,[BOMMD].[MD018]
-                                    ,[BOMMD].[MD019]
-                                    ,[BOMMD].[MD020]
-                                    ,[BOMMD].[MD021]
-                                    ,[BOMMD].[MD022]
-                                    ,[BOMMD].[MD023]
-                                    ,[BOMMD].[MD024]
-                                    ,[BOMMD].[MD025]
-                                    ,[BOMMD].[MD026]
-                                    ,[BOMMD].[MD027]
-                                    ,[BOMMD].[MD028]
-                                    ,[BOMMD].[MD029]
-                                    ,[BOMMD].[MD030]
-                                    ,[BOMMD].[MD031]
-                                    ,[BOMMD].[MD032]
-                                    ,[BOMMD].[MD033]
-                                    ,[BOMMD].[MD034]
-                                    ,[BOMMD].[MD035]
-                                    ,[BOMMD].[MD036]
-                                    ,[BOMMD].[MD037]
-                                    ,[BOMMD].[MD038]
-                                    ,[BOMMD].[UDF01] AS 'BOMMDUDF01'
-                                    ,[BOMMD].[UDF02] AS 'BOMMDUDF02'
-                                    ,[BOMMD].[UDF03] AS 'BOMMDUDF03'
-                                    ,[BOMMD].[UDF04] AS 'BOMMDUDF04'
-                                    ,[BOMMD].[UDF05] AS 'BOMMDUDF05'
-                                    ,[BOMMD].[UDF06] AS 'BOMMDUDF06'
-                                    ,[BOMMD].[UDF07] AS 'BOMMDUDF07'
-                                    ,[BOMMD].[UDF08] AS 'BOMMDUDF08'
-                                    ,[BOMMD].[UDF09] AS 'BOMMDUDF09'
-                                    ,[BOMMD].[UDF10] AS 'BOMMDUDF10'                                  
-                                    ,[TB_EB_USER].USER_GUID,NAME
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=BOMMC.CREATOR) AS 'MV002'
-                                    ,INVMB1.MB004
-
-                                    FROM [TK].dbo.BOMMD,[TK].dbo.BOMMC
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT=BOMMC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [TK].dbo.INVMB INVMB1 ON INVMB1.MB001=MC001
-                                    WHERE 1=1
-                                    AND MC001=MD001
-                                    AND MC001='{0}'
-                                    ) AS TEMP
-                                    
-                                 
-                              
-                                    ", MC001);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    using (SqlDataAdapter adapter = new SqlDataAdapter())
+                    {
+                        sbSql.Clear();
+                        sbSqlQuery.Clear();
 
-                }
-                else
-                {
-                    return null;
-                }
+                        // 保留原始 SQL，不更動
+                        sbSql.AppendFormat(@"
+                                            SELECT *
+                                                  ,USER_GUID,NAME
+                                                  ,(SELECT TOP 1 GROUP_ID 
+                                                    FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                                    WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'GROUP_ID'
+                                                  ,(SELECT TOP 1 TITLE_ID 
+                                                    FROM [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                                    WHERE [TB_EB_EMPL_DEP].USER_GUID=TEMP.USER_GUID) AS 'TITLE_ID'
+                                            FROM 
+                                            (
+                                                SELECT 
+                                                    [BOMMC].[COMPANY]
+                                                    ,[BOMMC].[CREATOR]
+                                                    ,[BOMMC].[USR_GROUP]
+                                                    ,[BOMMC].[CREATE_DATE]
+                                                    ,[BOMMC].[MODIFIER]
+                                                    ,[BOMMC].[MODI_DATE]
+                                                    ,[BOMMC].[FLAG]
+                                                    ,[BOMMC].[CREATE_TIME]
+                                                    ,[BOMMC].[MODI_TIME]
+                                                    ,[BOMMC].[TRANS_TYPE]
+                                                    ,[BOMMC].[TRANS_NAME]
+                                                    ,[BOMMC].[sync_date]
+                                                    ,[BOMMC].[sync_time]
+                                                    ,[BOMMC].[sync_mark]
+                                                    ,[BOMMC].[sync_count]
+                                                    ,[BOMMC].[DataUser]
+                                                    ,[BOMMC].[DataGroup]
+                                                    ,[BOMMC].[MC001]
+                                                    ,[BOMMC].[MC002]
+                                                    ,[BOMMC].[MC003]
+                                                    ,[BOMMC].[MC004]
+                                                    ,[BOMMC].[MC005]
+                                                    ,[BOMMC].[MC006]
+                                                    ,[BOMMC].[MC007]
+                                                    ,[BOMMC].[MC008]
+                                                    ,[BOMMC].[MC009]
+                                                    ,[BOMMC].[MC010]
+                                                    ,[BOMMC].[MC011]
+                                                    ,[BOMMC].[MC012]
+                                                    ,[BOMMC].[MC013]
+                                                    ,[BOMMC].[MC014]
+                                                    ,[BOMMC].[MC015]
+                                                    ,[BOMMC].[MC016]
+                                                    ,[BOMMC].[MC017]
+                                                    ,[BOMMC].[MC018]
+                                                    ,[BOMMC].[MC019]
+                                                    ,[BOMMC].[MC020]
+                                                    ,[BOMMC].[MC021]
+                                                    ,[BOMMC].[MC022]
+                                                    ,[BOMMC].[MC023]
+                                                    ,[BOMMC].[MC024]
+                                                    ,[BOMMC].[MC025]
+                                                    ,[BOMMC].[MC026]
+                                                    ,[BOMMC].[MC027]
+                                                    ,[BOMMC].[UDF01] AS 'BOMMCUDF01'
+                                                    ,[BOMMC].[UDF02] AS 'BOMMCUDF02'
+                                                    ,[BOMMC].[UDF03] AS 'BOMMCUDF03'
+                                                    ,[BOMMC].[UDF04] AS 'BOMMCUDF04'
+                                                    ,[BOMMC].[UDF05] AS 'BOMMCUDF05'
+                                                    ,[BOMMC].[UDF06] AS 'BOMMCUDF06'
+                                                    ,[BOMMC].[UDF07] AS 'BOMMCUDF07'
+                                                    ,[BOMMC].[UDF08] AS 'BOMMCUDF08'
+                                                    ,[BOMMC].[UDF09] AS 'BOMMCUDF09'
+                                                    ,[BOMMC].[UDF10] AS 'BOMMCUDF10'
+                                                    ,[BOMMD].[MD001]
+                                                    ,[BOMMD].[MD002]
+                                                    ,[BOMMD].[MD003]
+                                                    ,[BOMMD].[MD004]
+                                                    ,[BOMMD].[MD005]
+                                                    ,[BOMMD].[MD006]
+                                                    ,[BOMMD].[MD007]
+                                                    ,[BOMMD].[MD008]
+                                                    ,[BOMMD].[MD009]
+                                                    ,[BOMMD].[MD010]
+                                                    ,[BOMMD].[MD011]
+                                                    ,[BOMMD].[MD012]
+                                                    ,[BOMMD].[MD013]
+                                                    ,[BOMMD].[MD014]
+                                                    ,[BOMMD].[MD015]
+                                                    ,[BOMMD].[MD016]
+                                                    ,[BOMMD].[MD017]
+                                                    ,[BOMMD].[MD018]
+                                                    ,[BOMMD].[MD019]
+                                                    ,[BOMMD].[MD020]
+                                                    ,[BOMMD].[MD021]
+                                                    ,[BOMMD].[MD022]
+                                                    ,[BOMMD].[MD023]
+                                                    ,[BOMMD].[MD024]
+                                                    ,[BOMMD].[MD025]
+                                                    ,[BOMMD].[MD026]
+                                                    ,[BOMMD].[MD027]
+                                                    ,[BOMMD].[MD028]
+                                                    ,[BOMMD].[MD029]
+                                                    ,[BOMMD].[MD030]
+                                                    ,[BOMMD].[MD031]
+                                                    ,[BOMMD].[MD032]
+                                                    ,[BOMMD].[MD033]
+                                                    ,[BOMMD].[MD034]
+                                                    ,[BOMMD].[MD035]
+                                                    ,[BOMMD].[MD036]
+                                                    ,[BOMMD].[MD037]
+                                                    ,[BOMMD].[MD038]
+                                                    ,[BOMMD].[UDF01] AS 'BOMMDUDF01'
+                                                    ,[BOMMD].[UDF02] AS 'BOMMDUDF02'
+                                                    ,[BOMMD].[UDF03] AS 'BOMMDUDF03'
+                                                    ,[BOMMD].[UDF04] AS 'BOMMDUDF04'
+                                                    ,[BOMMD].[UDF05] AS 'BOMMDUDF05'
+                                                    ,[BOMMD].[UDF06] AS 'BOMMDUDF06'
+                                                    ,[BOMMD].[UDF07] AS 'BOMMDUDF07'
+                                                    ,[BOMMD].[UDF08] AS 'BOMMDUDF08'
+                                                    ,[BOMMD].[UDF09] AS 'BOMMDUDF09'
+                                                    ,[BOMMD].[UDF10] AS 'BOMMDUDF10'
+                                                    ,[TB_EB_USER].USER_GUID,NAME
+                                                    ,(SELECT TOP 1 MV002 
+                                                      FROM [TK].dbo.CMSMV 
+                                                      WHERE MV001=BOMMC.CREATOR) AS 'MV002'
+                                                    ,INVMB1.MB004
+                                                FROM [TK].dbo.BOMMD,[TK].dbo.BOMMC
+                                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                                    ON [TB_EB_USER].ACCOUNT=BOMMC.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                                LEFT JOIN [TK].dbo.INVMB INVMB1 ON INVMB1.MB001=MC001
+                                                WHERE 1=1
+                                                AND MC001=MD001
+                                                AND MC001='{0}'
+                                            ) AS TEMP
+                                        ", MC001);
 
+                        DataSet ds = new DataSet();
+                        adapter.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
+
+                        sqlConn.Open();
+                        adapter.Fill(ds, "ds1");
+
+                        if (ds.Tables["ds1"].Rows.Count >= 1)
+                        {
+                            return ds.Tables["ds1"];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("SEARCH_BOMMC_BOMMD Error: " + ex.Message);
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
+
 
         public void UPDATE_BOMMC_UDF01()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 建立解密後的 SqlConnection
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE  [TK].dbo.BOMMC
-                                    SET UDF01 = 'UOF簽核中'                                   
-                                    WHERE  UDF01 IN ('Y','y')
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        sbSql.Clear();
+
+                        // 保留原始 SQL
+                        sbSql.AppendFormat(@"
+                                            UPDATE [TK].dbo.BOMMC
+                                            SET UDF01 = 'UOF簽核中'                                   
+                                            WHERE UDF01 IN ('Y','y')
+                                        ");
+
+                        cmd.Connection = sqlConn;
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = sbSql.ToString();
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();    // 沒有更新資料 → 回滾
+                        }
+                        else
+                        {
+                            tran.Commit();      // 有更新 → 提交
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("UPDATE_BOMMC_UDF01 Error: " + ex.Message);
             }
         }
+
 
         public void NEW_BOMMJ_BOMMK()
         {
@@ -42785,6 +42514,7 @@ namespace TKSCHEDULEUOF
         }
         private void button58_Click(object sender, EventArgs e)
         {
+            //ERP-BOM表>轉入UOF簽核
             NEW_BOMMC_BOMMD();
         }
         private void button59_Click(object sender, EventArgs e)
