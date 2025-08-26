@@ -20204,7 +20204,7 @@ namespace TKSCHEDULEUOF
                 {
                     DataRow row = ds1.Tables["ds1"].Rows[0];
 
-                    string RDF1002SN = row["RDF1002SN"] == DBNull.Value ? "" : row["RDF1002SN"].ToString();
+                    string RDF1002SN = row["DOC_NBR"] == DBNull.Value ? "" : row["DOC_NBR"].ToString();
                     // NAME 這個變數您原本是從 XML 的 fillerName 取得，這裡用 NAME_FORM（SQL 取的欄位）
                     string NAME = row.Table.Columns.Contains("NAME_FORM") && row["NAME_FORM"] != DBNull.Value ? row["NAME_FORM"].ToString() :
                                   (row.Table.Columns.Contains("UOF_NAME") && row["UOF_NAME"] != DBNull.Value ? row["UOF_NAME"].ToString() : "");
