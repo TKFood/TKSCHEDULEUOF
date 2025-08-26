@@ -609,7 +609,7 @@
             this.button57.Name = "button57";
             this.button57.Size = new System.Drawing.Size(165, 34);
             this.button57.TabIndex = 61;
-            this.button57.Text = "ERP MOCI03.領料單>轉入UOF簽核";
+            this.button57.Text = "ERP-MOCI03.領料單>轉入UOF簽核";
             this.button57.UseVisualStyleBackColor = true;
             this.button57.Click += new System.EventHandler(this.button57_Click);
             // 
