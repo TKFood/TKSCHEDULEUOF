@@ -20364,86 +20364,60 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //轉入10.行企類表單-1002.產品設計申請
         public void NEW_TKRESEARCH_TK_UOF_DESIGN_1002()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
-            //THISYEARS = "21";
-            string THISYEARSDAYS = DateTime.Now.ToString("yyyy") + "0101";
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-
-                //核準過TASK_RESULT='0'
-                //AND DOC_NBR  LIKE 'QC1002{0}%'
-                // 1002.產品設計申請有申請就轉入，不要等核完表單
-                sbSql.AppendFormat(@"  
-                                        SELECT TB_WKF_FORM.FORM_NAME,DOC_NBR,*
-                                        FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                        WHERE 1=1
-                                        AND TB_WKF_TASK.FORM_VERSION_ID=TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                        AND TB_WKF_FORM.FORM_ID=TB_WKF_FORM_VERSION.FORM_ID
-                                        AND TB_WKF_FORM.FORM_NAME IN ('1002.產品設計申請')
-                                        AND TB_WKF_TASK.TASK_STATUS='1'
-                                        AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [FIELDS1] FROM [192.168.1.105].[TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002])
-                                       
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    StringBuilder sbSql = new StringBuilder();
+                    sbSql.Append(@"
+                                SELECT 
+                                    TB_WKF_FORM.FORM_NAME,
+                                    DOC_NBR,
+                                    TB_WKF_TASK.*
+                                FROM [UOF].dbo.TB_WKF_TASK
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION
+                                    ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM
+                                    ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                WHERE TB_WKF_FORM.FORM_NAME IN ('1002.產品設計申請')
+                                  AND TB_WKF_TASK.TASK_STATUS = '1'
+                                  AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN 
+                                      (SELECT [FIELDS1] FROM [192.168.1.105].[TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002])
+                            ");
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        SEARCH_UOF_TK_UOF_DESIGN_1002(dr["DOC_NBR"].ToString());
+                        DataSet ds1 = new DataSet();
+                        sqlConn.Open();
+                        adapter.Fill(ds1, "ds1");
+
+                        if (ds1.Tables["ds1"].Rows.Count > 0)
+                        {
+                            foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                            {
+                                SEARCH_UOF_TK_UOF_DESIGN_1002(dr["DOC_NBR"].ToString());
+                            }
+                        }
                     }
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 建議記錄 Log 方便追蹤
+                Console.WriteLine("NEW_TKRESEARCH_TK_UOF_DESIGN_1002 發生錯誤：" + ex.Message);
             }
         }
+
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
@@ -20455,36 +20429,37 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
-                sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                sbSql.AppendFormat(@"
+            SELECT 
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00001""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS1,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00000""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS2,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00005""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS3,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00012""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS4,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00002""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS5,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00003""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS6,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00004""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS7,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00011""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS8,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00013""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS9,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00010""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS10,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00009""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS11,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00014""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS12,
+                LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(CurrentDoc.value('(/Form/FormFieldValue/FieldItem[@fieldId=""00015""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', ''), '<p>', ''), '</p>', ''))) AS FIELDS13
+            FROM [UOF].DBO.TB_WKF_TASK
+            CROSS APPLY (SELECT CAST(CURRENT_DOC AS XML) AS CurrentDoc) AS X
+            WHERE DOC_NBR LIKE '{0}%'
+        ", DOC_NBR);
 
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
-                                    ", DOC_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
                 sqlConn.Open();
                 ds1.Clear();
@@ -20493,134 +20468,44 @@ namespace TKSCHEDULEUOF
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    string FIELDS1 = "";
-                    string FIELDS2 = "";
-                    string FIELDS3 = "";
-                    string FIELDS4 = "";
-                    string FIELDS5 = "";
-                    string FIELDS6 = "";
-                    string FIELDS7 = "";
-                    string FIELDS8 = "";
-                    string FIELDS9 = "";
-                    string FIELDS10 = "";
-                    string FIELDS11 = "";
-                    string FIELDS12 = "";
-                    string FIELDS13 = "";
-
-
-                    XmlDocument xmlDoc = new XmlDocument();
-
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-
-
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    try
+                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
                     {
-                        FIELDS1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00001']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00000']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS3 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00005']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS4 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00012']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS5 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00002']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS6 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00003']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS7 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00004']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS8 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00011']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS9 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00013']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS10 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00010']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS12 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00014']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        FIELDS13 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00015']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
+                        // 先用 C# 變數接收
+                        string FIELDS1 = dr["FIELDS1"].ToString();
+                        string FIELDS2 = dr["FIELDS2"].ToString();
+                        string FIELDS3 = dr["FIELDS3"].ToString();
+                        string FIELDS4 = dr["FIELDS4"].ToString();
+                        string FIELDS5 = dr["FIELDS5"].ToString();
+                        string FIELDS6 = dr["FIELDS6"].ToString();
+                        string FIELDS7 = dr["FIELDS7"].ToString();
+                        string FIELDS8 = dr["FIELDS8"].ToString();
+                        string FIELDS9 = dr["FIELDS9"].ToString();
+                        string FIELDS10 = dr["FIELDS10"].ToString();
+                        string FIELDS11 = dr["FIELDS11"].ToString();
+                        string FIELDS12 = dr["FIELDS12"].ToString();
+                        string FIELDS13 = dr["FIELDS13"].ToString();
 
-
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='00009']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"&#xD;", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"&#xA;", "");
-                        string fieldValue4 = Regex.Replace(fieldValue3, @"<p>", "");
-                        string fieldValue5 = Regex.Replace(fieldValue4, @"</p>", "");
-
-                        FIELDS11 = fieldValue5;
+                        // 再傳給 ADD_TK_UOF_DESIGN_1002
+                        ADD_TK_UOF_DESIGN_1002(
+                            FIELDS1,
+                            FIELDS2,
+                            FIELDS3,
+                            FIELDS4,
+                            FIELDS5,
+                            FIELDS6,
+                            FIELDS7,
+                            FIELDS8,
+                            FIELDS9,
+                            FIELDS10,
+                            FIELDS11,
+                            FIELDS12,
+                            FIELDS13
+                        );
                     }
-                    catch { }
-                    //string OK = "";
-                    ADD_TK_UOF_DESIGN_1002(
-                                              FIELDS1
-                                            , FIELDS2
-                                            , FIELDS3
-                                            , FIELDS4
-                                            , FIELDS5
-                                            , FIELDS6
-                                            , FIELDS7
-                                            , FIELDS8
-                                            , FIELDS9
-                                            , FIELDS10
-                                            , FIELDS11
-                                            , FIELDS12
-                                            , FIELDS13
-
-                                           );
-
-
                 }
-                else
-                {
-
-                }
-
             }
             catch
             {
-
             }
             finally
             {
@@ -20630,118 +20515,74 @@ namespace TKSCHEDULEUOF
 
 
         public void ADD_TK_UOF_DESIGN_1002(
-                                            string FIELDS1
-                                            , string FIELDS2
-                                            , string FIELDS3
-                                            , string FIELDS4
-                                            , string FIELDS5
-                                            , string FIELDS6
-                                            , string FIELDS7
-                                            , string FIELDS8
-                                            , string FIELDS9
-                                            , string FIELDS10
-                                            , string FIELDS11
-                                            , string FIELDS12
-                                            , string FIELDS13
-
-                                            )
+             string FIELDS1, string FIELDS2, string FIELDS3, string FIELDS4,
+             string FIELDS5, string FIELDS6, string FIELDS7, string FIELDS8,
+             string FIELDS9, string FIELDS10, string FIELDS11, string FIELDS12, string FIELDS13
+            )
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                   
-                                    
+                        cmd.CommandText = @"
                                     INSERT INTO [TKRESEARCH].[dbo].[TK_UOF_DESIGN_1002]
                                     (
-                                    [FIELDS1]
-                                    ,[FIELDS2]
-                                    ,[FIELDS3]
-                                    ,[FIELDS4]
-                                    ,[FIELDS5]
-                                    ,[FIELDS6]
-                                    ,[FIELDS7]
-                                    ,[FIELDS8]
-                                    ,[FIELDS9]
-                                    ,[FIELDS10]
-                                    ,[FIELDS11]
-                                    ,[FIELDS12]
-                                    ,[FIELDS13]
+                                        [FIELDS1],[FIELDS2],[FIELDS3],[FIELDS4],[FIELDS5],
+                                        [FIELDS6],[FIELDS7],[FIELDS8],[FIELDS9],[FIELDS10],
+                                        [FIELDS11],[FIELDS12],[FIELDS13]
                                     )
                                     VALUES
                                     (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    )
-                                    ", FIELDS1
-                                    , FIELDS2
-                                    , FIELDS3
-                                    , FIELDS4
-                                    , FIELDS5
-                                    , FIELDS6
-                                    , FIELDS7
-                                    , FIELDS8
-                                    , FIELDS9
-                                    , FIELDS10
-                                    , FIELDS11
-                                    , FIELDS12
-                                    , FIELDS13);
+                                        @FIELDS1,@FIELDS2,@FIELDS3,@FIELDS4,@FIELDS5,
+                                        @FIELDS6,@FIELDS7,@FIELDS8,@FIELDS9,@FIELDS10,
+                                        @FIELDS11,@FIELDS12,@FIELDS13
+                                    )";
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
+                        // 參數化 SQL
+                        cmd.Parameters.AddWithValue("@FIELDS1", FIELDS1);
+                        cmd.Parameters.AddWithValue("@FIELDS2", FIELDS2);
+                        cmd.Parameters.AddWithValue("@FIELDS3", FIELDS3);
+                        cmd.Parameters.AddWithValue("@FIELDS4", FIELDS4);
+                        cmd.Parameters.AddWithValue("@FIELDS5", FIELDS5);
+                        cmd.Parameters.AddWithValue("@FIELDS6", FIELDS6);
+                        cmd.Parameters.AddWithValue("@FIELDS7", FIELDS7);
+                        cmd.Parameters.AddWithValue("@FIELDS8", FIELDS8);
+                        cmd.Parameters.AddWithValue("@FIELDS9", FIELDS9);
+                        cmd.Parameters.AddWithValue("@FIELDS10", FIELDS10);
+                        cmd.Parameters.AddWithValue("@FIELDS11", FIELDS11);
+                        cmd.Parameters.AddWithValue("@FIELDS12", FIELDS12);
+                        cmd.Parameters.AddWithValue("@FIELDS13", FIELDS13);
 
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result > 0)
+                            tran.Commit();
+                        else
+                            tran.Rollback();
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 可選：加日誌或 throw ex;
+                Console.WriteLine(ex.Message);
             }
         }
+
 
         public void NEW_MOCTC_MOCTE()
         {
@@ -43199,6 +43040,7 @@ namespace TKSCHEDULEUOF
         }
         private void button56_Click(object sender, EventArgs e)
         {
+            //轉入10.行企類表單-1002.產品設計申請
             NEW_TKRESEARCH_TK_UOF_DESIGN_1002();
         }
 
