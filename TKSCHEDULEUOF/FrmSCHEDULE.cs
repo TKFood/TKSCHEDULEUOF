@@ -20081,86 +20081,64 @@ namespace TKSCHEDULEUOF
                 sqlConn.Close();
             }
         }
-
+        //轉入13.研發類表單:1002.設計需求內容清單
         public void NEW_TKRESEARCH_TK_UOF_RESEARCH_1002()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
-            string THISYEARS = DateTime.Now.ToString("yyyy");
-            //取西元年後2位
-            THISYEARS = THISYEARS.Substring(2, 2);
-            //THISYEARS = "21";
-            string THISYEARSDAYS = DateTime.Now.ToString("yyyy") + "0101";
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            SqlCommandBuilder sqlCmdBuilder = new SqlCommandBuilder();
+            DataSet ds = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 20210902 密碼解密
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-
-                //核準過TASK_RESULT='0'
-                //AND DOC_NBR  LIKE 'QC1002{0}%'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT DOC_NBR,*
-                                    FROM [UOF].dbo.TB_WKF_TASK
-                                    WHERE 1=1
-                                    AND TASK_STATUS='2'
-                                    AND TASK_RESULT='0'
-                                    AND DOC_NBR  LIKE 'RD1002%'
-                                    AND DOC_NBR >='RD1002230400001'
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT  [RDF1002SN] FROM [192.168.1.105].[TKRESEARCH].[dbo].[TK_UOF_RESEARCH_1002])
-                                       
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    sbSql.Clear();
+                    sbSql.Append(@"
+                                SELECT DOC_NBR, *
+                                FROM [UOF].dbo.TB_WKF_TASK
+                                WHERE TASK_STATUS = '2'
+                                AND TASK_RESULT = '0'
+                                AND DOC_NBR LIKE 'RD1002%'
+                                AND DOC_NBR >= 'RD1002230400001'
+                                AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (
+                                    SELECT [RDF1002SN] 
+                                    FROM [192.168.1.105].[TKRESEARCH].[dbo].[TK_UOF_RESEARCH_1002]
+                                )
+                            ");
+
+                    adapter = new SqlDataAdapter(sbSql.ToString(), conn);
+                    sqlCmdBuilder = new SqlCommandBuilder(adapter);
+
+                    conn.Open();
+                    ds.Clear();
+                    adapter.Fill(ds, "TB_WKF_TASK");
+
+                    if (ds.Tables["TB_WKF_TASK"].Rows.Count > 0)
                     {
-                        SEARCHUOFTB_WKF_TASK_RD1002(dr["DOC_NBR"].ToString());
+                        foreach (DataRow dr in ds.Tables["TB_WKF_TASK"].Rows)
+                        {
+                            string docNbr = dr["DOC_NBR"].ToString().Trim();
+                            SEARCHUOFTB_WKF_TASK_RD1002(docNbr);
+                        }
                     }
                 }
-                else
-                {
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 建議加上 Log 紀錄錯誤
+                Console.WriteLine("Error in NEW_TKRESEARCH_TK_UOF_RESEARCH_1002: " + ex.Message);
             }
         }
+
 
         //找出UOF表單的資料，將CURRENT_DOC的內容，轉成xmlDoc
         //從xmlDoc找出各節點的Attributes
@@ -20172,14 +20150,11 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
+                // 20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
@@ -20189,19 +20164,36 @@ namespace TKSCHEDULEUOF
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT * 
-                                    FROM [UOF].DBO.TB_WKF_TASK 
-                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID=TB_WKF_TASK.USER_GUID
-                                    WHERE DOC_NBR LIKE '{0}%'
-                              
-                                    ", DOC_NBR);
-
+                // 由 SQL 直接從 CURRENT_DOC 的 XML 抽出欄位值，並在 SQL 用 REPLACE 去掉 &#xD; 與 &#xA;
+                sbSql.AppendFormat(@"
+                                SELECT
+                                    T.DOC_NBR,
+                                    U.NAME AS UOF_NAME,
+                                    U.USER_GUID,
+                                    -- 單一欄位直接取 attribute @fieldValue 或 @fillerName
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDF1002SN""]/@fieldValue)[1]', 'nvarchar(200)') AS RDF1002SN,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002DATE1""]/@fillerName)[1]', 'nvarchar(200)') AS NAME_FORM,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002DATE1""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002DATE1,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002DATE2""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002DATE2,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002CS""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002CS,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002DP""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002DP,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002PD""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002PD,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002ST""]/@fieldValue)[1]', 'nvarchar(200)') AS RDFrm1002ST,
+                                    -- 移除 CR/LF entity
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002DS""]/@fieldValue)[1]', 'nvarchar(max)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002DS,
+                                    -- 取 DataGrid 第一列的各 Cell 欄位值（並移除 CR/LF entity）
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G7T1""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G7T1,
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G7T2""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G7T2,
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G7T3""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G7T3,
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G7T4""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G7T4,
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G7T5""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G7T5,
+                                    REPLACE(REPLACE(T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""RDFrm1002G7""]/DataGrid/Row/Cell[@fieldId=""RDFrm1002G5T6""]/@fieldValue)[1]', 'nvarchar(400)'), '&#xD;', ''), '&#xA;', '') AS RDFrm1002G5T6
+                                FROM [UOF].DBO.TB_WKF_TASK T
+                                LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON U.USER_GUID = T.USER_GUID
+                                WHERE T.DOC_NBR LIKE '{0}%'
+                                ", DOC_NBR);
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
                 sqlConn.Open();
                 ds1.Clear();
@@ -20210,323 +20202,168 @@ namespace TKSCHEDULEUOF
 
                 if (ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    string RDF1002SN = "";
-                    string NAME = "";
-                    string RDFrm1002DATE1 = "";
-                    string RDFrm1002DATE2 = "";
-                    string RDFrm1002CS = "";
-                    string RDFrm1002DP = "";
-                    string RDFrm1002PD = "";
-                    string RDFrm1002ST = "";
-                    string RDFrm1002DS = "";
+                    DataRow row = ds1.Tables["ds1"].Rows[0];
 
-                    string RDFrm1002G7T1 = "";
-                    string RDFrm1002G7T2 = "";
-                    string RDFrm1002G7T3 = "";
-                    string RDFrm1002G7T4 = "";
-                    string RDFrm1002G7T5 = "";
-                    string RDFrm1002G5T6 = "";
+                    string RDF1002SN = row["RDF1002SN"] == DBNull.Value ? "" : row["RDF1002SN"].ToString();
+                    // NAME 這個變數您原本是從 XML 的 fillerName 取得，這裡用 NAME_FORM（SQL 取的欄位）
+                    string NAME = row.Table.Columns.Contains("NAME_FORM") && row["NAME_FORM"] != DBNull.Value ? row["NAME_FORM"].ToString() :
+                                  (row.Table.Columns.Contains("UOF_NAME") && row["UOF_NAME"] != DBNull.Value ? row["UOF_NAME"].ToString() : "");
+                    string RDFrm1002DATE1 = row["RDFrm1002DATE1"] == DBNull.Value ? "" : row["RDFrm1002DATE1"].ToString();
+                    string RDFrm1002DATE2 = row["RDFrm1002DATE2"] == DBNull.Value ? "" : row["RDFrm1002DATE2"].ToString();
+                    string RDFrm1002CS = row["RDFrm1002CS"] == DBNull.Value ? "" : row["RDFrm1002CS"].ToString();
+                    string RDFrm1002DP = row["RDFrm1002DP"] == DBNull.Value ? "" : row["RDFrm1002DP"].ToString();
+                    string RDFrm1002PD = row["RDFrm1002PD"] == DBNull.Value ? "" : row["RDFrm1002PD"].ToString();
+                    string RDFrm1002ST = row["RDFrm1002ST"] == DBNull.Value ? "" : row["RDFrm1002ST"].ToString();
+                    string RDFrm1002DS = row["RDFrm1002DS"] == DBNull.Value ? "" : row["RDFrm1002DS"].ToString();
 
+                    string RDFrm1002G7T1 = row["RDFrm1002G7T1"] == DBNull.Value ? "" : row["RDFrm1002G7T1"].ToString();
+                    string RDFrm1002G7T2 = row["RDFrm1002G7T2"] == DBNull.Value ? "" : row["RDFrm1002G7T2"].ToString();
+                    string RDFrm1002G7T3 = row["RDFrm1002G7T3"] == DBNull.Value ? "" : row["RDFrm1002G7T3"].ToString();
+                    string RDFrm1002G7T4 = row["RDFrm1002G7T4"] == DBNull.Value ? "" : row["RDFrm1002G7T4"].ToString();
+                    string RDFrm1002G7T5 = row["RDFrm1002G7T5"] == DBNull.Value ? "" : row["RDFrm1002G7T5"].ToString();
+                    string RDFrm1002G5T6 = row["RDFrm1002G5T6"] == DBNull.Value ? "" : row["RDFrm1002G5T6"].ToString();
 
-
-                    XmlDocument xmlDoc = new XmlDocument();
-
-                    xmlDoc.LoadXml(ds1.Tables["ds1"].Rows[0]["CURRENT_DOC"].ToString());
-
-
-
-                    //XmlNode node = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='ID']");
-                    try
-                    {
-                        RDF1002SN = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDF1002SN']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        //找出表單申請人 
-                        NAME = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002DATE1']").Attributes["fillerName"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002DATE1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002DATE1']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002DATE2 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002DATE2']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002CS = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002CS']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002DP = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002DP']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002PD = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002PD']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-                    try
-                    {
-                        RDFrm1002ST = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002ST']").Attributes["fieldValue"].Value;
-                    }
-                    catch { }
-
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002DS']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"&#xD;", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"&#xA;", "");
-
-                        RDFrm1002DS = fieldValue3;
-                    }
-                    catch { }
-
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G7T1']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"&#xD;", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"&#xA;", "");
-
-                        RDFrm1002G7T1 = fieldValue3;
-                    }
-                    catch { }
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G7T2']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
-
-                        RDFrm1002G7T2 = fieldValue3;
-                    }
-                    catch { }
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G7T3']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
-
-                        RDFrm1002G7T3 = fieldValue3;
-                    }
-                    catch { }
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G7T4']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
-
-                        RDFrm1002G7T4 = fieldValue3;
-                    }
-                    catch { }
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G7T5']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
-
-                        RDFrm1002G7T5 = fieldValue3;
-                    }
-                    catch { }
-                    try
-                    {
-                        //把html語法去除 
-                        //QCFrm002Cmf = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='QCFrm002Cmf']").Attributes["fieldValue"].Value;
-
-                        string fieldValue1 = xmlDoc.SelectSingleNode($"/Form/FormFieldValue/FieldItem[@fieldId='RDFrm1002G7']/DataGrid/Row/Cell[@fieldId='RDFrm1002G5T6']").Attributes["fieldValue"].Value;
-
-                        string fieldValue2 = Regex.Replace(fieldValue1, @"[\W_]+", "");
-                        string fieldValue3 = Regex.Replace(fieldValue2, @"[0-9A-Za-z]+", "");
-
-                        RDFrm1002G5T6 = fieldValue3;
-                    }
-                    catch { }
-                    //string OK = "";
+                    // 呼叫既有的新增方法（參數順序沿用您原本的）
                     ADD_TK_UOF_RESEARCH_1002(
-                                             RDF1002SN
-                                            , NAME
-                                            , RDFrm1002DATE1
-                                            , RDFrm1002DATE2
-                                            , RDFrm1002CS
-                                            , RDFrm1002DP
-                                            , RDFrm1002PD
-                                            , RDFrm1002ST
-                                            , RDFrm1002G7T1
-                                            , RDFrm1002G7T2
-                                            , RDFrm1002G7T3
-                                            , RDFrm1002G7T4
-                                            , RDFrm1002G7T5
-                                            , RDFrm1002G5T6
-                                            , RDFrm1002DS
-                                           );
-
-
+                         RDF1002SN,
+                         NAME,
+                         RDFrm1002DATE1,
+                         RDFrm1002DATE2,
+                         RDFrm1002CS,
+                         RDFrm1002DP,
+                         RDFrm1002PD,
+                         RDFrm1002ST,
+                         RDFrm1002G7T1,
+                         RDFrm1002G7T2,
+                         RDFrm1002G7T3,
+                         RDFrm1002G7T4,
+                         RDFrm1002G7T5,
+                         RDFrm1002G5T6,
+                         RDFrm1002DS
+                    );
                 }
                 else
                 {
-
+                    // 沒資料
                 }
-
             }
-            catch
+            catch (Exception EX)
             {
-
+                // 例外處理（沿用您原本空的 catch）
             }
             finally
             {
                 sqlConn.Close();
             }
         }
+
 
 
         public void ADD_TK_UOF_RESEARCH_1002(
-                                            string RDF1002SN
-                                            , string NAME
-                                            , string RDFrm1002DATE1
-                                            , string RDFrm1002DATE2
-                                            , string RDFrm1002CS
-                                            , string RDFrm1002DP
-                                            , string RDFrm1002PD
-                                            , string RDFrm1002ST
-                                            , string RDFrm1002G7T1
-                                            , string RDFrm1002G7T2
-                                            , string RDFrm1002G7T3
-                                            , string RDFrm1002G7T4
-                                            , string RDFrm1002G7T5
-                                            , string RDFrm1002G5T6
-                                            , string RDFrm1002DS
-                                            )
+                 string RDF1002SN,
+                 string NAME,
+                 string RDFrm1002DATE1,
+                 string RDFrm1002DATE2,
+                 string RDFrm1002CS,
+                 string RDFrm1002DP,
+                 string RDFrm1002PD,
+                 string RDFrm1002ST,
+                 string RDFrm1002G7T1,
+                 string RDFrm1002G7T2,
+                 string RDFrm1002G7T3,
+                 string RDFrm1002G7T4,
+                 string RDFrm1002G7T5,
+                 string RDFrm1002G5T6,
+                 string RDFrm1002DS
+             )
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                    
-                                    INSERT INTO [TKRESEARCH].[dbo].[TK_UOF_RESEARCH_1002]
-                                    (
-                                    [RDF1002SN]
-                                    ,[NAME]
-                                    ,[RDFrm1002DATE1]
-                                    ,[RDFrm1002DATE2]
-                                    ,[RDFrm1002CS]
-                                    ,[RDFrm1002DP]
-                                    ,[RDFrm1002PD]
-                                    ,[RDFrm1002ST]
-                                    ,[RDFrm1002G7T1]
-                                    ,[RDFrm1002G7T2]
-                                    ,[RDFrm1002G7T3]
-                                    ,[RDFrm1002G7T4]
-                                    ,[RDFrm1002G7T5]
-                                    ,[RDFrm1002G5T6]
-                                    ,[RDFrm1002DS]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    )
-                                    ", RDF1002SN
-                                    , NAME
-                                    , RDFrm1002DATE1
-                                    , RDFrm1002DATE2
-                                    , RDFrm1002CS
-                                    , RDFrm1002DP
-                                    , RDFrm1002PD
-                                    , RDFrm1002ST
-                                    , RDFrm1002G7T1
-                                    , RDFrm1002G7T2
-                                    , RDFrm1002G7T3
-                                    , RDFrm1002G7T4
-                                    , RDFrm1002G7T5
-                                    , RDFrm1002G5T6
-                                    , RDFrm1002DS);
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(@"
+                        INSERT INTO [TKRESEARCH].[dbo].[TK_UOF_RESEARCH_1002]
+                        (
+                            [RDF1002SN],
+                            [NAME],
+                            [RDFrm1002DATE1],
+                            [RDFrm1002DATE2],
+                            [RDFrm1002CS],
+                            [RDFrm1002DP],
+                            [RDFrm1002PD],
+                            [RDFrm1002ST],
+                            [RDFrm1002G7T1],
+                            [RDFrm1002G7T2],
+                            [RDFrm1002G7T3],
+                            [RDFrm1002G7T4],
+                            [RDFrm1002G7T5],
+                            [RDFrm1002G5T6],
+                            [RDFrm1002DS]
+                        )
+                        VALUES
+                        (
+                            @RDF1002SN,
+                            @NAME,
+                            @RDFrm1002DATE1,
+                            @RDFrm1002DATE2,
+                            @RDFrm1002CS,
+                            @RDFrm1002DP,
+                            @RDFrm1002PD,
+                            @RDFrm1002ST,
+                            @RDFrm1002G7T1,
+                            @RDFrm1002G7T2,
+                            @RDFrm1002G7T3,
+                            @RDFrm1002G7T4,
+                            @RDFrm1002G7T5,
+                            @RDFrm1002G5T6,
+                            @RDFrm1002DS
+                        )", sqlConn, tran))
+                    {
+                        cmd.Parameters.AddWithValue("@RDF1002SN", RDF1002SN ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@NAME", NAME ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002DATE1", RDFrm1002DATE1 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002DATE2", RDFrm1002DATE2 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002CS", RDFrm1002CS ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002DP", RDFrm1002DP ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002PD", RDFrm1002PD ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002ST", RDFrm1002ST ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G7T1", RDFrm1002G7T1 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G7T2", RDFrm1002G7T2 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G7T3", RDFrm1002G7T3 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G7T4", RDFrm1002G7T4 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G7T5", RDFrm1002G7T5 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002G5T6", RDFrm1002G5T6 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@RDFrm1002DS", RDFrm1002DS ?? (object)DBNull.Value);
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result > 0)
+                        {
+                            tran.Commit();
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議記錄 Log，方便追蹤
+                Console.WriteLine("ADD_TK_UOF_RESEARCH_1002 發生錯誤：" + ex.Message);
             }
         }
+
 
         public void NEW_TKRESEARCH_TK_UOF_DESIGN_1002()
         {
@@ -43357,6 +43194,7 @@ namespace TKSCHEDULEUOF
         }
         private void button55_Click(object sender, EventArgs e)
         {
+            //轉入13.研發類表單:1002.設計需求內容清單
             NEW_TKRESEARCH_TK_UOF_RESEARCH_1002();
         }
         private void button56_Click(object sender, EventArgs e)
