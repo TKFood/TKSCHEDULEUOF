@@ -620,7 +620,7 @@
             this.button60.Name = "button60";
             this.button60.Size = new System.Drawing.Size(157, 34);
             this.button60.TabIndex = 64;
-            this.button60.Text = "ERP的品號，轉入EBOM";
+            this.button60.Text = "ERP的品號，轉入EBOM品號";
             this.button60.UseVisualStyleBackColor = true;
             this.button60.Click += new System.EventHandler(this.button60_Click);
             // 

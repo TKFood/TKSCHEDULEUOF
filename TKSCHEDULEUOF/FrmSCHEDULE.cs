@@ -21758,7 +21758,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        //ERP的品號，轉入EBOM
+        //ERP的品號，轉入EBOM品號
         public void NEW_BOMMI()
         {
             try
@@ -42243,7 +42243,7 @@ namespace TKSCHEDULEUOF
         }
         private void button60_Click(object sender, EventArgs e)
         {
-            //ERP的品號，轉入EBOM
+            //ERP的品號，轉入EBOM品號
             NEW_BOMMI();
         }
         private void button61_Click(object sender, EventArgs e)
