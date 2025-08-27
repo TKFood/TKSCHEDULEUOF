@@ -36418,7 +36418,7 @@ namespace TKSCHEDULEUOF
             
             string ISCLOSE;
 
-            DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
+            //DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
 
             DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
 
@@ -36455,9 +36455,9 @@ namespace TKSCHEDULEUOF
 
             //更新ERP請購單
             //新增ERP採購變更單
-            if (DT != null && DT.Rows.Count >= 1)
+            if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                foreach (DataRow DR in DT_DETAILS.Rows)
                 {
                     TA001 = DR["TA001"].ToString().Trim();
                     TA002 = DR["TA002"].ToString().Trim();
@@ -36527,7 +36527,7 @@ namespace TKSCHEDULEUOF
                                         LEFT JOIN[UOF].[dbo].[TB_WKF_FORM]
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID                                        
                                         WHERE [FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND DOC_NBR = 'PURTACHANGE202410230006'
+                                        AND DOC_NBR >= 'PURTACHANGE202508270002'
 
                                     )
                                     SELECT TEMP.*,
@@ -36544,12 +36544,12 @@ namespace TKSCHEDULEUOF
                                     ) AS ACCOUNT
                                     FROM TEMP
                                     WHERE 1=1
-                                    AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
                                     (
-                                        SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
+                                        SELECT FORMID
                                         FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
    
-                                    )                                   
+                                    )                                    
 
                                     ");
 
@@ -36639,7 +36639,7 @@ namespace TKSCHEDULEUOF
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                         CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
                                         WHERE[FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND DOC_NBR = 'PURTACHANGE202410230006'
+                                        AND DOC_NBR >= 'PURTACHANGE202508270002'
 
                                     )
                                     SELECT TEMP.*,
@@ -36656,12 +36656,12 @@ namespace TKSCHEDULEUOF
                                     ) AS ACCOUNT
                                     FROM TEMP
                                     WHERE 1=1
-                                    AND REPLACE(TA001+TA002+VERSIONS,',','') NOT IN
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
                                     (
-                                        SELECT REPLACE(TA001+TA002+CONVERT(NVARCHAR, VERSIONS),' ' ,'')
+                                        SELECT FORMID
                                         FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
    
-                                    )                                   
+                                    )                                    
 
                                     ");
 
@@ -36801,7 +36801,7 @@ namespace TKSCHEDULEUOF
                    
                 }
             }
-            catch
+            catch (Exception EX)
             {
 
             }
