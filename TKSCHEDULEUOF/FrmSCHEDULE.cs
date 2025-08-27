@@ -21526,7 +21526,7 @@ namespace TKSCHEDULEUOF
             queryString.AppendFormat(@"
                                     INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                     (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                    VALUES (NEWID(),@XML,2,'{1}')
+                                    VALUES (NEWID(),@XML,2,'{0}')
                                      ",  EXTERNAL_FORM_NBR);
 
             try
@@ -36420,7 +36420,7 @@ namespace TKSCHEDULEUOF
 
             //DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
 
-            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
+            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS("PURTACHANGE202507010001");
 
             //先新增/變更，請購變更的明細
             if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
@@ -36585,7 +36585,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS()
+        public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS(string START_DOC_NBR)
         {
 
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -36639,7 +36639,7 @@ namespace TKSCHEDULEUOF
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                         CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
                                         WHERE[FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND DOC_NBR >= 'PURTACHANGE202508270002'
+                                        AND DOC_NBR >= '{0}'
 
                                     )
                                     SELECT TEMP.*,
@@ -36663,7 +36663,7 @@ namespace TKSCHEDULEUOF
    
                                     )                                    
 
-                                    ");
+                                    ", START_DOC_NBR);
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -42543,7 +42543,10 @@ namespace TKSCHEDULEUOF
             //4ERP請購單依變更單修改
             //5在ERP採購單中檢查有沒有已建立的請購單，如果有同時建立採購變更單，並送簽
 
+            //注意，如果採購單已有未廳準的採購變更單，就不會自動產生新的採購變更單，會卡住
+
             //NEWPURTEPURTF_ERP(); 是只檢核有沒有產生採購變更單而已 
+            //沒有使用，因為請購變更單的內容是錯誤或不用了，也不需要一且產生採購變更單
 
             //TKUOF.TRIGGER.PURTABCHANGE.EndFormTrigger
             //PUR20.請購單變更單
