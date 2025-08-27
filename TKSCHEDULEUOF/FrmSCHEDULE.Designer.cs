@@ -1052,7 +1052,7 @@
             this.button62.Name = "button62";
             this.button62.Size = new System.Drawing.Size(192, 34);
             this.button62.TabIndex = 40;
-            this.button62.Text = "轉入  行銷廣告的活動成效記錄表";
+            this.button62.Text = "轉入-行銷廣告的活動成效記錄表";
             this.button62.UseVisualStyleBackColor = true;
             this.button62.Click += new System.EventHandler(this.button62_Click);
             // 

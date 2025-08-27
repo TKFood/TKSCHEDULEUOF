@@ -22226,66 +22226,49 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
         public void ADD_TBPROMOTIONNFEE()
         {
-            DataTable DT = FIND_UOF_PROMOT();
+            DataTable dt = FIND_UOF_PROMOT();
 
-            string DOC_NBR = "";
-            string YEARS = "";
-            string DEPNAME = "";
-            string TITLES = "";
-            string SALES = "";
-            string NAMES = "";
-            string ACTIONS = "";
+            if (dt == null || dt.Rows.Count == 0) return;
 
-            if (DT != null && DT.Rows.Count >= 1)
+            foreach (DataRow dr in dt.Rows)
             {
-                foreach (DataRow dr in DT.Rows)
+                string docNbr = dr["DOC_NBR"]?.ToString() ?? "";
+                string years = dr["YEARS"]?.ToString() ?? "";
+                string depName = dr["COFrm002MDP"]?.ToString() ?? "";
+                string titles = dr["COFrm002CS"]?.ToString() ?? "";
+                string sales = dr["SALES"]?.ToString() ?? "";
+                string names = dr["COFrm002Main"]?.ToString() ?? "";
+                string actions = dr["COFrm002TD"]?.ToString() ?? "";
+
+                // 處理 HTML → 純文字
+                string html = "@" + actions;
+                string text = "";
+                // 使用HtmlAgilityPack解析HTML
+                HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+                htmlDoc.LoadHtml(html);
+
+                // 清理字串
+                text = text.Replace("&nbsp;", "").Replace("@u", "");
+                if (!string.IsNullOrWhiteSpace(text))
                 {
-
-                    DOC_NBR = dr["DOC_NBR"].ToString();
-                    YEARS = dr["YEARS"].ToString();
-                    DEPNAME = dr["COFrm002MDP"].ToString();
-                    TITLES = dr["COFrm002CS"].ToString();
-                    SALES = dr["SALES"].ToString();
-                    NAMES = dr["COFrm002Main"].ToString();
-                    ACTIONS = dr["COFrm002TD"].ToString();
-
-                    string html = "@" + dr["COFrm002TD"].ToString();
-
-                    // 使用HtmlAgilityPack解析HTML
-                    HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-                    htmlDoc.LoadHtml(html);
-
-                    // 提取純文字內容
-                    string Text = ExtractTextFromHtml(htmlDoc.DocumentNode);
-                    Text = Text.Replace("&nbsp;", "").Replace("@u", "");
-                    int Text_LEGTH = Text.Length;
-                    if (Text_LEGTH <= 990)
-                    {
-                        ACTIONS = Text;
-                    }
-                    else if (Text_LEGTH >= 990)
-                    {
-                        ACTIONS = Text.Substring(0, 990);
-                    }
-
-
-                    ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
-                                                     DOC_NBR,
-                                                     YEARS,
-                                                     DEPNAME,
-                                                     TITLES,
-                                                     SALES,
-                                                     NAMES,
-                                                     ACTIONS
-                                                    );
+                    actions = text.Length <= 990 ? text : text.Substring(0, 990);
                 }
+
+                // 寫入 DB
+                ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
+                    docNbr,
+                    years,
+                    depName,
+                    titles,
+                    sales,
+                    names,
+                    actions
+                );
             }
-
-
         }
+        
         public static string ExtractTextFromHtml(HtmlNode node)
         {
             if (node.NodeType == HtmlNodeType.Text)
@@ -22303,186 +22286,154 @@ namespace TKSCHEDULEUOF
         }
         public DataTable FIND_UOF_PROMOT()
         {
-            DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable result = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
                 //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                Class1 TKID = new Class1(); //用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+                );
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), conn))
+                {
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
+                    sbSql.Append(@"
                                     SELECT *
-                                    ,SUBSTRING(COFrm002Date,1,4) AS 'YEARS'
-                                    ,SUBSTRING(COFrm002Usr,1,3) AS 'SALES'
-    
+                                        ,SUBSTRING(COFrm002Date,1,4) AS 'YEARS'
+                                        ,SUBSTRING(COFrm002Usr,1,3) AS 'SALES'
                                     FROM 
                                     (
-                                    SELECT DOC_NBR
-                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Date""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Date
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Main""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Main
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Usr""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002Usr
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002CS""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002CS
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MDP""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002MDP
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MG""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002MG
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002TD""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002TD
-
-                                    , TB_WKF_FORM.FORM_NAME
-                                    FROM[UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE 1 = 1
-                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-                                    AND TB_WKF_FORM.FORM_NAME IN('2001.會辦單（行企）', '1002.會辦單（一般）')
-                                    AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
-                                    
+                                        SELECT DOC_NBR
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Date""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Date
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Main""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002Main
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002Usr""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002Usr
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002CS""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002CS
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MDP""]/@fieldValue)[1]', 'nvarchar(max)')  AS COFrm002MDP
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002MG""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002MG
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""COFrm002TD""]/@fieldValue)[1]', 'nvarchar(max)') AS COFrm002TD
+                                            ,TB_WKF_FORM.FORM_NAME
+                                        FROM [UOF].dbo.TB_WKF_TASK
+                                            ,[UOF].dbo.TB_WKF_FORM
+                                            ,[UOF].dbo.TB_WKF_FORM_VERSION
+                                        WHERE TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                          AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                          AND TB_WKF_FORM.FORM_NAME IN ('2001.會辦單（行企）','1002.會辦單（一般）')
+                                          AND TB_WKF_TASK.TASK_STATUS = '2' 
+                                          AND TASK_RESULT = '0'
                                     ) AS TEMP
                                     WHERE COFrm002MG IN ('年節/產品活動或價格事宜')
-                                    
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT[DOC_NBR] FROM[192.168.1.105].[TKBUSINESS].[dbo].[TBPROMOTIONNFEE] WHERE ISNULL([DOC_NBR], '')<> '')
+                                      AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (
+                                          SELECT [DOC_NBR] 
+                                          FROM [192.168.1.105].[TKBUSINESS].[dbo].[TBPROMOTIONNFEE] 
+                                          WHERE ISNULL([DOC_NBR],'') <> ''
+                                      )
                                     ORDER BY COFrm002Date
+                                ");
 
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
+                    adapter.SelectCommand.CommandText = sbSql.ToString();
+                    adapter.Fill(result);
                 }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
+                // log 可加上例外紀錄
             }
 
-
-            return DT;
+            return result;
         }
 
+
         public void ADD_TO_TKBUSINESS_TBPROMOTIONNFEE(
-            string DOC_NBR,
-            string YEARS,
-            string DEPNAME,
-            string TITLES,
-            string SALES,
-            string NAMES,
-            string ACTIONS
+              string DOC_NBR,
+              string YEARS,
+              string DEPNAME,
+              string TITLES,
+              string SALES,
+              string NAMES,
+              string ACTIONS
             )
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
 
                 //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                   
-                                    INSERT INTO [TKBUSINESS].[dbo].[TBPROMOTIONNFEE]
-                                    (
-                                    [DOC_NBR],
-                                    [YEARS],
-                                    [DEPNAME],
-                                    [TITLES],
-                                    [SALES],
-                                    [NAMES],
-                                    [ACTIONS]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}',
-                                    '{1}',
-                                    '{2}',
-                                    '{3}',
-                                    '{4}',
-                                    '{5}',
-                                    '{6}'
-                                    )
-                                    "
-                                    ,
-                                    DOC_NBR,
-                                    YEARS,
-                                    DEPNAME,
-                                    TITLES,
-                                    SALES,
-                                    NAMES,
-                                    ACTIONS
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
+                    conn.Open();
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                            INSERT INTO [TKBUSINESS].[dbo].[TBPROMOTIONNFEE]
+                                            (
+                                                [DOC_NBR],
+                                                [YEARS],
+                                                [DEPNAME],
+                                                [TITLES],
+                                                [SALES],
+                                                [NAMES],
+                                                [ACTIONS]
+                                            )
+                                            VALUES
+                                            (
+                                                @DOC_NBR,
+                                                @YEARS,
+                                                @DEPNAME,
+                                                @TITLES,
+                                                @SALES,
+                                                @NAMES,
+                                                @ACTIONS
+                                            )";
 
+                        cmd.Parameters.AddWithValue("@DOC_NBR", DOC_NBR ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@YEARS", YEARS ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@DEPNAME", DEPNAME ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@TITLES", TITLES ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@SALES", SALES ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@NAMES", NAMES ?? string.Empty);
+                        cmd.Parameters.AddWithValue("@ACTIONS", ACTIONS ?? string.Empty);
+
+                        try
+                        {
+                            int rows = cmd.ExecuteNonQuery();
+                            if (rows > 0)
+                                tran.Commit();
+                            else
+                                tran.Rollback();
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
+                }
             }
             catch
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議補上 Log
             }
         }
+
 
         public string FIND_TKGAFFAIRS_TBASSINGS(string ASSINGS)
         {
@@ -41981,6 +41932,8 @@ namespace TKSCHEDULEUOF
         }
         private void button62_Click(object sender, EventArgs e)
         {
+            //轉入-行銷廣告的活動成效記錄表
+            //沒有使用
             ADD_TBPROMOTIONNFEE();
         }
         private void button63_Click(object sender, EventArgs e)
