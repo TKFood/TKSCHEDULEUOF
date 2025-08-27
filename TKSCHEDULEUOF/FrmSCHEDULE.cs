@@ -42538,7 +42538,7 @@ namespace TKSCHEDULEUOF
         private void button98_Click(object sender, EventArgs e)
         {
             //1要先有ERP的請購單
-            //2用ERP的請購單，在外做請購變更單．並送簽
+            //2用ERP的請購單，在外掛做請購變更單．並送簽
             //3在UOF簽核請購變更單
             //4ERP請購單依變更單修改
             //5在ERP採購單中檢查有沒有已建立的請購單，如果有同時建立採購變更單，並送簽
