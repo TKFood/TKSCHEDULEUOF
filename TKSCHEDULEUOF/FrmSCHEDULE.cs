@@ -22592,73 +22592,66 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //更新工程品號基本資料檔
         public void UPDATE_TK_BOMMI()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 20210902密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                   
-                                    UPDATE [TK].dbo.BOMMI
-                                    SET MI004=MB004
-                                    FROM [TK].dbo.BOMMI,[TK].dbo.INVMB
-                                    WHERE MI001=MB001
-                                    AND MI004<>MB004
-
-                                    UPDATE [TK].dbo.BOMMI
-                                    SET MI002=MB002
-                                    FROM [TK].dbo.BOMMI,[TK].dbo.INVMB
-                                    WHERE MI001=MB001
-                                    AND MI002<>MB002
-
-                                    "
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
+                    conn.Open();
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                            UPDATE B
+                                            SET B.MI004 = M.MB004
+                                            FROM [TK].dbo.BOMMI B
+                                            JOIN [TK].dbo.INVMB M ON B.MI001 = M.MB001
+                                            WHERE B.MI004 <> M.MB004;
 
+                                            UPDATE B
+                                            SET B.MI002 = M.MB002
+                                            FROM [TK].dbo.BOMMI B
+                                            JOIN [TK].dbo.INVMB M ON B.MI001 = M.MB001
+                                            WHERE B.MI002 <> M.MB002;
+                                        ";
+
+                        try
+                        {
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                                tran.Commit();
+                            else
+                                tran.Rollback();
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
+                }
             }
             catch
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // TODO: 可以加上 log 紀錄錯誤
             }
         }
+
 
         public void UPDATE_TK_COPTGTG113()
         {
@@ -41944,6 +41937,7 @@ namespace TKSCHEDULEUOF
         }
         private void button64_Click(object sender, EventArgs e)
         {
+            //更新工程品號基本資料檔
             UPDATE_TK_BOMMI();
         }
         private void button65_Click(object sender, EventArgs e)
