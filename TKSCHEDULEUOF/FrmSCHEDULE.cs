@@ -22505,6 +22505,7 @@ namespace TKSCHEDULEUOF
         }
 
         /// <summary>
+        /// 更新官網訂單宅配
         /// 利用COPMA的MA0012來比對訂單、銷貨單的收貨部門，如果是SevenEleven、 Family、 HiLife 改成地址
         /// </summary>
         public void COPTC_TC010_TC011_UPDATE()
@@ -41938,6 +41939,7 @@ namespace TKSCHEDULEUOF
         }
         private void button63_Click(object sender, EventArgs e)
         {
+            //更新官網訂單宅配
             COPTC_TC010_TC011_UPDATE();
         }
         private void button64_Click(object sender, EventArgs e)
