@@ -36277,7 +36277,7 @@ namespace TKSCHEDULEUOF
                                             ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                         CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
                                         WHERE[FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND DOC_NBR >= '{0}'
+                                        AND DOC_NBR >= 'PURTACHANGE202507010001'
 
                                     )
                                     SELECT TEMP.*,
@@ -36301,7 +36301,7 @@ namespace TKSCHEDULEUOF
    
                                     )                                    
 
-                                    ", START_DOC_NBR);
+                                    ");
 
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
