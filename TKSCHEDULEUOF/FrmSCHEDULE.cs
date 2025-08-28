@@ -22718,265 +22718,140 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        //轉入1006.委外送驗申請單
         public void NEWUOFQC1006()
         {
             DataTable DT = FIND_UOF_QC1006();
 
             if (DT != null && DT.Rows.Count >= 1)
             {
-                NEW_TO_TMQC_TBUOFQC1006(DT);
+                foreach(DataRow DR in DT.Rows)
+                {
+                    string DOC_NBR = DR["DOC_NBR"].ToString();
+                    string QCFrm004SN = DR["QCFrm004SN"].ToString();
+                    string QCFrm004Date = DR["QCFrm004Date"].ToString();
+                    string QCFrm004UserLevel = DR["QCFrm004UserLevel"].ToString();
+                    string QC6001 = DR["QC6001"].ToString();
+                    string QC6002 = DR["QC6002"].ToString();
+                    string QC6012 = DR["QC6012"].ToString();
+                    string QC6003 = DR["QC6003"].ToString();
+                    string QC6004 = DR["QC6004"].ToString();
+                    string QC6005 = DR["QC6005"].ToString();
+                    string QC6006 = DR["QC6006"].ToString();
+                    string QC6007 = DR["QC6007"].ToString();
+                    string QC6008 = DR["QC6008"].ToString();
+                    string QC6009 = DR["QC6009"].ToString();
+                    string QC60010 = DR["QC60010 ="].ToString();
+
+                    ADD_NEW_TO_TMQC_TBUOFQC1006(
+                                                DOC_NBR
+                                                , QCFrm004SN
+                                                , QCFrm004Date
+                                                , QCFrm004UserLevel
+                                                , QC6001
+                                                , QC6002
+                                                , QC6012
+                                                , QC6003
+                                                , QC6004
+                                                , QC6005
+                                                , QC6006
+                                                , QC6007
+                                                , QC6008
+                                                , QC6009
+                                                , QC60010
+                                                );
+                }
+                
             }
 
-            // MessageBox.Show("完成");
+             MessageBox.Show("完成");
         }
         public DataTable FIND_UOF_QC1006()
         {
-            DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dt = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 20210902密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+                );
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string sql = @"
+                            SELECT  
+                            DOC_NBR,  
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+                            SN_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QCFrm004SN,  
+                            DATE_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QCFrm004Date,  
+                            USERLV_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QCFrm004UserLevel,  
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
+                            C1_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6001,  
+                            C2_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6002,  
+                            C12_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6012,  
+                            C3_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6003,  
+                            C4_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6004,  
+                            C5_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6005,  
+                            C6_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6006,  
+                            C8_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6008,  
+                            C9_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC6009,  
+                            C10_X.value('(./@fieldValue)[1]', 'nvarchar(200)') AS QC60010,  
 
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    DOC_NBR
-                                    FROM [UOF].[dbo].[TB_WKF_TASK]
-                                    WHERE FORM_VERSION_ID IN 
-                                    (
-                                    SELECT 
-                                    FORM_VERSION_ID
-                                    FROM [UOF].[dbo].[TB_WKF_FORM_VERSION]
-                                    WHERE FORM_ID IN (
-                                    SELECT 
-                                    [FORM_ID]
-                                    FROM [UOF].[dbo].[TB_WKF_FORM]
-                                    WHERE [FORM_NAME] LIKE '%委外送驗申請單%'
-                                    )
-                                    )
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN  NOT IN (SELECT DOC_NBR FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1006])
-                                    ");
+                            QC6007 = STUFF((
+                            SELECT '、' + 
+                                CELL.value('(./@fieldValue)[1]', 'nvarchar(100)')
+                            FROM T.CURRENT_DOC.nodes('//DataGrid[@fieldId=""QC6007""]/Row/Cell[@fieldId=""QC60071"" or @fieldId=""QC60072""]') AS D(CELL)
+                            FOR XML PATH(''), TYPE
+                            ).value('.', 'nvarchar(max)'), 1, 1, '')
 
+                            FROM [UOF].[dbo].[TB_WKF_TASK] T
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QCFrm004SN""]') AS SN(SN_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QCFrm004Date""]') AS DT(DATE_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QCFrm004UserLevel""]') AS UL(USERLV_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6001""]') AS F1(C1_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6002""]') AS F2(C2_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6012""]') AS F12(C12_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6003""]') AS F3(C3_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6004""]') AS F4(C4_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6005""]') AS F5(C5_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6006""]') AS F6(C6_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6008""]') AS F8(C8_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC6009""]') AS F9(C9_X)
+                            CROSS APPLY T.CURRENT_DOC.nodes('//FieldItem[@fieldId=""QC60010""]') AS F10(C10_X)
+                            WHERE T.FORM_VERSION_ID IN (
+                                SELECT FV.FORM_VERSION_ID
+                                FROM [UOF].[dbo].[TB_WKF_FORM_VERSION] FV
+                                JOIN [UOF].[dbo].[TB_WKF_FORM] F
+                                    ON FV.FORM_ID = F.FORM_ID
+                                WHERE F.FORM_NAME LIKE '%委外送驗申請單%'
+                            )
+                            AND T.DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (
+                                SELECT Q.DOC_NBR
+                                FROM [192.168.1.105].[TKQC].[dbo].[TBUOFQC1006] Q
+                            );
+        ";
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sql, conn))
                 {
-                    return ds1.Tables["ds1"];
-                }
-                else
-                {
-                    return null;
+                    conn.Open();
+                    adapter.Fill(dt);
                 }
 
+                return dt.Rows.Count > 0 ? dt : null;
             }
             catch
             {
-
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-
-            return null;
-        }
-
-        public void NEW_TO_TMQC_TBUOFQC1006(DataTable DT)
-        {
-            string xmlData = "";
-            string DOC_NBR = "";
-            string QCFrm004SN = "";
-            string QCFrm004Date = "";
-            string QCFrm004UserLevel = "";
-            string QC6001 = "";
-            string QC6002 = "";
-            string QC6012 = "";
-            string QC6003 = "";
-            string QC6004 = "";
-            string QC6005 = "";
-            string QC6006 = "";
-            string QC6007 = "";
-            string QC6008 = "";
-            string QC6009 = "";
-            string QC60010 = "";
-
-            foreach (DataRow row in DT.Rows)
-            {
-                xmlData = "";
-                DOC_NBR = "";
-                QCFrm004SN = "";
-                QCFrm004Date = "";
-                QCFrm004UserLevel = "";
-                QC6001 = "";
-                QC6002 = "";
-                QC6012 = "";
-                QC6003 = "";
-                QC6004 = "";
-                QC6005 = "";
-                QC6006 = "";
-                QC6007 = "";
-                QC6008 = "";
-                QC6009 = "";
-                QC60010 = "";
-
-                xmlData = FIND_UOF_QC1006(row["DOC_NBR"].ToString());
-
-                XDocument doc = XDocument.Parse(xmlData);
-
-                var fieldItems = doc.Descendants("FieldItem");
-
-                foreach (var fieldItem in fieldItems)
-                {
-
-                    string fieldId = fieldItem.Attribute("fieldId").Value;
-
-                    // 節點存在，取值       
-                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value;
-
-                    if (fieldId.Equals("QCFrm004SN"))
-                    {
-                        DOC_NBR = fieldValue;
-                        QCFrm004SN = fieldValue;
-                    }
-                    else if (fieldId.Equals("QCFrm004Date"))
-                    {
-                        QCFrm004Date = fieldValue;
-                    }
-                    else if (fieldId.Equals("QCFrm004UserLevel"))
-                    {
-                        QCFrm004UserLevel = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6001"))
-                    {
-                        QC6001 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6002"))
-                    {
-                        QC6002 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6012"))
-                    {
-                        QC6012 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6003"))
-                    {
-                        QC6003 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6004"))
-                    {
-                        QC6004 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6005"))
-                    {
-                        QC6005 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6006"))
-                    {
-                        QC6006 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6008"))
-                    {
-                        QC6008 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC6009"))
-                    {
-                        QC6009 = fieldValue;
-                    }
-                    else if (fieldId.Equals("QC60010"))
-                    {
-                        QC60010 = fieldValue;
-                    }
-
-                }
-
-                var dataGrids = doc.Descendants("DataGrid");
-
-                foreach (var dataGrid in dataGrids)
-                {
-                    var rows = dataGrid.Descendants("Row");
-
-                    foreach (var rowdata in rows)
-                    {
-                        QC6007 = "";
-                        var cells = rowdata.Descendants("Cell");
-
-                        foreach (var cell in cells)
-                        {
-
-                            string cellFieldId = cell.Attribute("fieldId")?.Value;
-                            string cellFieldValue = cell.Attribute("fieldValue")?.Value;
-
-                            if (cellFieldId.Equals("QC60071"))
-                            {
-                                QC6007 = QC6007 + cellFieldValue + "-";
-                            }
-                            else if (cellFieldId.Equals("QC60072"))
-                            {
-                                QC6007 = QC6007 + cellFieldValue + "、";
-                            }
-
-
-                        }
-                        //去除+"、";
-                        if (QC6007.Length >= 1)
-                        {
-                            QC6007 = QC6007.Substring(0, QC6007.Length - 1);
-                        }
-                        //
-                        if (QC6007.Length >= 250)
-                        {
-                            QC6007 = QC6007.Substring(0, 249);
-                        }
-                    }
-                }
-
-
-                ADD_NEW_TO_TMQC_TBUOFQC1006(
-                                            DOC_NBR
-                                            , QCFrm004SN
-                                            , QCFrm004Date
-                                            , QCFrm004UserLevel
-                                            , QC6001
-                                            , QC6002
-                                            , QC6012
-                                            , QC6003
-                                            , QC6004
-                                            , QC6005
-                                            , QC6006
-                                            , QC6007
-                                            , QC6008
-                                            , QC6009
-                                            , QC60010
-                                            );
+                // TODO: 可以加上 log
+                return null;
             }
         }
+
+       
 
         public string FIND_UOF_QC1006(string DOC_NBR)
         {
@@ -23045,126 +22920,118 @@ namespace TKSCHEDULEUOF
             return null;
         }
         public void ADD_NEW_TO_TMQC_TBUOFQC1006(
-            string DOC_NBR
-            , string QCFrm004SN
-            , string QCFrm004Date
-            , string QCFrm004UserLevel
-            , string QC6001
-            , string QC6002
-            , string QC6012
-            , string QC6003
-            , string QC6004
-            , string QC6005
-            , string QC6006
-            , string QC6007
-            , string QC6008
-            , string QC6009
-            , string QC60010
-            )
+    string DOC_NBR,
+    string QCFrm004SN,
+    string QCFrm004Date,
+    string QCFrm004UserLevel,
+    string QC6001,
+    string QC6002,
+    string QC6012,
+    string QC6003,
+    string QC6004,
+    string QC6005,
+    string QC6006,
+    string QC6007,
+    string QC6008,
+    string QC6009,
+    string QC60010
+)
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 20210902 密
+                Class1 TKID = new Class1(); // 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"                                    
-                                    INSERT INTO [TKQC].[dbo].[TBUOFQC1006]
-                                    (
-                                    [DOC_NBR]
-                                    ,[QCFrm004SN]
-                                    ,[QCFrm004Date]
-                                    ,[QCFrm004UserLevel]
-                                    ,[QC6001]
-                                    ,[QC6002]
-                                    ,[QC6012]
-                                    ,[QC6003]
-                                    ,[QC6004]
-                                    ,[QC6005]
-                                    ,[QC6006]
-                                    ,[QC6007]
-                                    ,[QC6008]
-                                    ,[QC6009]
-                                    ,[QC60010]
-                                    )
-                                    VALUES
-                                    (
-                                    '{0}'
-                                    ,'{1}'
-                                    ,'{2}'
-                                    ,'{3}'
-                                    ,'{4}'
-                                    ,'{5}'
-                                    ,'{6}'
-                                    ,'{7}'
-                                    ,'{8}'
-                                    ,'{9}'
-                                    ,'{10}'
-                                    ,'{11}'
-                                    ,'{12}'
-                                    ,'{13}'
-                                    ,'{14}'
-                                    )
-
-                                    ", DOC_NBR
-                                    , QCFrm004SN
-                                    , QCFrm004Date
-                                    , QCFrm004UserLevel
-                                    , QC6001
-                                    , QC6002
-                                    , QC6012
-                                    , QC6003
-                                    , QC6004
-                                    , QC6005
-                                    , QC6006
-                                    , QC6007
-                                    , QC6008
-                                    , QC6009
-                                    , QC60010
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                            INSERT INTO [TKQC].[dbo].[TBUOFQC1006]
+                                            (
+                                                [DOC_NBR],
+                                                [QCFrm004SN],
+                                                [QCFrm004Date],
+                                                [QCFrm004UserLevel],
+                                                [QC6001],
+                                                [QC6002],
+                                                [QC6012],
+                                                [QC6003],
+                                                [QC6004],
+                                                [QC6005],
+                                                [QC6006],
+                                                [QC6007],
+                                                [QC6008],
+                                                [QC6009],
+                                                [QC60010]
+                                            )
+                                            VALUES
+                                            (
+                                                @DOC_NBR,
+                                                @QCFrm004SN,
+                                                @QCFrm004Date,
+                                                @QCFrm004UserLevel,
+                                                @QC6001,
+                                                @QC6002,
+                                                @QC6012,
+                                                @QC6003,
+                                                @QC6004,
+                                                @QC6005,
+                                                @QC6006,
+                                                @QC6007,
+                                                @QC6008,
+                                                @QC6009,
+                                                @QC60010
+                                            )";
+
+                        cmd.Parameters.AddWithValue("@DOC_NBR", DOC_NBR ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QCFrm004SN", QCFrm004SN ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QCFrm004Date", QCFrm004Date ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QCFrm004UserLevel", QCFrm004UserLevel ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6001", QC6001 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6002", QC6002 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6012", QC6012 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6003", QC6003 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6004", QC6004 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6005", QC6005 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6006", QC6006 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6007", QC6007 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6008", QC6008 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC6009", QC6009 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@QC60010", QC60010 ?? (object)DBNull.Value);
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 交易取消
+                        }
+                        else
+                        {
+                            tran.Commit(); // 執行交易
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // 建議至少 log 下來
+                Console.WriteLine("ADD_NEW_TO_TMQC_TBUOFQC1006 發生錯誤: " + ex.Message);
+                throw;
             }
         }
+
 
         public void ADD_UOF_COPMA_100A(string MA001)
         {
@@ -41933,6 +41800,7 @@ namespace TKSCHEDULEUOF
 
         private void button66_Click(object sender, EventArgs e)
         {
+            //轉入1006.委外送驗申請單
             NEWUOFQC1006();
         }
         private void button67_Click(object sender, EventArgs e)
