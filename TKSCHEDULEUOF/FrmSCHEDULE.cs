@@ -22741,7 +22741,7 @@ namespace TKSCHEDULEUOF
                     string QC6007 = DR["QC6007"].ToString();
                     string QC6008 = DR["QC6008"].ToString();
                     string QC6009 = DR["QC6009"].ToString();
-                    string QC60010 = DR["QC60010 ="].ToString();
+                    string QC60010 = DR["QC60010"].ToString();
 
                     ADD_NEW_TO_TMQC_TBUOFQC1006(
                                                 DOC_NBR
@@ -22920,22 +22920,22 @@ namespace TKSCHEDULEUOF
             return null;
         }
         public void ADD_NEW_TO_TMQC_TBUOFQC1006(
-    string DOC_NBR,
-    string QCFrm004SN,
-    string QCFrm004Date,
-    string QCFrm004UserLevel,
-    string QC6001,
-    string QC6002,
-    string QC6012,
-    string QC6003,
-    string QC6004,
-    string QC6005,
-    string QC6006,
-    string QC6007,
-    string QC6008,
-    string QC6009,
-    string QC60010
-)
+            string DOC_NBR,
+            string QCFrm004SN,
+            string QCFrm004Date,
+            string QCFrm004UserLevel,
+            string QC6001,
+            string QC6002,
+            string QC6012,
+            string QC6003,
+            string QC6004,
+            string QC6005,
+            string QC6006,
+            string QC6007,
+            string QC6008,
+            string QC6009,
+            string QC60010
+            )
         {
             try
             {
