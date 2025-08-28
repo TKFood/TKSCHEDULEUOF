@@ -22652,84 +22652,69 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        //更新銷貨代收貨款
         public void UPDATE_TK_COPTGTG113()
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 20210902密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    UPDATE [TK].dbo.COPTG
-                                    SET TG113=TG045+TG046
-                                    FROM (
-                                    SELECT TG001,TG002,TG142,TG113,TG045+TG046 AS MONEYSS
-                                    FROM [TK].dbo.COPTG
-                                    WHERE TG142 IN (SELECT  [TG142] FROM [TK].[dbo].[ZCOPTG] WHERE  [KIND]='TG142')
-                                    AND TG023 NOT IN ('V')
-                                    AND TG113<>TG045+TG046
-                                    ) AS TEMP
-                                    WHERE TEMP.TG001=COPTG.TG001 AND TEMP.TG002=COPTG.TG002
-
-
-                                    UPDATE [TK].dbo.COPTG
-                                    SET TG113=TG045+TG046
-                                    FROM (
-                                    SELECT TG001,TG002,TG142,TG113,TG045+TG046 AS MONEYSS
-                                    FROM [TK].dbo.COPTG
-                                    WHERE TG146 IN (SELECT  [TG142] FROM [TK].[dbo].[ZCOPTG] WHERE  [KIND]='TG146')
-                                    AND TG023 NOT IN ('V')
-                                    AND TG113<>TG045+TG046
-                                    ) AS TEMP
-                                    WHERE TEMP.TG001=COPTG.TG001 AND TEMP.TG002=COPTG.TG002
-
-
-
-                                    "
-                                    );
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
+                    conn.Open();
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = @"
+                                        -- 更新符合 TG142 條件的 TG113
+                                        UPDATE G
+                                        SET G.TG113 = G.TG045 + G.TG046
+                                        FROM [TK].dbo.COPTG G
+                                        JOIN [TK].dbo.ZCOPTG Z ON G.TG142 = Z.TG142
+                                        WHERE Z.KIND = 'TG142'
+                                          AND G.TG023 <> 'V'
+                                          AND G.TG113 <> (G.TG045 + G.TG046);
 
+                                        -- 更新符合 TG146 條件的 TG113
+                                        UPDATE G
+                                        SET G.TG113 = G.TG045 + G.TG046
+                                        FROM [TK].dbo.COPTG G
+                                        JOIN [TK].dbo.ZCOPTG Z ON G.TG146 = Z.TG142
+                                        WHERE Z.KIND = 'TG146'
+                                          AND G.TG023 <> 'V'
+                                          AND G.TG113 <> (G.TG045 + G.TG046);
+                                    ";
+
+                        try
+                        {
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                                tran.Commit();
+                            else
+                                tran.Rollback();
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
+                }
             }
             catch
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                // TODO: 可加上 Log 紀錄錯誤
             }
         }
 
@@ -41942,6 +41927,7 @@ namespace TKSCHEDULEUOF
         }
         private void button65_Click(object sender, EventArgs e)
         {
+            //更新銷貨代收貨款
             UPDATE_TK_COPTGTG113();
         }
 
