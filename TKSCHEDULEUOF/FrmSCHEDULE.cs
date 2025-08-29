@@ -23048,31 +23048,31 @@ namespace TKSCHEDULEUOF
         }
 
         public void ADD_TB_UOF_COPMA_100A(string MA001)
-        {            
+        {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 20210902密
+                Class1 TKID = new Class1(); // 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@" 
-                                     DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
+                        // 保持原本 SQL 不變
+                        cmd.CommandText = @"
+                                    DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                      INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA100A]
                                     (
                                     [MA001]
@@ -23397,37 +23397,30 @@ namespace TKSCHEDULEUOF
                                     WHERE LASTMONEYS > 3000000
                                     )
 
-                                    "
+                ";
 
+                        cmd.Parameters.AddWithValue("@MA001", MA001 ?? (object)DBNull.Value);
 
-                                   , MA001);
+                        int result = cmd.ExecuteNonQuery();
 
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
-                {
-                    tran.Rollback();    //交易取消
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 交易取消
+                        }
+                        else
+                        {
+                            tran.Commit(); // 執行交易
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("ADD_TB_UOF_COPMA_100A 發生錯誤: " + ex.Message);
+                throw;
             }
         }
+
 
         public DataTable FIND_TB_UOF_COPMA_100A()
         {
