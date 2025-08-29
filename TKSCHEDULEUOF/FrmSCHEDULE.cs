@@ -33845,7 +33845,7 @@ namespace TKSCHEDULEUOF
                         ADDSQL = ADDSQL + " ";
                     }
 
-                    ADDPURTATBUOFCHANGE(FORMID, TA001, TA002, ADDSQL, TA014);                                      
+                    ADDPURTATBUOFCHANGE(ADDSQL);                                      
                 }
             }
 
@@ -34155,14 +34155,14 @@ namespace TKSCHEDULEUOF
                                 INSERT INTO [TKPUR].[dbo].[PURTATBUOFCHANGE]
                                 ([FORMID],[TA001],[TA002],[TA006],[TB003],[TB004],[TB009],[TB011],[TB012],[TB007])
                                 VALUES
-                                (@FORMID,'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}')
+                                ('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}')
 
-                                ", TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007);
+                                ", FORMID, TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007);
 
             return SQL.ToString();
         }
 
-        public void ADDPURTATBUOFCHANGE(string FORMID, string TA001, string TA002, string ADDSQL, string TA014)
+        public void ADDPURTATBUOFCHANGE(string ADDSQL)
         {    
             //20210902密
             Class1 TKID = new Class1();//用new 建立類別實體
@@ -34184,8 +34184,7 @@ namespace TKSCHEDULEUOF
                 using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
                 {
 
-                    SqlCommand command = new SqlCommand(ADDSQL.ToString(), connection);
-                    command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
+                    SqlCommand command = new SqlCommand(ADDSQL.ToString(), connection);                   
 
                     command.Connection.Open();
 
