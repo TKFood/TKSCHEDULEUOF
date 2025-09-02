@@ -12691,7 +12691,7 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "GA017", GA017, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA019", GA019, fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, "GA099", GA009, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA099", GA099, fillerName, fillerUserGuid, account);
 
             // DataGrid 欄位
             XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
