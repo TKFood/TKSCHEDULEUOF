@@ -27300,6 +27300,7 @@ namespace TKSCHEDULEUOF
                 sbSql.AppendFormat(@" 
                                     SELECT 
                                     T.DOC_NBR,
+                                    T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)'),
                                     Extracted.GG004Val AS GG004,
                                     Extracted.GG002Val AS GG002,
                                     Extracted.GG010Val AS GG010,
@@ -27326,7 +27327,7 @@ namespace TKSCHEDULEUOF
                                 INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
                                 INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
                                 WHERE
-                                    T.DOC_NBR >= 'GA1003250600139'
+                                    T.DOC_NBR >= 'GA1003250900007'
                                     AND F.FORM_NAME = '1003.雜項請購單'
                                     AND T.TASK_RESULT = '0'
                                     AND ISNULL(Extracted.GG004Val, '') <> ''
