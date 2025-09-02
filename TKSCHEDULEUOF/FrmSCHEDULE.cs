@@ -22764,7 +22764,7 @@ namespace TKSCHEDULEUOF
                 
             }
 
-             MessageBox.Show("完成");
+             //MessageBox.Show("完成");
         }
         public DataTable FIND_UOF_QC1006()
         {
