@@ -12691,6 +12691,7 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "GA017", GA017, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA019", GA019, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA099", GA009, fillerName, fillerUserGuid, account);
 
             // DataGrid 欄位
             XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
@@ -27579,6 +27580,7 @@ namespace TKSCHEDULEUOF
             Form.AppendChild(FormFieldValue);
 
             // 使用 AddFieldItem 建立表單欄位
+            // string GA099 = row["GA009"].ToString();
             AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA001", "如明細", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA002", "如明細", fillerName, fillerUserGuid, account);
@@ -27599,6 +27601,7 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "GA017", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA999", fillerName, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA019", "如明細", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA099", DT.Rows[0]["GA009"].ToString(), fillerName, fillerUserGuid, account);
 
             // DataGrid
             XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
