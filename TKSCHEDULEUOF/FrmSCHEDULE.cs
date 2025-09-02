@@ -27266,7 +27266,78 @@ namespace TKSCHEDULEUOF
                 }
             }
         }
+        /// <summary>
+        /// GA1005
+        /// 更新附件 ATTACH_ID
+        /// </summary>
+        public void UPDATE_UOF_GA1005_ATTACH_ID()
+        {
+            try
+            {
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
+                // 解密帳號與密碼
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    {
+                        try
+                        {
+                            StringBuilder sbSql = new StringBuilder();
+                            sbSql.AppendFormat(@"
+                                                UPDATE [UOF].[dbo].TB_WKF_TASK
+                                                SET ATTACH_ID = TEMP.NEW_ATTACH_ID
+                                                FROM (
+                                                    SELECT 
+                                                        TB_WKF_TASK.DOC_NBR,
+                                                        TB_WKF_TASK.TASK_ID,
+                                                        TB_WKF_TASK.ATTACH_ID,
+                                                        [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,
+                                                        TB_WKF_TASK2.ATTACH_ID AS NEW_ATTACH_ID
+                                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                                    JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
+                                                        ON TB_WKF_TASK.DOC_NBR = [TB_WKF_EXTERNAL_TASK].DOC_NBR
+                                                    JOIN [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2 
+                                                        ON [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR = TB_WKF_TASK2.DOC_NBR
+                                                    WHERE TB_WKF_TASK.DOC_NBR LIKE 'GA1005%'
+                                                      AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+                                                ) AS TEMP
+                                                WHERE TEMP.TASK_ID = TB_WKF_TASK.TASK_ID
+                                            ");
+
+                            using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
+                            {
+                                cmd.CommandTimeout = 60;
+                                int result = cmd.ExecuteNonQuery();
+
+                                if (result == 0)
+                                {
+                                    tran.Rollback(); // 沒有更新 → 回滾
+                                }
+                                else
+                                {
+                                    tran.Commit();   // 有更新 → 提交
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            tran.Rollback(); // 發生錯誤 → 回滾
+                            throw;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("錯誤: " + ex.Message);
+            }
+        }
         public DataTable SEARCH_UOF_GRAFFIRS_1003_GG004_NOT_NULL()
         {
             SqlDataAdapter adapter1 = new SqlDataAdapter();
@@ -27333,7 +27404,7 @@ namespace TKSCHEDULEUOF
                                     AND ISNULL(Extracted.GG004Val, '') <> ''
                                     --AND Extracted.GG004Val LIKE '%嘉義液化所%'
                                     AND Extracted.GG004Val NOT LIKE '無%'
-                                    AND NOT EXISTS (
+                                    AND  EXISTS (
                                         SELECT 1
                                         FROM [UOF].dbo.TB_WKF_TASK T2
                                         CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
@@ -27584,7 +27655,7 @@ namespace TKSCHEDULEUOF
             // string GA099 = row["GA009"].ToString();
             AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA001", "如明細", fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, "GA002", "如明細", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA002", DT.Rows[0]["DOC_NBR"].ToString(), fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA003", fillerName + "(" + account + ")", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA004", "如明細", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA005", "", fillerName, fillerUserGuid, account);
@@ -39580,6 +39651,8 @@ namespace TKSCHEDULEUOF
             string ACCOUNT = "000002";
             ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT, DEFAUL_NAME);
 
+            //更新附件
+            UPDATE_UOF_GA1005_ATTACH_ID();
             MessageBox.Show("完成");
 
         }
