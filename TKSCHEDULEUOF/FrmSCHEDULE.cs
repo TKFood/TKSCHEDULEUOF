@@ -25708,36 +25708,111 @@ namespace TKSCHEDULEUOF
             DataTable DT = FIND_UOF_TBSTOREDAILY_MORNING();
 
             if (DT != null && DT.Rows.Count >= 1)
-            {
-                NEW_TO_TKMK_TBSTOREDAILY_MORNING(DT);
+            {   
+                foreach(DataRow DR in DT.Rows)
+                {
+                    string DOC_NBR = DR["DOC_NBR"].ToString();
+                    string FIELD1 = DR["FIELD1"].ToString();
+                    string FIELD2 = DR["FIELD2"].ToString();
+                    string FIELD3 = DR["FIELD3"].ToString();
+                    string FIELD4 = DR["FIELD4"].ToString();
+                    string FIELD5 = DR["FIELD5"].ToString();
+                    string FIELD6 = DR["FIELD6"].ToString();
+                    string FIELD7 = DR["FIELD7"].ToString();
+                    string FIELD8 = DR["FIELD8"].ToString();
+                    string FIELD9 = DR["FIELD9"].ToString();
+                    string FIELD10 = DR["FIELD10"].ToString();
+                    string FIELD11 = DR["FIELD11"].ToString();
+                    string FIELD12 = DR["FIELD12"].ToString();
+                    string FIELD13 = DR["FIELD13"].ToString();
+                    string FIELD14 = DR["FIELD14"].ToString();
+                    string FIELD15 = DR["FIELD15"].ToString();
+                    string FIELD16 = DR["FIELD16"].ToString();
+                    string FIELD17 = DR["FIELD17"].ToString();
+                    string FIELD18 = DR["FIELD18"].ToString();
+                    string FIELD19 = DR["FIELD19"].ToString();
+                    string FIELD20 = DR["FIELD20"].ToString();
+                    string FIELD21 = DR["FIELD21"].ToString();
+
+                    ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
+                       DOC_NBR,
+                       FIELD1,
+                       FIELD2,
+                       FIELD3,
+                       FIELD4,
+                       FIELD5,
+                       FIELD6,
+                       FIELD7,
+                       FIELD8,
+                       FIELD9,
+                       FIELD10,
+                       FIELD11,
+                       FIELD12,
+                       FIELD13,
+                       FIELD14,
+                       FIELD15,
+                       FIELD16,
+                       FIELD17,
+                       FIELD18,
+                       FIELD19,
+                       FIELD20,
+                       FIELD21
+                        );
+                }            
             }
         }
-        ///門市日誌-午班
-        public void NEW_TBSTOREDAILY_AFTERMOON()
-        {
-
-        }
+        
         public DataTable FIND_UOF_TBSTOREDAILY_MORNING()
         {
             DataTable DT = new DataTable();
-            SqlDataAdapter adapter1;
-            DataSet ds1 = new DataSet();
 
             try
             {
-                Class1 TKID = new Class1(); // 用new建立類別實體
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     StringBuilder sbSql = new StringBuilder();
-
                     sbSql.Append(@"
-                                    SELECT TB_WKF_FORM.FORM_NAME, DOC_NBR, *
+                                    SELECT 
+                                        FORM_NAME,
+                                        DOC_NBR,
+                                        -- XML 解析欄位
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""ID""]/@fieldValue)[1]', 'nvarchar(50)') AS DOC_NBR_EX,
+                                        -- 取 @ 前部分
+                                        LEFT(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD1""]/@fieldValue)[1]', 'nvarchar(max)'), 
+                                             CHARINDEX('@', CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD1""]/@fieldValue)[1]', 'nvarchar(max)') + '@') - 1
+                                        ) AS FIELD1,
+                                        LEFT(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)'), 
+                                             CHARINDEX('@', CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD6""]/@fieldValue)[1]', 'nvarchar(max)') + '@') - 1
+                                        ) AS FIELD6,
+                                        LEFT(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD7""]/@fieldValue)[1]', 'nvarchar(max)'), 
+                                             CHARINDEX('@', CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD7""]/@fieldValue)[1]', 'nvarchar(max)') + '@') - 1
+                                        ) AS FIELD7,
+                                        -- 將 @ 換成 '、'
+                                        REPLACE(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD9""]/@fieldValue)[1]', 'nvarchar(max)'), '@', '、') AS FIELD9,
+                                        REPLACE(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD10""]/@fieldValue)[1]', 'nvarchar(max)'), '@', '、') AS FIELD10,
+                                        REPLACE(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD11""]/@fieldValue)[1]', 'nvarchar(max)'), '@', '、') AS FIELD11,
+                                        REPLACE(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD12""]/@fieldValue)[1]', 'nvarchar(max)'), '@', '、') AS FIELD12,
+                                        REPLACE(CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD13""]/@fieldValue)[1]', 'nvarchar(max)'), '@', '、') AS FIELD13,
+                                        -- 其他欄位直接取
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD2""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD2,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD3,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD4""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD4,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD5""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD5,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD8""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD8,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD14""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD14,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD15""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD15,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD16""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD16,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD17""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD17,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD18""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD18,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD19""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD19,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD20""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD20,
+                                        CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD21""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD21
                                     FROM [UOF].dbo.TB_WKF_TASK
                                     INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     INNER JOIN [UOF].dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
@@ -25747,108 +25822,24 @@ namespace TKSCHEDULEUOF
                                           (SELECT [DOC_NBR] FROM [192.168.1.105].[TKMK].[dbo].[TBSTOREDAILY_MORNING])
                                 ");
 
-                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
-
-                    sqlConn.Open();
-                    ds1.Clear();
-                    adapter1.Fill(ds1, "ds1");
-                    sqlConn.Close();
-
-                    if (ds1.Tables["ds1"].Rows.Count > 0)
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        return ds1.Tables["ds1"];
-                    }
-                    else
-                    {
-                        return null;
+                        sqlConn.Open();
+                        adapter.Fill(DT);
                     }
                 }
+
+                return DT.Rows.Count > 0 ? DT : null;
             }
             catch (Exception ex)
             {
-                // 可考慮記錄錯誤，例如寫入 log 或 Console.WriteLine
+                // 可改成 log 記錄 ex.Message
                 return null;
             }
         }
 
-        public void NEW_TO_TKMK_TBSTOREDAILY_MORNING(DataTable DT)
-        {
-            foreach (DataRow row in DT.Rows)
-            {
-                string xmlData = FIND_UOF_CURRENT_DOC(row["DOC_NBR"].ToString());
-                XDocument doc = XDocument.Parse(xmlData);
 
-                var fieldDict = new Dictionary<string, string>();
-                foreach (var fieldItem in doc.Descendants("FieldItem"))
-                {
-                    string fieldId = fieldItem.Attribute("fieldId")?.Value;
-                    string fieldValue = fieldItem.Attribute("fieldValue")?.Value ?? "";
-
-                    if (fieldId == null)
-                        continue;
-
-                    // 特殊欄位處理
-                    switch (fieldId)
-                    {
-                        case "ID":
-                            fieldDict["DOC_NBR"] = fieldValue;
-                            break;
-
-                        case "FIELD1":
-                        case "FIELD6":
-                        case "FIELD7":
-                            // 取 @ 前面部分
-                            fieldDict[fieldId] = fieldValue.Split('@').FirstOrDefault() ?? "";
-                            break;
-
-                        case "FIELD9":
-                        case "FIELD10":
-                        case "FIELD11":
-                        case "FIELD12":
-                        case "FIELD13":
-                            // 替換 @ 為 "、"
-                            fieldDict[fieldId] = fieldValue.Replace("@", "、");
-                            break;
-
-                        default:
-                            // 其他欄位直接存
-                            fieldDict[fieldId] = fieldValue;
-                            break;
-                    }
-                }
-
-                ADD_NEW_TO_TKMK_TBSTOREDAILY_MORNING(
-                    GetFieldValue(fieldDict, "DOC_NBR"),
-                    GetFieldValue(fieldDict, "FIELD1"),
-                    GetFieldValue(fieldDict, "FIELD2"),
-                    GetFieldValue(fieldDict, "FIELD3"),
-                    GetFieldValue(fieldDict, "FIELD4"),
-                    GetFieldValue(fieldDict, "FIELD5"),
-                    GetFieldValue(fieldDict, "FIELD6"),
-                    GetFieldValue(fieldDict, "FIELD7"),
-                    GetFieldValue(fieldDict, "FIELD8"),
-                    GetFieldValue(fieldDict, "FIELD9"),
-                    GetFieldValue(fieldDict, "FIELD10"),
-                    GetFieldValue(fieldDict, "FIELD11"),
-                    GetFieldValue(fieldDict, "FIELD12"),
-                    GetFieldValue(fieldDict, "FIELD13"),
-                    GetFieldValue(fieldDict, "FIELD14"),
-                    GetFieldValue(fieldDict, "FIELD15"),
-                    GetFieldValue(fieldDict, "FIELD16"),
-                    GetFieldValue(fieldDict, "FIELD17"),
-                    GetFieldValue(fieldDict, "FIELD18"),
-                    GetFieldValue(fieldDict, "FIELD19"),
-                    GetFieldValue(fieldDict, "FIELD20"),
-                    GetFieldValue(fieldDict, "FIELD21")
-                );
-            }
-        }
-
-        public string GetFieldValue(Dictionary<string, string> dict, string key)
-        {
-            return dict.ContainsKey(key) ? dict[key] : "";
-        }
-
+       
         public string FIND_UOF_CURRENT_DOC(string DOC_NBR)
         {
             try
@@ -39231,10 +39222,10 @@ namespace TKSCHEDULEUOF
         }
         private void button71_Click(object sender, EventArgs e)
         {
+            //門市-門市營業日誌-早午班
             //門市日誌-早班
-            NEW_TBSTOREDAILY_MORNING();           
-            ///門市日誌-午班
-            NEW_TBSTOREDAILY_AFTERMOON();
+            NEW_TBSTOREDAILY_MORNING();          
+           
         }
 
         private void button72_Click(object sender, EventArgs e)
