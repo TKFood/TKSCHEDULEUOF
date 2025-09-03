@@ -24397,11 +24397,11 @@ namespace TKSCHEDULEUOF
             {
                 // 建立連線字串（含解密）
                 Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString)
-                {
-                    Password = TKID.Decryption(sqlsb.Password),
-                    UserID = TKID.Decryption(sqlsb.UserID)
-                };
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+       
 
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
@@ -39293,6 +39293,11 @@ namespace TKSCHEDULEUOF
         {
             //已產生請購變更單並確認，但未產生採購變更單時，補產生採購變更單
             //不用，因為有發生「請購單變更單已確認，但是請購變更資料是錯誤的，就不用產生對應的採購變更單」
+
+            //1-先找出UOF的請購變更單已核單，但是未產生採購變更單
+            //2-ERP檢查是否已有同單號的採購變更單還未核準，未核準前不能重覆產生採購變更單
+            //3-找出請購變更單相對所有的採購單
+            //4-用請購變更單產生採購變更單(如果請購單已對到採購單)
             NEWPURTEPURTF_ERP();
         }
         private void button70_Click(object sender, EventArgs e)
