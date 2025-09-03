@@ -27407,13 +27407,12 @@ namespace TKSCHEDULEUOF
                                 INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
                                 INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON FV.FORM_ID = F.FORM_ID
                                 WHERE
-                                    T.DOC_NBR >= 'GA1003250900007'
+                                    T.DOC_NBR >= 'GA1003250800001'
                                     AND F.FORM_NAME = '1003.雜項請購單'
                                     AND T.TASK_RESULT = '0'
-                                    AND ISNULL(Extracted.GG004Val, '') <> ''
-                                    --AND Extracted.GG004Val LIKE '%嘉義液化所%'
+                                    AND ISNULL(Extracted.GG004Val, '') <> ''                                   
                                     AND Extracted.GG004Val NOT LIKE '無%'
-                                    AND  EXISTS (
+                                    AND NOT EXISTS (
                                         SELECT 1
                                         FROM [UOF].dbo.TB_WKF_TASK T2
                                         CROSS APPLY T2.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""DETAILS""]/DataGrid/Row') AS R2(RowNode)
