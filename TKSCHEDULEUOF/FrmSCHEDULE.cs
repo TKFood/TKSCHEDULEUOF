@@ -25973,140 +25973,104 @@ namespace TKSCHEDULEUOF
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
 
-            SQL.AppendFormat(@"                            
-                            INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]                            
-                            (
-                            [NAMES]
-                            ,[BACKMONEYS]
-                            ,[ISCLOSE]
-                            ,[PAYKINDS]
-                            ,[CREATEDATES]
-                            ,[COMMENTS]
-                            )
-                            SELECT 
-                            TD005 AS NAMES
-                            ,TD011 AS BACKMONEYS
-                            ,'N' AS  ISCLOSE
-                            ,'預付版費' AS PAYKINDS
-                            ,TD012 AS CREATEDATES
-                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
-                            FROM [TK].dbo.PURTC,[TK].dbo.PURTD
-                            WHERE TD001=TD001 AND TC002=TD002
-                            AND TD004 IN ('299990001','299990007')
-                            AND TC014='Y'
-                            AND TD005 LIKE '%預付%'
-                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
-                            ORDER BY TD005,TD012
+            SQL.AppendFormat(@"
+                                INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]                            
+                                (
+                                    [NAMES],[BACKMONEYS],[ISCLOSE],[PAYKINDS],[CREATEDATES],[COMMENTS]
+                                )
+                                SELECT 
+                                    TD005 AS NAMES,
+                                    TD011 AS BACKMONEYS,
+                                    'N' AS ISCLOSE,
+                                    '預付版費' AS PAYKINDS,
+                                    TD012 AS CREATEDATES,
+                                    CONVERT(NVARCHAR, CONVERT(INT, TD008)) + TD009 + ' ' + TD014 AS COMMENTS
+                                FROM [TK].dbo.PURTC, [TK].dbo.PURTD
+                                WHERE TC001 = TD001 AND TC002 = TD002
+                                  AND TD004 IN ('299990001','299990007')
+                                  AND TC014='Y'
+                                  AND TD005 LIKE '%預付%'
+                                  AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
+                                ORDER BY TD005, TD012;
 
+                                INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
+                                (
+                                    [NAMES],[BACKMONEYS],[ISCLOSE],[PAYKINDS],[CREATEDATES],[COMMENTS]
+                                )
+                                SELECT 
+                                    TD005 AS NAMES,
+                                    TD011 AS BACKMONEYS,
+                                    'N' AS ISCLOSE,
+                                    '版費' AS PAYKINDS,
+                                    TD012 AS CREATEDATES,
+                                    CONVERT(NVARCHAR, CONVERT(INT, TD008)) + TD009 + ' ' + TD014 AS COMMENTS
+                                FROM [TK].dbo.PURTC, [TK].dbo.PURTD
+                                WHERE TC001 = TD001 AND TC002 = TD002
+                                  AND TD004 IN ('299990001','299990007')
+                                  AND TC014='Y'
+                                  AND TD005 NOT LIKE '%預付%'
+                                  AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
+                                ORDER BY TD005, TD012;
 
-                            INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
-                            (
-                            [NAMES]
-                            ,[BACKMONEYS]
-                            ,[ISCLOSE]
-                            ,[PAYKINDS]
-                            ,[CREATEDATES]
-                            ,[COMMENTS]
-                            )
-                            SELECT 
-                            TD005 AS NAMES
-                            ,TD011 AS BACKMONEYS
-                            ,'N' AS  ISCLOSE
-                            ,'版費' AS PAYKINDS
-                            ,TD012 AS CREATEDATES
-                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
-                            FROM [TK].dbo.PURTC,[TK].dbo.PURTD
-                            WHERE TD001=TD001 AND TC002=TD002
-                            AND TD004 IN ('299990001','299990007')
-                            AND TC014='Y'
-                            AND TD005 NOT LIKE '%預付%'
-                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
-                            ORDER BY TD005,TD012
-
-
-                            
-                            INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
-                            (
-                            [NAMES]
-                            ,[BACKMONEYS]
-                            ,[ISCLOSE]
-                            ,[PAYKINDS]
-                            ,[CREATEDATES]
-                            ,[COMMENTS]
-                            ,[MB001]
-                            ,[MB002]
-                            ,[TOTALNUMS]
-                            )
-                            SELECT 
-                            TD005 AS NAMES
-                            ,0 AS BACKMONEYS
-                            ,'N' AS  ISCLOSE
-                            ,'改版未收版費' AS PAYKINDS
-                            ,TD012 AS CREATEDATES
-                            ,CONVERT(NVARCHAR,CONVERT(INT,TD008))+TD009+' '+TD014 AS COMMENTS
-                            ,TD004 MB001
-                            ,TD005 MB002
-                            ,TD015 TOTALNUMS
-                            FROM [TK].dbo.PURTC,[TK].dbo.PURTD
-                            WHERE TD001=TD001 AND TC002=TD002
-                            AND (TD014 LIKE '%美工%' OR TD014 LIKE '%改版%')
-                            AND TC014='Y'
-                            AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
-                            ORDER BY TD005,TD012
+                                INSERT INTO [TKPUR].[dbo].[PURVERSIONSNUMS]
+                                (
+                                    [NAMES],[BACKMONEYS],[ISCLOSE],[PAYKINDS],[CREATEDATES],[COMMENTS],[MB001],[MB002],[TOTALNUMS]
+                                )
+                                SELECT 
+                                    TD005 AS NAMES,
+                                    0 AS BACKMONEYS,
+                                    'N' AS ISCLOSE,
+                                    '改版未收版費' AS PAYKINDS,
+                                    TD012 AS CREATEDATES,
+                                    CONVERT(NVARCHAR, CONVERT(INT, TD008)) + TD009 + ' ' + TD014 AS COMMENTS,
+                                    TD004 AS MB001,
+                                    TD005 AS MB002,
+                                    TD015 AS TOTALNUMS
+                                FROM [TK].dbo.PURTC, [TK].dbo.PURTD
+                                WHERE TC001 = TD001 AND TC002 = TD002
+                                  AND (TD014 LIKE '%美工%' OR TD014 LIKE '%改版%')
+                                  AND TC014='Y'
+                                  AND TD005 NOT IN (SELECT [NAMES] FROM [TKPUR].[dbo].[PURVERSIONSNUMS]) 
+                                ORDER BY TD005, TD012;
                             ");
-
-
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 可以在這裡寫 log
+                Console.WriteLine("ADD_TKPUR_PURVERSIONSNUMS 發生錯誤：" + ex.Message);
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
+
 
         public void ADD_TKPUR_PURMODELSNUMS()
         {
@@ -39230,6 +39194,7 @@ namespace TKSCHEDULEUOF
 
         private void button72_Click(object sender, EventArgs e)
         {
+            //ERP版費轉入TKPUR
             ADD_TKPUR_PURVERSIONSNUMS();
         }
         private void button73_Click(object sender, EventArgs e)
