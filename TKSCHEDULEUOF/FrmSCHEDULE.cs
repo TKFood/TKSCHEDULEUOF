@@ -25664,66 +25664,44 @@ namespace TKSCHEDULEUOF
         public void UPDATE_Z_POSSET()
         {
             StringBuilder SQL = new StringBuilder();
-            SQL.Clear();
-
-            SQL.AppendFormat(@"
-                            UPDATE  [TK].[dbo].[Z_POSSET]
+            SQL.Append(@"
+                            UPDATE [TK].[dbo].[Z_POSSET]
                             SET ISUPDATE='Y'
                             WHERE ISUPDATE IN ('N')
-                            ");
-
-
+                        ");
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                            tran.Rollback();
+                        else
+                            tran.Commit();
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 可改成寫 Log
+                throw new ApplicationException("UPDATE_Z_POSSET 執行失敗", ex);
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
+
         //門市日誌-早班
         public void NEW_TBSTOREDAILY_MORNING()
         {
