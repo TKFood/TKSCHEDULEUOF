@@ -1072,7 +1072,7 @@
             this.button70.Name = "button70";
             this.button70.Size = new System.Drawing.Size(192, 34);
             this.button70.TabIndex = 42;
-            this.button70.Text = "轉入POS活動";
+            this.button70.Text = "轉入POS活動折扣";
             this.button70.UseVisualStyleBackColor = true;
             this.button70.Click += new System.EventHandler(this.button70_Click);
             // 

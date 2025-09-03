@@ -24731,24 +24731,33 @@ namespace TKSCHEDULEUOF
 
         public void NEW_POSET()
         {
-            //找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
-            DataTable DT_FIND_POSETS = FIND_POSETS();
-
-            if (DT_FIND_POSETS != null && DT_FIND_POSETS.Rows.Count >= 1)
+            try
             {
-                ADD_TK_Z_POSSET(DT_FIND_POSETS);
-            }
+                // 找出POS的活動簽核單，已簽核但沒有記錄在TK_Z_POSSET中
+                DataTable dtFindPosets = FIND_POSETS();
+                if (dtFindPosets != null && dtFindPosets.Rows.Count > 0)
+                {
+                    ADD_TK_Z_POSSET(dtFindPosets);
+                }
 
-            //針對TK_Z_POSSET的活動做POS機的LOG發送
-            DataTable DT_TK_Z_POSSET = FIND_TK_Z_POSSET();
-            if (DT_TK_Z_POSSET != null && DT_TK_Z_POSSET.Rows.Count >= 1)
+                // 針對TK_Z_POSSET的活動做POS機的LOG發送
+                DataTable dtPosset = FIND_TK_Z_POSSET();
+                if (dtPosset != null && dtPosset.Rows.Count > 0)
+                {
+                    INSERT_UPDATE_LOG_POSM(dtPosset);
+                }
+
+                // 更新TK_Z_POSSET的 [ISUPDATE]
+                UPDATE_Z_POSSET();
+            }
+            catch (Exception ex)
             {
-                INSERT_UPDATE_LOG_POSM(DT_TK_Z_POSSET);
+                // 建議至少Log錯誤，避免吞例外
+                // 例如：寫log或丟出上層
+                throw new ApplicationException("NEW_POSET 發生錯誤", ex);
             }
-
-            //更新TK_Z_POSSET的[ISUPDATE]
-            UPDATE_Z_POSSET();
         }
+
 
         public DataTable FIND_POSETS()
         {
@@ -24759,9 +24768,6 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
                 //20210902密
                 Class1 TKID = new Class1();//用new 建立類別實體
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
@@ -24770,163 +24776,142 @@ namespace TKSCHEDULEUOF
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
                 sqlConn = new SqlConnection(sqlsb.ConnectionString);
 
                 sbSql.Clear();
                 sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
+                sbSql.AppendFormat(@"
                                     SELECT *
                                     FROM 
                                     (
-                                    SELECT DOC_NBR
-                                    ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD001""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD001
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD002""]/ @fieldValue)[1]', 'nvarchar(max)') AS FIELD002
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD003""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD003
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD004""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD004
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD005""]/@fieldValue)[1]', 'nvarchar(max)')  AS FIELD005
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD006""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD006
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD007""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD007
-                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD008""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD008
-                                    ,CURRENT_DOC.value('(Form/Applicant/@account)[1]', 'nvarchar(max)') AS account
-
-                                    , TB_WKF_FORM.FORM_NAME
-                                    FROM [UOF].dbo.TB_WKF_TASK,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-                                    WHERE 1 = 1
-                                    AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
-                                    AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-                                    AND TB_WKF_FORM.FORM_NAME IN('POS,商品活動設定')
-                                    AND TB_WKF_TASK.TASK_STATUS = '2' AND TASK_RESULT = '0'
-
+                                        SELECT 
+                                            DOC_NBR
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD001""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD001
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD002""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD002
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD003""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD003
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD004""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD004
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD005""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD005
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD006""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD006
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD007""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD007
+                                            ,CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD008""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD008
+                                            ,CURRENT_DOC.value('(Form/Applicant/@account)[1]', 'nvarchar(max)') AS account
+                                            ,TB_WKF_FORM.FORM_NAME
+                                        FROM [UOF].dbo.TB_WKF_TASK
+                                        JOIN [UOF].dbo.TB_WKF_FORM_VERSION ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
+                                        JOIN [UOF].dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
+                                        WHERE 1=1
+                                        AND TB_WKF_FORM.FORM_NAME IN ('POS,商品活動設定')
+                                        AND TB_WKF_TASK.TASK_STATUS = '2' 
+                                        AND TB_WKF_TASK.TASK_RESULT = '0'
                                     ) AS TEMP
-                                    WHERE 1 = 1
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN (SELECT DOC_NBR FROM[192.168.1.105].[TK].[dbo].[Z_POSSET] WHERE ISNULL(DOC_NBR, '') <> '')
+                                    WHERE 1=1
+                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN 
+                                        NOT IN (
+                                            SELECT DOC_NBR 
+                                            FROM [192.168.1.105].[TK].[dbo].[Z_POSSET] 
+                                            WHERE ISNULL(DOC_NBR, '') <> ''
+                                        )
+                                 ");              
 
-
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
+                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
                 sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
                 sqlConn.Open();
                 ds1.Clear();
                 adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-                }
-                else
-                {
-                    return null;
-                }
-
             }
             catch
             {
-
+                return null;
             }
             finally
             {
-                sqlConn.Close();
+                if (sqlConn.State == ConnectionState.Open)
+                {
+                    sqlConn.Close();
+                }
             }
 
-
-            return DT;
+            if (ds1.Tables["ds1"].Rows.Count >= 1)
+            {
+                return ds1.Tables["ds1"];
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public void ADD_TK_Z_POSSET(DataTable DT)
+
+        public void ADD_TK_Z_POSSET(DataTable dt)
         {
-            string DOC_NBR = null;
-            string KINDS = null;
-            string ID = null;
-            string account = null;
-            StringBuilder SQL = new StringBuilder();
-            SQL.Clear();
-
-            foreach (DataRow dr in DT.Rows)
-            {
-                DOC_NBR = dr["DOC_NBR"].ToString();
-                KINDS = dr["FIELD007"].ToString();
-                ID = dr["FIELD002"].ToString();
-                account = dr["account"].ToString();
-                SQL.AppendFormat(@" 
-                                INSERT INTO [TK].[dbo].[Z_POSSET]
-                                ([DOC_NBR],[KINDS],[ID],[ADMINID])
-                                VALUES
-                                ('{0}','{1}','{2}','{3}')
-                                ", DOC_NBR, KINDS, ID, account);
-
-            }
+            if (dt == null || dt.Rows.Count == 0) return;
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 連線字串解密
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandTimeout = 60;
+
+                        try
+                        {
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                cmd.CommandText = @"
+                                                    INSERT INTO [TK].[dbo].[Z_POSSET]
+                                                        ([DOC_NBR],[KINDS],[ID],[ADMINID])
+                                                    VALUES
+                                                        (@DOC_NBR,@KINDS,@ID,@ADMINID)";
+
+                                cmd.Parameters.Clear();
+                                cmd.Parameters.AddWithValue("@DOC_NBR", dr["DOC_NBR"].ToString());
+                                cmd.Parameters.AddWithValue("@KINDS", dr["FIELD007"].ToString());
+                                cmd.Parameters.AddWithValue("@ID", dr["FIELD002"].ToString());
+                                cmd.Parameters.AddWithValue("@ADMINID", dr["account"].ToString());
+
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            tran.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            tran.Rollback();
+                            throw new ApplicationException("ADD_TK_Z_POSSET 失敗", ex);
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 這邊可以改成寫 log，而不是直接吞掉
+                throw;
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
 
         public void INSERT_UPDATE_LOG_POSM(DataTable DT)
         {
+            if (DT == null || DT.Rows.Count == 0)
+                return;
 
             StringBuilder SQL = new StringBuilder();
-            SQL.Clear();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            foreach (DataRow DR in DT.Rows)
             {
-                foreach (DataRow DR in DT.Rows)
-                {
-                    SQL.AppendFormat(@"
-                                        --POSMB
+                SQL.AppendFormat(@"
+                                --POSMB
                                         UPDATE [TK].dbo.POSMB
                                         SET MB008='Y',MB007=ADMINID,MB006=MB005
                                         FROM [TK].[dbo].[Z_POSSET]
@@ -25588,133 +25573,93 @@ namespace TKSCHEDULEUOF
                                         AND RL003='{0}' 
                                         GROUP BY PI010,RL001,RL002,RL003,RL004
                                         ORDER BY PI010
-
-                                        ", DR["ID"].ToString());
-                }
+                                ", DR["ID"].ToString());
             }
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 20210902密
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                            tran.Rollback();
+                        else
+                            tran.Commit();
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 可以改成寫 log
+                throw new ApplicationException("INSERT_UPDATE_LOG_POSM 執行失敗", ex);
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
+
+
 
         public DataTable FIND_TK_Z_POSSET()
         {
-            DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable dt = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 20210902密
+                Class1 TKID = new Class1(); // 用 new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT
-                                    [DOC_NBR]
-                                    ,[KINDS]
-                                    ,[ID]
-                                    ,[ISUPDATE]
-                                    ,[CREATEDATES]
-                                    FROM [TK].[dbo].[Z_POSSET]
-                                    WHERE ISUPDATE IN ('N')
-
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    sqlConn.Open();
+
+                    StringBuilder sbSql = new StringBuilder();
+                    sbSql.Append(@"
+                                SELECT
+                                    [DOC_NBR],
+                                    [KINDS],
+                                    [ID],
+                                    [ISUPDATE],
+                                    [CREATEDATES]
+                                FROM [TK].[dbo].[Z_POSSET]
+                                WHERE ISUPDATE IN ('N')
+                                ");
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        adapter.Fill(dt);
+                    }
                 }
+
+                if (dt.Rows.Count > 0)
+                    return dt;
                 else
-                {
                     return null;
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 這裡可以改成寫 log
+                throw new ApplicationException("FIND_TK_Z_POSSET 失敗", ex);
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-
-            return DT;
         }
+
 
         public void UPDATE_Z_POSSET()
         {
@@ -39302,6 +39247,8 @@ namespace TKSCHEDULEUOF
         }
         private void button70_Click(object sender, EventArgs e)
         {
+            //轉入POS活動折扣
+            //已先在ERP建好POS活動折扣，並送單到UOF核準三
             NEW_POSET();
         }
         private void button71_Click(object sender, EventArgs e)
