@@ -38966,7 +38966,7 @@ namespace TKSCHEDULEUOF
                                     FROM [TK].dbo.INVMB WITH(NOLOCK)
                                     LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='7' AND MB113=MA002
                                     WHERE (MB001 LIKE '1%')
-                                    AND INVMB.CREATE_DATE LIKE '202509%'
+                                    AND INVMB.CREATE_DATE LIKE '{0}%'
                                     ORDER BY MB001
 
                                     ", YEATERDAY);
