@@ -559,13 +559,7 @@ namespace TKSCHEDULEUOF
                 }
                 catch { }
 
-                try
-                {
-                    //ERP品號變更通知單
-                    ADD_ERP_INVMB_TO_UOF_9002();
-                }
-                catch { }
-              
+
                 try
                 {
 
@@ -577,6 +571,21 @@ namespace TKSCHEDULEUOF
                 }
                 catch { }
 
+                try
+                {
+                    //ERP品號明細通知單
+                    //如需修改，請通知研發在ERP上修改
+
+                    ADD_ERP_INVMB_TO_UOF_9003();
+
+                }
+                catch { }
+                try
+                {
+                    //ERP品號變更通知單
+                    ADD_ERP_INVMB_TO_UOF_9002();
+                }
+                catch { }
                 try
                 {
                     //ERP品號通知單
