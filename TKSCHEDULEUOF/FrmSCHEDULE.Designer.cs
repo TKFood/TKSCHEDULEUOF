@@ -157,6 +157,7 @@
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
+            this.button14 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -259,6 +260,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button38, 1, 8);
             this.tableLayoutPanel1.Controls.Add(this.button79, 1, 9);
             this.tableLayoutPanel1.Controls.Add(this.button115, 1, 10);
+            this.tableLayoutPanel1.Controls.Add(this.button14, 3, 14);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -815,7 +817,7 @@
             this.button110.Name = "button110";
             this.button110.Size = new System.Drawing.Size(155, 34);
             this.button110.TabIndex = 67;
-            this.button110.Text = "ERP品號通知單";
+            this.button110.Text = "ERP品號銷售通知單";
             this.button110.UseVisualStyleBackColor = true;
             this.button110.Click += new System.EventHandler(this.button110_Click);
             // 
@@ -1692,6 +1694,16 @@
             // 
             this.timer5.Tick += new System.EventHandler(this.timer5_Tick);
             // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(517, 563);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(155, 34);
+            this.button14.TabIndex = 71;
+            this.button14.Text = "ERP品號明細通知單";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1845,5 +1857,6 @@
         private System.Windows.Forms.Timer timer5;
         private System.Windows.Forms.Button button114;
         private System.Windows.Forms.Button button115;
+        private System.Windows.Forms.Button button14;
     }
 }
