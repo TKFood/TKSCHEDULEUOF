@@ -124,6 +124,10 @@ namespace TKSCHEDULEUOF
             timer5.Enabled = true;
             timer5.Interval = 1000 * 60 * 60; // 1 小時
             timer5.Start();
+
+            timer6.Enabled = true;
+            timer6.Interval = 1000 * 60; // 1 分鐘
+            timer6.Start();
         }
 
         
@@ -542,14 +546,14 @@ namespace TKSCHEDULEUOF
 
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
-        /// 0750
+        /// 0810
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0750";
+            string HHmm = "0810";
 
             if (RUNTIME.Equals(HHmm))
             {
@@ -638,19 +642,7 @@ namespace TKSCHEDULEUOF
 
                     UPDATE_UOF_PUR20_TASK_RESULT();
                 }
-                catch { }
-
-
-                try
-                {
-
-                    //轉入資料來客-X:\kldatabase.db
-                    //要指定來客記錄的db的磁碟-X:\kldatabase.db
-                    //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
-
-                    ADDTKMKt_visitors();
-                }
-                catch { }
+                catch { }                
 
             }
         }
@@ -836,9 +828,36 @@ namespace TKSCHEDULEUOF
             }
             catch { }
         }
+
+        /// <summary>
+        /// 每分鐘檢查1次，但每天指定時間執行1次
+        /// 0510
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer6_Tick(object sender, EventArgs e)
+        {
+            string RUNTIME = DateTime.Now.ToString("HHmm");
+            string HHmm = "0510";
+
+            if (RUNTIME.Equals(HHmm))
+            {                
+                try
+                {
+                    //轉入資料來客-X:\kldatabase.db
+                    //要指定來客記錄的db的磁碟-X:\kldatabase.db
+                    //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
+
+                    //ADDTKMKt_visitors();
+                }
+                catch { }
+            }
+
+            Thread.Sleep(60000); // 暫停 1 分鐘 (60000 毫秒)
+        }
+
         #region FUNCTION
 
-        //
         public decimal SEARCHBASELIMITHRS(string id)
         {
             try
@@ -40096,8 +40115,9 @@ namespace TKSCHEDULEUOF
 
             ADD_ERP_INVMB_TO_UOF_9003();
         }
+
         #endregion
 
-
+      
     }
 }

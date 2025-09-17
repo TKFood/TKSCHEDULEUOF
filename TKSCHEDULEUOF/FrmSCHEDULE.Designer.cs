@@ -91,6 +91,7 @@
             this.button38 = new System.Windows.Forms.Button();
             this.button79 = new System.Windows.Forms.Button();
             this.button115 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -157,7 +158,7 @@
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
-            this.button14 = new System.Windows.Forms.Button();
+            this.timer6 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -906,6 +907,16 @@
             this.button115.Text = "(重發)ERP進貨+客供>轉入UOF";
             this.button115.UseVisualStyleBackColor = true;
             this.button115.Click += new System.EventHandler(this.button115_Click);
+            // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(517, 563);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(155, 34);
+            this.button14.TabIndex = 71;
+            this.button14.Text = "ERP品號明細通知單";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // tabPage2
             // 
@@ -1694,15 +1705,9 @@
             // 
             this.timer5.Tick += new System.EventHandler(this.timer5_Tick);
             // 
-            // button14
+            // timer6
             // 
-            this.button14.Location = new System.Drawing.Point(517, 563);
-            this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(155, 34);
-            this.button14.TabIndex = 71;
-            this.button14.Text = "ERP品號明細通知單";
-            this.button14.UseVisualStyleBackColor = true;
-            this.button14.Click += new System.EventHandler(this.button14_Click);
+            this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
             // FrmSCHEDULE
             // 
@@ -1858,5 +1863,6 @@
         private System.Windows.Forms.Button button114;
         private System.Windows.Forms.Button button115;
         private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Timer timer6;
     }
 }
