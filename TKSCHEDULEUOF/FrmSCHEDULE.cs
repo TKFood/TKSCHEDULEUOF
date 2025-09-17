@@ -542,14 +542,14 @@ namespace TKSCHEDULEUOF
 
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
-        /// 0801
+        /// 0750
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0810";
+            string HHmm = "0750";
 
             if (RUNTIME.Equals(HHmm))
             {
@@ -560,16 +560,6 @@ namespace TKSCHEDULEUOF
                 catch { }
 
 
-                try
-                {
-
-                    //轉入資料來客-X:\kldatabase.db
-                    //要指定來客記錄的db的磁碟-X:\kldatabase.db
-                    //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
-
-                    ADDTKMKt_visitors();
-                }
-                catch { }
 
                 try
                 {
@@ -647,6 +637,18 @@ namespace TKSCHEDULEUOF
                     //經採購人員確認是多打的才會刪除，用TKPUR的「FrmPURTECHANGEDEL 」 採購變更刪除錯的請購變更
 
                     UPDATE_UOF_PUR20_TASK_RESULT();
+                }
+                catch { }
+
+
+                try
+                {
+
+                    //轉入資料來客-X:\kldatabase.db
+                    //要指定來客記錄的db的磁碟-X:\kldatabase.db
+                    //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
+
+                    ADDTKMKt_visitors();
                 }
                 catch { }
 
@@ -27270,20 +27272,28 @@ namespace TKSCHEDULEUOF
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+            try
             {
-                string queryString = $@"
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    string queryString = $@"
                                     INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                     (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
                                     VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
                                 ";
-                using (SqlCommand command = new SqlCommand(queryString, connection))
-                {
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                    using (SqlCommand command = new SqlCommand(queryString, connection))
+                    {
+                        command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
+            catch (Exception EX)
+            {
+
+            }
+          
         }
 
         public DataTable FIND_Z_UOF_FORM1005_FLOW()
