@@ -26467,80 +26467,70 @@ namespace TKSCHEDULEUOF
             }
 
         }
-
+        /// <summary>
+        /// ERP品號匯入生產說明
+        /// </summary>
         public void ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS()
         {
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
 
-            SQL.AppendFormat(@"                            
-                            INSERT INTO [TKMOC].[dbo].[REPORTMOCBOMPROCESS]
-                            ([MB001]
-                            ,[MB002])
-                            SELECT RTRIM(LTRIM([MB001])), RTRIM(LTRIM([MB002])) FROM [TK].dbo.INVMB 
-                            WHERE ([MB001] LIKE '3%' OR [MB001] LIKE  '4%')
-                            AND MB001 NOT IN (SELECT [MB001] FROM [TKMOC].[dbo].[REPORTMOCBOMPROCESS])
+            SQL.Append(@"
+                        INSERT INTO [TKMOC].[dbo].[REPORTMOCBOMPROCESS]
+                        (
+                            [MB001],[MB002]
+                        )
+                        SELECT RTRIM(LTRIM([MB001])), RTRIM(LTRIM([MB002]))
+                        FROM [TK].dbo.INVMB 
+                        WHERE ([MB001] LIKE '3%' OR [MB001] LIKE '4%')
+                          AND MB001 NOT IN (SELECT [MB001] FROM [TKMOC].[dbo].[REPORTMOCBOMPROCESS]);
 
-                            INSERT INTO [TKMOC].[dbo].[REPORTMOCBOMORIPROCESS]
-                            ([MB001]
-                            ,[MB002])
-                            SELECT RTRIM(LTRIM([MB001])), RTRIM(LTRIM([MB002])) FROM [TK].dbo.INVMB 
-                            WHERE ([MB001] LIKE '3%' OR [MB001] LIKE  '4%')
-                            AND MB001 NOT IN (SELECT [MB001] FROM [TKMOC].[dbo].[REPORTMOCBOMORIPROCESS])
-                            ");
-
-
+                        INSERT INTO [TKMOC].[dbo].[REPORTMOCBOMORIPROCESS]
+                        (
+                            [MB001],[MB002]
+                        )
+                        SELECT RTRIM(LTRIM([MB001])), RTRIM(LTRIM([MB002]))
+                        FROM [TK].dbo.INVMB 
+                        WHERE ([MB001] LIKE '3%' OR [MB001] LIKE '4%')
+                          AND MB001 NOT IN (SELECT [MB001] FROM [TKMOC].[dbo].[REPORTMOCBOMORIPROCESS]);
+                    ");
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 沒有新增資料 → 回滾
+                        }
+                        else
+                        {
+                            tran.Commit();   // 有新增資料 → 提交
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                Console.WriteLine("ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS 錯誤：" + ex.Message);
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
+
 
         //
         public void ADD_UOF_FORM_GRAFFIRS_1005_GG004_NULL(string DEFAUL_NAME)
@@ -39728,6 +39718,7 @@ namespace TKSCHEDULEUOF
         }
         private void button75_Click(object sender, EventArgs e)
         {
+            //ERP品號匯入生產說明
             ADD_TK_MOC_REPORTMOCBOMPROCESS_REPORTMOCBOMORIPROCESS();
         }
         private void button76_Click(object sender, EventArgs e)
