@@ -27517,7 +27517,9 @@ namespace TKSCHEDULEUOF
             }
         }
 
-
+        /// <summary>
+        /// ERP-ASTI02資產建立的確認
+        /// </summary>
         public void UPDATE_ASTMB_ASTI02()
         {
             string MB001 = "";
@@ -27542,129 +27544,100 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_ASTI02()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable resultTable = new DataTable();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                  
-                                    WITH TEMP AS (
-                                        SELECT 
-                                            [FORM_NAME],
-                                            [DOC_NBR],
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MB001_FieldValue,
-
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'ASTI02.資產資料建立作業'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-                                        AND[CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]', 'NVARCHAR(100)')
-                                        NOT IN(
-                                            SELECT MB001
-                                            FROM[192.168.1.105].[TK].dbo.ASTMB
-                                            WHERE MB039 IN('Y')
-                                        )
-                                    )
-                                    SELECT TEMP.*, 
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                    ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT,
-                                    (
-                                    SELECT TOP 1 ISNULL(MAX(TC002), '00000000000') AS TA002
-                                    FROM[TK].dbo.ASTTC
-                                    WHERE  TC015 = 'Y'
-                                    AND TC001 = 'AC01' AND TC004 = TEMP.MB001_FieldValue
-                                    ) AS TC002
-                                    FROM TEMP;
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    sbSql.Clear();
+                    sbSqlQuery.Clear();
 
-                }
-                else
-                {
-                    return null;
+                    sbSql.Append(@"
+                                WITH TEMP AS (
+                                    SELECT 
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MB001_FieldValue,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] 
+                                        ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] 
+                                        ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = 'ASTI02.資產資料建立作業'
+                                      AND TASK_STATUS = '2'
+                                      AND TASK_RESULT = '0'
+                                      AND [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]', 'NVARCHAR(100)')
+                                          NOT IN (
+                                              SELECT MB001
+                                              FROM [192.168.1.105].[TK].dbo.ASTMB
+                                              WHERE MB039 IN ('Y')
+                                          )
+                                )
+                                SELECT TEMP.*, 
+                                       (
+                                           SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                           FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                           LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                               ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                           WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                           ORDER BY FINISH_TIME DESC
+                                       ) AS ACCOUNT,
+                                       (
+                                           SELECT TOP 1 ISNULL(MAX(TC002), '00000000000') AS TA002
+                                           FROM [TK].dbo.ASTTC
+                                           WHERE TC015 = 'Y'
+                                             AND TC001 = 'AC01' 
+                                             AND TC004 = TEMP.MB001_FieldValue
+                                       ) AS TC002
+                                FROM TEMP;
+                            ");
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        sqlConn.Open();
+                        adapter.Fill(resultTable);
+                    }
                 }
 
+                return resultTable.Rows.Count > 0 ? resultTable : null;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine("FIND_UOF_ASTI02 發生錯誤：" + ex.Message);
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-        }
+        }       
 
         public void UPDATE_ASTMB_ASTI02_EXE(string MB001, string DOC_NBR, string ACCOUNT, string TC002)
         {
-
             string MB016 = DateTime.Now.ToString("yyyyMMdd");
             string MB042 = "AC01";
             string MB043 = TC002;
             string FORMID = DOC_NBR;
             string MODIFIER = ACCOUNT;
-            string TC027 = "Y";
-            string TC048 = "N";
-            string TD021 = "Y";
             string COMPANY = "TK";
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:ss");   // ✅ 修正為正確格式
 
             //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"                                   
+            queryString.AppendFormat(@"
                                         UPDATE [TK].dbo.ASTMB
                                         SET 
                                         MB047=@MB047
@@ -27726,47 +27699,45 @@ namespace TKSCHEDULEUOF
                                         WHERE 1=1
                                         AND MB001=MC001
                                         AND MB001=@MB001
-
- 
                                         ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
                 {
+                    connection.Open();
+                    using (SqlTransaction tran = connection.BeginTransaction())
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection, tran))
+                    {
+                        command.Parameters.Add("@MB001", SqlDbType.NVarChar).Value = MB001;
+                        command.Parameters.Add("@MB047", SqlDbType.NVarChar).Value = MB016;
+                        command.Parameters.Add("@MB048", SqlDbType.NVarChar).Value = MODIFIER;
+                        command.Parameters.Add("@MB042", SqlDbType.NVarChar).Value = MB042;
+                        command.Parameters.Add("@MB043", SqlDbType.NVarChar).Value = MB043;
+                        command.Parameters.Add("@MB039", SqlDbType.NVarChar).Value = "Y";
+                        command.Parameters.Add("@MB050", SqlDbType.NVarChar).Value = "N";
+                        command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = COMPANY;
+                        command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                        command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = MODI_DATE;
+                        command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = MODI_TIME;
+                        command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@MB001", SqlDbType.NVarChar).Value = MB001;
-                    command.Parameters.Add("@MB047", SqlDbType.NVarChar).Value = MB016;
-                    command.Parameters.Add("@MB048", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@MB042", SqlDbType.NVarChar).Value = MB042;
-                    command.Parameters.Add("@MB043", SqlDbType.NVarChar).Value = MB043;
-                    command.Parameters.Add("@MB039", SqlDbType.NVarChar).Value = "Y";
-                    command.Parameters.Add("@MB050", SqlDbType.NVarChar).Value = "N";
-                    command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = "TK";
-                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
-                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
-                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
-
-
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                        try
+                        {
+                            int count = command.ExecuteNonQuery();
+                            tran.Commit();
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
                 }
             }
             catch
             {
-
-            }
-            finally
-            {
-
+                // 這裡可以加 log
             }
         }
 

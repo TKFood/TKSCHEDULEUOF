@@ -1581,7 +1581,7 @@
             this.button78.Name = "button78";
             this.button78.Size = new System.Drawing.Size(154, 34);
             this.button78.TabIndex = 75;
-            this.button78.Text = "ERP-ASTI06.資產改良建立作業";
+            this.button78.Text = "ERP-ASTI06.資產改良建立作業的確認";
             this.button78.UseVisualStyleBackColor = true;
             this.button78.Click += new System.EventHandler(this.button78_Click);
             // 
@@ -1592,7 +1592,7 @@
             this.button77.Name = "button77";
             this.button77.Size = new System.Drawing.Size(154, 34);
             this.button77.TabIndex = 74;
-            this.button77.Text = "ERP-ASTI02資產建立";
+            this.button77.Text = "ERP-ASTI02資產建立的確認";
             this.button77.UseVisualStyleBackColor = true;
             this.button77.Click += new System.EventHandler(this.button77_Click);
             // 
