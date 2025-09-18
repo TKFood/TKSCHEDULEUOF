@@ -27437,7 +27437,7 @@ namespace TKSCHEDULEUOF
             SQL.Clear();
 
             SQL.Append(@"
-                        INSERT INTO [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
+                       INSERT INTO [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
                         (
                             [DOC_NBR],
                             [GAFrm004SN],
@@ -27448,16 +27448,37 @@ namespace TKSCHEDULEUOF
                             [GAFrm004ER]
                         )
                         SELECT 
-                            [DOC_NBR],
-                            [GAFrm004SN],
-                            [GAFrm004SI],
-                            [GAFrm004SD],
-                            [GAFrm004Applydates],
-                            [GAFrm004DN],
-                            [GAFrm004ER]
-                        FROM [192.168.1.223].[UOF].[dbo].[View_UOFGAFIXSNEW]
-                        WHERE [DOC_NBR] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN 
-                              (SELECT [DOC_NBR] FROM [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]);
+	                        DOC_NBR,
+	                        GAFrm004SN,
+	                        GAFrm004SI,
+	                        GAFrm004SD,
+	                        GAFrm004Applydates,
+	                        GAFrm004DN,
+	                        GAFrm004ER
+                        FROM OPENQUERY([192.168.1.223],'
+	                        SELECT 
+                                T.DOC_NBR,
+                                T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""GAFrm004SN""]/@fieldValue)[1]'', ''nvarchar(50)'') AS GAFrm004SN,
+                                T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""GAFrm004SI""]/@fieldValue)[1]'', ''nvarchar(50)'') AS GAFrm004SI,
+                                T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""GAFrm004SD""]/@fieldValue)[1]'', ''nvarchar(50)'') AS GAFrm004SD,
+                                T.CURRENT_DOC.value(''(Form/FormFieldValue/FieldItem[@fieldId=""GAFrm004Applydates""]/@fieldValue)[1]'', ''nvarchar(50)'') AS GAFrm004Applydates,
+                                DN.cell.value(''@fieldValue'', ''NVARCHAR(MAX)'') AS GAFrm004DN,
+                                ER.cell.value(''@fieldValue'', ''NVARCHAR(MAX)'') AS GAFrm004ER
+                            FROM [UOF].[dbo].[TB_WKF_TASK] T
+                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] V
+                                ON V.FORM_VERSION_ID = T.FORM_VERSION_ID
+                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] F
+                                ON F.FORM_ID = V.FORM_ID
+                            CROSS APPLY T.CURRENT_DOC.nodes(''/Form/FormFieldValue/FieldItem/DataGrid/Row'') AS Rows(row)
+                            CROSS APPLY row.nodes(''Cell[@fieldId=""GAFrm004DN""]'') AS DN(cell)
+                            CROSS APPLY row.nodes(''Cell[@fieldId=""GAFrm004ER""]'') AS ER(cell)
+                            WHERE T.TASK_STATUS = ''2''
+                              AND T.TASK_RESULT = ''0''
+                              AND F.FORM_NAME = ''1004.總務修繕單''
+	                          AND T.[DOC_NBR] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN 
+                                                      (SELECT [DOC_NBR] FROM [192.168.1.105].[TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]);
+                        ') AS Q
+
                     ");
 
             try
