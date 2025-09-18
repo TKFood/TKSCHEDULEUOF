@@ -27430,87 +27430,72 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        //轉入1004.總務修繕單
         public void ADD_UOFGAFIXSNEW()
         {
             StringBuilder SQL = new StringBuilder();
             SQL.Clear();
 
-            SQL.AppendFormat(@" 
-                            INSERT INTO [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
-                            (
-                            [DOC_NBR]
-                            ,[GAFrm004SN]
-                            ,[GAFrm004SI]
-                            ,[GAFrm004SD]
-                            ,[GAFrm004Applydates]
-                            ,[GAFrm004DN]
-                            ,[GAFrm004ER]
-                            )
-                            SELECT 
-                             [DOC_NBR]
-                            ,[GAFrm004SN]
-                            ,[GAFrm004SI]
-                            ,[GAFrm004SD]
-                            ,[GAFrm004Applydates]
-                            ,[GAFrm004DN]
-                            ,[GAFrm004ER]
-                            FROM [192.168.1.223].[UOF].[dbo].[View_UOFGAFIXSNEW]
-                            WHERE 1=1 
-                            AND [DOC_NBR] COLLATE Chinese_Taiwan_Stroke_BIN  NOT IN (SELECT [DOC_NBR] FROM [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW] )
-                       
-                            ");
-
-
+            SQL.Append(@"
+                        INSERT INTO [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]
+                        (
+                            [DOC_NBR],
+                            [GAFrm004SN],
+                            [GAFrm004SI],
+                            [GAFrm004SD],
+                            [GAFrm004Applydates],
+                            [GAFrm004DN],
+                            [GAFrm004ER]
+                        )
+                        SELECT 
+                            [DOC_NBR],
+                            [GAFrm004SN],
+                            [GAFrm004SI],
+                            [GAFrm004SD],
+                            [GAFrm004Applydates],
+                            [GAFrm004DN],
+                            [GAFrm004ER]
+                        FROM [192.168.1.223].[UOF].[dbo].[View_UOFGAFIXSNEW]
+                        WHERE [DOC_NBR] COLLATE Chinese_Taiwan_Stroke_BIN NOT IN 
+                              (SELECT [DOC_NBR] FROM [TKGAFFAIRS].[dbo].[UOFGAFIXSNEW]);
+                    ");
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    sqlConn.Open();
+                    using (SqlTransaction tran = sqlConn.BeginTransaction())
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn, tran))
+                    {
+                        cmd.CommandTimeout = 60;
+
+                        int result = cmd.ExecuteNonQuery();
+
+                        if (result == 0)
+                        {
+                            tran.Rollback(); // 沒資料 → 回滾
+                        }
+                        else
+                        {
+                            tran.Commit();   // 有資料 → 提交
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                Console.WriteLine("ADD_UOFGAFIXSNEW 發生錯誤：" + ex.Message);
             }
         }
+
 
         public void UPDATE_ASTMB_ASTI02()
         {
@@ -39723,6 +39708,7 @@ namespace TKSCHEDULEUOF
         }
         private void button76_Click(object sender, EventArgs e)
         {
+            //轉入1004.總務修繕單
             ADD_UOFGAFIXSNEW();
         }
         private void button77_Click(object sender, EventArgs e)
