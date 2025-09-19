@@ -848,7 +848,7 @@ namespace TKSCHEDULEUOF
                     //要指定來客記錄的db的磁碟-X:\kldatabase.db
                     //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
 
-                    ADDTKMKt_visitors();
+                    //ADDTKMKt_visitors();
                 }
                 catch { }
             }
