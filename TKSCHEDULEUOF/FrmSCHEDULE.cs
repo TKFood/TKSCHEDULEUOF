@@ -26698,8 +26698,8 @@ namespace TKSCHEDULEUOF
                                             AND R.Cell.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') = '{1}'
                                             AND R.Cell.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') = '{2}'
                                             AND R.Cell.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') = '{3}'
-                                            AND R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)') = '{4}'",
-                        DOC_NBR, GG004, GG002, GG005, GG010);
+                                            AND LTRIM(RTRIM(R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)')))  LIKE N'{4}%'
+                        ",DOC_NBR, GG004, GG002, GG005, GG010);
 
                     adapter.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
 
