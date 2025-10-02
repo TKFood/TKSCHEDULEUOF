@@ -28595,6 +28595,7 @@ namespace TKSCHEDULEUOF
                                     ,COLOR AS '色澤'
                                     ,FLAVOR AS '風味'
                                     ,BATCHNO AS '產品批號'    
+
                                     FROM [TK].dbo.PURMA,[TK].dbo.MOCTH,[TK].dbo.MOCTI
                                     LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TI004
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= MOCTI.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
@@ -29007,6 +29008,34 @@ namespace TKSCHEDULEUOF
                 Cell = xmlDoc.CreateElement("Cell");
                 Cell.SetAttribute("fieldId", "STILLPCTS");
                 Cell.SetAttribute("fieldValue", od["有效百分比"].ToString());
+                Cell.SetAttribute("realValue", "");
+                Cell.SetAttribute("customValue", "");
+                Cell.SetAttribute("enableSearch", "True");
+                Cell.SetAttribute("fieldMessage", "Y");
+                //Row
+                Row.AppendChild(Cell);
+
+                // 1. 定義換行符號的實體參考
+                string newLine = "| ";
+                // 2. 收集所有需要串接的欄位值
+                List<string> values = new List<string>();
+                // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
+                //    使用 ?.ToString() 和 null 檢查來處理可能的 DBNull 或 null
+                string value1 = od["外包裝及驗收標準"]?.ToString();
+                if (!string.IsNullOrEmpty(value1)) values.Add("外包裝及驗收標準:" + value1);
+                string value2 = od["產品外觀"]?.ToString();
+                if (!string.IsNullOrEmpty(value2)) values.Add("產品外觀:" + value2);
+                string value3 = od["色澤"]?.ToString();
+                if (!string.IsNullOrEmpty(value3)) values.Add("色澤:" + value3);
+                string value4 = od["風味"]?.ToString();
+                if (!string.IsNullOrEmpty(value4)) values.Add("風味:" + value4);
+                string value5 = od["產品批號"]?.ToString();
+                if (!string.IsNullOrEmpty(value5)) values.Add("產品批號:" + value5);
+                // 5. 使用 String.Join()，只在 List 中的有效項目之間插入換行符號
+                string finalFieldValue = string.Join(newLine, values);
+                Cell = xmlDoc.CreateElement("Cell");
+                Cell.SetAttribute("fieldId", "SEPC");
+                Cell.SetAttribute("fieldValue", finalFieldValue);
                 Cell.SetAttribute("realValue", "");
                 Cell.SetAttribute("customValue", "");
                 Cell.SetAttribute("enableSearch", "True");
