@@ -6811,6 +6811,33 @@ namespace TKSCHEDULEUOF
                 cell.SetAttribute("fieldMessage", "Y");
                 row.AppendChild(cell);
 
+                // 1. 定義換行符號的實體參考
+                string newLine = "&#xD;&#xA;";
+                // 2. 收集所有需要串接的欄位值
+                List<string> values = new List<string>();
+                // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
+                //    使用 ?.ToString() 和 null 檢查來處理可能的 DBNull 或 null
+                string value1 = od["外包裝及驗收標準"]?.ToString();
+                if (!string.IsNullOrEmpty(value1)) values.Add(value1);
+                string value2 = od["產品外觀"]?.ToString();
+                if (!string.IsNullOrEmpty(value2)) values.Add(value2);
+                string value3 = od["色澤"]?.ToString();
+                if (!string.IsNullOrEmpty(value3)) values.Add(value3);
+                string value4 = od["風味"]?.ToString();
+                if (!string.IsNullOrEmpty(value4)) values.Add(value4);
+                string value5 = od["產品批號"]?.ToString();
+                if (!string.IsNullOrEmpty(value5)) values.Add(value5);
+                // 5. 使用 String.Join()，只在 List 中的有效項目之間插入換行符號
+                string finalFieldValue = string.Join(newLine, values);
+                cell = xmlDoc.CreateElement("Cell");
+                cell.SetAttribute("fieldId", "SPEC");
+                cell.SetAttribute("fieldValue", finalFieldValue);
+                cell.SetAttribute("realValue", "");
+                cell.SetAttribute("customValue", "");
+                cell.SetAttribute("enableSearch", "True");
+                cell.SetAttribute("fieldMessage", "Y");
+                row.AppendChild(cell);
+
                 dataGrid.AppendChild(row);
                 rowIndex++;
             }
@@ -7691,9 +7718,16 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=PURTH.CREATOR) AS 'MV002'
                                     ,(CASE WHEN ISDATE(TH036)=1 AND ISDATE(TH117)=1 THEN DATEDIFF(DAY,TH117,TH036) ELSE 0 END) AS '製造有效天數'
                                     ,(CASE WHEN ISDATE(TH036)=1 AND ISDATE(TH117)=1 THEN DATEDIFF(DAY,GETDATE(),TH036) ELSE 0 END) AS '本日有效天數'
-                                    
+                                    ,PACKAGE_SPEC AS '外包裝及驗收標準'
+                                    ,PRODUCT_APPEARANCE AS '產品外觀'
+                                    ,COLOR AS '色澤'
+                                    ,FLAVOR AS '風味'
+                                    ,BATCHNO AS '產品批號'  
+  
                                     FROM [TK].dbo.PURMA,[TK].dbo.PURTG,[TK].dbo.PURTH
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTH.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TH004
+
                                     WHERE 1=1
                                     AND TG001=TH001 AND TG002=TH002
                                     AND MA001=TG005
