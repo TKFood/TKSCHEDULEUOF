@@ -28590,7 +28590,13 @@ namespace TKSCHEDULEUOF
                                     ,PURMA.MA002
 									,(CASE WHEN ISDATE(TI011)=1 AND ISDATE(TI061)=1 THEN DATEDIFF(DAY,TI061,TI011) ELSE 0 END) AS '製造有效天數'
                                     ,(CASE WHEN ISDATE(TI011)=1 AND ISDATE(TI061)=1 THEN DATEDIFF(DAY,GETDATE(),TI011) ELSE 0 END) AS '本日有效天數'
+                                    ,PACKAGE_SPEC AS '外包裝及驗收標準'
+                                    ,PRODUCT_APPEARANCE AS '產品外觀'
+                                    ,COLOR AS '色澤'
+                                    ,FLAVOR AS '風味'
+                                    ,BATCHNO AS '產品批號'    
                                     FROM [TK].dbo.PURMA,[TK].dbo.MOCTH,[TK].dbo.MOCTI
+                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TI004
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= MOCTI.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE 1=1
                                     AND TH001=TI001 AND TH002=TI002
