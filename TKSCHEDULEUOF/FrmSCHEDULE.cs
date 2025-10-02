@@ -6812,7 +6812,7 @@ namespace TKSCHEDULEUOF
                 row.AppendChild(cell);
 
                 // 1. 定義換行符號的實體參考
-                string newLine = "| ";
+                string newLine = "\r\n ";
                 // 2. 收集所有需要串接的欄位值
                 List<string> values = new List<string>();
                 // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
@@ -11020,7 +11020,7 @@ namespace TKSCHEDULEUOF
                 AppendCellToRow(xmlDoc, Row, od, "STILLPCTS", true,"0.00%");
 
                 // 1. 定義換行符號的實體參考
-                string newLine = "| ";
+                string newLine = "\r\n ";
                 // 2. 收集所有需要串接的欄位值
                 List<string> values = new List<string>();
                 // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
@@ -29016,7 +29016,7 @@ namespace TKSCHEDULEUOF
                 Row.AppendChild(Cell);
 
                 // 1. 定義換行符號的實體參考
-                string newLine = "| ";
+                string newLine = "\r\n";
                 // 2. 收集所有需要串接的欄位值
                 List<string> values = new List<string>();
                 // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
