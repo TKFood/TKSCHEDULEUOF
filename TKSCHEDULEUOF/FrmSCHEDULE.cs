@@ -30862,12 +30862,13 @@ namespace TKSCHEDULEUOF
                                         FROM TEMP
                                         WHERE 1=1
                                         AND REPLACE(MJ001_FieldValue,' ','') NOT IN
-                                            (
-                                                SELECT REPLACE(MJ001,' ','')
+                                        (
+                                            SELECT REPLACE(MJ001,' ','')
 
-                                                FROM[192.168.1.105].[TK].dbo.BOMMJ
-                                        WHERE UDF02 LIKE 'BOM%'
-                                            )
+                                            FROM[192.168.1.105].[TK].dbo.BOMMJ
+                                            WHERE UDF02 LIKE 'BOM%'
+                                        )
+
 
                                     ");
 
@@ -31089,6 +31090,7 @@ namespace TKSCHEDULEUOF
                                     ,[MD036]
                                     ,[MD037]
                                     ,[MD038]
+                                  
                                     )
 
                                     SELECT 
@@ -31124,7 +31126,7 @@ namespace TKSCHEDULEUOF
                                     ,MK013 [MD013]
                                     ,MK014 [MD014]
                                     ,MK015 [MD015]
-                                    ,MK015 [MD016]
+                                    ,MK016 [MD016]
                                     ,MK017 [MD017]
                                     ,MK018 [MD018]
                                     ,MK020 [MD019]
@@ -31147,6 +31149,8 @@ namespace TKSCHEDULEUOF
                                     ,MB003 [MD036]
                                     ,'' [MD037]
                                     ,0 [MD038]
+                                   
+
                                     FROM [TK].[dbo].[BOMMK],[TK].[dbo].INVMB
                                     WHERE MK003=MB001
                                     AND MK001=@MK001
@@ -31187,7 +31191,7 @@ namespace TKSCHEDULEUOF
 
                 }
             }
-            catch
+            catch (Exception EX)
             {
 
             }
