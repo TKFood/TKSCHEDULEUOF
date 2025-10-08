@@ -28786,7 +28786,7 @@ namespace TKSCHEDULEUOF
             queryString.AppendFormat(@" 
                                     INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                      (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                     VALUES (NEWID(),@XML,2,'{1}')
+                                     VALUES (NEWID(),@XML,2,'{0}')
                                      ", EXTERNAL_FORM_NBR);
 
             try
@@ -28803,7 +28803,7 @@ namespace TKSCHEDULEUOF
                     connection.Dispose();
                 }
             }
-            catch
+            catch (Exception EX)
             {
                 // 錯誤處理
             }
