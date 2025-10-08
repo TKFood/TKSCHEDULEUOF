@@ -28069,97 +28069,87 @@ namespace TKSCHEDULEUOF
         }
 
         public DataTable FIND_UOF_ASTI06()
-        {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
+        {     
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                Class1 TKID = new Class1();
+                using (SqlConnection sqlConn = new SqlConnection())
+                {
+                   
+                    if (sbSql != null) sbSql.Clear();
+                    if (sbSqlQuery != null) sbSqlQuery.Clear();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                    // 解密連線資訊
+                    SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                    sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                    sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                    // 設定 Connection
+                    sqlConn.ConnectionString = sqlsb.ConnectionString;
+                  
+                    sbSql.AppendFormat(@"
+                                        WITH TEMP AS (
+                                            SELECT
+                                                [FORM_NAME],
+                                                [DOC_NBR],
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001_FieldValue,
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002_FieldValue,
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                                                TASK_ID,
+                                                TASK_STATUS,
+                                                TASK_RESULT
+                                            FROM [UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE [FORM_NAME] = 'ASTI06.資產改良建立作業'
+                                            AND TASK_STATUS = '2'
+                                            AND TASK_RESULT = '0'
 
-                sbSql.Clear();
-                sbSqlQuery.Clear();
+                                        )
+                                        SELECT TEMP.*,
+                                        (
+                                            SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                            FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                            LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                                ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                            WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                            ORDER BY FINISH_TIME DESC
+                                        ) AS ACCOUNT
+                                        FROM TEMP
+                                        WHERE 1=1
+                                        AND REPLACE(TC001_FieldValue+TC002_FieldValue,' ','') NOT IN
+                                        (
+                                            SELECT REPLACE(TC001+TC002,' ','')
 
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                        SELECT 
-                                            [FORM_NAME],
-                                            [DOC_NBR],
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001_FieldValue,
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002_FieldValue,
-
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'ASTI06.資產改良建立作業'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                    )
-                                    SELECT TEMP.*, 
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                    ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-                                    AND REPLACE(TC001_FieldValue+TC002_FieldValue,' ','') NOT  IN
-                                    (
-                                        SELECT REPLACE(TC001+TC002,' ','')
-
-                                        FROM [TK].dbo.ASTTC
-                                        WHERE TC015 IN ('Y')
-                                    )
-
+                                            FROM [TK].dbo.ASTTC
+                                            WHERE TC015 IN ('Y')
+                                        )
                                     ");
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
-                }
-
+                 
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    using (DataSet ds1 = new DataSet())
+                    {                       
+                        sqlConn.Open();
+                        ds1.Clear();
+                        adapter1.Fill(ds1, "ds1");
+                      
+                        if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
+                        {
+                            return ds1.Tables["ds1"];
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    } 
+                } 
             }
-            catch
+            
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message); // 僅用於示範，實際應用應使用 Log 框架
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
