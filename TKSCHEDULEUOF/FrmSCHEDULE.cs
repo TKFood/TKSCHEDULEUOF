@@ -28236,71 +28236,71 @@ namespace TKSCHEDULEUOF
 
         public void NEWPUR_MOCTH_MOCTI()
         {
+            // 獲取並解密連線字串 (保持邏輯不變)
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+            );
+
+            // 資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            // 核心優化：使用 using 語句確保連線資源釋放
+            // 移除不必要的 sqlConn 類級變數宣告和手動 close/finally 塊
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    // 由於 sbSql 和 sbSqlQuery 沒有在方法內宣告，假設它們是類別成員。
+                    if (sbSql != null) sbSql.Clear();
+                    if (sbSqlQuery != null) sbSqlQuery.Clear();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                sbSql.AppendFormat(@" 
-                                   SELECT TH001,TH002,UDF01
-                                    FROM [TK].dbo.MOCTH
-                                    WHERE TH023='N'
-                                    AND UDF01 IN ('Y','y')
-                                    ORDER BY TH001,TH002
-
-
+                    // SQL 查詢 (保持不變)
+                    sbSql.AppendFormat(@"
+                                        SELECT TH001,TH002,UDF01
+                                        FROM [TK].dbo.MOCTH
+                                        WHERE TH023='N'
+                                        AND UDF01 IN ('Y','y')
+                                        ORDER BY TH001,TH002
                                     ");
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    // 核心優化：移除不必要的 SqlCommandBuilder (僅讀取資料)
+                    // 將 DataAdapter 和 DataSet 放在 using 塊中確保資源釋放
+                    using (DataSet ds1 = new DataSet())
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
-                        ADD_MOCTH_MOCTI_TB_WKF_EXTERNAL_TASK2(dr["TH001"].ToString().Trim(), dr["TH002"].ToString().Trim());
-                    }
+                        sqlConn.Open();
+                        ds1.Clear();
+                        adapter1.Fill(ds1, "ds1");
+                        // using 語句會自動關閉連線
 
-                }
-                else
-                {
+                        // 簡化 if/else 邏輯
+                        DataTable DT = ds1.Tables["ds1"];
 
-                }
+                        if (DT?.Rows.Count >= 1)
+                        {
+                            // 核心優化：使用 AsEnumerable() 和 ?.ToString() 確保安全遍歷和取值
+                            foreach (DataRow dr in DT.AsEnumerable())
+                            {
+                                // 使用 Trim() 確保去除空白
+                                string th001 = dr["TH001"]?.ToString().Trim() ?? string.Empty;
+                                string th002 = dr["TH002"]?.ToString().Trim() ?? string.Empty;
 
+                                ADD_MOCTH_MOCTI_TB_WKF_EXTERNAL_TASK2(th001, th002);
+                            }
+                        }
+                    } // DataAdapter, DataSet 資源在這裡釋放
+                } // SqlConnection 連線在這裡自動關閉和釋放
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 建議：將空 catch 區塊替換為日誌記錄，利於調試和問題追蹤。
+                // 例如: LogHelper.Error(ex, "NEWPUR_MOCTH_MOCTI 執行失敗");
             }
-            finally
-            {
-                sqlConn.Close();
-            }
+            // 移除空的 finally 塊
 
+            // 保持獨立呼叫的方法不變
             UPDATE_PUR_MOCTH_UDF01();
         }
 
@@ -29082,62 +29082,60 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PUR_MOCTH_UDF01()
         {
+            // 獲取並解密連線字串 (保持邏輯不變)
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+            );
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            string connectionString = sqlsb.ConnectionString;
+
+            
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE   [TK].dbo.MOCTH
-                                    SET UDF01 = 'UOF'
-                                    WHERE  UDF01 IN ('Y','y')
-
-                                    ");
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    tran.Rollback();    //交易取消
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
+                    sqlConn.Open();
+                    
+                    SqlTransaction tran = sqlConn.BeginTransaction();
+                   
+                    using (SqlCommand cmd = new SqlCommand())
+                    {
+                        // SQL 語句 (保持不變)
+                        if (sbSql != null) sbSql.Clear();
+                        sbSql.AppendFormat(@"
+                                            UPDATE [TK].dbo.MOCTH
+                                            SET UDF01 = 'UOF'
+                                            WHERE UDF01 IN ('Y','y')
+                                        ");
 
-            }
-            catch
-            {
+                        // 設定 Command 屬性
+                        cmd.Connection = sqlConn;
+                        cmd.CommandTimeout = 60;
+                        cmd.CommandText = sbSql.ToString();
+                        cmd.Transaction = tran;
 
-            }
+                        int result = cmd.ExecuteNonQuery();
 
-            finally
-            {
-                sqlConn.Close();
+                        // 4. 簡化 Rollback/Commit 邏輯
+                        if (result == 0)
+                        {
+                            tran.Rollback();
+                        }
+                        else
+                        {
+                            tran.Commit();
+                        }
+                    } 
+                } 
             }
+            catch (Exception ex)
+            {                
+            }
+            
         }
-
         public void UPDATE_ASTTC_ASTI07()
         {
             string TC001 = "";
