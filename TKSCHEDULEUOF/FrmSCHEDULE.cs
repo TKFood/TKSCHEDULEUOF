@@ -29003,32 +29003,32 @@ namespace TKSCHEDULEUOF
             // SQL 語句 (保持不變)
             StringBuilder queryString = new StringBuilder();
             queryString.AppendFormat(@"
-                                    UPDATE [TK].dbo.ASTMB
-                                    SET
-                                    ASTMB.FLAG=ASTMB.FLAG+1
-                                    ,MB022=TC010
-                                    ,MB051=TC033
-                                    ,MB058=TC036
-                                    ,MB027=TC039
-                                    ,MB075=TC077
-                                    ,MB077=TC078
-                                    ,MB066=TC079
-                                    ,MODIFIER=@MODIFIER
-                                    ,MODI_DATE=@MODI_DATE
-                                    ,MODI_TIME=@MODI_TIME
-                                    FROM [TK].dbo.ASTTC
-                                    WHERE TC004=MB001
-                                    AND TC001=@TC001 AND TC002=@TC002
+                                        UPDATE [TK].dbo.ASTMB
+                                        SET
+                                        ASTMB.FLAG=ASTMB.FLAG+1
+                                        ,MB022=TC010
+                                        ,MB051=TC033
+                                        ,MB058=TC036
+                                        ,MB027=TC039
+                                        ,MB075=TC077
+                                        ,MB077=TC078
+                                        ,MB066=TC079
+                                        ,MODIFIER=@MODIFIER
+                                        ,MODI_DATE=@MODI_DATE
+                                        ,MODI_TIME=@MODI_TIME
+                                        FROM [TK].dbo.ASTTC
+                                        WHERE TC004=MB001
+                                        AND TC001=@TC001 AND TC002=@TC002
 
-                                    UPDATE [TK].dbo.ASTTC
-                                    SET
-                                    FLAG=FLAG+1
-                                    ,TC028=@MODIFIER
-                                    ,TC015=@TC015
-                                    ,TC032=@TC032
-                                    ,UDF02=@UDF02
-                                    WHERE TC001=@TC001 AND TC002=@TC002
-                                ");
+                                        UPDATE [TK].dbo.ASTTC
+                                        SET
+                                        FLAG=FLAG+1
+                                        ,TC028=@MODIFIER
+                                        ,TC015=@TC015
+                                        ,TC032=@TC032
+                                        ,UDF02=@UDF02
+                                        WHERE TC001=@TC001 AND TC002=@TC002
+                                    ");
 
             try
             {
@@ -29040,7 +29040,27 @@ namespace TKSCHEDULEUOF
                     command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
                     command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
 
-                    command.Parameters.Add("@TC015", SqlDbType.NVarChar).Value = TC01
+                    command.Parameters.Add("@TC015", SqlDbType.NVarChar).Value = TC015;
+                    command.Parameters.Add("@TC028", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@TC032", SqlDbType.NVarChar).Value = TC032;
+
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = MODI_DATE;
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = MODI_TIME;
+                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+
+                    connection.Open();
+                    int count = command.ExecuteNonQuery();
+
+                    // 移除手動 Close/Dispose
+                }
+            }
+            catch (Exception ex)
+            {
+                // 建議：將空 catch 區塊替換為日誌記錄。
+            }
+            // 移除空的 finally 區塊
+        }
         public void UPDATE_ASTTC_ASTI08()
         {
             string TC001 = "";
@@ -39752,6 +39772,7 @@ namespace TKSCHEDULEUOF
         {
             //TKUOF.TRIGGER.ASTI08.EndFormTrigger
             //ERP-ACT08資產報廢
+            //沒有使用
 
             UPDATE_ASTTC_ASTI08();
         }
