@@ -28868,213 +28868,179 @@ namespace TKSCHEDULEUOF
             }
             
         }
+
+        //ERP-ASTI07.資產重估建立作業
         public void UPDATE_ASTTC_ASTI07()
         {
-            string TC001 = "";
-            string TC002 = "";
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-
             DataTable DT = FIND_UOF_ASTI07();
 
-            if (DT != null && DT.Rows.Count >= 1)
+            // 這裡的 DT?.Rows.Count >= 1 已經包含了 DT 是否為 null 的判斷
+            if (DT?.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                // 使用 AsEnumerable() 進行遍歷 (現代 C# 慣例)
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    TC001 = DR["TC001_FieldValue"].ToString();
-                    TC002 = DR["TC002_FieldValue"].ToString();
-                    DOC_NBR = DR["DOC_NBR"].ToString();
-                    ACCOUNT = DR["ACCOUNT"].ToString();
+                    // 核心優化：變數移到局部作用域，並使用 ?.ToString() ?? string.Empty 
+                    // 防止 DBNull 錯誤，確保安全取值。
+                    string tc001 = DR["TC001_FieldValue"]?.ToString() ?? string.Empty;
+                    string tc002 = DR["TC002_FieldValue"]?.ToString() ?? string.Empty;
+                    string docNbr = DR["DOC_NBR"]?.ToString() ?? string.Empty;
+                    string account = DR["ACCOUNT"]?.ToString() ?? string.Empty;
 
-                    UPDATE_ASTMB_ASTI07_EXE(TC001, TC002, DOC_NBR, ACCOUNT);
+                    UPDATE_ASTMB_ASTI07_EXE(tc001, tc002, docNbr, account);
                 }
             }
         }
         public DataTable FIND_UOF_ASTI07()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            // 獲取並解密連線字串
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+            );
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            try
+            // 核心優化：使用 using 語句確保連線資源自動釋放
+            using (SqlConnection sqlConn = new SqlConnection(connectionString))
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                        SELECT 
-                                            [FORM_NAME],
-                                            [DOC_NBR],
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001_FieldValue,
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002_FieldValue,
-
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'ASTI07.資產重估建立作業'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                    )
-                                    SELECT TEMP.*, 
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                    ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-                                    AND REPLACE(TC001_FieldValue+TC002_FieldValue,' ','') NOT  IN
-                                        (
-                                            SELECT REPLACE(TC001+TC002,' ','')
-
-                                            FROM [TK].dbo.ASTTC
-                                            WHERE TC015 IN ('Y')
-                                        )
-
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 核心優化：移除不必要的 SqlCommandBuilder (此處為只讀操作)
+                // 核心優化：將 SqlDataAdapter 和 DataSet 放入 using 塊以確保資源釋放
+                using (DataSet ds1 = new DataSet())
                 {
-                    return ds1.Tables["ds1"];
+                    try
+                    {
+                        // 假設 sbSql 和 sbSqlQuery 是類別成員
+                        if (sbSql != null) sbSql.Clear();
+                        if (sbSqlQuery != null) sbSqlQuery.Clear();
 
-                }
-                else
-                {
-                    return null;
-                }
+                        // SQL 查詢 (保持不變)
+                        sbSql.AppendFormat(@"
+                                            WITH TEMP AS (
+                                                SELECT
+                                                    [FORM_NAME],
+                                                    [DOC_NBR],
+                                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001_FieldValue,
+                                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002_FieldValue,
+                                                    TASK_ID,
+                                                    TASK_STATUS,
+                                                    TASK_RESULT
+                                                FROM[UOF].[dbo].TB_WKF_TASK
+                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                                WHERE[FORM_NAME] = 'ASTI07.資產重估建立作業'
+                                                AND TASK_STATUS = '2'
+                                                AND TASK_RESULT = '0'
+                                            )
+                                            SELECT TEMP.*,
+                                            (
+                                                SELECT TOP 1[TB_EB_USER].ACCOUNT
+                                                FROM[UOF].[dbo].TB_WKF_TASK_NODE
+                                                LEFT JOIN[UOF].[dbo].[TB_EB_USER]
+                                                    ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                                WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                                ORDER BY FINISH_TIME DESC
+                                            ) AS ACCOUNT
+                                            FROM TEMP
+                                            WHERE 1=1
+                                            AND REPLACE(TC001_FieldValue+TC002_FieldValue,' ','') NOT  IN
+                                                (
+                                                    SELECT REPLACE(TC001+TC002,' ','')
+                                                    FROM [TK].dbo.ASTTC
+                                                    WHERE TC015 IN ('Y')
+                                                )
+                                        ");
 
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
+                        using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                        {
+                            sqlConn.Open();
+                            adapter1.Fill(ds1, "ds1");
+                            // 移除手動的 sqlConn.Close()，交由 using 處理
+                        }
+
+                        DataTable DT = ds1.Tables["ds1"];
+
+                        // 簡化回傳邏輯
+                        if (DT != null && DT.Rows.Count >= 1)
+                        {
+                            return DT;
+                        }
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        // 建議：在此處記錄例外 ex，而不是吞噬錯誤
+                        return null;
+                    }
+                    // 移除空的 finally 區塊
+                }
             }
         }
 
         public void UPDATE_ASTMB_ASTI07_EXE(string TC001, string TC002, string DOC_NBR, string ACCOUNT)
         {
-            string TC015 = "Y";
-            string TC032 = "N";
-            string TC003 = DateTime.Now.ToString("yyyyMMdd");
-            string COMPANY = "TK";
-            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            // 獲取一次時間，確保所有時間戳記一致，並修正時間格式。
+            DateTime now = DateTime.Now;
+
+            // 定義變數
+            const string TC015 = "Y";
+            const string TC032 = "N";
+            string MODI_DATE = now.ToString("yyyyMMdd");
+            string MODI_TIME = now.ToString("HH:mm:ss"); // 修正：使用 ss (秒)
             string MODIFIER = ACCOUNT;
             string FORMID = DOC_NBR;
 
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-
-            //資料庫使用者密碼解密
+            // 連線字串處理 (保持不變)
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString
+            );
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            // SQL 語句 (保持不變)
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"  
-                                     UPDATE [TK].dbo.ASTMB
-                                    SET 
+            queryString.AppendFormat(@"
+                                    UPDATE [TK].dbo.ASTMB
+                                    SET
                                     ASTMB.FLAG=ASTMB.FLAG+1
-                                     ,MB022=TC010
-                                    ,MB051=TC033 
+                                    ,MB022=TC010
+                                    ,MB051=TC033
                                     ,MB058=TC036
-                                    ,MB027=TC039 
+                                    ,MB027=TC039
                                     ,MB075=TC077
                                     ,MB077=TC078
-                                    ,MB066=TC079 
+                                    ,MB066=TC079
                                     ,MODIFIER=@MODIFIER
-                                    ,MODI_DATE=@MODI_DATE 
+                                    ,MODI_DATE=@MODI_DATE
                                     ,MODI_TIME=@MODI_TIME
                                     FROM [TK].dbo.ASTTC
                                     WHERE TC004=MB001
                                     AND TC001=@TC001 AND TC002=@TC002
 
                                     UPDATE [TK].dbo.ASTTC
-                                    SET 
+                                    SET
                                     FLAG=FLAG+1
-                                    ,TC028=@MODIFIER 
+                                    ,TC028=@MODIFIER
                                     ,TC015=@TC015
                                     ,TC032=@TC032
                                     ,UDF02=@UDF02
                                     WHERE TC001=@TC001 AND TC002=@TC002
- 
-                                        ");
+                                ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                // 核心優化：使用 using 語句確保連線 (SqlConnection) 和命令 (SqlCommand) 資源自動釋放
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    // 參數設定 (確保參數與前面定義的局部變數一致)
                     command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
                     command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
-                    
-                    command.Parameters.Add("@TC015", SqlDbType.NVarChar).Value = TC015;
-                    command.Parameters.Add("@TC028", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@TC032", SqlDbType.NVarChar).Value = TC032;
 
-                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
-                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
-                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
-                }
-            }
-            catch
-            {
-
-            }
-            finally
-            {
-
-            }
-        }
-
+                    command.Parameters.Add("@TC015", SqlDbType.NVarChar).Value = TC01
         public void UPDATE_ASTTC_ASTI08()
         {
             string TC001 = "";
@@ -39777,6 +39743,8 @@ namespace TKSCHEDULEUOF
         {
             //TKUOF.TRIGGER.ASTI07.EndFormTrigger
             //ASTI07.資產重估建立作業做確認
+            //ERP-ASTI07.資產重估建立作業
+            //沒有使用
 
             UPDATE_ASTTC_ASTI07();
         }
