@@ -12771,7 +12771,8 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "GA015", GA015, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA016", GA016, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA017", GA017, fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account);
+            //AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
+            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account, "", "@null");
             AddFieldItem(xmlDoc, FormFieldValue, "GA019", GA019, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA099", GA099, fillerName, fillerUserGuid, account);
 
