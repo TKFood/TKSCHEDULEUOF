@@ -26793,7 +26793,21 @@ namespace TKSCHEDULEUOF
                         string GA019 = row["GG010"].ToString();
                         string GA098 = "";
                         string GA099 = row["GA009"].ToString();
-                        string GA999 = row["GA010"].ToString().Trim();
+                        //string GA999 = row["GA010"].ToString().Trim();
+                        string GA999 = "";
+                        string input = row["GA010"].ToString().Trim();
+                        // 找到第一個左括號 '(' 的索引位置
+                        int index = input.IndexOf('(');              
+                        if (index > 0)
+                        {
+                            // 如果找到了，截取從索引 0 開始，長度為 index 的子字串
+                            GA999 = input.Substring(0, index);
+                        }
+                        else
+                        {
+                            // 如果沒有找到括號，則可能是整個字串都是名字
+                            GA999 = input;
+                        }
 
                         // 採購單負責人為空則預設
                         if (string.IsNullOrEmpty(GA999))
