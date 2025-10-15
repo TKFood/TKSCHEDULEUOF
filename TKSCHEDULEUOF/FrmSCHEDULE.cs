@@ -36925,7 +36925,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9002.品號變更通知");
+            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9002.品號變更通知(成品+外購品)");
 
             if (!string.IsNullOrEmpty(FORM_ID))
             {
@@ -36970,6 +36970,31 @@ namespace TKSCHEDULEUOF
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
 
+            //ID 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "ID2");
+
+            string newLine = Environment.NewLine;
+            string xmlContent = "本表單是通知「研發變更過的 成品品號、外購品品號 的資料」"  +newLine +
+                    "請協助確認變更後是否正確\n\n" + newLine+newLine +
+                    "變更欄位可能包含:\n" + newLine +
+                    "規格\n" + newLine +
+                    "有效天(月\\年)數\n" + newLine +
+                    "超收率%\n" + newLine +
+                    "標準售價\n" + newLine +
+                    "零售價\n" + newLine +
+                    "售價定價一\n" + newLine +
+                    "售價定價二\n\n" + newLine+newLine +
+                    "以上說明";
+            FieldItem.SetAttribute("fieldValue", xmlContent);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
 
 
             //建立節點FieldItem
@@ -39995,18 +40020,24 @@ namespace TKSCHEDULEUOF
 
             ADD_ERP_INVMB_TO_UOF_9001();
 
+            MessageBox.Show("OK");
+
         }
         private void button111_Click(object sender, EventArgs e)
         {
             //2001.產品開發+包裝設計申請單
             NEW_TO_TKRESEARCH_TB_PROJECTS_PRODUCTS();
 
+            MessageBox.Show("OK");
+
         }
         private void button112_Click(object sender, EventArgs e)
         {
-            //ERP品號變更通知單
-
+            //ERP品號變更通知單(成品+外購品)
+            //9002.品號變更通知(成品+外購品)
             ADD_ERP_INVMB_TO_UOF_9002();
+
+            MessageBox.Show("OK");
         }
 
         private void button113_Click(object sender, EventArgs e)
@@ -40015,11 +40046,15 @@ namespace TKSCHEDULEUOF
             //原始來源=2001.產品開發+包裝設計申請單
             //當行企主管必需，先指定「指定設計人員(由行企主管指定)」
             ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS();
+
+            MessageBox.Show("OK");
         }
         private void button114_Click(object sender, EventArgs e)
         {
             //更新 2001A.產品開發+包裝設計申請單(行企專用)
             UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER();
+
+            MessageBox.Show("OK");
         }
 
         private void button115_Click(object sender, EventArgs e)

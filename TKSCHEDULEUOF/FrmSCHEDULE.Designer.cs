@@ -828,7 +828,7 @@
             this.button112.Name = "button112";
             this.button112.Size = new System.Drawing.Size(155, 34);
             this.button112.TabIndex = 68;
-            this.button112.Text = "ERP品號變更通知單";
+            this.button112.Text = "ERP品號變更通知單(成品+外購品)";
             this.button112.UseVisualStyleBackColor = true;
             this.button112.Click += new System.EventHandler(this.button112_Click);
             // 
