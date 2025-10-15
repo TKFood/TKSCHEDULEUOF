@@ -26618,7 +26618,7 @@ namespace TKSCHEDULEUOF
                                     SELECT
                                         T.DOC_NBR,
                                         RowNode.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(200)') AS GG002,
-                                        RowNode.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)') AS GG010,
+                                        LTRIM(RTRIM(RowNode.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)'))) AS GG010,
                                         RowNode.value('(Cell[@fieldId=""GG003""]/@fieldValue)[1]', 'nvarchar(200)') AS GG003,
                                         RowNode.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') AS GG004,
                                         RowNode.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') AS GG005,
@@ -26759,7 +26759,7 @@ namespace TKSCHEDULEUOF
                                             AND R.Cell.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') = '{1}'
                                             AND R.Cell.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') = '{2}'
                                             AND R.Cell.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') = '{3}'
-                                            AND LTRIM(RTRIM(R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)')))  LIKE N'{4}%'
+                                            AND LTRIM(RTRIM(R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)')))  LIKE N'%{4}%'
                         ",DOC_NBR, GG004, GG002, GG005, GG010);
 
                     adapter.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
