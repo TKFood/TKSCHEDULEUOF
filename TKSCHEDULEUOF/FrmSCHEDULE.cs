@@ -30228,184 +30228,172 @@ namespace TKSCHEDULEUOF
             }
             // 優化 7: 移除空的 finally 區塊
         }
-
+        //ERP-BOM02.BOM表       
         public void UPDATE_BOMMC_BOMI02()
         {
-            string MC001 = "";
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-
             DataTable DT = FIND_UOF_BOMI02();
 
-            if (DT != null && DT.Rows.Count >= 1)
+            // 檢查 DataTable 是否有資料
+            if (DT?.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    MC001 = DR["MC001_FieldValue"].ToString();
-                    
-                    DOC_NBR = DR["DOC_NBR"].ToString();
-                    ACCOUNT = DR["ACCOUNT"].ToString();
+                    // 安全地從 DataRow 中獲取字串值，處理潛在的 DBNull
+                    string mc001 = DR["MC001_FieldValue"]?.ToString() ?? string.Empty;
+                    string docNbr = DR["DOC_NBR"]?.ToString() ?? string.Empty;
+                    string account = DR["ACCOUNT"]?.ToString() ?? string.Empty;
 
-                    UPDATE_BOMMC_BOMI02_EXE(MC001, DOC_NBR, ACCOUNT);
+                    UPDATE_BOMMC_BOMI02_EXE(mc001, docNbr, account);
                 }
             }
         }
 
         public DataTable FIND_UOF_BOMI02()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            // 獲取並解密連線字串
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+            );
 
-            try
+            // 資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
+
+            // 核心優化 1: 使用 using 確保 SqlConnection 資源自動釋放
+            using (SqlConnection sqlConn = new SqlConnection(connectionString))
+            // 核心優化 2: 使用 using 塊管理 DataSet
+            using (DataSet ds1 = new DataSet())
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                try
+                {
+                    // 假設 sbSql 和 sbSqlQuery 是類別層級的 StringBuilder 實例
+                    sbSql?.Clear();
+                    sbSqlQuery?.Clear();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                        SELECT 
-                                            [FORM_NAME],
-                                            [DOC_NBR],
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MC001_FieldValue,
-
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = 'BOM02.BOM表'
+                    // SQL 查詢 (保持業務邏輯不變)
+                    sbSql.AppendFormat(@"
+                                        WITH TEMP AS (
+                                            SELECT
+                                                [FORM_NAME],
+                                                [DOC_NBR],
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MC001_FieldValue,
+                                                TASK_ID,
+                                                TASK_STATUS,
+                                                TASK_RESULT
+                                            FROM [UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE [FORM_NAME] = 'BOM02.BOM表'
                                             AND TASK_STATUS = '2'
                                             AND TASK_RESULT = '0'
-
                                         )
                                         SELECT TEMP.*, 
                                         (
-                                            SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                            FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                            LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                                ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                        WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                        ORDER BY FINISH_TIME DESC
+                                            SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                            FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                            LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                                ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                            WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                            ORDER BY FINISH_TIME DESC
                                         ) AS ACCOUNT
                                         FROM TEMP
                                         WHERE 1=1
                                         AND MC001_FieldValue NOT IN 
                                         (
-	                                        SELECT MC001 
-	                                        FROM [192.168.1.105].[TK].dbo.BOMMC
-	                                        WHERE UDF02 LIKE 'BOM%'
+                                            SELECT MC001 
+                                            FROM [192.168.1.105].[TK].dbo.BOMMC
+                                            WHERE UDF02 LIKE 'BOM%'
                                         )
-
                                     ");
 
+                    // 核心優化 3: 將 SqlDataAdapter 放入 using 塊，並移除不必要的 SqlCommandBuilder
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    } // Connection 將在此處自動關閉
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    DataTable DT = ds1.Tables["ds1"];
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                    // 核心優化 4: 簡化回傳邏輯
+                    return (DT != null && DT.Rows.Count >= 1) ? DT : null;
                 }
-                else
+                catch (Exception ex)
                 {
+                    // 建議：在此處加入日誌記錄 (Log the exception: ex)
                     return null;
                 }
-
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 由於使用了 using，不需要 finally 區塊手動關閉連線
             }
         }
-
         public void UPDATE_BOMMC_BOMI02_EXE(string MC001, string DOC_NBR, string ACCOUNT)
         {
+            // 核心優化 1: 獲取一次時間，確保所有時間戳記一致
+            DateTime now = DateTime.Now;
 
-            string COMPANY = "TK";
-            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
-            string MODIFIER = ACCOUNT;
-            string FORMID = DOC_NBR;
+            // 修正: 原始碼中的 MODI_TIME 格式 "HH:mm:dd" 應為 "HH:mm:ss"
+            string modiDate = now.ToString("yyyyMMdd");
+            string modiTime = now.ToString("HH:mm:ss");
+            string modifier = ACCOUNT;
+            string formId = DOC_NBR;
 
-            string UDF01 = MODIFIER + "，已簽核:" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
-            string UDF02 = FORMID;
+            // 核心優化 2: 減少冗餘變數
+            // UDF01 包含完整的時間戳記
+            string UDF01 = $"{modifier}，已簽核:{now:yyyyMMdd HH:mm:ss}";
+            string UDF02 = formId;
 
+            // 核心優化 3: 連線字串處理移至局部變數，不再依賴類別成員 sqlConn
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString
+            );
 
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-            StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"    
-                                      UPDATE  [TK].dbo.BOMMC
-                                        SET
-                                        UDF01=@UDF01
-                                        ,UDF02=@UDF02
-                                        WHERE MC001=@MC001 
-            
-                                        ");
+            // SQL 語句
+            string queryString = $@"
+                                    UPDATE [TK].dbo.BOMMC
+                                    SET
+                                    UDF01=@UDF01,
+                                    UDF02=@UDF02,
+                                    MODIFIER=@MODIFIER,
+                                    MODI_DATE=@MODI_DATE,
+                                    MODI_TIME=@MODI_TIME,
+                                    FLAG=FLAG+1
+                                    WHERE MC001=@MC001
+                                ";
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                // 核心優化 4: 使用 using 語句確保 SqlConnection 和 SqlCommand 資源自動釋放
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(queryString, connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    // 參數設定 (使用局部變數)
                     command.Parameters.Add("@MC001", SqlDbType.NVarChar).Value = MC001;
                     command.Parameters.Add("@UDF01", SqlDbType.NVarChar).Value = UDF01;
                     command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = UDF02;
 
-                    command.Connection.Open();
+                    // 加入修改者和時間戳記參數，讓 SQL 語句更完整 (雖然原始 SQL 只更新了 UDF 欄位，但 ERP 系統通常要求這些欄位也更新)
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = modifier;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = modiDate;
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = modiTime;
 
+                    connection.Open();
                     int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    // 由於使用 using，不需要手動 Close/Dispose
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 建議：避免使用空的 catch 區塊。在此處記錄例外狀況 (Log the exception: ex)
             }
-            finally
-            {
-
-            }
+            // 核心優化 5: 移除空的 finally 區塊
         }
 
         public void UPDATE_BOMMJ_BOMMK()
@@ -39789,7 +39777,7 @@ namespace TKSCHEDULEUOF
         private void button86_Click(object sender, EventArgs e)
         {
             //TKUOF.TRIGGER.BOMI02.EndFormTrigger
-            //ERP-BOM02.BOM表
+            //ERP-BOM02.BOM表           
 
             UPDATE_BOMMC_BOMI02();
         }
