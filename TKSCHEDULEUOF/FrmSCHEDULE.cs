@@ -30655,18 +30655,16 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        
+
         public DataTable FIND_UOF_MOCTA_BOMTB_BOMTC()
         {
-            // 宣告資源，使用類別級別的 sqlConn 變數 (保持原始結構)
-            // 移除不必要的 SqlCommandBuilder
-            SqlDataAdapter adapter1 = null;
             DataSet ds1 = new DataSet();
-
-            // 假設 sqlConn 是類別級別的 SqlConnection 實例
+            string connectionString = string.Empty;
 
             try
             {
-                // 1. 連線字串處理與解密 (保持不變)
+                // 1. 連線字串處理與解密
                 Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
                     ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
@@ -30674,12 +30672,9 @@ namespace TKSCHEDULEUOF
 
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                connectionString = sqlsb.ConnectionString;
 
-                // 重新初始化類別級別的 sqlConn 實例
-                // 確保 sqlConn 在這裡被賦值，且沒有 using 語句來管理它
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                // 2. 準備 SQL 查詢 (假設 sbSql/sbSqlQuery 是類別級別的實例)
+                // 2. 準備 SQL 查詢
                 sbSql?.Clear();
                 sbSqlQuery?.Clear();
 
@@ -30700,7 +30695,7 @@ namespace TKSCHEDULEUOF
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
                                     )
-                                    SELECT TEMP.*, 
+                                    SELECT TEMP.*,
                                     (
                                         SELECT TOP 1 [TB_EB_USER].ACCOUNT
                                         FROM [UOF].[dbo].TB_WKF_TASK_NODE
@@ -30712,41 +30707,40 @@ namespace TKSCHEDULEUOF
                                     FROM TEMP
                                     WHERE 1=1
                                     AND TA002_FieldValue >= '20240901001'
-                                    AND REPLACE(TA001_FieldValue + TA002_FieldValue, ' ', '') NOT IN 
+                                    AND REPLACE(TA001_FieldValue + TA002_FieldValue, ' ', '') NOT IN
                                     (
                                         SELECT REPLACE(TA001 + TA002, ' ', '')
                                         FROM [192.168.1.105].[TK].dbo.BOMTA
                                         WHERE TA007 IN ('Y')
                                     )
-                                    ");
+                                ");
 
-                // 3. 執行資料庫操作
-                adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                // 3. 執行資料庫操作 (使用 using 管理連線和 Adapter)
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        sqlConn.Open();
+                        ds1.Clear();
+                        adapter1.Fill(ds1, "ds1");
+                    }
+                }
 
-                // 移除了不必要的 SqlCommandBuilder 實例化
-
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-                // 4. 簡化回傳邏輯
+                // 4. 回傳結果
                 DataTable resultTable = ds1.Tables["ds1"];
-
                 return (resultTable != null && resultTable.Rows.Count >= 1) ? resultTable : null;
             }
-            catch (Exception EX)
+            catch
             {
-                // 建議: 這裡應記錄異常 (Log the exception)，但根據原始碼，保持回傳 null
                 return null;
             }
             finally
             {
-                // 5. 優化 finally 塊，確保連線在關閉前是開放狀態
-                if (sqlConn != null && sqlConn.State == ConnectionState.Open)
+                // 釋放 DataSet 資源
+                if (ds1 != null)
                 {
-                    sqlConn.Close();
+                    ds1.Dispose();
                 }
-                // 由於您使用了類別級別的 sqlConn 變數，因此這裡只關閉連線，不進行 Dispose
             }
         }
         public void FIND_UOF_MOCTA_BOMTB_BOMTC_EXE(string TA001, string TA002, string DOC_NBR, string ACCOUNT)
