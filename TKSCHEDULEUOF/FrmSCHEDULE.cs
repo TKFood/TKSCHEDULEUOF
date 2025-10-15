@@ -36976,15 +36976,15 @@ namespace TKSCHEDULEUOF
 
             string newLine = Environment.NewLine;
             string xmlContent = "本表單是通知「研發變更過的 成品品號、外購品品號 的資料」"  +newLine +
-                    "請協助確認變更後是否正確\n\n" + newLine+newLine +
-                    "變更欄位可能包含:\n" + newLine +
-                    "規格\n" + newLine +
-                    "有效天(月\\年)數\n" + newLine +
-                    "超收率%\n" + newLine +
-                    "標準售價\n" + newLine +
-                    "零售價\n" + newLine +
-                    "售價定價一\n" + newLine +
-                    "售價定價二\n\n" + newLine+newLine +
+                    "請協助確認變更後是否正確" + newLine+newLine +
+                    "變更欄位可能包含:" + newLine +
+                    "規格" + newLine +
+                    "有效天(月\\年)數" + newLine +
+                    "超收率%" + newLine +
+                    "標準售價" + newLine +
+                    "零售價" + newLine +
+                    "售價定價一" + newLine +
+                    "售價定價二" + newLine+newLine +
                     "以上說明";
             FieldItem.SetAttribute("fieldValue", xmlContent);
             FieldItem.SetAttribute("realValue", "");
@@ -38944,7 +38944,7 @@ namespace TKSCHEDULEUOF
 
                                     FROM [TK].dbo.INVMB WITH(NOLOCK)
                                     LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='7' AND MB113=MA002
-                                    WHERE (MB001 LIKE '1%')
+                                    WHERE (MB001 LIKE '1%' OR MB001 LIKE '2%' )
                                     AND INVMB.CREATE_DATE LIKE '{0}%'
                                     ORDER BY MB001
 
@@ -39005,7 +39005,7 @@ namespace TKSCHEDULEUOF
             XmlElement Form = xmlDoc.CreateElement("Form");
 
             //正式的id
-            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9003.新品號明細的通知");
+            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9003.新品號明細的通知(原料+物料)");
 
             if (!string.IsNullOrEmpty(FORM_ID))
             {
@@ -39049,7 +39049,24 @@ namespace TKSCHEDULEUOF
             FieldItem.SetAttribute("fillSiteId", "");
             //加入至members節點底下
             FormFieldValue.AppendChild(FieldItem);
-          
+
+            //ID 表單編號	
+            FieldItem = xmlDoc.CreateElement("FieldItem");
+            FieldItem.SetAttribute("fieldId", "ID2");
+
+            string newLine = Environment.NewLine;
+            string xmlContent = "本表單是通知「研發新增的的 原料品號、物料品號 的資料」" + newLine +
+                    "請協助確認資料是否正確";                 
+            FieldItem.SetAttribute("fieldValue", xmlContent);
+            FieldItem.SetAttribute("realValue", "");
+            FieldItem.SetAttribute("enableSearch", "True");
+            FieldItem.SetAttribute("fillerName", fillerName);
+            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
+            FieldItem.SetAttribute("fillerAccount", account);
+            FieldItem.SetAttribute("fillSiteId", "");
+            //加入至members節點底下
+            FormFieldValue.AppendChild(FieldItem);
+
 
             //建立節點FieldItem
             //MB001	
@@ -40077,6 +40094,7 @@ namespace TKSCHEDULEUOF
             //ERP品號明細通知單
 
             ADD_ERP_INVMB_TO_UOF_9003();
+            MessageBox.Show("OK");
         }
 
         #endregion
