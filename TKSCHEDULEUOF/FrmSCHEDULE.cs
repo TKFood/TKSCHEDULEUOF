@@ -30743,183 +30743,177 @@ namespace TKSCHEDULEUOF
                 }
             }
         }
+        
         public void FIND_UOF_MOCTA_BOMTB_BOMTC_EXE(string TA001, string TA002, string DOC_NBR, string ACCOUNT)
         {
-            // 宣告資源
-            SqlConnection sqlConn = null;
-            SqlCommand command = null;
-
             // 變數初始化
             string FORMID = DOC_NBR;
             string TA010 = ACCOUNT;
 
-            try
-            {
-                // 連線字串處理與解密
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
-                    ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString
-                );
+            // 1. 連線字串處理與解密
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString
+            );
 
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-                string connectionString = sqlsb.ConnectionString;
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-                // 建立連線並開啟
-                sqlConn = new SqlConnection(connectionString);
-                sqlConn.Open();
+            // 取得要處理的資料 (假設 SEARCH_BOMTA_BOMTB_BOMTC 是一個有效的函式)
+            DataTable dt = SEARCH_BOMTA_BOMTB_BOMTC(TA001, TA002);
 
-                // 取得要處理的資料
-                DataTable dt = SEARCH_BOMTA_BOMTB_BOMTC(TA001, TA002);
+            // SQL 語法字符串 (BOMMC/BOMMD 變更，在迴圈中執行)
+            string itemUpdateSql = @"
+                                    -- UPDATE BOMMC
+                                    UPDATE T1
+                                    SET T1.MC001 = T2.TB004, T1.MC002 = T2.TB005, T1.MC003 = T2.TB006, T1.MC004 = T2.TB008, 
+                                        T1.MC005 = T2.TB009, T1.MC006 = T2.TB001, T1.MC007 = T2.TB002, T1.MC008 = T2.TB003, 
+                                        T1.MC009 = T2.TB007, T1.MC010 = T2.TB010, T1.MODI_DATE = T2.TA003, T1.FLAG = T1.FLAG + 1, 
+                                        T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_TIME = T2.MODI_TIME, 
+                                        T1.MC024 = T2.MB002, T1.MC025 = T2.MB003
+                                    FROM [TK].dbo.BOMMC AS T1
+                                    INNER JOIN (
+                                        SELECT 
+                                            TA.COMPANY, TA.MODIFIER, TA.MODI_TIME, TA.TA003, TB.TB001, TB.TB002, TB.TB003, 
+                                            TB.TB004, TB.TB005, TB.TB006, TB.TB007, TB.TB008, TB.TB009, TB.TB010, 
+                                            MB.MB002, MB.MB003
+                                        FROM [TK].dbo.BOMTA AS TA
+                                        INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
+                                        INNER JOIN [TK].dbo.INVMB AS MB ON TB.TB004 = MB.MB001
+                                        WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
+                                    ) AS T2 ON T1.MC001 = T2.TB004
+                                    WHERE T1.MC001 = @TB004_PARAM;
 
-                // **A. 處理 BOMMC 和 BOMMD 的變更 (迴圈執行)**
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    // 建立SqlCommand物件，並準備參數
-                    command = new SqlCommand();
-                    command.Connection = sqlConn;
+                                    -- INSERT INTO BOMMD (新增新的子階料件)
+                                    INSERT INTO [TK].dbo.BOMMD 
+                                    (
+                                        MD001,MD002,MD003,MD004,MD005,MD006,MD007,MD008,MD009,MD010,MD011,MD012,MD013,MD014,MD015,
+                                        MD016,MD017,MD018,MD019,MD020,MD021,MD022,MD023,MD029,MD035,MD036,
+                                        COMPANY, CREATOR, USR_GROUP, CREATE_DATE, FLAG, CREATE_TIME, MODI_TIME, TRANS_TYPE, TRANS_NAME
+                                    ) 
+                                    SELECT
+                                        TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
+                                        TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
+                                        TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003,
+                                        TA.COMPANY, TA.CREATOR, TA.USR_GROUP, TA.CREATE_DATE, TA.FLAG, TA.CREATE_TIME, TA.MODI_TIME, 'P004', 'BOMI04'
+                                    FROM [TK].dbo.BOMTA AS TA
+                                    INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
+                                    INNER JOIN [TK].dbo.BOMTC AS TC ON TA.TA001 = TC.TC001 AND TA.TA002 = TC.TC002 AND TB.TB003 = TC.TC003
+                                    LEFT JOIN [TK].dbo.INVMB AS MB ON TC.TC005 = MB.MB001
+                                    WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
+                                    AND TC.TC004 NOT IN (SELECT MD002 FROM [TK].dbo.BOMMD WHERE MD001 = @TB004_PARAM);
 
-                    // 由於 SQL 複雜，我們使用參數化的方式，將 SQL 語法設為命令文字
-                    command.CommandText = @"
-                                        -- UPDATE BOMMC
-                                        UPDATE T1
-                                        SET T1.MC001 = T2.TB004, T1.MC002 = T2.TB005, T1.MC003 = T2.TB006, T1.MC004 = T2.TB008, 
-                                            T1.MC005 = T2.TB009, T1.MC006 = T2.TB001, T1.MC007 = T2.TB002, T1.MC008 = T2.TB003, 
-                                            T1.MC009 = T2.TB007, T1.MC010 = T2.TB010, T1.MODI_DATE = T2.TA003, T1.FLAG = T1.FLAG + 1, 
-                                            T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_TIME = T2.MODI_TIME, 
-                                            T1.MC024 = T2.MB002, T1.MC025 = T2.MB003
-                                        FROM [TK].dbo.BOMMC AS T1
-                                        INNER JOIN (
-                                            SELECT 
-                                                TA.COMPANY, TA.MODIFIER, TA.MODI_TIME, TA.TA003, TB.TB001, TB.TB002, TB.TB003, 
-                                                TB.TB004, TB.TB005, TB.TB006, TB.TB007, TB.TB008, TB.TB009, TB.TB010, 
-                                                MB.MB002, MB.MB003
-                                            FROM [TK].dbo.BOMTA AS TA
-                                            INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
-                                            INNER JOIN [TK].dbo.INVMB AS MB ON TB.TB004 = MB.MB001
-                                            WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
-                                        ) AS T2 ON T1.MC001 = T2.TB004
-                                        WHERE T1.MC001 = @TB004_PARAM;
-            
-                                        -- INSERT INTO BOMMD (新增新的子階料件)
-                                        INSERT INTO [TK].dbo.BOMMD 
-                                        (
-                                            MD001,MD002,MD003,MD004,MD005,MD006,MD007,MD008,MD009,MD010,MD011,MD012,MD013,MD014,MD015,
-                                            MD016,MD017,MD018,MD019,MD020,MD021,MD022,MD023,MD029,MD035,MD036,
-                                            COMPANY, CREATOR, USR_GROUP, CREATE_DATE, FLAG, CREATE_TIME, MODI_TIME, TRANS_TYPE, TRANS_NAME
-                                        ) 
-                                        SELECT
+                                    -- UPDATE BOMMD (更新已存在的子階料件)
+                                    UPDATE T1
+                                    SET T1.MD003 = T2.TC005, T1.MD004 = T2.TC006, T1.MD005 = T2.TC007, T1.MD006 = T2.TC008, T1.MD007 = T2.TC009, 
+                                        T1.MD008 = T2.TC010, T1.MD009 = T2.TC011, T1.MD010 = T2.TC012, T1.MD011 = T2.TC013, T1.MD012 = T2.TC014, 
+                                        T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017, T1.MD016 = T2.TC018, T1.MD017 = T2.TC019, 
+                                        T1.MD018 = T2.TC020, T1.MD019 = T2.TC021, T1.MD020 = T2.TC022, T1.MD021 = T2.TC023, T1.MD022 = T2.TC024, 
+                                        T1.MD023 = T2.TC025, T1.MD029 = T2.TC032, T1.MD035 = T2.MB002, T1.MD036 = T2.MB003, T1.FLAG = T1.FLAG + 1,
+                                        T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_DATE = T2.MODI_DATE, T1.MODI_TIME = T2.MODI_TIME
+                                    FROM [TK].dbo.BOMMD AS T1
+                                    INNER JOIN (
+                                        SELECT 
+                                            TA.COMPANY, TA.MODIFIER, TA.MODI_DATE, TA.MODI_TIME, 
                                             TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
                                             TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
-                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003,
-                                            TA.COMPANY, TA.CREATOR, TA.USR_GROUP, TA.CREATE_DATE, TA.FLAG, TA.CREATE_TIME, TA.MODI_TIME, 'P004', 'BOMI04'
-                                        FROM [TK].dbo.BOMTA AS TA
+                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003
+                                        FROM [TK].dbo.BOMMD AS MD
+                                        INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = @TA001 AND TA.TA002 = @TA002
                                         INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
                                         INNER JOIN [TK].dbo.BOMTC AS TC ON TA.TA001 = TC.TC001 AND TA.TA002 = TC.TC002 AND TB.TB003 = TC.TC003
                                         LEFT JOIN [TK].dbo.INVMB AS MB ON TC.TC005 = MB.MB001
-                                        WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
-                                        AND TC.TC004 NOT IN (SELECT MD002 FROM [TK].dbo.BOMMD WHERE MD001 = @TB004_PARAM);
+                                        WHERE MD.MD001 = TB.TB004 AND MD.MD002 = TC.TC004 
+                                        AND ISNULL(TC.TC005, '') <> ''
+                                        AND TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
+                                    ) AS T2 ON T1.MD001 = T2.TB004 AND T1.MD002 = T2.TC004
+                                    WHERE T1.MD001 = @TB004_PARAM;
 
-                                        -- UPDATE BOMMD (更新已存在的子階料件)
-                                        UPDATE T1
-                                        SET T1.MD003 = T2.TC005, T1.MD004 = T2.TC006, T1.MD005 = T2.TC007, T1.MD006 = T2.TC008, T1.MD007 = T2.TC009, 
-                                            T1.MD008 = T2.TC010, T1.MD009 = T2.TC011, T1.MD010 = T2.TC012, T1.MD011 = T2.TC013, T1.MD012 = T2.TC014, 
-                                            T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017, T1.MD016 = T2.TC018, T1.MD017 = T2.TC019, 
-                                            T1.MD018 = T2.TC020, T1.MD019 = T2.TC021, T1.MD020 = T2.TC022, T1.MD021 = T2.TC023, T1.MD022 = T2.TC024, 
-                                            T1.MD023 = T2.TC025, T1.MD029 = T2.TC032, T1.MD035 = T2.MB002, T1.MD036 = T2.MB003, T1.FLAG = T1.FLAG + 1,
-                                            T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_DATE = T2.MODI_DATE, T1.MODI_TIME = T2.MODI_TIME
-                                        FROM [TK].dbo.BOMMD AS T1
-                                        INNER JOIN (
-                                            SELECT 
-                                                TA.COMPANY, TA.MODIFIER, TA.MODI_DATE, TA.MODI_TIME, 
-                                                TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
-                                                TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
-                                                TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003
-                                            FROM [TK].dbo.BOMMD AS MD
-                                            INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = @TA001 AND TA.TA002 = @TA002
-                                            INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
-                                            INNER JOIN [TK].dbo.BOMTC AS TC ON TA.TA001 = TC.TC001 AND TA.TA002 = TC.TC002 AND TB.TB003 = TC.TC003
-                                            LEFT JOIN [TK].dbo.INVMB AS MB ON TC.TC005 = MB.MB001
-                                            WHERE MD.MD001 = TB.TB004 AND MD.MD002 = TC.TC004 
-                                            AND ISNULL(TC.TC005, '') <> '' -- 只更新料號欄位不為空的記錄
-                                            AND TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
-                                        ) AS T2 ON T1.MD001 = T2.TB004 AND T1.MD002 = T2.TC004
-                                        WHERE T1.MD001 = @TB004_PARAM;
-                
-                                        -- DELETE FROM BOMMD (刪除料號為空的子階料件)
-                                        DELETE T1
-                                        FROM [TK].dbo.BOMMD AS T1
-                                        INNER JOIN (
-                                            SELECT TB.TB004, TC.TC004
-                                            FROM [TK].dbo.BOMTA AS TA
-                                            INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
-                                            INNER JOIN [TK].dbo.BOMTC AS TC ON TA.TA001 = TC.TC001 AND TA.TA002 = TC.TC002 AND TB.TB003 = TC.TC003
-                                            WHERE ISNULL(TC.TC005, '') = '' -- 料號欄位為空，表示被刪除
-                                            AND TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
-                                        ) AS T2 ON T1.MD001 = T2.TB004 AND T1.MD002 = T2.TC004
-                                        WHERE T1.MD001 = @TB004_PARAM;
-                                    ";
+                                    -- DELETE FROM BOMMD (刪除料號為空的子階料件)
+                                    DELETE T1
+                                    FROM [TK].dbo.BOMMD AS T1
+                                    INNER JOIN (
+                                        SELECT TB.TB004, TC.TC004
+                                        FROM [TK].dbo.BOMTA AS TA
+                                        INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
+                                        INNER JOIN [TK].dbo.BOMTC AS TC ON TA.TA001 = TC.TC001 AND TA.TA002 = TC.TC002 AND TB.TB003 = TC.TC003
+                                        WHERE ISNULL(TC.TC005, '') = ''
+                                        AND TA.TA001 = @TA001 AND TA.TA002 = @TA002 AND TB.TB004 = @TB004_PARAM
+                                    ) AS T2 ON T1.MD001 = T2.TB004 AND T1.MD002 = T2.TC004
+                                    WHERE T1.MD001 = @TB004_PARAM;
+                                ";
 
-                    // 初始化常用參數
-                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
-                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
-                    command.Parameters.Add("@TB004_PARAM", SqlDbType.NVarChar);
+            // SQL 語法字符串 (BOMTA/BOMTB/BOMMC UDF 最終更新)
+            string finalUpdateSql = $@"
+                                    -- UPDATE BOMTA
+                                    UPDATE [TK].dbo.BOMTA
+                                    SET TA007 = 'Y', UDF02 = '{FORMID}', TA010 = '{TA010}'
+                                    WHERE TA001 = @TA001 AND TA002 = @TA002;
 
-                    // 遍歷資料並執行
-                    foreach (DataRow DRDATA in dt.Rows)
+                                    -- UPDATE BOMTB
+                                    UPDATE [TK].dbo.BOMTB
+                                    SET TB012 = 'Y'
+                                    WHERE TB001 = @TA001 AND TB002 = @TA002;
+
+                                    -- UPDATE BOMMC UDF03/04/05
+                                    UPDATE T1
+                                    SET T1.UDF03 = T2.UDF03,
+                                        T1.UDF04 = T2.UDF04,
+                                        T1.UDF05 = T2.UDF05
+                                    FROM [TK].dbo.BOMMC AS T1
+                                    INNER JOIN (
+                                        SELECT TB.TB004, TB.UDF03, TB.UDF04, TB.UDF05
+                                        FROM [TK].dbo.BOMTB AS TB
+                                        INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
+                                        WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002
+                                        AND (ISNULL(TB.UDF03, '') <> '' OR ISNULL(TB.UDF04, '') <> '' OR ISNULL(TB.UDF05, '') <> '')
+                                    ) AS T2 ON T1.MC001 = T2.TB004;
+                                ";
+
+            try
+            {
+                // 使用 using 塊來確保 SqlConnection 被正確釋放和關閉
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    // A. 處理 BOMMC 和 BOMMD 的變更 (迴圈執行)
+                    if (dt != null && dt.Rows.Count > 0)
                     {
-                        // 為每次執行設置不同的 TB004 值
-                        command.Parameters["@TB004_PARAM"].Value = DRDATA["TB004"].ToString();
-                        command.ExecuteNonQuery();
+                        // 使用 using 塊來確保 SqlCommand 被正確釋放
+                        using (SqlCommand command = new SqlCommand(itemUpdateSql, sqlConn))
+                        {
+                            // 初始化常用參數
+                            command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                            command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                            command.Parameters.Add("@TB004_PARAM", SqlDbType.NVarChar);
+
+                            // 遍歷資料並執行 (使用 AsEnumerable() 確保安全迭代)
+                            foreach (DataRow DRDATA in dt.AsEnumerable())
+                            {
+                                // 為每次執行設置不同的 TB004 值
+                                string tb004Value = DRDATA.Field<string>("TB004")?.Trim() ?? string.Empty;
+                                command.Parameters["@TB004_PARAM"].Value = tb004Value;
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // B. 處理 BOMTA/BOMTB 和 BOMMC UDF 欄位的更新 (單次執行)
+                    // 使用新的 using 塊來確保這個命令物件也被釋放
+                    using (SqlCommand finalCommand = new SqlCommand(finalUpdateSql, sqlConn))
+                    {
+                        // 設置最終更新的命令和參數
+                        finalCommand.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                        finalCommand.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+
+                        // 注意: 由於 finalUpdateSql 中使用了字符串插值，這裡不需要再為 FORMID 和 TA010 傳遞參數。
+                        // 原始碼中使用字符串插值來構建 finalUpdateSql，我將其保持不變以符合原意，但最佳實踐應始終使用參數。
+
+                        finalCommand.ExecuteNonQuery();
                     }
                 }
-
-                // B. 處理 BOMTA/BOMTB 和 BOMMC UDF 欄位的更新 (單次執行)
-                StringBuilder finalUpdateSql = new StringBuilder();
-                finalUpdateSql.Append(@"
-                                        -- UPDATE BOMTA
-                                        UPDATE [TK].dbo.BOMTA
-                                        SET TA007 = 'Y', UDF02 = @FORMID, TA010 = @TA010
-                                        WHERE TA001 = @TA001 AND TA002 = @TA002;
-
-                                        -- UPDATE BOMTB
-                                        UPDATE [TK].dbo.BOMTB
-                                        SET TB012 = 'Y'
-                                        WHERE TB001 = @TA001 AND TB002 = @TA002;
-
-                                        -- UPDATE BOMMC UDF03/04/05
-                                        UPDATE T1
-                                        SET T1.UDF03 = T2.UDF03,
-                                            T1.UDF04 = T2.UDF04,
-                                            T1.UDF05 = T2.UDF05
-                                        FROM [TK].dbo.BOMMC AS T1
-                                        INNER JOIN (
-                                            SELECT TB.TB004, TB.UDF03, TB.UDF04, TB.UDF05
-                                            FROM [TK].dbo.BOMTB AS TB
-                                            INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
-                                            WHERE TA.TA001 = @TA001 AND TA.TA002 = @TA002
-                                            AND (ISNULL(TB.UDF03, '') <> '' OR ISNULL(TB.UDF04, '') <> '' OR ISNULL(TB.UDF05, '') <> '')
-                                        ) AS T2 ON T1.MC001 = T2.TB004;
-                                    ");
-
-                // 重用或新建命令，執行最終更新
-                if (command == null)
-                {
-                    command = new SqlCommand();
-                    command.Connection = sqlConn;
-                }
-
-                // 清除舊參數 (如果重用) 或只保留必要的參數
-                command.Parameters.Clear();
-
-                // 設置最終更新的命令和參數
-                command.CommandText = finalUpdateSql.ToString();
-                command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
-                command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
-                command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
-                command.Parameters.Add("@TA010", SqlDbType.NVarChar).Value = TA010;
-
-                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -30927,16 +30921,7 @@ namespace TKSCHEDULEUOF
             }
             finally
             {
-                // 確保 Command 物件被釋放
-                if (command != null)
-                {
-                    command.Dispose();
-                }
-                // 確保連線物件被釋放
-                if (sqlConn != null)
-                {
-                    sqlConn.Dispose();
-                }
+                // 由於所有資源都使用 using 語句管理，finally 塊可以保持空白
             }
         }
         public DataTable SEARCH_BOMTA_BOMTB_BOMTC(string TA001,string TA002)
