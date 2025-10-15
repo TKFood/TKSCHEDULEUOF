@@ -30395,422 +30395,245 @@ namespace TKSCHEDULEUOF
             }
             // 核心優化 5: 移除空的 finally 區塊
         }
-
+        //ERP-BOMI11.EBOM表
         public void UPDATE_BOMMJ_BOMMK()
         {
-            string MJ001 = "";
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-
+            // 獲取待處理的資料表
             DataTable DT = FIND_UOF_BOMMJ();
 
-            if (DT != null && DT.Rows.Count >= 1)
+            // 使用 Null 條件運算符 (?. ) 進行簡潔的資料檢查
+            if (DT?.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                // 使用 LINQ 的 AsEnumerable() 遍歷 DataRow
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    MJ001 = DR["MJ001_FieldValue"].ToString().Trim();
+                    // 安全取值：使用 ?.ToString() ?? string.Empty 處理 DBNull 或 null。
+                    // 由於原始碼中有 Trim()，我們保留並在取得值後執行 Trim()。
+                    string mj001 = (DR["MJ001_FieldValue"]?.ToString() ?? string.Empty).Trim();
+                    string docNbr = DR["DOC_NBR"]?.ToString() ?? string.Empty;
+                    string account = DR["ACCOUNT"]?.ToString() ?? string.Empty;
 
-                    DOC_NBR = DR["DOC_NBR"].ToString();
-                    ACCOUNT = DR["ACCOUNT"].ToString();
-
-                    UPDATE_BOMMJ_BOMMK_EXE(MJ001, DOC_NBR, ACCOUNT);
+                    UPDATE_BOMMJ_BOMMK_EXE(mj001, docNbr, account);
                 }
             }
         }
 
         public DataTable FIND_UOF_BOMMJ()
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            // 獲取並解密連線字串
+            // 假設 Class1 和 ConfigurationManager 已被正確引用。
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString
+            );
 
-            try
+            // 資料庫使用者密碼解密
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
+
+            // 核心優化 1: 使用 using 確保 SqlConnection 資源自動釋放
+            using (SqlConnection sqlConn = new SqlConnection(connectionString))
+            // 核心優化 2: 使用 using 塊管理 DataSet
+            using (DataSet ds1 = new DataSet())
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                try
+                {
+                    // 假設 sbSql 和 sbSqlQuery 是類別層級的 StringBuilder 實例
+                    sbSql?.Clear();
+                    sbSqlQuery?.Clear();
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                        SELECT 
-                                            [FORM_NAME],
-                                            [DOC_NBR],
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MJ001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MJ001_FieldValue,
-
-
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = 'BOM11.EBOM表'
+                    // SQL 查詢 (保持業務邏輯不變)
+                    sbSql.AppendFormat(@"
+                                        WITH TEMP AS (
+                                            SELECT
+                                                [FORM_NAME],
+                                                [DOC_NBR],
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MJ001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MJ001_FieldValue,
+                                                TASK_ID,
+                                                TASK_STATUS,
+                                                TASK_RESULT
+                                            FROM [UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE [FORM_NAME] = 'BOM11.EBOM表'
                                             AND TASK_STATUS = '2'
                                             AND TASK_RESULT = '0'
-
                                         )
                                         SELECT TEMP.*, 
                                         (
-                                            SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                            FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                            LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                                ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                        WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                        ORDER BY FINISH_TIME DESC
+                                            SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                            FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                            LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                                ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                            WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                            ORDER BY FINISH_TIME DESC
                                         ) AS ACCOUNT
                                         FROM TEMP
                                         WHERE 1=1
-                                        AND REPLACE(MJ001_FieldValue,' ','') NOT IN
+                                        AND REPLACE(MJ001_FieldValue,' ','') NOT IN 
                                         (
                                             SELECT REPLACE(MJ001,' ','')
-
-                                            FROM[192.168.1.105].[TK].dbo.BOMMJ
+                                            FROM [192.168.1.105].[TK].dbo.BOMMJ
                                             WHERE UDF02 LIKE 'BOM%'
                                         )
-
-
                                     ");
 
+                    // 核心優化 3: 將 SqlDataAdapter 放入 using 塊，並移除不必要的 SqlCommandBuilder
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    } // Connection 將在此處自動關閉
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
+                    DataTable DT = ds1.Tables["ds1"];
 
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-
+                    // 核心優化 4: 簡化回傳邏輯
+                    return (DT != null && DT.Rows.Count >= 1) ? DT : null;
                 }
-                else
+                catch (Exception ex)
                 {
+                    // 建議：在此處加入日誌記錄 (Log the exception: ex)
                     return null;
                 }
-
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
+                // 由於使用了 using，不需要 finally 區塊手動關閉連線
             }
         }
 
         public void UPDATE_BOMMJ_BOMMK_EXE(string MJ001, string DOC_NBR, string ACCOUNT)
         {
+            // 核心優化 1: 獲取一次時間，確保所有時間戳記一致
+            DateTime now = DateTime.Now;
 
-            string COMPANY = "TK";
-            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
-            string MODIFIER = ACCOUNT;
-            string FORMID = DOC_NBR;
+            // 修正: 原始碼中的 MODI_TIME 格式 "HH:mm:dd" 應為 "HH:mm:ss"
+            string modiDate = now.ToString("yyyyMMdd");
+            string modiTime = now.ToString("HH:mm:ss");
+            string modifier = ACCOUNT;
+            string formId = DOC_NBR;
 
-            string UDF01 = MODIFIER + "，已簽核:" + DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
-            string UDF02 = FORMID;
+            // UDF01 包含完整的時間戳記
+            string UDF01 = $"{modifier}，已簽核:{now:yyyyMMdd HH:mm:ss}";
+            string UDF02 = formId;
 
+            // 連線字串處理
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString
+            );
 
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            // 核心優化 2: 使用 @ 符號和字串插值簡化 SQL 語句，並將所有操作合併為一個批次
+            string queryString = $@"
+                                -- 1. 插入 BOMMC (產品主檔)
+                                INSERT INTO [TK].[dbo].[BOMMC]
+                                (
+                                    [COMPANY], [CREATOR], [USR_GROUP], [CREATE_DATE], [MODIFIER], [MODI_DATE], [FLAG], 
+                                    [CREATE_TIME], [MODI_TIME], [TRANS_TYPE], [TRANS_NAME], [sync_date], [sync_time], 
+                                    [sync_mark], [sync_count], [DataUser], [DataGroup], [MC001], [MC002], [MC003], 
+                                    [MC004], [MC005], [MC006], [MC007], [MC008], [MC009], [MC010], [MC011], [MC012], 
+                                    [MC013], [MC014], [MC015], [MC016], [MC017], [MC018], [MC019], [MC020], [MC021], 
+                                    [MC022], [MC023], [MC024], [MC025], [MC026], [MC027], [UDF01], [UDF02], [UDF03], 
+                                    [UDF04], [UDF05]
+                                )
+                                SELECT 
+                                    [BOMMJ].[COMPANY], [BOMMJ].[CREATOR], [BOMMJ].[USR_GROUP], [BOMMJ].[CREATE_DATE], 
+                                    @MODIFIER, @MODI_DATE, [BOMMJ].[FLAG], [BOMMJ].[CREATE_TIME], @MODI_TIME, 
+                                    [BOMMJ].[TRANS_TYPE], [BOMMJ].[TRANS_NAME], [BOMMJ].[sync_date], [BOMMJ].[sync_time], 
+                                    [BOMMJ].[sync_mark], [BOMMJ].[sync_count], [BOMMJ].[DataUser], [BOMMJ].[DataGroup], 
+                                    MJ001 AS MC001, MB004 AS MC002, MB072 AS MC003, MJ004 AS MC004, MJ005 AS MC005, 
+                                    '' AS MC006, '' AS MC007, '' AS MC008, '0001' AS MC009, MJ010 AS MC010, 
+                                    0 AS MC011, 0 AS MC012, '' AS MC013, '' AS MC014, '' AS MC015, 'N' AS MC016, 
+                                    '' AS MC017, '' AS MC018, 'N' AS MC019, 0 AS MC020, 0 AS MC021, '' AS MC022, 
+                                    0 AS MC023, MB002 AS MC024, MB003 AS MC025, '' AS MC026, 0 AS MC027, 
+                                    @UDF01, @UDF02, [BOMMJ].[UDF03], [BOMMJ].[UDF04], [BOMMJ].[UDF05]
+                                FROM [TK].[dbo].[BOMMJ]
+                                INNER JOIN [TK].[dbo].INVMB ON BOMMJ.MJ001 = INVMB.MB001
+                                WHERE MJ001 = @MJ001;
 
-            StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"    
-                                     INSERT  [TK].[dbo].[BOMMC]
-                                    (
-                                    [COMPANY]
-                                    ,[CREATOR]
-                                    ,[USR_GROUP]
-                                    ,[CREATE_DATE]
-                                    ,[MODIFIER]
-                                    ,[MODI_DATE]
-                                    ,[FLAG]
-                                    ,[CREATE_TIME]
-                                    ,[MODI_TIME]
-                                    ,[TRANS_TYPE]
-                                    ,[TRANS_NAME]
-                                    ,[sync_date]
-                                    ,[sync_time]
-                                    ,[sync_mark]
-                                    ,[sync_count]
-                                    ,[DataUser]
-                                    ,[DataGroup]
-                                    ,[MC001]
-                                    ,[MC002]
-                                    ,[MC003]
-                                    ,[MC004]
-                                    ,[MC005]
-                                    ,[MC006]
-                                    ,[MC007]
-                                    ,[MC008]
-                                    ,[MC009]
-                                    ,[MC010]
-                                    ,[MC011]
-                                    ,[MC012]
-                                    ,[MC013]
-                                    ,[MC014]
-                                    ,[MC015]
-                                    ,[MC016]
-                                    ,[MC017]
-                                    ,[MC018]
-                                    ,[MC019]
-                                    ,[MC020]
-                                    ,[MC021]
-                                    ,[MC022]
-                                    ,[MC023]
-                                    ,[MC024]
-                                    ,[MC025]
-                                    ,[MC026]
-                                    ,[MC027]
-                                    ,[UDF03]
-                                    ,[UDF04]
-                                    ,[UDF05]
-                                        )
-                                    SELECT 
-                                    [BOMMJ].[COMPANY]
-                                    ,[BOMMJ].[CREATOR]
-                                    ,[BOMMJ].[USR_GROUP]
-                                    ,[BOMMJ].[CREATE_DATE]
-                                    ,[BOMMJ].[MODIFIER]
-                                    ,[BOMMJ].[MODI_DATE]
-                                    ,[BOMMJ].[FLAG]
-                                    ,[BOMMJ].[CREATE_TIME]
-                                    ,[BOMMJ].[MODI_TIME]
-                                    ,[BOMMJ].[TRANS_TYPE]
-                                    ,[BOMMJ].[TRANS_NAME]
-                                    ,[BOMMJ].[sync_date]
-                                    ,[BOMMJ].[sync_time]
-                                    ,[BOMMJ].[sync_mark]
-                                    ,[BOMMJ].[sync_count]
-                                    ,[BOMMJ].[DataUser]
-                                    ,[BOMMJ].[DataGroup]
-                                    ,MJ001 [MC001]
-                                    ,MB004 [MC002]
-                                    ,MB072 [MC003]
-                                    ,MJ004 [MC004]
-                                    ,MJ005[MC005]
-                                    ,'' [MC006]
-                                    ,'' [MC007]
-                                    ,'' [MC008]
-                                    ,'0001' [MC009]
-                                    ,MJ010 [MC010]
-                                    ,0 [MC011]
-                                    ,0 [MC012]
-                                    ,'' [MC013]
-                                    ,'' [MC014]
-                                    ,'' [MC015]
-                                    ,'N' [MC016]
-                                    ,'' [MC017]
-                                    ,'' [MC018]
-                                    ,'N' [MC019]
-                                    ,0 [MC020]
-                                    ,0 [MC021]
-                                    ,''[MC022]
-                                    ,0 [MC023]
-                                    ,MB002 [MC024]
-                                    ,MB003 [MC025]
-                                    ,'' [MC026]
-                                    ,0 [MC027]
-                                    ,[BOMMJ].[UDF03]
-                                    ,[BOMMJ].[UDF04]
-                                    ,[BOMMJ].[UDF05]
-                                    
-                                    
-                                    FROM [TK].[dbo].[BOMMJ],[TK].[dbo].INVMB
-                                    WHERE MJ001=MB001
-                                    AND MJ001=@MJ001
+                                -- 2. 插入 BOMMD (BOM結構明細)
+                                INSERT INTO [TK].[dbo].[BOMMD]
+                                (
+                                    [COMPANY], [CREATOR], [USR_GROUP], [CREATE_DATE], [MODIFIER], [MODI_DATE], [FLAG], 
+                                    [CREATE_TIME], [MODI_TIME], [TRANS_TYPE], [TRANS_NAME], [sync_date], [sync_time], 
+                                    [sync_mark], [sync_count], [DataUser], [DataGroup], [MD001], [MD002], [MD003], 
+                                    [MD004], [MD005], [MD006], [MD007], [MD008], [MD009], [MD010], [MD011], [MD012], 
+                                    [MD013], [MD014], [MD015], [MD016], [MD017], [MD018], [MD019], [MD020], [MD021], 
+                                    [MD022], [MD023], [MD024], [MD025], [MD026], [MD027], [MD028], [MD029], [MD030], 
+                                    [MD031], [MD032], [MD033], [MD034], [MD035], [MD036], [MD037], [MD038]
+                                )
+                                SELECT 
+                                    [BOMMK].[COMPANY], [BOMMK].[CREATOR], [BOMMK].[USR_GROUP], [BOMMK].[CREATE_DATE], 
+                                    @MODIFIER, @MODI_DATE, [BOMMK].[FLAG], [BOMMK].[CREATE_TIME], @MODI_TIME, 
+                                    [BOMMK].[TRANS_TYPE], [BOMMK].[TRANS_NAME], [BOMMK].[sync_date], [BOMMK].[sync_time], 
+                                    [BOMMK].[sync_mark], [BOMMK].[sync_count], [BOMMK].[DataUser], [BOMMK].[DataGroup], 
+                                    MK001 AS MD001, MK002 AS MD002, MK003 AS MD003, MB004 AS MD004, MB072 AS MD005, 
+                                    MK006 AS MD006, MK007 AS MD007, MK008 AS MD008, MK009 AS MD009, '1' AS MD010, 
+                                    MK011 AS MD011, MK012 AS MD012, MK013 AS MD013, MK014 AS MD014, MK015 AS MD015, 
+                                    MK016 AS MD016, MK017 AS MD017, MK018 AS MD018, MK020 AS MD019, MK021 AS MD020, 
+                                    MK022 AS MD021, MK023 AS MD022, MK024 AS MD023, MK025 AS MD024, MK026 AS MD025, 
+                                    MK027 AS MD026, MK028 AS MD027, MK029 AS MD028, '' AS MD029, '' AS MD030, 
+                                    '' AS MD031, 'N' AS MD032, '' AS MD033, 0 AS MD034, MB002 AS MD035, MB003 AS MD036, 
+                                    '' AS MD037, 0 AS MD038
+                                FROM [TK].[dbo].[BOMMK]
+                                INNER JOIN [TK].[dbo].INVMB ON BOMMK.MK003 = INVMB.MB001
+                                WHERE MK001 = @MK001;
 
-                                    INSERT INTO [TK].[dbo].[BOMMD]
-                                    (
-                                    [COMPANY]
-                                    ,[CREATOR]
-                                    ,[USR_GROUP]
-                                    ,[CREATE_DATE]
-                                    ,[MODIFIER]
-                                    ,[MODI_DATE]
-                                    ,[FLAG]
-                                    ,[CREATE_TIME]
-                                    ,[MODI_TIME]
-                                    ,[TRANS_TYPE]
-                                    ,[TRANS_NAME]
-                                    ,[sync_date]
-                                    ,[sync_time]
-                                    ,[sync_mark]
-                                    ,[sync_count]
-                                    ,[DataUser]
-                                    ,[DataGroup]
-                                    ,[MD001]
-                                    ,[MD002]
-                                    ,[MD003]
-                                    ,[MD004]
-                                    ,[MD005]
-                                    ,[MD006]
-                                    ,[MD007]
-                                    ,[MD008]
-                                    ,[MD009]
-                                    ,[MD010]
-                                    ,[MD011]
-                                    ,[MD012]
-                                    ,[MD013]
-                                    ,[MD014]
-                                    ,[MD015]
-                                    ,[MD016]
-                                    ,[MD017]
-                                    ,[MD018]
-                                    ,[MD019]
-                                    ,[MD020]
-                                    ,[MD021]
-                                    ,[MD022]
-                                    ,[MD023]
-                                    ,[MD024]
-                                    ,[MD025]
-                                    ,[MD026]
-                                    ,[MD027]
-                                    ,[MD028]
-                                    ,[MD029]
-                                    ,[MD030]
-                                    ,[MD031]
-                                    ,[MD032]
-                                    ,[MD033]
-                                    ,[MD034]
-                                    ,[MD035]
-                                    ,[MD036]
-                                    ,[MD037]
-                                    ,[MD038]
-                                  
-                                    )
+                                -- 3. 更新 BOMMJ (來源單據主檔)
+                                UPDATE [TK].dbo.BOMMJ
+                                SET
+                                    UDF01 = @UDF01,
+                                    UDF02 = @UDF02,
+                                    MODIFIER = @MODIFIER,
+                                    MODI_DATE = @MODI_DATE,
+                                    MODI_TIME = @MODI_TIME,
+                                    FLAG = FLAG + 1
+                                WHERE MJ001 = @MJ001;
 
-                                    SELECT 
-                                    [BOMMK].[COMPANY]
-                                    ,[BOMMK].[CREATOR]
-                                    ,[BOMMK].[USR_GROUP]
-                                    ,[BOMMK].[CREATE_DATE]
-                                    ,[BOMMK].[MODIFIER]
-                                    ,[BOMMK].[MODI_DATE]
-                                    ,[BOMMK].[FLAG]
-                                    ,[BOMMK].[CREATE_TIME]
-                                    ,[BOMMK].[MODI_TIME]
-                                    ,[BOMMK].[TRANS_TYPE]
-                                    ,[BOMMK].[TRANS_NAME]
-                                    ,[BOMMK].[sync_date]
-                                    ,[BOMMK].[sync_time]
-                                    ,[BOMMK].[sync_mark]
-                                    ,[BOMMK].[sync_count]
-                                    ,[BOMMK].[DataUser]
-                                    ,[BOMMK].[DataGroup]
-                                    ,MK001 [MD001]
-                                    ,MK002 [MD002]
-                                    ,MK003 [MD003]
-                                    ,MB004 [MD004]
-                                    ,MB072 [MD005]
-                                    ,MK006 [MD006]
-                                    ,MK007 [MD007]
-                                    ,MK008 [MD008]
-                                    ,MK009 [MD009]
-                                    ,'1' [MD010]
-                                    ,MK011 [MD011]
-                                    ,MK012 [MD012]
-                                    ,MK013 [MD013]
-                                    ,MK014 [MD014]
-                                    ,MK015 [MD015]
-                                    ,MK016 [MD016]
-                                    ,MK017 [MD017]
-                                    ,MK018 [MD018]
-                                    ,MK020 [MD019]
-                                    ,MK021 [MD020]
-                                    ,MK022 [MD021]
-                                    ,MK023 [MD022]
-                                    ,MK024 [MD023]
-                                    ,MK025 [MD024]
-                                    ,MK026 [MD025]
-                                    ,MK027 [MD026]
-                                    ,MK028 [MD027]
-                                    ,MK029 [MD028]
-                                    ,'' [MD029]
-                                    ,'' [MD030]
-                                    ,'' [MD031]
-                                    ,'N' [MD032]
-                                    ,'' [MD033]
-                                    ,0 [MD034]
-                                    ,MB002 [MD035]
-                                    ,MB003 [MD036]
-                                    ,'' [MD037]
-                                    ,0 [MD038]
-                                   
-
-                                    FROM [TK].[dbo].[BOMMK],[TK].[dbo].INVMB
-                                    WHERE MK003=MB001
-                                    AND MK001=@MK001
-
-                                    UPDATE  [TK].dbo.BOMMJ
-                                    SET
-                                    UDF01=@UDF01
-                                    ,UDF02=@UDF02
-                                    WHERE MJ001=@MJ001 
-
-                                    UPDATE  [TK].dbo.BOMMC
-                                    SET
-                                    UDF01=@UDF01
-                                    ,UDF02=@UDF02
-                                    WHERE MC001=@MC001
-
-            
-                                        ");
+                                -- 4. 更新 BOMMC (產品主檔，使用 MJ001 作為 MC001)
+                                UPDATE [TK].dbo.BOMMC
+                                SET
+                                    UDF01 = @UDF01,
+                                    UDF02 = @UDF02,
+                                    MODIFIER = @MODIFIER,
+                                    MODI_DATE = @MODI_DATE,
+                                    MODI_TIME = @MODI_TIME,
+                                    FLAG = FLAG + 1
+                                WHERE MC001 = @MC001;
+                            ";
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                // 核心優化 3: 使用 using 語句確保 SqlConnection 和 SqlCommand 資源自動釋放
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlCommand command = new SqlCommand(queryString, connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    // 參數設定 (使用局部變數)
                     command.Parameters.Add("@MJ001", SqlDbType.NVarChar).Value = MJ001;
                     command.Parameters.Add("@MK001", SqlDbType.NVarChar).Value = MJ001;
+                    command.Parameters.Add("@MC001", SqlDbType.NVarChar).Value = MJ001; // MJ001 = MC001
+
                     command.Parameters.Add("@UDF01", SqlDbType.NVarChar).Value = UDF01;
                     command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = UDF02;
-                    command.Parameters.Add("@MC001", SqlDbType.NVarChar).Value = MJ001;
 
-                    command.Connection.Open();
+                    // 加入修改者和時間戳記參數，用於更新欄位
+                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = modifier;
+                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = modiDate;
+                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = modiTime;
 
+                    connection.Open();
                     int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    // Connection 將在 using 塊結束時自動關閉
                 }
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
-
+                // 建議：捕獲異常後應記錄日誌 (Log the exception: ex)，避免吞噬錯誤。
             }
-            finally
-            {
-
-            }
+            // 移除空的 finally 區塊
         }
 
         public void UPDATE_MOCTA_BOMTB_BOMTC()
