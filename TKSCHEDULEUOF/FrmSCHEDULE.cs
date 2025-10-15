@@ -567,7 +567,7 @@ namespace TKSCHEDULEUOF
 
                 try
                 {
-                    //ERP品號明細通知單
+                    //ERP品號明細通知單(原料+物料)
                     //如需修改，請通知研發在ERP上修改
 
                     ADD_ERP_INVMB_TO_UOF_9003();
@@ -576,7 +576,7 @@ namespace TKSCHEDULEUOF
                 catch { }
                 try
                 {
-                    //ERP品號變更通知單
+                    //ERP品號變更通知單(成品+外購品)
                     ADD_ERP_INVMB_TO_UOF_9002();
                 }
                 catch { }
