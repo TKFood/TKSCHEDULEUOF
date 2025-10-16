@@ -39505,7 +39505,6 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.COPTCDMOCPUR.EndFormTrigger
             //訂單生管+採購簽核回寫備註
 
-
             UPDATE_COPTC_MOC_PUR();
         }
         private void button93_Click(object sender, EventArgs e)
