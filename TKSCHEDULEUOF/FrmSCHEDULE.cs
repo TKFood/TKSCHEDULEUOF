@@ -31367,30 +31367,26 @@ namespace TKSCHEDULEUOF
         }
         public void UPDATE_COPTC_COPTD()
         {
-            string TC001 = null;
-            string TC002 = null;
-            string MOC = null;
-            string PUR = null;
-            string TC040 = null;
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            DataTable DT = FIND_UOF_COPTC_COPTD();
+            var DT = FIND_UOF_COPTC_COPTD();
 
             if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                // 使用 AsEnumerable() 確保安全迭代
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    TC001 = DR["TC001"].ToString().Trim();
-                    TC002 = DR["TC002"].ToString().Trim();
-                    MOC = DR["MOC"].ToString().Trim();
-                    PUR = DR["PUR"].ToString().Trim();
-                    TC040= DR["ACCOUNT"].ToString();
-                    MODIFIER = DR["ACCOUNT"].ToString();
+                    // 使用 ?. 和 ?? 進行安全取值和空值處理
+                    var TC001 = DR["TC001"]?.ToString().Trim() ?? string.Empty;
+                    var TC002 = DR["TC002"]?.ToString().Trim() ?? string.Empty;
+                    var MOC = DR["MOC"]?.ToString().Trim() ?? string.Empty;
+                    var PUR = DR["PUR"]?.ToString().Trim() ?? string.Empty;
 
-                    DOC_NBR = DR["DOC_NBR"].ToString();
-                    ACCOUNT = DR["ACCOUNT"].ToString();
+                    // 注意：原始碼中 TC040 和 MODIFIER 都來自 DR["ACCOUNT"]
+                    var ACCOUNT_VALUE = DR["ACCOUNT"]?.ToString() ?? string.Empty;
+                    var TC040 = ACCOUNT_VALUE;
+                    var MODIFIER = ACCOUNT_VALUE;
+
+                    var DOC_NBR = DR["DOC_NBR"]?.ToString() ?? string.Empty;
+                    var ACCOUNT = ACCOUNT_VALUE;
 
                     UPDATE_COPTC_COPTD_EXE(TC001, TC002, DOC_NBR, MODIFIER, MOC, PUR, TC040);
                 }
@@ -31399,108 +31395,94 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_COPTC_COPTD()
         {
-            string YYMM = DateTime.Now.ToString("yyyyMM");
-            YYMM = YYMM.Substring(2,4);
+            // 獲取並格式化 YYMM
+            string fullYYMM = DateTime.Now.ToString("yyyyMM");
+            string YYMM = fullYYMM.Substring(2, 4);
 
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            // 建立連線字串
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
+
+            // 準備 SQL 查詢
+            sbSql.Clear();
+            sbSqlQuery.Clear();
+
+            sbSql.AppendFormat(@"
+                                WITH TEMP AS (
+                                SELECT
+                                    [FORM_NAME],
+                                    [DOC_NBR],
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MOC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MOC,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""PUR""]/@fieldValue)[1]', 'NVARCHAR(100)') AS PUR,
+                                    TASK_ID,
+                                    TASK_STATUS,
+                                    TASK_RESULT
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = 'COP10.訂單'
+                                    AND TASK_STATUS = '2'
+                                    AND TASK_RESULT = '0'
+                                    AND [DOC_NBR] LIKE '%{0}%'
+                                )
+                                SELECT TEMP.*,
+                                (
+                                    SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                        ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                ) AS ACCOUNT
+                                FROM TEMP
+                                WHERE 1=1
+                                AND REPLACE(TC001+TC002,',','') IN
+                                (
+                                    SELECT REPLACE(TC001+TC002,' ' ,'')
+                                    FROM [192.168.1.105].[TK].dbo.COPTC
+                                    WHERE TC027 IN('N')
+                                )
+                            ", YYMM);
+
+            DataTable resultTable = null;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                    SELECT 
-                                        [FORM_NAME],
-                                        [DOC_NBR],
-	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MOC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MOC,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""PUR""]/@fieldValue)[1]', 'NVARCHAR(100)') AS PUR,
-
-
-                                        TASK_ID,
-                                        TASK_STATUS,
-                                        TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'COP10.訂單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                        AND[DOC_NBR] LIKE '%{0}%'
-
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                    ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-                                    AND REPLACE(TC001+TC002,',','')  IN
-                                    (
-                                    SELECT REPLACE(TC001+TC002,' ' ,'')
-                                    FROM[192.168.1.105].[TK].dbo.COPTC
-                                    WHERE TC027 IN('N')
-
-                                    )
-
-
-
-
-                                    ", YYMM);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        // 移除不必要的 SqlCommandBuilder 宣告和實例化
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
                 }
 
+                if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    resultTable = ds1.Tables["ds1"];
+                }
             }
-            catch
+            catch (Exception EX)
             {
-                return null;
+                resultTable = null;
             }
             finally
             {
-                sqlConn.Close();
+                if (ds1 != null)
+                {
+                    ds1.Dispose();
+                }
             }
+
+            return resultTable;
         }
 
         public void UPDATE_COPTC_COPTD_EXE(string TC001, string TC002, string FORMID, string MODIFIER, string MOC, string PUR, string TC040)
