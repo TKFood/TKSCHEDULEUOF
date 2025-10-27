@@ -5226,6 +5226,34 @@ namespace TKSCHEDULEUOF
                 AppendCellToRow(xmlDoc, row, od, "TD028");
                 AppendCellToRow(xmlDoc, row, od, "TD014");
 
+                // 1. 定義換行符號的實體參考
+                string newLine = "\r\n ";
+                // 2. 收集所有需要串接的欄位值
+                List<string> values = new List<string>();
+                // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
+                //    使用 ?.ToString() 和 null 檢查來處理可能的 DBNull 或 null
+                string value1 = od["外包裝及驗收標準"]?.ToString();
+                if (!string.IsNullOrEmpty(value1)) values.Add("外包裝及驗收標準:" + value1);
+                string value2 = od["產品外觀"]?.ToString();
+                if (!string.IsNullOrEmpty(value2)) values.Add("產品外觀:" + value2);
+                string value3 = od["色澤"]?.ToString();
+                if (!string.IsNullOrEmpty(value3)) values.Add("色澤:" + value3);
+                string value4 = od["風味"]?.ToString();
+                if (!string.IsNullOrEmpty(value4)) values.Add("風味:" + value4);
+                string value5 = od["產品批號"]?.ToString();
+                if (!string.IsNullOrEmpty(value5)) values.Add("產品批號:" + value5);
+                // 5. 使用 String.Join()，只在 List 中的有效項目之間插入換行符號
+                string finalFieldValue = string.Join(newLine, values);
+                XmlElement cell = xmlDoc.CreateElement("Cell");
+                cell = xmlDoc.CreateElement("Cell");
+                cell.SetAttribute("fieldId", "SPEC");
+                cell.SetAttribute("fieldValue", finalFieldValue);
+                cell.SetAttribute("realValue", "");
+                cell.SetAttribute("customValue", "");
+                cell.SetAttribute("enableSearch", "True");
+                cell.SetAttribute("fieldMessage", "Y");
+                row.AppendChild(cell);
+
                 dataGrid.AppendChild(row);
                 rowIndex++;
             }
@@ -5545,7 +5573,15 @@ namespace TKSCHEDULEUOF
                                     ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TC004) AS 'MA002'
                                     ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TD004 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
                                     ,(SELECT TOP 1 CONVERT(NVARCHAR,TB005)+',需求日:'+CONVERT(NVARCHAR,TB011)+',數量:'+CONVERT(NVARCHAR,TB009)+' '+CONVERT(NVARCHAR,TB007) FROM  [TK].dbo.PURTB WHERE TB001=[PURTD].TD026 AND TB002=[PURTD].TD027 AND TB003=[PURTD].TD028) AS TB005
-                                    FROM [TK].dbo.PURTD,[TK].dbo.PURTC
+                                    ,PACKAGE_SPEC AS '外包裝及驗收標準'
+                                    ,PRODUCT_APPEARANCE AS '產品外觀'
+                                    ,COLOR AS '色澤'
+                                    ,FLAVOR AS '風味'
+                                    ,BATCHNO AS '產品批號'  
+
+                                    FROM [TK].dbo.PURTD
+                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TD004
+                                    ,[TK].dbo.PURTC
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= TC011 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TC001=TD001 AND TC002=TD002
                                     AND TC001='{0}' AND TC002='{1}'
@@ -7722,7 +7758,7 @@ namespace TKSCHEDULEUOF
                                     ,COLOR AS '色澤'
                                     ,FLAVOR AS '風味'
                                     ,BATCHNO AS '產品批號'  
-  
+
                                     FROM [TK].dbo.PURMA,[TK].dbo.PURTG,[TK].dbo.PURTH
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= PURTH.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
                                     LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TH004
