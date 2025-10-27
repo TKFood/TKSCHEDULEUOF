@@ -5776,6 +5776,34 @@ namespace TKSCHEDULEUOF
                 AppendCellToRow(xmlDoc, row, od, "TF022");
                 AppendCellToRow(xmlDoc, row, od, "TF030");
 
+                // 1. 定義換行符號的實體參考
+                string newLine = "\r\n ";
+                // 2. 收集所有需要串接的欄位值
+                List<string> values = new List<string>();
+                // 3. 逐一檢查欄位，如果值不為空或 null，則加入 List
+                //    使用 ?.ToString() 和 null 檢查來處理可能的 DBNull 或 null
+                string value1 = od["外包裝及驗收標準"]?.ToString();
+                XmlElement cell = xmlDoc.CreateElement("Cell");
+                if (!string.IsNullOrEmpty(value1)) values.Add("外包裝及驗收標準:" + value1);
+                string value2 = od["產品外觀"]?.ToString();
+                if (!string.IsNullOrEmpty(value2)) values.Add("產品外觀:" + value2);
+                string value3 = od["色澤"]?.ToString();
+                if (!string.IsNullOrEmpty(value3)) values.Add("色澤:" + value3);
+                string value4 = od["風味"]?.ToString();
+                if (!string.IsNullOrEmpty(value4)) values.Add("風味:" + value4);
+                string value5 = od["產品批號"]?.ToString();
+                if (!string.IsNullOrEmpty(value5)) values.Add("產品批號:" + value5);
+                // 5. 使用 String.Join()，只在 List 中的有效項目之間插入換行符號
+                string finalFieldValue = string.Join(newLine, values);
+                cell = xmlDoc.CreateElement("Cell");
+                cell.SetAttribute("fieldId", "SPEC");
+                cell.SetAttribute("fieldValue", finalFieldValue);
+                cell.SetAttribute("realValue", "");
+                cell.SetAttribute("customValue", "");
+                cell.SetAttribute("enableSearch", "True");
+                cell.SetAttribute("fieldMessage", "Y");
+                row.AppendChild(cell);
+
                 dataGrid.AppendChild(row);
                 rowIndex++;
             }
@@ -6097,13 +6125,19 @@ namespace TKSCHEDULEUOF
                                     ,[TF171]
                                     ,[TF172]
                                     ,[TF173]
-                                    ,
-                                        TB_EB_USER.USER_GUID,
-                                        TB_EB_USER.NAME,
-                                        (SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE037) AS MV002,
-                                        (SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TE005) AS MA002,
-                                        (SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TF005 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
+                                    ,TB_EB_USER.USER_GUID
+                                    ,TB_EB_USER.NAME
+                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=TE037) AS MV002
+                                    ,(SELECT TOP 1 MA002 FROM [TK].dbo.PURMA WHERE MA001=TE005) AS MA002
+                                    ,(SELECT ISNULL(SUM(LA005*LA011),0) FROM [TK].dbo.INVLA WITH(NOLOCK) WHERE LA001=TF005 AND LA009 IN ('20004','20006','20008','20019','20020')) AS SUMLA011
+                                    ,PACKAGE_SPEC AS '外包裝及驗收標準'
+                                    ,PRODUCT_APPEARANCE AS '產品外觀'
+                                    ,COLOR AS '色澤'
+                                    ,FLAVOR AS '風味'
+                                    ,BATCHNO AS '產品批號'  
+
                                     FROM [TK].dbo.PURTF
+                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS] ON [TB_ORIENTS_CHECKLISTS].MB001=TF005
                                     INNER JOIN [TK].dbo.PURTE ON TE001=TF001 AND TE002=TF002 AND TE003=TF003
                                     LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON TB_EB_USER.ACCOUNT = TE037 COLLATE Chinese_Taiwan_Stroke_BIN
                                     WHERE TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003
