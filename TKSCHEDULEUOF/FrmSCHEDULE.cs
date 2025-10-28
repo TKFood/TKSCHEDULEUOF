@@ -5208,19 +5208,19 @@ namespace TKSCHEDULEUOF
                 XmlElement row = xmlDoc.CreateElement("Row");
                 row.SetAttribute("order", rowIndex.ToString());
 
-                AppendCellToRow(xmlDoc, row, od, "TD003");
+                //AppendCellToRow(xmlDoc, row, od, "TD003");
                 AppendCellToRow(xmlDoc, row, od, "TB005");
                 AppendCellToRow(xmlDoc, row, od, "TD004");
                 AppendCellToRow(xmlDoc, row, od, "TD005");
                 AppendCellToRow(xmlDoc, row, od, "TD006");
-                AppendCellToRow(xmlDoc, row, od, "TD007");
+                //AppendCellToRow(xmlDoc, row, od, "TD007");
                 AppendCellToRow(xmlDoc, row, od, "TD008");
                 AppendCellToRow(xmlDoc, row, od, "TD009");
                 AppendCellToRow(xmlDoc, row, od, "TD010");
                 AppendCellToRow(xmlDoc, row, od, "TD011");
                 AppendCellToRow(xmlDoc, row, od, "TD012");
-                AppendCellToRow(xmlDoc, row, od, "TD015");
-                AppendCellToRow(xmlDoc, row, od, "TD019");
+                //AppendCellToRow(xmlDoc, row, od, "TD015");
+                //AppendCellToRow(xmlDoc, row, od, "TD019");
                 AppendCellToRow(xmlDoc, row, od, "TD026");
                 AppendCellToRow(xmlDoc, row, od, "TD027");
                 AppendCellToRow(xmlDoc, row, od, "TD028");
@@ -5758,20 +5758,20 @@ namespace TKSCHEDULEUOF
                 XmlElement row = xmlDoc.CreateElement("Row");
                 row.SetAttribute("order", rowIndex.ToString());
 
-                AppendCellToRow(xmlDoc, row, od, "TF004");
+                //AppendCellToRow(xmlDoc, row, od, "TF004");
                 AppendCellToRow(xmlDoc, row, od, "TF005");
                 AppendCellToRow(xmlDoc, row, od, "TF006");
                 AppendCellToRow(xmlDoc, row, od, "TF007");
-                AppendCellToRow(xmlDoc, row, od, "TF008");
+               // AppendCellToRow(xmlDoc, row, od, "TF008");
                 AppendCellToRow(xmlDoc, row, od, "TF009");
                 AppendCellToRow(xmlDoc, row, od, "TF010");
                 AppendCellToRow(xmlDoc, row, od, "TF011");
                 AppendCellToRow(xmlDoc, row, od, "TF012");
                 AppendCellToRow(xmlDoc, row, od, "TF013");
                 AppendCellToRow(xmlDoc, row, od, "TF014");
-                AppendCellToRow(xmlDoc, row, od, "TF015");
+                //AppendCellToRow(xmlDoc, row, od, "TF015");
                 AppendCellToRow(xmlDoc, row, od, "TF017");
-                AppendCellToRow(xmlDoc, row, od, "TF018");
+                //AppendCellToRow(xmlDoc, row, od, "TF018");
                 AppendCellToRow(xmlDoc, row, od, "TF021");
                 AppendCellToRow(xmlDoc, row, od, "TF022");
                 AppendCellToRow(xmlDoc, row, od, "TF030");
@@ -26826,11 +26826,11 @@ namespace TKSCHEDULEUOF
                                         CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(Cell)
                                         WHERE 
                                             T.DOC_NBR = '{0}'
-                                            AND R.Cell.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') = '{1}'
-                                            AND R.Cell.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') = '{2}'
-                                            AND R.Cell.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') = '{3}'
+                                            AND R.Cell.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') LIKE N'%{1}%'
+                                            AND R.Cell.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(100)') LIKE N'%{2}%'
+                                            AND R.Cell.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') LIKE N'%{3}%'
                                             AND LTRIM(RTRIM(R.Cell.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)')))  LIKE N'%{4}%'
-                        ",DOC_NBR, GG004, GG002, GG005, GG010);
+                        ", DOC_NBR, GG004, GG002, GG005, GG010);
 
                     adapter.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
 
