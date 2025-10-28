@@ -26732,7 +26732,7 @@ namespace TKSCHEDULEUOF
                                 LEFT JOIN GGData GG ON GG.DOC_NBR = T.DOC_NBR
                                 LEFT JOIN GAData GA ON GA.DOC_NBR = T.DOC_NBR
                                 WHERE 
-                                    T.DOC_NBR >= 'GA1003251000025'
+                                    T.DOC_NBR >= 'GA1003250900001'
                                     AND F.FORM_NAME = '1003.雜項請購單'
                                     AND T.TASK_RESULT = '0'                                   
                                     AND NOT EXISTS (
