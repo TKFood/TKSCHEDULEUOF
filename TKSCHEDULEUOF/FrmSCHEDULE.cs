@@ -32157,31 +32157,20 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_COPTE_MOC_PUR()
         {
-
-            string TE001 = null;
-            string TE002 = null;
-            string TE003 = null;
-          
-            string MOC = null;
-            string PUR = null;
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            DataTable DT = FIND_UOF_COPTE_MOC_PUR();
+            var DT = FIND_UOF_COPTE_MOC_PUR();
 
             if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    TE001 = DR["TE001"].ToString().Trim();
-                    TE002 = DR["TE002"].ToString().Trim();
-                    TE003 = DR["TE003"].ToString().Trim();
-                    MOC = DR["MOC"].ToString().Trim();
-                    PUR = DR["PUR"].ToString().Trim();
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();                 
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
+                    var TE001 = DR["TE001"]?.ToString().Trim() ?? string.Empty;
+                    var TE002 = DR["TE002"]?.ToString().Trim() ?? string.Empty;
+                    var TE003 = DR["TE003"]?.ToString().Trim() ?? string.Empty;
+                    var MOC = DR["MOC"]?.ToString().Trim() ?? string.Empty;
+                    var PUR = DR["PUR"]?.ToString().Trim() ?? string.Empty;
+                    var DOC_NBR = DR["DOC_NBR"]?.ToString().Trim() ?? string.Empty;
+                    var ACCOUNT = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty;
+                    var MODIFIER = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty;
 
                     UPDATE_COPTE_MOC_PUR_EXE(TE001, TE002, TE003, DOC_NBR, MODIFIER, MOC, PUR);
                 }
@@ -32190,116 +32179,94 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_COPTE_MOC_PUR()
         {
-            string YYMM = DateTime.Now.ToString("yyyy");
-            YYMM = YYMM.Substring(2, 2);
+            // 取得當前年月 (兩位年+兩位月)
+            string YYMM = DateTime.Now.ToString("yyMM");
 
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            // 建立連線字串
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-            try
-            {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            // 準備 SQL 查詢
+            sbSql.Clear();
+            sbSqlQuery.Clear();
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                    SELECT 
+            sbSql.AppendFormat(@"
+                                WITH TEMP AS (
+                                    SELECT
                                         [FORM_NAME],
                                         [DOC_NBR],
-	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE001,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE001,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE002,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TE003,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""MOC""]/@fieldValue)[1]', 'NVARCHAR(100)') AS MOC,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""PUR""]/@fieldValue)[1]', 'NVARCHAR(100)') AS PUR,
-
-
                                         TASK_ID,
                                         TASK_STATUS,
                                         TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'COP20.訂單變更單 '
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                        AND[DOC_NBR] LIKE '%24%'
-
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = 'COP20.訂單變更單'
+                                    AND TASK_STATUS = '2'
+                                    AND TASK_RESULT = '0'
+                                    AND [DOC_NBR] LIKE '%{0}%'
+                                )
+                                SELECT TEMP.*,
+                                (
+                                    SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                        ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
                                     ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    , COPTE.UDF05
-                                     FROM TEMP
-                                     LEFT JOIN[192.168.1.105].[TK].dbo.COPTE ON REPLACE(COPTE.TE001+COPTE.TE002+COPTE.TE003,',','')=REPLACE(TEMP.TE001+TEMP.TE002++TEMP.TE003,' ' ,'')
-                                    WHERE 1=1
-                                    AND COPTE.UDF05<>SUBSTRING((MOC+' '+PUR+' '),1,250)
-                
+                                ) AS ACCOUNT
+                                , COPTE.UDF05
+                                FROM TEMP
+                                LEFT JOIN [192.168.1.105].[TK].dbo.COPTE ON COPTE.UDF02=TEMP.DOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                WHERE 1=1
+                                AND COPTE.UDF02=TEMP.DOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                AND ISNULL(COPTE.UDF05,'')<>SUBSTRING((ISNULL(MOC,'')+' '+ISNULL(PUR,'')+' '),1,250)
+                                ", YYMM);
 
-                                    ", YYMM);
+            DataTable resultTable = null;
+            DataSet ds1 = new DataSet();
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        // 設置查詢的超時時間
+                        adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
 
-                }
-                else
-                {
-                    return null;
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
                 }
 
+                if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
+                {
+                    resultTable = ds1.Tables["ds1"];
+                }
             }
-            catch
+            catch (Exception EX)
             {
-                return null;
+                // 捕獲並處理異常 (根據要求修改 catch)
+                // EX.Message 或其他日誌記錄
+                resultTable = null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
+
+            return resultTable;
         }
 
         public void UPDATE_COPTE_MOC_PUR_EXE(string TE001, string TE002, string TE003, string DOC_NBR, string MODIFIER, string MOC, string PUR)
-        {
-
-         
-            string COMPANY = "TK";
-            string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
-
-
+        {            
+            // 處理 MOC 和 PUR 字符串
             if (!string.IsNullOrEmpty(MOC))
             {
                 MOC = DateTime.Now.ToString("MM/dd") + ":" + MOC + " ";
@@ -32309,68 +32276,56 @@ namespace TKSCHEDULEUOF
                 PUR = DateTime.Now.ToString("MM/dd") + ":" + PUR + " ";
             }
 
-
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 連線字串處理與解密
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-
-            //資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            // SQL 查詢字符串
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"   
-                                    --更新變單表單的編號到COPTD、COPTE
-                                    --更新PUR、MOC備註到COPTD、COPTE
-
+            queryString.AppendFormat(@"
                                     UPDATE [TK].dbo.COPTC
-                                    SET UDF05=SUBSTRING((UDF05+' '+@MOC+' '+@PUR+' '),1,250)
-                                    WHERE TC001=@TC001 AND TC002=@TC002
- 
+                                    SET UDF05=SUBSTRING((ISNULL(UDF05,'')+' '+@MOC+' '+@PUR+' '),1,250)
+                                    WHERE TC001=@TC001 AND TC002=@TC002;
+
                                     UPDATE [TK].dbo.COPTE
                                     SET UDF05=SUBSTRING((@MOC+' '+@PUR),1,250)
-                                    WHERE TE001=@TE001 AND TE002=@TE002  AND TE003=@TE003
-                                        ");
+                                    WHERE TE001=@TE001 AND TE002=@TE002 AND TE003=@TE003;
+                                ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                    {
+                        // 參數化：TE001, TE002 對應 COPTC 的 TC001, TC002
+                        command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TE001;
+                        command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TE002;
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TE001;
-                    command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TE002;
-                    command.Parameters.Add("@TE001", SqlDbType.NVarChar).Value = TE001;
-                    command.Parameters.Add("@TE002", SqlDbType.NVarChar).Value = TE002;
-                    command.Parameters.Add("@TE003", SqlDbType.NVarChar).Value = TE003;
-                    command.Parameters.Add("@MOC", SqlDbType.NVarChar).Value = MOC;
-                    command.Parameters.Add("@PUR", SqlDbType.NVarChar).Value = PUR;
+                        // 參數化：TE001, TE002, TE003 對應 COPTE 的 TE001, TE002, TE003
+                        command.Parameters.Add("@TE001", SqlDbType.NVarChar).Value = TE001;
+                        command.Parameters.Add("@TE002", SqlDbType.NVarChar).Value = TE002;
+                        command.Parameters.Add("@TE003", SqlDbType.NVarChar).Value = TE003;
 
+                        // 參數化：MOC, PUR
+                        command.Parameters.Add("@MOC", SqlDbType.NVarChar).Value = MOC;
+                        command.Parameters.Add("@PUR", SqlDbType.NVarChar).Value = PUR;
 
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
-            catch
+            catch (Exception EX)
             {
-
+                // 異常處理
             }
-            finally
-            {
-
-            }
+            // 由於使用 using，不需要 finally 塊來手動釋放資源
         }
-
         public void ADD_TKRESEARCH_TBSAMPLE()
         {
             string DOC_NBR = "";
@@ -39520,7 +39475,7 @@ namespace TKSCHEDULEUOF
         private void button94_Click(object sender, EventArgs e)
         {
             //TKUOF.TRIGGER.COPTEFMOCPUR.EndFormTrigger
-            //ERP-訂單變更生管+採購簽核回寫備註
+            //ERP-備註-訂單變更生管+採購簽核回寫備註
 
             UPDATE_COPTE_MOC_PUR();
         }
