@@ -33258,6 +33258,8 @@ namespace TKSCHEDULEUOF
                                     ) AS ACCOUNT
                                     FROM TEMP
                                     WHERE 1=1
+	                                AND TASK_STATUS='2'
+	                                AND  TASK_RESULT='0'
                                     AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
                                     (
                                         SELECT FORMID
