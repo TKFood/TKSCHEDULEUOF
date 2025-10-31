@@ -33022,7 +33022,7 @@ namespace TKSCHEDULEUOF
 
             //DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
 
-            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS("PURTACHANGE202507010001");
+            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
 
             //先新增/變更，請購變更的明細
             if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
@@ -33187,7 +33187,7 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS(string START_DOC_NBR)
+        public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS()
         {
 
             SqlDataAdapter adapter1 = new SqlDataAdapter();
