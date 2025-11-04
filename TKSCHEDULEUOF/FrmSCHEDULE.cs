@@ -27246,9 +27246,11 @@ namespace TKSCHEDULEUOF
                                                     JOIN [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2 
                                                         ON [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR = TB_WKF_TASK2.DOC_NBR
                                                     WHERE TB_WKF_TASK.DOC_NBR LIKE 'GA1005%'
-                                                      AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+		                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <>''
+                                                        AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
                                                 ) AS TEMP
                                                 WHERE TEMP.TASK_ID = TB_WKF_TASK.TASK_ID
+                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <>''
                                             ");
 
                             using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
