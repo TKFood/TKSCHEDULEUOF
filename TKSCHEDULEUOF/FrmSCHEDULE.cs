@@ -644,9 +644,9 @@ namespace TKSCHEDULEUOF
             try
             {
                 //更新附件 GA1005
-                UPDATE_UOF_GA1005_ATTACH_ID();
+                //UPDATE_UOF_GA1005_ATTACH_ID();
                 //更新附件 QC1001
-                UPDATE_UOF_QC1001_ATTACH_ID();
+                //UPDATE_UOF_QC1001_ATTACH_ID();
             }
             catch { }
 
@@ -39125,7 +39125,7 @@ namespace TKSCHEDULEUOF
             //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT, DEFAUL_NAME);
 
             //更新附件
-            UPDATE_UOF_GA1005_ATTACH_ID();
+            //UPDATE_UOF_GA1005_ATTACH_ID();
             MessageBox.Show("完成");
 
         }
