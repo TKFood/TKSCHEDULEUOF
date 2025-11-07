@@ -10919,6 +10919,7 @@ namespace TKSCHEDULEUOF
                             FROM [TK].dbo.INVTA
                             WHERE TA006 = 'N'
                               AND UDF01 IN ('Y','y')
+                                AND TA001 in ('A11A')
                             ORDER BY TA001, TA002
                         ";
 
