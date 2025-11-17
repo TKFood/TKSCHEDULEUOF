@@ -39588,9 +39588,10 @@ namespace TKSCHEDULEUOF
         }
         private void button102_Click(object sender, EventArgs e)
         {
+            //20251117 取消，因為UOF的表單會重覆作廢，但ERP的採購單是正確要用的，所以取消連動，改人工在ERP作廢
             //UOF-採購及變更單作廢
             //依UOF作廢的採購及變更單，修改ERP的採購及變更單作廢
-            UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
+            //UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
             MessageBox.Show("OK");
         }
         private void button103_Click(object sender, EventArgs e)
