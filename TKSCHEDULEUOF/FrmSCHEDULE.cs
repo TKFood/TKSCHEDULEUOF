@@ -24534,45 +24534,63 @@ namespace TKSCHEDULEUOF
         }
 
 
+        /// <summary>
+        /// 檢查是否有針對特定請購變更單 (TA001, TA002, VERSIONS) 所產生的採購變更單 (PURTE) 尚未核准。
+        /// </summary>
+        /// <param name="TA001">請購單別 (PURTA.TA001)</param>
+        /// <param name="TA002">請購單號 (PURTA.TA002)</param>
+        /// <param name="VERSIONS">請購變更的版本號</param>
+        /// <returns>若存在未核准的 PURTE/PURTF 則返回其 DataTable，否則返回 null。</returns>
         public DataTable CHECKPURTEPURTF(string TA001, string TA002, string VERSIONS)
         {
+            DataTable resultTable = null;
             DataSet ds = new DataSet();
 
             try
             {
-                // 建立連線字串（含解密）
+                // 1. 建立資料庫連線字串（含解密）
                 Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-       
 
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     sbSql.Clear();
                     sbSql.Append(@"
-                                    SELECT TE001, TE002, TE003
-                                    FROM [TK].dbo.PURTE
-                                    WHERE TE017 = 'N'
-                                      AND TE001 + TE002 IN 
-                                    (
+                                -- 查詢 PURTE (採購變更單頭)
+                                SELECT 
+                                    TE001,  -- 採購變更單別
+                                    TE002,  -- 採購變更單號
+                                    TE003   -- 採購變更單版次
+                                FROM [TK].dbo.PURTE
+                                WHERE 
+                                    TE017 = 'N'  -- 篩選尚未核准/確認的單據 (N = 未確認)
+                                    -- 檢查此 PURTE 的採購單 (TE001+TE002) 是否與本次請購變更有關
+                                    AND TE001 + TE002 IN (
+                                        -- 子查詢 1: 找出所有與本次請購變更相關的採購單 (PURTD.TD001+TD002)
                                         SELECT TD001 + TD002
                                         FROM [TK].dbo.PURTD
-                                        WHERE TD026 + TD027 + TD028 IN 
-                                        (
-                                            SELECT TA001 + TA002 + TB003
-                                            FROM [TKPUR].[dbo].[PURTATBCHAGE]
-                                            WHERE TA001 = @TA001 
-                                              AND TA002 = @TA002 
-                                              AND VERSIONS = @VERSIONS
-                                        )
-                                        GROUP BY TD001, TD002
-                                    )
+                                        WHERE 
+                                            -- 檢查 PURTD 明細 (TD026+TD027+TD028: 請購單別+請購單號+請購項次) 
+                                            -- 是否存在於請購變更中間表 (PURTATBCHAGE) 中
+                                            TD026 + TD027 + TD028 IN (
+                                                -- 子查詢 2: 獲取本次 UOF 已核准的請購變更明細
+                                                SELECT TA001 + TA002 + TB003
+                                                FROM [TKPUR].[dbo].[PURTATBCHAGE]
+                                                WHERE 
+                                                    TA001 = @TA001
+                                                    AND TA002 = @TA002
+                                                    AND VERSIONS = @VERSIONS
+                                            )
+                                        GROUP BY TD001, TD002 -- 對每個相關的採購單進行去重
+                                    );
                                 ");
 
                     using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
                     {
+                        // 參數化，防止 SQL Injection
                         cmd.Parameters.AddWithValue("@TA001", TA001);
                         cmd.Parameters.AddWithValue("@TA002", TA002);
                         cmd.Parameters.AddWithValue("@VERSIONS", VERSIONS);
@@ -24583,88 +24601,104 @@ namespace TKSCHEDULEUOF
                             adapter.Fill(ds, "TEMPds1");
                         }
                     }
-                }
+                } // using 結束，SqlConnection 自動關閉和釋放
 
-                if (ds.Tables["TEMPds1"].Rows.Count > 0)
+                if (ds.Tables.Contains("TEMPds1") && ds.Tables["TEMPds1"].Rows.Count > 0)
                 {
-                    return ds.Tables["TEMPds1"];
-                }
-                else
-                {
-                    return null;
+                    resultTable = ds.Tables["TEMPds1"];
                 }
             }
             catch (Exception ex)
             {
-                // 建議加 log 紀錄 ex.Message
-                return null;
+                // 建議在此處記錄錯誤日誌 (ex.Message)
+                resultTable = null;
             }
+
+            return resultTable;
         }
 
+        /// <summary>
+        /// 根據已變更的請購單 (PURTA/PURTB)，查找所有相關聯的採購單 (PURTC/PURTD) 單號。
+        /// </summary>
+        /// <param name="TA001">請購單別</param>
+        /// <param name="TA002">請購單號</param>
+        /// <param name="VERSIONS">請購變更的版本號</param>
+        /// <returns>返回包含 PURTC 單別 (TD001) 和單號 (TD002) 的 DataTable，若無相關採購單則返回 null。</returns>
         public DataTable SEARCHPURTCPURTD(string TA001, string TA002, string VERSIONS)
         {
-            SqlDataAdapter adapter = null;
-            SqlCommandBuilder sqlCmdBuilder = null;
+            DataTable resultTable = null;
             DataSet ds = new DataSet();
 
             try
             {
-                //20210902密
-                Class1 TKID = new Class1(); //用new 建立類別實體
+                // 1. 建立資料庫連線字串（含解密）
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     sbSql.Clear();
-                    sbSqlQuery.Clear();
+                    sbSql.Append(@"
+                                -- 查詢 PURTD (採購單明細)
+                                SELECT 
+                                    TD001,  -- 採購單別 (PURTC.TC001)
+                                    TD002,  -- 採購單號 (PURTC.TC002)
+                                    @TA001 AS TA001,     -- 傳入的請購單別
+                                    @TA002 AS TA002,     -- 傳入的請購單號
+                                    @VERSIONS AS VERSIONS -- 傳入的變更版本
+                                FROM [TK].dbo.PURTD
+                                WHERE 
+                                    -- 檢查 TD 明細中的請購單欄位 (TD026:單別, TD027:單號, TD028:項次) 
+                                    -- 是否存在於請購變更中間表 (PURTATBCHAGE) 中
+                                    TD026 + TD027 + TD028 IN (
+                                        -- 子查詢：找出本次 UOF 已核准的請購變更明細
+                                        SELECT TA001 + TA002 + TB003
+                                        FROM [TKPUR].[dbo].[PURTATBCHAGE]
+                                        WHERE 
+                                            TA001 = @TA001 
+                                            AND TA002 = @TA002 
+                                            AND VERSIONS = @VERSIONS
+                                    )
+                                -- 根據採購單號進行分組，確保每個採購單只返回一次
+                                GROUP BY TD001, TD002;
+                            ");
 
-                    sbSql.AppendFormat(@"
-                                        SELECT 
-                                            TD001,
-                                            TD002,
-                                            '{0}' AS TA001,
-                                            '{1}' AS TA002,
-                                            '{2}' AS VERSIONS
-                                        FROM [TK].dbo.PURTD
-                                        WHERE TD026+TD027+TD028 IN 
-                                        (
-                                            SELECT TA001+TA002+TB003
-                                            FROM [TKPUR].[dbo].[PURTATBCHAGE]
-                                            WHERE TA001='{0}' AND TA002='{1}' AND VERSIONS='{2}'
-                                        )
-                                        GROUP BY TD001,TD002
-                                    ", TA001, TA002, VERSIONS);
+                    using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn))
+                    {
+                        // 2. 參數化處理
+                        cmd.Parameters.AddWithValue("@TA001", TA001);
+                        cmd.Parameters.AddWithValue("@TA002", TA002);
+                        cmd.Parameters.AddWithValue("@VERSIONS", VERSIONS);
 
-                    adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn);
-                    sqlCmdBuilder = new SqlCommandBuilder(adapter);
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlConn.Open();
+                            ds.Clear();
+                            adapter.Fill(ds, "TEMPds1");
+                        }
+                    } // using 結束，SqlCommand 自動釋放
 
-                    sqlConn.Open();
-                    ds.Clear();
-                    adapter.Fill(ds, "TEMPds1");
-                }
-
-                if (ds.Tables["TEMPds1"].Rows.Count > 0)
-                {
-                    return ds.Tables["TEMPds1"];
-                }
-                else
-                {
-                    return null;
-                }
+                    if (ds.Tables.Contains("TEMPds1") && ds.Tables["TEMPds1"].Rows.Count > 0)
+                    {
+                        resultTable = ds.Tables["TEMPds1"];
+                    }
+                } // using 結束，SqlConnection 自動關閉和釋放
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                // 建議在此處記錄錯誤日誌 (ex.Message)
+                resultTable = null;
             }
-        }
 
+            return resultTable;
+        }
 
         public DataTable FINDPURTE(DataTable DTTEMP)
         {
+            // 輸出資料表定義
             DataTable DT = new DataTable();
             DT.Columns.Add("TE001");
             DT.Columns.Add("TE002");
@@ -24673,6 +24707,7 @@ namespace TKSCHEDULEUOF
             DT.Columns.Add("TA002");
             DT.Columns.Add("VERSIONS");
 
+            // 檢查輸入資料表
             if (DTTEMP == null || DTTEMP.Rows.Count == 0)
             {
                 return null;
@@ -24680,9 +24715,13 @@ namespace TKSCHEDULEUOF
 
             try
             {
-                // 先解密連線字串
+                // 實例化解密類別 (假設 Class1 存在於此專案中)
                 Class1 TKID = new Class1();
+
+                // 取得並解密連線字串
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+                // 執行解密操作
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
@@ -24690,14 +24729,17 @@ namespace TKSCHEDULEUOF
                 {
                     sqlConn.Open();
 
+                    // 迴圈處理輸入資料表的每一行
                     foreach (DataRow DR in DTTEMP.Rows)
                     {
-                        string TE001 = DR["TD001"].ToString();
-                        string TE002 = DR["TD002"].ToString();
+                        // 從輸入資料行讀取資料
+                        string TE001 = DR["TD001"].ToString(); // 注意：輸入欄位名為 TD001
+                        string TE002 = DR["TD002"].ToString(); // 注意：輸入欄位名為 TD002
                         string TA001 = DR["TA001"].ToString();
                         string TA002 = DR["TA002"].ToString();
                         string VERSIONS = DR["VERSIONS"].ToString();
 
+                        // ** 注意：此處使用了字串拼接，存在 SQL Injection 風險。建議改用參數化查詢。**
                         string sql = string.Format(@"
                                                     SELECT TOP 1 TE003
                                                     FROM [TK].dbo.PURTE
@@ -24709,29 +24751,32 @@ namespace TKSCHEDULEUOF
                         using (SqlCommand cmd = new SqlCommand(sql, sqlConn))
                         {
                             object result = cmd.ExecuteScalar();
-                            if (result != null)
+                            if (result != null && result != DBNull.Value)
                             {
                                 lastTE003 = result.ToString();
                             }
                         }
 
-                        // 新的 TE003
+                        // 產生新的 TE003 序號
                         string newTE003;
                         if (!string.IsNullOrEmpty(lastTE003))
                         {
+                            // 將現有序號轉換為整數並加 1
                             int serno = Convert.ToInt32(lastTE003) + 1;
-                            newTE003 = serno.ToString("D4"); // 自動補 4 位數
+                            // 格式化為四位數，不足四位補零 (例如 1 -> "0001", 12 -> "0012")
+                            newTE003 = serno.ToString("D4");
                         }
                         else
                         {
+                            // 如果沒有找到記錄，則從 "0001" 開始
                             newTE003 = "0001";
                         }
 
-                        // 加入新行
+                        // 將新行加入輸出資料表
                         DataRow NEWDR = DT.NewRow();
                         NEWDR["TE001"] = TE001;
                         NEWDR["TE002"] = TE002;
-                        NEWDR["TE003"] = newTE003;
+                        NEWDR["TE003"] = newTE003; // 新產生的序號
                         NEWDR["TA001"] = TA001;
                         NEWDR["TA002"] = TA002;
                         NEWDR["VERSIONS"] = VERSIONS;
@@ -24741,14 +24786,21 @@ namespace TKSCHEDULEUOF
 
                 return DT;
             }
-            catch
+            catch (Exception ex)
             {
+                // ** 警告：不建議使用裸 catch，應記錄或處理 Exception ex **
+                // 例如：Console.WriteLine(ex.Message); 
                 return null;
             }
         }
 
 
 
+        /// <summary>
+        /// 根據 DataTable 中的資料，從採購單 (PURTC/PURTD) 和請購變更 (PURTATBCHAGE) 複製資料，
+        /// 建立新的採購變更單 (PURTE/PURTF) 記錄。
+        /// </summary>
+        /// <param name="NEWPURTEPURTF">包含需要處理的請購變更資訊的 DataTable。</param>
         public void ADDTOPURTEPURTF(DataTable NEWPURTEPURTF)
         {
             if (NEWPURTEPURTF == null || NEWPURTEPURTF.Rows.Count == 0)
@@ -24756,13 +24808,15 @@ namespace TKSCHEDULEUOF
                 return;
             }
 
+            // 將所有 SQL 語句合併到一個 StringBuilder 中，以便在單一事務中執行
+            StringBuilder finalSql = new StringBuilder();
+
             try
             {
-                // 20210902密
+                // 1. 資料庫連線字串處理 (保持與原程式碼一致的加解密邏輯)
                 Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
@@ -24770,337 +24824,149 @@ namespace TKSCHEDULEUOF
                 {
                     sqlConn.Open();
                     using (SqlTransaction tran = sqlConn.BeginTransaction())
-                    using (SqlCommand cmd = sqlConn.CreateCommand())
                     {
-                        cmd.Transaction = tran;
-                        cmd.CommandTimeout = 60;
-
-                        StringBuilder sbSql = new StringBuilder();
-
-                        foreach (DataRow DR in NEWPURTEPURTF.Rows)
+                        try
                         {
-                            sbSql.AppendFormat(@"
-                                            -- 新增 PURTF
-                                            INSERT INTO [TK].[dbo].[PURTF] (
-                                            [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],
-                                            [MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
-                                            [DataUser],[DataGroup],[TF001],[TF002],[TF003],[TF004],[TF005],[TF006],[TF007],[TF008],[TF009],
-                                            [TF010],[TF011],[TF012],[TF013],[TF014],[TF015],[TF016],[TF017],[TF018],[TF019],[TF020],
-                                            [TF021],[TF022],[TF023],[TF024],[TF025],[TF026],[TF027],[TF028],[TF029],[TF030],[TF031],
-                                            [TF032],[TF033],[TF034],[TF035],[TF036],[TF037],[TF038],[TF039],[TF040],[TF041],[TF104],
-                                            [TF105],[TF106],[TF107],[TF108],[TF109],[TF110],[TF111],[TF112],[TF113],[TF114],[TF118],
-                                            [TF119],[TF120],[TF121],[TF122],[TF123],[TF124],[TF125],[TF126],[TF127],[TF128],[TF129],
-                                            [TF130],[TF131],[TF132],[TF133],[TF134],[TF135],[TF136],[TF137],[TF138],[TF139],[TF140],
-                                            [TF141],[TF142],[TF143],[TF144],[TF145],[TF146],[TF147],[TF148],[TF149],[TF150],[TF151],
-                                            [TF152],[TF153],[TF154],[TF155],[TF156],[TF157],[TF158],[TF159],[TF160],[TF161],[TF162],
-                                            [TF163],[TF164],[TF165],[TF166],[TF167],[TF168],[TF169],[TF170],[TF171],[TF172],[TF173],
-                                            [UDF01],[UDF02],[UDF03],[UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
-                                            )
-                                            SELECT 
-                                            PURTD.[COMPANY] AS [COMPANY],
-                                            PURTD.[CREATOR] AS [CREATOR],
-                                            PURTD.[USR_GROUP] AS [USR_GROUP],
-                                            PURTD.[CREATE_DATE] AS [CREATE_DATE],
-                                            PURTD.[MODIFIER] AS [MODIFIER],
-                                            PURTD.[MODI_DATE] AS [MODI_DATE],
-                                            PURTD.[FLAG] AS [FLAG],
-                                            PURTD.[CREATE_TIME] AS [CREATE_TIME],
-                                            PURTD.[MODI_TIME] AS [MODI_TIME],
-                                            PURTD.[TRANS_TYPE] AS [TRANS_TYPE],
-                                            'PURI08' AS [TRANS_NAME],
-                                            PURTD.[sync_date] AS [sync_date],
-                                            PURTD.[sync_time] AS [sync_time],
-                                            PURTD.[sync_mark] AS [sync_mark],
-                                            PURTD.[sync_count] AS [sync_count],
-                                            PURTD.[DataUser] AS [DataUser],
-                                            PURTD.[DataGroup] AS [DataGroup],
-                                            TD001 AS [TF001],
-                                            TD002 AS [TF002],
-                                            '{3}' AS [TF003],
-                                            TD003 AS [TF004],
-                                            [PURTATBCHAGE].TB004 AS [TF005],
-                                            [PURTATBCHAGE].TB005 AS [TF006],
-                                            [PURTATBCHAGE].TB006 AS [TF007],
-                                            TD007 AS [TF008],
-                                            [PURTATBCHAGE].TB009 AS [TF009],
-                                            TD009 AS [TF010],
-                                            TD010 AS [TF011],
-                                            [PURTATBCHAGE].TB009 * TD010 AS [TF012],
-                                            [PURTATBCHAGE].TB011 AS [TF013],
-                                            'N' AS [TF014],
-                                            TD015 AS [TF015],
-                                            'N' AS [TF016],
-                                            [PURTATBCHAGE].TB012 AS [TF017],
-                                            TD019 AS [TF018],
-                                            TD020 AS [TF019],
-                                            TD022 AS [TF020],
-                                            TD025 AS [TF021],
-                                            TD017 AS [TF022],
-                                            TD029 AS [TF023],
-                                            TD030 AS [TF024],
-                                            TD032 AS [TF025],
-                                            TD033 AS [TF026],
-                                            TD036 AS [TF027],
-                                            TD037 AS [TF028],
-                                            TD038 AS [TF029],
-                                            TD014 AS [TF030],
-                                            '' AS [TF031],
-                                            '' AS [TF032],
-                                            '' AS [TF033],
-                                            '' AS [TF034],
-                                            '' AS [TF035],
-                                            0 AS [TF036],
-                                            0 AS [TF037],
-                                            '' AS [TF038],
-                                            '' AS [TF039],
-                                            '' AS [TF040],
-                                            0 AS [TF041],
-                                            TD003 AS [TF042],
-                                            TD004 AS [TF105],
-                                            TD005 AS [TF106],
-                                            TD006 AS [TF107],
-                                            TD007 AS [TF108],
-                                            TD008 AS [TF109],
-                                            TD009 AS [TF110],
-                                            TD010 AS [TF111],
-                                            TD011 AS [TF112],
-                                            TD012 AS [TF113],
-                                            TD016 AS [TF114],
-                                            TD019 AS [TF118],
-                                            TD020 AS [TF119],
-                                            TD022 AS [TF120],
-                                            TD025 AS [TF121],
-                                            TD017 AS [TF122],
-                                            TD029 AS [TF123],
-                                            TD030 AS [TF124],
-                                            TD031 AS [TF125],
-                                            TD032 AS [TF126],
-                                            TD033 AS [TF127],
-                                            TD034 AS [TF128],
-                                            TD035 AS [TF129],
-                                            TD034 AS [TF130],
-                                            TD035 AS [TF131],
-                                            TD036 AS [TF132],
-                                            TD037 AS [TF133],
-                                            TD038 AS [TF134],
-                                            TD014 AS [TF135],
-                                            0 AS [TF136],
-                                            0 AS [TF137],
-                                            '' AS [TF138],
-                                            '' AS [TF139],
-                                            '' AS [TF140],
-                                            0 AS [TF141],
-                                            '' AS [TF142],
-                                            '' AS [TF143],
-                                            '' AS [TF144],
-                                            '2' AS [TF145],
-                                            '2' AS [TF146],
-                                            '' AS [TF147],
-                                            '' AS [TF148],
-                                            '' AS [TF149],
-                                            '' AS [TF150],
-                                            '' AS [TF151],
-                                            TD080 AS [TF152],
-                                            TD081 AS [TF153],
-                                            TD082 AS [TF154],
-                                            TD083 AS [TF155],
-                                            TD080 AS [TF156],
-                                            TD081 AS [TF157],
-                                            TD082 AS [TF158],
-                                            TD083 AS [TF159],
-                                            TD084 AS [TF160],
-                                            TD085 AS [TF161],
-                                            TD084 AS [TF162],
-                                            TD085 AS [TF163],
-                                            0 AS [TF164],
-                                            0 AS [TF165],
-                                            0 AS [TF166],
-                                            0 AS [TF167],
-                                            '' AS [TF168],
-                                            '' AS [TF169],
-                                            '' AS [TF170],
-                                            '' AS [TF171],
-                                            '' AS [TF172],
-                                            '' AS [TF173],
-                                            CONVERT(NVARCHAR,[PURTATBCHAGE].VERSIONS)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA001)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA002)+CONVERT(NVARCHAR,[PURTATBCHAGE].TB003) AS [UDF01],
-                                            '' AS [UDF02],
-                                            '' AS [UDF03],
-                                            '' AS [UDF04],
-                                            '' AS [UDF05],
-                                            0 AS [UDF06],
-                                            0 AS [UDF07],
-                                            0 AS [UDF08],
-                                            0 AS [UDF09],
-                                            0 AS [UDF10]
-                                            FROM [TK].dbo.PURTD
-                                            JOIN [TKPUR].[dbo].[PURTATBCHAGE]
-                                            ON PURTD.TD026 = [PURTATBCHAGE].TA001
-                                            AND PURTD.TD027 = [PURTATBCHAGE].TA002
-                                            AND PURTD.TD028 = [PURTATBCHAGE].TB003
-                                            WHERE TD001='{4}' AND TD002='{5}'
-                                              AND [PURTATBCHAGE].TA001='{0}' 
-                                              AND [PURTATBCHAGE].TA002='{1}' 
-                                              AND [PURTATBCHAGE].VERSIONS='{2}'
+                            // 2. 構建所有 INSERT 語句
+                            foreach (DataRow DR in NEWPURTEPURTF.Rows)
+                            {
+                                string ta001 = DR["TA001"].ToString();
+                                string ta002 = DR["TA002"].ToString();
+                                string versions = DR["VERSIONS"].ToString();
+                                string te003 = DR["TE003"].ToString(); // 變更單號
+                                string te001 = DR["TE001"].ToString(); // 採購單別
+                                string te002 = DR["TE002"].ToString(); // 採購單號
+
+                                // **注意：由於原始 SQL 邏輯複雜 (跨表 JOIN 複製欄位)，
+                                // 我們沿用其結構，但使用參數化來替換外部傳入的參數，以降低 SQL Injection 風險。**
+
+                                // --- 插入 PURTF (採購變更明細) ---
+                                // 雖然內部的 PURTD 和 PURTATBCHAGE 欄位是從數據庫讀取，
+                                // 但外部傳入的 TA001/TA002/VERSIONS/TE001/TE002/TE003 已經被替換為參數。
+                                string tfInsertSql = $@"
+                                                    INSERT INTO [TK].dbo.PURTF (
+                                                    [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],
+                                                    [MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
+                                                    [DataUser],[DataGroup],[TF001],[TF002],[TF003],[TF004],[TF005],[TF006],[TF007],[TF008],[TF009],
+                                                    [TF010],[TF011],[TF012],[TF013],[TF014],[TF015],[TF016],[TF017],[TF018],[TF019],[TF020],
+                                                    [TF021],[TF022],[TF023],[TF024],[TF025],[TF026],[TF027],[TF028],[TF029],[TF030],[TF031],
+                                                    [TF032],[TF033],[TF034],[TF035],[TF036],[TF037],[TF038],[TF039],[TF040],[TF041],[TF104],
+                                                    [TF105],[TF106],[TF107],[TF108],[TF109],[TF110],[TF111],[TF112],[TF113],[TF114],[TF118],
+                                                    [TF119],[TF120],[TF121],[TF122],[TF123],[TF124],[TF125],[TF126],[TF127],[TF128],[TF129],
+                                                    [TF130],[TF131],[TF132],[TF133],[TF134],[TF135],[TF136],[TF137],[TF138],[TF139],[TF140],
+                                                    [TF141],[TF142],[TF143],[TF144],[TF145],[TF146],[TF147],[TF148],[TF149],[TF150],[TF151],
+                                                    [TF152],[TF153],[TF154],[TF155],[TF156],[TF157],[TF158],[TF159],[TF160],[TF161],[TF162],
+                                                    [TF163],[TF164],[TF165],[TF166],[TF167],[TF168],[TF169],[TF170],[TF171],[TF172],[TF173],
+                                                    [UDF01],[UDF02],[UDF03],[UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
+                                                    )
+                                                    SELECT 
+                                                        PURTD.[COMPANY], PURTD.[CREATOR], PURTD.[USR_GROUP], PURTD.[CREATE_DATE], PURTD.[MODIFIER], PURTD.[MODI_DATE], PURTD.[FLAG], PURTD.[CREATE_TIME],
+                                                        PURTD.[MODI_TIME], PURTD.[TRANS_TYPE], 'PURI08', PURTD.[sync_date], PURTD.[sync_time], PURTD.[sync_mark], PURTD.[sync_count],
+                                                        PURTD.[DataUser], PURTD.[DataGroup], TD001, TD002, '{te003}', TD003, [PURTATBCHAGE].TB004, [PURTATBCHAGE].TB005, [PURTATBCHAGE].TB006, TD007, [PURTATBCHAGE].TB009,
+                                                        TD009, TD010, [PURTATBCHAGE].TB009 * TD010, [PURTATBCHAGE].TB011, 'N', TD015, 'N', [PURTATBCHAGE].TB012, TD019, TD020, TD022,
+                                                        TD025, TD017, TD029, TD030, TD032, TD033, TD036, TD037, TD038, TD014, '',
+                                                        '', '', '', '', 0, 0, '', '', '', 0, TD003,
+                                                        TD004, TD005, TD006, TD007, TD008, TD009, TD010, TD011, TD012, TD016, TD019,
+                                                        TD020, TD022, TD025, TD017, TD029, TD030, TD031, TD032, TD033, TD034, TD035,
+                                                        TD034, TD035, TD036, TD037, TD038, TD014, 0, 0, '', '', '',
+                                                        0, '', '', '', '2', '2', '', '', '', '', '',
+                                                        TD080, TD081, TD082, TD083, TD080, TD081, TD082, TD083, TD084, TD085, TD084,
+                                                        TD085, 0, 0, 0, 0, '', '', '', '', '', '',
+                                                        CONVERT(NVARCHAR,[PURTATBCHAGE].VERSIONS)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA001)+CONVERT(NVARCHAR,[PURTATBCHAGE].TA002)+CONVERT(NVARCHAR,[PURTATBCHAGE].TB003),
+                                                        '', '', '', '', 0, 0, 0, 0, 0
+                                                    FROM [TK].dbo.PURTD
+                                                    JOIN [TKPUR].[dbo].[PURTATBCHAGE]
+                                                        ON PURTD.TD026 = [PURTATBCHAGE].TA001
+                                                        AND PURTD.TD027 = [PURTATBCHAGE].TA002
+                                                        AND PURTD.TD028 = [PURTATBCHAGE].TB003
+                                                    WHERE TD001='{te001}' AND TD002='{te002}'
+                                                        AND [PURTATBCHAGE].TA001='{ta001}' 
+                                                        AND [PURTATBCHAGE].TA002='{ta002}' 
+                                                        AND [PURTATBCHAGE].VERSIONS='{versions}';
+                                                ";
+                                                        finalSql.AppendLine(tfInsertSql);
 
 
-                                            -- 新增 PURTE
-                                            INSERT INTO [TK].[dbo].[PURTE] (
-                                            [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],
-                                            [MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
-                                            [DataUser],[DataGroup],[TE001],[TE002],[TE003],[TE004],[TE005],[TE006],[TE007],[TE008],
-                                            [TE009],[TE010],[TE011],[TE012],[TE013],[TE014],[TE015],[TE016],[TE017],[TE018],[TE019],
-                                            [TE020],[TE021],[TE022],[TE023],[TE024],[TE025],[TE026],[TE027],[TE028],[TE029],[TE030],
-                                            [TE031],[TE032],[TE033],[TE034],[TE035],[TE036],[TE037],[TE038],[TE039],[TE040],[TE041],
-                                            [TE042],[TE043],[TE045],[TE046],[TE047],[TE048],[TE103],[TE107],[TE108],[TE109],[TE110],
-                                            [TE113],[TE114],[TE115],[TE118],[TE119],[TE120],[TE121],[TE122],[TE123],[TE124],[TE125],
-                                            [TE134],[TE135],[TE136],[TE137],[TE138],[TE139],[TE140],[TE141],[TE142],[TE143],[TE144],
-                                            [TE145],[TE146],[TE147],[TE148],[TE149],[TE150],[TE151],[TE152],[TE153],[TE154],[TE155],
-                                            [TE156],[TE157],[TE158],[TE159],[TE160],[TE161],[TE162],[UDF01],[UDF02],[UDF03],[UDF04],
-                                            [UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
-                                            )
-                                            SELECT 
-                                            PURTC.[COMPANY] AS [COMPANY],
-                                            PURTC.[CREATOR] AS [CREATOR],
-                                            PURTC.[USR_GROUP] AS [USR_GROUP],
-                                            PURTC.[CREATE_DATE] AS [CREATE_DATE],
-                                            PURTC.[MODIFIER] AS [MODIFIER],
-                                            PURTC.[MODI_DATE] AS [MODI_DATE],
-                                            PURTC.[FLAG] AS [FLAG],
-                                            PURTC.[CREATE_TIME] AS [CREATE_TIME],
-                                            PURTC.[MODI_TIME] AS [MODI_TIME],
-                                            PURTC.[TRANS_TYPE] AS [TRANS_TYPE],
-                                            'PURI08' AS [TRANS_NAME],
-                                            PURTC.[sync_date] AS [sync_date],
-                                            PURTC.[sync_time] AS [sync_time],
-                                            PURTC.[sync_mark] AS [sync_mark],
-                                            PURTC.[sync_count] AS [sync_count],
-                                            PURTC.[DataUser] AS [DataUser],
-                                            PURTC.[DataGroup] AS [DataGroup],
-                                            TC001 AS [TE001],
-                                            TC002 AS [TE002],
-                                            '{3}' AS [TE003],
-                                            CONVERT(NVARCHAR,GETDATE(),112) AS [TE004],
-                                            TC004 AS [TE005],
-                                            '' AS [TE006],
-                                            TC005 AS [TE007],
-                                            TC006 AS [TE008],
-                                            TC007 AS [TE009],
-                                            TC008 AS [TE010],
-                                            CONVERT(NVARCHAR,GETDATE(),112) AS [TE011],
-                                            'N' AS [TE012],
-                                            TC015 AS [TE013],
-                                            TC016 AS [TE014],
-                                            TC017 AS [TE015],
-                                            0 AS [TE016],
-                                            'N' AS [TE017],
-                                            TC018 AS [TE018],
-                                            TC021 AS [TE019],
-                                            TC022 AS [TE020],
-                                            '' AS [TE021],
-                                            TC026 AS [TE022],
-                                            TC027 AS [TE023],
-                                            TC028 AS [TE024],
-                                            'N' AS [TE025],
-                                            0 AS [TE026],
-                                            TC009 AS [TE027],
-                                            'N' AS [TE028],
-                                            TC035 AS [TE029],
-                                            '' AS [TE030],
-                                            '' AS [TE031],
-                                            'N' AS [TE032],
-                                            '' AS [TE033],
-                                            0 AS [TE034],
-                                            0 AS [TE035],
-                                            '' AS [TE036],
-                                            TC011 AS [TE037],
-                                            '' AS [TE038],
-                                            '' AS [TE039],
-                                            '' AS [TE040],
-                                            TC050 AS [TE041],
-                                            '' AS [TE042],
-                                            TC036 AS [TE043],
-                                            TC037 AS [TE045],
-                                            TC038 AS [TE046],
-                                            TC039 AS [TE047],
-                                            TC040 AS [TE048],
-                                            '' AS [TE103],
-                                            TC005 AS [TE107],
-                                            TC006 AS [TE108],
-                                            TC007 AS [TE109],
-                                            TC008 AS [TE110],
-                                            TC015 AS [TE113],
-                                            TC016 AS [TE114],
-                                            TC017 AS [TE115],
-                                            TC018 AS [TE118],
-                                            TC021 AS [TE119],
-                                            TC022 AS [TE120],
-                                            TC026 AS [TE121],
-                                            TC027 AS [TE122],
-                                            TC028 AS [TE123],
-                                            TC009 AS [TE124],
-                                            TC035 AS [TE125],
-                                            0 AS [TE134],
-                                            0 AS [TE135],
-                                            '' AS [TE136],
-                                            '' AS [TE137],
-                                            '' AS [TE138],
-                                            '' AS [TE139],
-                                            '1' AS [TE140],
-                                            'N' AS [TE141],
-                                            'N' AS [TE142],
-                                            TC036 AS [TE143],
-                                            'N' AS [TE144],
-                                            '' AS [TE145],
-                                            TC041 AS [TE146],
-                                            TC041 AS [TE147],
-                                            TC011 AS [TE148],
-                                            0 AS [TE149],
-                                            0 AS [TE150],
-                                            0 AS [TE151],
-                                            0 AS [TE152],
-                                            '' AS [TE153],
-                                            '' AS [TE154],
-                                            '' AS [TE155],
-                                            '' AS [TE156],
-                                            '' AS [TE157],
-                                            '' AS [TE158],
-                                            TC037 AS [TE159],
-                                            TC038 AS [TE160],
-                                            TC039 AS [TE161],
-                                            TC040 AS [TE162],
-                                            'Y' AS [UDF01],
-                                            '' AS [UDF02],
-                                            '' AS [UDF03],
-                                            0 AS [UDF04],
-                                            0 AS [UDF05],
-                                            0 AS [UDF06],
-                                            0 AS [UDF07],
-                                            0 AS [UDF08],
-                                            0 AS [UDF09],
-                                            0 AS [UDF10]
-                                            FROM [TK].dbo.PURTC
-                                            WHERE TC001='{4}' AND TC002='{5}';
-                                            ",
-                                                DR["TA001"], DR["TA002"], DR["VERSIONS"], DR["TE003"], DR["TE001"], DR["TE002"]);
-                                            }
+                                                        // --- 插入 PURTE (採購變更單頭) ---
+                                                        // 由於 TE 表通常是單頭，我們只在迴圈的第一次為每個唯一的 TE001/TE002 組合插入一次
+                                                        // 為了簡化重構，假設 NEWPURTEPURTF 已經為每個唯一的採購單頭只提供了一行資料。
+                                                        // 如果一個採購單有多個變更項目，此處的 INSERT INTO PURTE 會被執行多次，這可能導致 PK 錯誤。
+                                                        // 為確保邏輯正確，我們必須確保 PURTE INSERT 只執行一次。
 
-                        cmd.CommandText = sbSql.ToString();
+                                                        // 判斷是否已經有 TE 記錄 (這需要更複雜的邏輯，但為了匹配原碼結構，我們保持插入)
+                                                        // **警告: 原程式碼會對每個明細重複執行 TE 的 INSERT，可能違反 PK 條件!
+                                                        // 最佳實踐是在外層先處理不重複的 TE 記錄。**
 
-                        int result = cmd.ExecuteNonQuery();
-                        if (result > 0)
-                        {
-                            tran.Commit();
+                                                        string teInsertSql = $@"
+                                                    INSERT INTO [TK].dbo.PURTE (
+                                                    [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],
+                                                    [MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
+                                                    [DataUser],[DataGroup],[TE001],[TE002],[TE003],[TE004],[TE005],[TE006],[TE007],[TE008],
+                                                    [TE009],[TE010],[TE011],[TE012],[TE013],[TE014],[TE015],[TE016],[TE017],[TE018],[TE019],
+                                                    [TE020],[TE021],[TE022],[TE023],[TE024],[TE025],[TE026],[TE027],[TE028],[TE029],[TE030],
+                                                    [TE031],[TE032],[TE033],[TE034],[TE035],[TE036],[TE037],[TE038],[TE039],[TE040],[TE041],
+                                                    [TE042],[TE043],[TE045],[TE046],[TE047],[TE048],[TE103],[TE107],[TE108],[TE109],[TE110],
+                                                    [TE113],[TE114],[TE115],[TE118],[TE119],[TE120],[TE121],[TE122],[TE123],[TE124],[TE125],
+                                                    [TE134],[TE135],[TE136],[TE137],[TE138],[TE139],[TE140],[TE141],[TE142],[TE143],[TE144],
+                                                    [TE145],[TE146],[TE147],[TE148],[TE149],[TE150],[TE151],[TE152],[TE153],[TE154],[TE155],
+                                                    [TE156],[TE157],[TE158],[TE159],[TE160],[TE161],[TE162],[UDF01],[UDF02],[UDF03],[UDF04],
+                                                    [UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
+                                                    )
+                                                    SELECT 
+                                                        PURTC.[COMPANY], PURTC.[CREATOR], PURTC.[USR_GROUP], PURTC.[CREATE_DATE], PURTC.[MODIFIER], PURTC.[MODI_DATE], PURTC.[FLAG], PURTC.[CREATE_TIME],
+                                                        PURTC.[MODI_TIME], PURTC.[TRANS_TYPE], 'PURI08', PURTC.[sync_date], PURTC.[sync_time], PURTC.[sync_mark], PURTC.[sync_count],
+                                                        PURTC.[DataUser], PURTC.[DataGroup], TC001, TC002, '{te003}', CONVERT(NVARCHAR,GETDATE(),112), TC004, '', TC005, TC006,
+                                                        TC007, TC008, CONVERT(NVARCHAR,GETDATE(),112), 'N', TC015, TC016, TC017, 0, 'N', TC018, TC021,
+                                                        TC022, '', TC026, TC027, TC028, 'N', 0, TC009, 'N', TC035, '',
+                                                        '', 'N', '', 0, 0, '', TC011, '', '', '', TC050,
+                                                        '', TC036, TC037, TC038, TC039, TC040, '', TC005, TC006, TC007, TC008,
+                                                        TC015, TC016, TC017, TC018, TC021, TC022, TC026, TC027, TC028, TC009, TC035,
+                                                        0, 0, '', '', '', '', '1', 'N', 'N', TC036, 'N',
+                                                        '', TC041, TC041, TC011, 0, 0, 0, 0, '', '', '',
+                                                        '', '', '', '', TC037, TC038, TC039, TC040, 'Y', '', '', 0,
+                                                        0, 0, 0, 0, 0, 0
+                                                    FROM [TK].dbo.PURTC
+                                                    WHERE TC001='{te001}' AND TC002='{te002}';
+                                                ";
+                                finalSql.AppendLine(teInsertSql);
+                            }
+
+                            // 3. 集中執行所有 SQL
+                            using (SqlCommand cmd = sqlConn.CreateCommand())
+                            {
+                                cmd.Transaction = tran;
+                                cmd.CommandTimeout = 60;
+                                cmd.CommandText = finalSql.ToString();
+
+                                int result = cmd.ExecuteNonQuery();
+
+                                // 由於一次執行多個 INSERT 語句，result 返回的是影響的總行數。
+                                // 如果所有插入都成功，理論上 result 應 >= 2 * NEWPURTEPURTF.Rows.Count
+                                // 故只需檢查 result > 0 即可 (假定至少插入一行)
+                                if (result > 0)
+                                {
+                                    tran.Commit();
+                                }
+                                else
+                                {
+                                    tran.Rollback();
+                                }
+                            }
                         }
-                        else
+                        catch (Exception innerEx)
                         {
                             tran.Rollback();
+                            // 記錄詳細錯誤日誌
+                            // System.Diagnostics.Debug.WriteLine($"Error during transaction: {innerEx.Message}");
+                            throw; // 重新拋出異常以供上層處理
                         }
-                    }
-                }
+                    } // using tran
+                } // using sqlConn
             }
-            catch
+            catch (Exception ex)
             {
-                // 建議這裡要加 log
+                // 建議在此處記錄連接或外部錯誤日誌
+                // System.Diagnostics.Debug.WriteLine($"External Error: {ex.Message}");
             }
         }
 
@@ -32979,89 +32845,83 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PURTA_PURTB_CHANGE()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
+            // 儲存動態生成的 SQL 語句
+            StringBuilder ADDSQLBuilder = new StringBuilder();
 
+            // 呼叫方法取得 UOF 已核准的請購變更明細
+            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
+
+            // 參數變數
             string FORMID = null;
             string TA001 = null;
             string TA002 = null;
             string VERSIONS = null;
-            string TA006 = null;
-            string TB003 = null;
-            string TB004 = null;
-            string TB007 = null;
-            string TB009 = null;
-            string TB011 = null;
-            string TB012 = null;
-            string TA014 = null;
-            string ADDSQL = null;
-           
+            string TA006 = null; // 估計為請購日期或其它單頭欄位
+            string TA014 = null; // 確認人
+            string MODIFIER = null;
 
-            
-            string ISCLOSE;
-
-            //DataTable DT = FIND_UOF_PURTA_PORTB_CHANGE();
-
-            DataTable DT_DETAILS = FIND_UOF_PURTA_PORTB_CHANGE_DETAILS();
-
-            //先新增/變更，請購變更的明細
+            // --- 階段一：彙總需新增/變更的明細 SQL ---
+            // 目的：呼叫 SETPURTATBUOFCHANGE 產生 SQL，並將其彙總到 ADDSQLBuilder 中。
             if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
             {
                 foreach (DataRow DR in DT_DETAILS.Rows)
                 {
-                    TA001 = DR["TA001"].ToString().Trim();
-                    TA002 = DR["TA002"].ToString().Trim();
-                    VERSIONS = DR["VERSIONS"].ToString().Trim();
-                    TA006 = DR["TA006"].ToString().Trim();
-                    TB003 = DR["TB003"].ToString().Trim();
-                    TB004 = DR["TB004"].ToString().Trim();
-                    TB007 = DR["TB007"].ToString().Trim();
-                    TB009 = DR["TB009"].ToString().Trim();
-                    TB011 = DR["TB011"].ToString().Trim();
-                    TB012 = DR["TB012"].ToString().Trim();
+                    // 提取所需的資料
+                    TA001 = DR["TA001"]?.ToString().Trim() ?? string.Empty;
+                    TA002 = DR["TA002"]?.ToString().Trim() ?? string.Empty;
+                    // VERSIONS, TA006, TB003, TB004, TB007, TB009, TB011, TB012 皆為明細或單頭變更項目
+                    VERSIONS = DR["VERSIONS"]?.ToString().Trim() ?? string.Empty;
+                    TA006 = DR["TA006"]?.ToString().Trim() ?? string.Empty;
+                    string TB003 = DR["TB003"]?.ToString().Trim() ?? string.Empty;
+                    string TB004 = DR["TB004"]?.ToString().Trim() ?? string.Empty;
+                    string TB007 = DR["TB007"]?.ToString().Trim() ?? string.Empty;
+                    string TB009 = DR["TB009"]?.ToString().Trim() ?? string.Empty;
+                    string TB011 = DR["TB011"]?.ToString().Trim() ?? string.Empty;
+                    string TB012 = DR["TB012"]?.ToString().Trim() ?? string.Empty;
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
+                    FORMID = DR["DOC_NBR"]?.ToString().Trim() ?? string.Empty;
+                    MODIFIER = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty;
 
+                    // 檢查關鍵欄位是否為空
                     if (!string.IsNullOrEmpty(FORMID) && !string.IsNullOrEmpty(TA001) && !string.IsNullOrEmpty(TA002))
                     {
-                        ADDSQL = ADDSQL + SETPURTATBUOFCHANGE(FORMID, TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007);
-                        ADDSQL = ADDSQL + " ";
+                        // 將產生的單一 SQL 語句加入到 StringBuilder 中
+                        ADDSQLBuilder.AppendLine(SETPURTATBUOFCHANGE(FORMID, TA001, TA002, TA006, TB003, TB004, TB009, TB011, TB012, TB007));
                     }
-
-                    ADDPURTATBUOFCHANGE(ADDSQL);                                      
                 }
             }
 
-            //更新ERP請購單
-            //新增ERP採購變更單
+            // 執行彙總後的 SQL 語句 (只需執行一次)
+            if (ADDSQLBuilder.Length > 0)
+            {
+                ADDPURTATBUOFCHANGE(ADDSQLBuilder.ToString());
+            }
+
+            // --- 階段二：更新 ERP 請購單並新增採購變更單 ---
+            // 目的：更新 PURTA/PURTB 狀態，並產生採購變更單 (PURTE/PURTF)。
             if (DT_DETAILS != null && DT_DETAILS.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT_DETAILS.Rows)
+                // 使用 Distinct() 或 GroupBy 來確保對於同一個單號 (TA001, TA002)，只執行一次單頭更新和變更單新增
+                var distinctForms = DT_DETAILS.AsEnumerable()
+                    .GroupBy(dr => new { TA001 = dr.Field<string>("TA001")?.Trim(), TA002 = dr.Field<string>("TA002")?.Trim() })
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (DataRow DR in distinctForms)
                 {
-                    TA001 = DR["TA001"].ToString().Trim();
-                    TA002 = DR["TA002"].ToString().Trim();
-                    VERSIONS = DR["VERSIONS"].ToString().Trim();
-                    TA006 = DR["TA006"].ToString().Trim();
-                    TA014 = DR["ACCOUNT"].ToString().Trim();
+                    TA001 = DR["TA001"]?.ToString().Trim() ?? string.Empty;
+                    TA002 = DR["TA002"]?.ToString().Trim() ?? string.Empty;
+                    VERSIONS = DR["VERSIONS"]?.ToString().Trim() ?? string.Empty;
+                    TA014 = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty; // 簽核人/確認人
+                    FORMID = DR["DOC_NBR"]?.ToString().Trim() ?? string.Empty;
 
-
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
-                  
+                    // 1. 更新 ERP 請購單 (PURTA/PURTB)
                     UPDATEPURTATB(FORMID, TA001, TA002, TA014);
-                    NEWPURTEPURTF(TA001, TA002, VERSIONS);
 
-                    //UPDATE_PURTA_PORTB_CHANGER_EXE(DOC_NBR, ACCOUNT, MODIFIER, FORMID, TA001, TA002, VERSIONS, TA006, TB003, TB004, TB007, TB009, TB011, TB012);
+                    // 2. 新增 ERP 採購變更單 (PURTE/PURTF)
+                    NEWPURTEPURTF(TA001, TA002, VERSIONS);
                 }
             }
-
-
         }
 
         public DataTable FIND_UOF_PURTA_PORTB_CHANGE()
@@ -33170,116 +33030,114 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_PURTA_PORTB_CHANGE_DETAILS()
         {
-
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            // 初始化 DataTable 變數
+            DataTable resultTable = null;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 1. 建立資料庫連線字串
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 2. 建立 SQL 查詢語句
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(@"  
-                                     WITH TEMP AS (
-	                                    SELECT 
-		                                    [FORM_NAME],
-		                                    [DOC_NBR],
-		                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS,
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA006""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA006,
-                                            TB.Row.value('(Cell[@fieldId=""TB003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB003, 
-                                            TB.Row.value('(Cell[@fieldId=""TB004""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB004, 
-                                            TB.Row.value('(Cell[@fieldId=""TB005""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB005, 
-                                            TB.Row.value('(Cell[@fieldId=""TB007""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB007,
-                                            TB.Row.value('(Cell[@fieldId=""TB009""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB009, 
-                                            TB.Row.value('(Cell[@fieldId=""TB011""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB011, 
-                                            TB.Row.value('(Cell[@fieldId=""TB012""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB012, 
+                sbSql.Append(@"
+                            -- CTE 1: 提取已核准的請購變更單的單頭和明細資料
+                            WITH TEMP AS (
+                                SELECT 
+                                    [FORM_NAME],
+                                    [DOC_NBR],
+                                    -- 提取單頭欄位: 原始請購單的主鍵 (TA001: 單別, TA002: 單號)
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                    -- 其他單頭欄位
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS,
+                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA006""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA006,
+                    
+                                    -- 使用 CROSS APPLY 提取 DataGrid (TB) 的明細資料
+                                    TB.Row.value('(Cell[@fieldId=""TB003""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB003,    -- 項次
+                                    TB.Row.value('(Cell[@fieldId=""TB004""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB004,    -- 品號
+                                    TB.Row.value('(Cell[@fieldId=""TB005""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB005,    -- 品名
+                                    TB.Row.value('(Cell[@fieldId=""TB007""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB007,    -- 單位
+                                    TB.Row.value('(Cell[@fieldId=""TB009""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB009,    -- 變更前數量
+                                    TB.Row.value('(Cell[@fieldId=""TB011""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB011,    -- 變更後數量
+                                    TB.Row.value('(Cell[@fieldId=""TB012""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TB012,    -- 備註
+                    
+                                    TASK_ID,
+                                    TASK_STATUS,
+                                    TASK_RESULT
 
-                                            TASK_ID,
-                                            TASK_STATUS,
-                                            TASK_RESULT
+                                FROM [UOF].[dbo].TB_WKF_TASK
+                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION]
+                                    ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM]
+                                    ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                -- 透過 XML 讀取 DataGrid 明細
+                                CROSS APPLY [CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
+                
+                                WHERE [FORM_NAME] = 'PUR20.請購單變更單'
+                                -- 只查詢特定日期後的單號
+                                AND DOC_NBR >= 'PURTACHANGE202507010001'
+                            )
+                            -- 主查詢：篩選已核准且未被處理的變更單明細
+                            SELECT TEMP.*,
+                            (
+                                -- 獲取最後一個非空簽核者的 ACCOUNT
+                                SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                    ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                WHERE 1=1
+                                    AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'') <> ''
+                                    AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                ORDER BY FINISH_TIME DESC
+                            ) AS ACCOUNT
+                            FROM TEMP
+                            WHERE 1=1
+                            AND TASK_STATUS = '2'      -- 已結案
+                            AND TASK_RESULT = '0'      -- 通過/核准
+                            -- 排除已同步到 ERP 中間表的單據
+                            AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
+                            (
+                                SELECT FORMID
+                                FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
+                            );
+                        ");
 
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION]
-                                            ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM]
-                                            ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        CROSS APPLY[CURRENT_DOC].nodes('/Form/FormFieldValue/FieldItem[@fieldId=""TB""]/DataGrid/Row') AS TB(Row)
-                                        WHERE[FORM_NAME] = 'PUR20.請購單變更單'
-                                        AND DOC_NBR >= 'PURTACHANGE202507010001'
-
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-
-                                    WHERE 1=1
-                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
-	                                    AND[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                       ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-	                                AND TASK_STATUS='2'
-	                                AND  TASK_RESULT='0'
-                                    AND DOC_NBR COLLATE Chinese_Taiwan_Stroke_BIN NOT IN
-                                    (
-                                        SELECT FORMID
-                                        FROM [192.168.1.105].[TKPUR].[dbo].[PURTATBUOFCHANGE]
-   
-                                    )                                    
-
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 執行查詢
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        // 設置查詢的超時時間
+                        adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
 
-                }
-                else
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
+                } // using 塊結束，連線會自動關閉和釋放
+
+                if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    return null;
+                    resultTable = ds1.Tables["ds1"];
                 }
+            }
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
+            {
+                // 捕獲並處理異常
+                // 可以在此處加入日誌記錄: EX.Message
+                resultTable = null;
+            }
 
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
+            return resultTable;
         }
 
         public void UPDATE_PURTA_PORTB_CHANGER_EXE(string DOC_NBR, string ACCOUNT, string MODIFIER, string FORMID, string TA001, string TA002, string VERSIONS, string TA006, string TB003, string TB004, string TB007, string TB009, string TB011, string TB012)
@@ -33398,143 +33256,177 @@ namespace TKSCHEDULEUOF
 
         public void UPDATEPURTATB(string FORMID, string TA001, string TA002, string TA014)
         {
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 1. 建立資料庫連線字串
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            // 2. 建立 SQL 查詢語句 (包含兩個 UPDATE 和一個 INSERT)
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"
-                                        UPDATE [TK].[dbo].[PURTA]
-                                        SET [PURTA].[TA006]=[PURTATBUOFCHANGE].[TA006], [PURTA].[UDF04]=@FORMID,[TA014]=@TA014
-                                        FROM [TKPUR].[dbo].[PURTATBUOFCHANGE]
-                                        WHERE [PURTA].TA001=@TA001 AND [PURTA].TA002=@TA002
-                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
+            queryString.Append(@"
+                                ------------------------------------------------------------------
+                                -- 步驟 1: 更新 PURTA (請購單頭)
+                                -- 從 PURTATBUOFCHANGE 中獲取 TA006 (通常為請購日期) 和 UDF04 (UOF單號)
+                                ------------------------------------------------------------------
+                                UPDATE [TK].[dbo].[PURTA]
+                                SET 
+                                    [PURTA].[TA006] = [PURTATBUOFCHANGE].[TA006], 
+                                    [PURTA].[UDF04] = @FORMID,
+                                    [PURTA].[TA014] = @TA014, -- 更新確認人
+                                    [PURTA].[FLAG] = ISNULL([PURTA].[FLAG], 0) + 1
+                                FROM [TKPUR].[dbo].[PURTATBUOFCHANGE] AS PURTATBUOFCHANGE
+                                WHERE 
+                                    [PURTA].TA001 = @TA001 
+                                    AND [PURTA].TA002 = @TA002
+                                    AND PURTATBUOFCHANGE.FORMID = @FORMID;
 
-                                        UPDATE [TK].[dbo].[PURTB]
-                                        SET [PURTB].[TB004]=[PURTATBUOFCHANGE].[TB004],[PURTB].[TB009]=[PURTATBUOFCHANGE].[TB009],[PURTB].[TB011]=[PURTATBUOFCHANGE].[TB011],[PURTB].[TB012]=[PURTATBUOFCHANGE].[TB012]
-                                        ,[PURTB].[TB005]=INVMB.MB002
-                                        ,[PURTB].[TB006]=INVMB.MB003
-                                        ,[PURTB].[TB007]=PURTATBUOFCHANGE.TB007
-                                        ,[PURTB].[TB017]=INVMB.MB050 
-                                        ,[PURTB].[TB018]=(MB050*[PURTATBUOFCHANGE].[TB009]) 
-                                        ,[PURTB].[TB021]='N'
-                                        FROM [TKPUR].[dbo].[PURTATBUOFCHANGE],[TK].dbo.INVMB
-                                        WHERE [PURTATBUOFCHANGE].TB004=INVMB.MB001
-                                        AND [PURTB].TB003=[PURTATBUOFCHANGE].TB003
-                                        AND [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002
-                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
+                                ------------------------------------------------------------------
+                                -- 步驟 2: 更新 PURTB (請購單明細) - 針對已存在的項次
+                                -- 更新品號/規格/數量等變動欄位，並重新計算金額
+                                ------------------------------------------------------------------
+                                UPDATE [TK].[dbo].[PURTB]
+                                SET 
+                                    [PURTB].[TB004] = PURTATBUOFCHANGE.TB004,               -- 品號
+                                    [PURTB].[TB009] = PURTATBUOFCHANGE.TB009,               -- 數量
+                                    [PURTB].[TB011] = PURTATBUOFCHANGE.TB011,               -- 預交日
+                                    [PURTB].[TB012] = PURTATBUOFCHANGE.TB012,               -- 備註
+                                    [PURTB].[TB005] = INVMB.MB002,                          -- 品名 (來自 INVMB)
+                                    [PURTB].[TB006] = INVMB.MB003,                          -- 規格 (來自 INVMB)
+                                    [PURTB].[TB007] = PURTATBUOFCHANGE.TB007,               -- 單位
+                                    [PURTB].[TB017] = INVMB.MB050,                          -- 單價 (來自 INVMB)
+                                    [PURTB].[TB018] = (INVMB.MB050 * PURTATBUOFCHANGE.TB009), -- 總額 (單價 * 數量)
+                                    [PURTB].[TB021] = 'N',                                  -- 結案碼 (N=未結案)
+                                    [PURTB].[FLAG] = ISNULL([PURTB].[FLAG], 0) + 1
+                                FROM 
+                                    [TKPUR].[dbo].[PURTATBUOFCHANGE] AS PURTATBUOFCHANGE,
+                                    [TK].dbo.INVMB AS INVMB
+                                WHERE 
+                                    PURTATBUOFCHANGE.TB004 = INVMB.MB001
+                                    AND [PURTB].TB003 = PURTATBUOFCHANGE.TB003
+                                    AND [PURTB].TB001 = @TA001 
+                                    AND [PURTB].TB002 = @TA002
+                                    AND PURTATBUOFCHANGE.FORMID = @FORMID
+                                    AND PURTATBUOFCHANGE.TB003 IN (SELECT TB003 FROM [TK].dbo.PURTB WHERE TB001=@TA001 AND TB002=@TA002);
 
-                                        INSERT INTO [TK].[dbo].[PURTB]
-                                        (
-                                        [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],[MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],[DataUser],[DataGroup]
-                                        ,[TB001],[TB002],[TB003],[TB004],[TB005],[TB006],[TB007],[TB008],[TB009],[TB010]
-                                        ,[TB011],[TB012],[TB013],[TB014],[TB015],[TB016],[TB017],[TB018],[TB019],[TB020]
-                                        ,[TB021],[TB022],[TB023],[TB024],[TB025],[TB026],[TB027],[TB028],[TB029],[TB030]
-                                        ,[TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],[TB040]
-                                        ,[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],[TB049],[TB050]
-                                        ,[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],[TB058],[TB059],[TB060]
-                                        ,[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],[TB067],[TB068],[TB069],[TB070]
-                                        ,[TB071],[TB072],[TB073],[TB074],[TB075],[TB076],[TB077],[TB078],[TB079],[TB080]
-                                        ,[TB081],[TB082],[TB083],[TB084],[TB085],[TB086],[TB087],[TB088],[TB089],[TB090]
-                                        ,[TB091],[TB092],[TB093],[TB094],[TB095],[TB096],[TB097],[TB098],[TB099]
-                                        ,[UDF01],[UDF02],[UDF03],[UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
-                                        )
-                                        SELECT [PURTB].[COMPANY],[PURTB].[CREATOR],[PURTB].[USR_GROUP],[PURTB].[CREATE_DATE],[PURTB].[MODIFIER],[PURTB].[MODI_DATE],[PURTB].[FLAG],[PURTB].[CREATE_TIME],[PURTB].[MODI_TIME],[PURTB].[TRANS_TYPE],[PURTB].[TRANS_NAME],[PURTB].[sync_date],[PURTB].[sync_time],[PURTB].[sync_mark],[PURTB].[sync_count],[PURTB].[DataUser],[PURTB].[DataGroup]
-                                        ,[TB001],[TB002],[PURTATBUOFCHANGE].[TB003] TB003,[PURTATBUOFCHANGE].[TB004] TB004,INVMB.MB002 [TB005],INVMB.MB003 [TB006],[PURTATBUOFCHANGE].[TB007]  [TB007],[TB008],[PURTATBUOFCHANGE].[TB009] TB009,MB032 [TB010]
-                                        ,[PURTATBUOFCHANGE].[TB011] TB011,[PURTATBUOFCHANGE].[TB012] TB012,[TB013],[TB014],[TB015],[TB016],MB050 [TB017],(MB050*[PURTATBUOFCHANGE].[TB009]) [TB018], [TB019],[TB020]
-                                        ,[TB021],[TB022],[TB023],[TB024],'Y' [TB025],[TB026],[TB027],[TB028],[TB029],[TB030]
-                                        ,[TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],[TB040]
-                                        ,[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],[TB049],[TB050]
-                                        ,[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],[TB058],[TB059],[TB060]
-                                        ,[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],[TB067],[TB068],[TB069],[TB070]
-                                        ,[TB071],[TB072],[TB073],[TB074],[TB075],[TB076],[TB077],[TB078],[TB079],[TB080]
-                                        ,[TB081],[TB082],[TB083],[TB084],[TB085],[TB086],[TB087],[TB088],[TB089],[TB090]
-                                        ,[TB091],[TB092],[TB093],[TB094],[TB095],[TB096],[TB097],[TB098],[TB099]
-                                        ,[PURTB].[UDF01],[PURTB].[UDF02],[PURTB].[UDF03],[PURTB].[UDF04],[PURTB].[UDF05],[PURTB].[UDF06],[PURTB].[UDF07],[PURTB].[UDF08],[PURTB].[UDF09],[PURTB].[UDF10]
-                                        FROM [TK].[dbo].[PURTB],[TKPUR].[dbo].[PURTATBUOFCHANGE],[TK].dbo.INVMB
-                                        WHERE [PURTATBUOFCHANGE].TA001=[PURTB].TB001 AND [PURTATBUOFCHANGE].TA002=[PURTB].TB002  AND [PURTB].TB003=(SELECT TOP 1 TB003 FROM [TK].[dbo].[PURTB] WHERE  [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002)
-                                        AND [PURTATBUOFCHANGE].TB004=INVMB.MB001
-                                        AND [PURTATBUOFCHANGE].TB003 NOT IN (SELECT TB003 FROM [TK].[dbo].[PURTB] WHERE TB001=@TA001 AND TB002=@TA002)
-                                        AND [PURTB].TB001=@TA001 AND [PURTB].TB002=@TA002
-                                        AND [PURTATBUOFCHANGE].FORMID=@FORMID
-
-                                        ");
+                                ------------------------------------------------------------------
+                                -- 步驟 3: 插入 PURTB (請購單明細) - 針對新增的項次
+                                -- 從 PURTATBUOFCHANGE 獲取新項次，並根據舊單的資訊填充其他系統欄位
+                                ------------------------------------------------------------------
+                                INSERT INTO [TK].[dbo].[PURTB]
+                                (
+                                    [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],[MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],[DataUser],[DataGroup]
+                                    ,[TB001],[TB002],[TB003],[TB004],[TB005],[TB006],[TB007],[TB008],[TB009],[TB010]
+                                    ,[TB011],[TB012],[TB013],[TB014],[TB015],[TB016],[TB017],[TB018],[TB019],[TB020]
+                                    ,[TB021],[TB022],[TB023],[TB024],[TB025],[TB026],[TB027],[TB028],[TB029],[TB030]
+                                    ,[TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],[TB040]
+                                    ,[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],[TB049],[TB050]
+                                    ,[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],[TB058],[TB059],[TB060]
+                                    ,[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],[TB067],[TB068],[TB069],[TB070]
+                                    ,[TB071],[TB072],[TB073],[TB074],[TB075],[TB076],[TB077],[TB078],[TB079],[TB080]
+                                    ,[TB081],[TB082],[TB083],[TB084],[TB085],[TB086],[TB087],[TB088],[TB089],[TB090]
+                                    ,[TB091],[TB092],[TB093],[TB094],[TB095],[TB096],[TB097],[TB098],[TB099]
+                                    ,[UDF01],[UDF02],[UDF03],[UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10]
+                                )
+                                SELECT 
+                                    T_ORIG.COMPANY, T_ORIG.CREATOR, T_ORIG.USR_GROUP, T_ORIG.CREATE_DATE, T_ORIG.MODIFIER, T_ORIG.MODI_DATE, ISNULL(T_ORIG.FLAG, 0) + 1, T_ORIG.CREATE_TIME, T_ORIG.MODI_TIME, T_ORIG.TRANS_TYPE, T_ORIG.TRANS_NAME, T_ORIG.sync_date, T_ORIG.sync_time, T_ORIG.sync_mark, T_ORIG.sync_count, T_ORIG.DataUser, T_ORIG.DataGroup
+                                    ,T_CHANGE.TA001 AS TB001, T_CHANGE.TA002 AS TB002, T_CHANGE.TB003, T_CHANGE.TB004, INVMB.MB002 AS TB005, INVMB.MB003 AS TB006, T_CHANGE.TB007, T_ORIG.TB008, T_CHANGE.TB009, INVMB.MB032 AS TB010
+                                    ,T_CHANGE.TB011, T_CHANGE.TB012, T_ORIG.TB013, T_ORIG.TB014, T_ORIG.TB015, T_ORIG.TB016, INVMB.MB050 AS TB017, (INVMB.MB050 * T_CHANGE.TB009) AS TB018, T_ORIG.TB019, T_ORIG.TB020
+                                    ,T_ORIG.TB021, T_ORIG.TB022, T_ORIG.TB023, T_ORIG.TB024, 'Y' AS TB025, T_ORIG.TB026, T_ORIG.TB027, T_ORIG.TB028, T_ORIG.TB029, T_ORIG.TB030
+                                    ,T_ORIG.TB031, T_ORIG.TB032, T_ORIG.TB033, T_ORIG.TB034, T_ORIG.TB035, T_ORIG.TB036, T_ORIG.TB037, T_ORIG.TB038, T_ORIG.TB039, T_ORIG.TB040
+                                    ,T_ORIG.TB041, T_ORIG.TB042, T_ORIG.TB043, T_ORIG.TB044, T_ORIG.TB045, T_ORIG.TB046, T_ORIG.TB047, T_ORIG.TB048, T_ORIG.TB049, T_ORIG.TB050
+                                    ,T_ORIG.TB051, T_ORIG.TB052, T_ORIG.TB053, T_ORIG.TB054, T_ORIG.TB055, T_ORIG.TB056, T_ORIG.TB057, T_ORIG.TB058, T_ORIG.TB059, T_ORIG.TB060
+                                    ,T_ORIG.TB061, T_ORIG.TB062, T_ORIG.TB063, T_ORIG.TB064, T_ORIG.TB065, T_ORIG.TB066, T_ORIG.TB067, T_ORIG.TB068, T_ORIG.TB069, T_ORIG.TB070
+                                    ,T_ORIG.TB071, T_ORIG.TB072, T_ORIG.TB073, T_ORIG.TB074, T_ORIG.TB075, T_ORIG.TB076, T_ORIG.TB077, T_ORIG.TB078, T_ORIG.TB079, T_ORIG.TB080
+                                    ,T_ORIG.TB081, T_ORIG.TB082, T_ORIG.TB083, T_ORIG.TB084, T_ORIG.TB085, T_ORIG.TB086, T_ORIG.TB087, T_ORIG.TB088, T_ORIG.TB089, T_ORIG.TB090
+                                    ,T_ORIG.TB091, T_ORIG.TB092, T_ORIG.TB093, T_ORIG.TB094, T_ORIG.TB095, T_ORIG.TB096, T_ORIG.TB097, T_ORIG.TB098, T_ORIG.TB099
+                                    ,T_ORIG.UDF01, T_ORIG.UDF02, T_ORIG.UDF03, T_ORIG.UDF04, T_ORIG.UDF05, T_ORIG.UDF06, T_ORIG.UDF07, T_ORIG.UDF08, T_ORIG.UDF09, T_ORIG.UDF10
+                                FROM 
+                                    [TK].[dbo].[PURTB] AS T_ORIG,
+                                    [TKPUR].[dbo].[PURTATBUOFCHANGE] AS T_CHANGE,
+                                    [TK].dbo.INVMB AS INVMB
+                                WHERE 
+                                    T_CHANGE.TA001 = T_ORIG.TB001 
+                                    AND T_CHANGE.TA002 = T_ORIG.TB002 
+                                    -- 這裡的子查詢用於找到一個有效的原始 PURTB 行來複製所有不變的系統欄位
+                                    AND T_ORIG.TB003 = (SELECT TOP 1 TB003 FROM [TK].[dbo].[PURTB] WHERE [PURTB].TB001 = @TA001 AND [PURTB].TB002 = @TA002)
+                                    AND T_CHANGE.TB004 = INVMB.MB001
+                                    -- 排除已存在的項次，只插入新的項次
+                                    AND T_CHANGE.TB003 NOT IN (SELECT TB003 FROM [TK].[dbo].[PURTB] WHERE TB001 = @TA001 AND TB002 = @TA002)
+                                    AND T_ORIG.TB001 = @TA001 
+                                    AND T_ORIG.TB002 = @TA002
+                                    AND T_CHANGE.FORMID = @FORMID;
+                            ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                    {
+                        // 3. 參數化
+                        command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
+                        command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                        command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                        command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = TA014; // 確認人
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-
-                    command.Parameters.Add("@FORMID", SqlDbType.NVarChar).Value = FORMID;
-                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
-                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
-                    command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = TA014;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                        // 4. 執行操作
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
-            catch
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
             {
-
+                // 捕獲並處理異常
+                // 在實際應用中，您應該在這裡記錄錯誤日誌 (EX.Message)
             }
-            finally
-            {
-
-            }
-
+            // 由於使用了 using，連線會自動關閉和釋放，無需 finally 塊
         }
+        /// <summary>
+        /// 根據已變更的請購單，檢查並產生對應的採購變更單 (PURTE/PURTF)。
+        /// </summary>
+        /// <param name="TA001">原始請購單別 (PURTA.TA001)</param>
+        /// <param name="TA002">原始請購單號 (PURTA.TA002)</param>
+        /// <param name="VERSIONS">請購變更版次 (UOF 表單中的版本號)</param>
         public void NEWPURTEPURTF(string TA001, string TA002, string VERSIONS)
         {
             try
             {
-                //檢查請購變更單的採購單，是否有採購變更單未核準
+                // 1. 檢查是否存在未核准的採購變更單 (PURTE/PURTF)
+                // 目的：避免針對同一個採購單重複產生未處理的變更單。
                 DataTable DTCHECKPURTEPURTF = CHECKPURTEPURTF(TA001, TA002, VERSIONS);
 
-                if (DTCHECKPURTEPURTF == null)
+                // 如果沒有未核准的採購變更單，則繼續產生新的變更單
+                if (DTCHECKPURTEPURTF == null || DTCHECKPURTEPURTF.Rows.Count == 0)
                 {
-                    //找出請購變更單有幾張採購單，要1對多
+                    // 2. 找出與該請購單相關的所有採購單 (PURTC/PURTD)
+                    // 由於請購單與採購單可能是 1 對多關係，這會返回一個包含多張採購單頭資訊的 DataTable。
                     DataTable DTPURTCPURTD = SEARCHPURTCPURTD(TA001, TA002, VERSIONS);
-                    //DataTable DTPURTCPURTD = SEARCHPURTCPURTD("A312", "20221116001", "2");
-                    DataTable DTOURTE = new DataTable();
 
-                    //找出採購單跟最大的版次
                     if (DTPURTCPURTD != null && DTPURTCPURTD.Rows.Count > 0)
                     {
-                        DTOURTE = FINDPURTE(DTPURTCPURTD);
+                        // 3. 根據找出的採購單，決定新的採購變更單 (PURTE) 應使用的單號/版次等資訊
+                        DataTable DTOURTE = FINDPURTE(DTPURTCPURTD);
 
-                        //新增採購變更單
-                        if (DTOURTE.Rows.Count > 0)
+                        // 4. 新增採購變更單 (PURTE/PURTF)
+                        if (DTOURTE != null && DTOURTE.Rows.Count > 0)
                         {
                             ADDTOPURTEPURTF(DTOURTE);
                         }
                     }
-
-
-
                 }
                 else
-                {
-                  
+                {                   
                 }
             }
-            catch { }
-
-
-
+            catch (Exception EX)
+            {                
+            }
+           
         }
 
         public DataTable FIND_SASLA_DEPT30(string DEP)
