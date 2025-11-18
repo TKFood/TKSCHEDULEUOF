@@ -32770,30 +32770,30 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PURTA_PORTB()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
+            // 1. 呼叫 FIND_UOF_PURTA_PORTB 取得需要更新的資料表
+            var DT = FIND_UOF_PURTA_PORTB();
 
-            string FORMID;
-            string TA001;
-            string TA002;
-
-            string ISCLOSE;
-
-            DataTable DT = FIND_UOF_PURTA_PORTB();
-
+            // 2. 檢查是否有資料需要處理
             if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                // 遍歷所有資料列
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    TA001 = DR["TA001"].ToString().Trim();
-                    TA002 = DR["TA002"].ToString().Trim();
+                    // 提取並清理所需的欄位值
+                    // TA001 和 TA002 用作 ERP 表格的主鍵
+                    var TA001 = DR["TA001"]?.ToString().Trim() ?? string.Empty;
+                    var TA002 = DR["TA002"]?.ToString().Trim() ?? string.Empty;
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
+                    // DOC_NBR / FORMID (UOF 表單編號)
+                    var FORMID = DR["DOC_NBR"]?.ToString().Trim() ?? string.Empty;
 
+                    // ACCOUNT / MODIFIER (UOF 簽核人/修改者)
+                    var MODIFIER = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty;
+
+                    // DOC_NBR, ACCOUNT, ISCLOSE 等變數在 foreach 循環外定義，
+                    // 由於只在內部使用 FORMID 和 MODIFIER，因此外部的 DOC_NBR, ACCOUNT, ISCLOSE 可忽略或保持原樣。
+
+                    // 3. 執行更新操作
                     UPDATE_PURTA_PORTB_EXE(TA001, TA002, FORMID, MODIFIER);
                 }
             }
@@ -32801,168 +32801,180 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_PURTA_PORTB()
         {
-
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            // 初始化 DataTable 變數
+            DataTable resultTable = null;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 1. 建立資料庫連線字串
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 2. 建立 SQL 查詢語句
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
+                sbSql.Append(@"
+                                WITH TEMP AS (
                                     SELECT 
                                         [FORM_NAME],
                                         [DOC_NBR],
-	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                        -- 提取單頭欄位：PURTA 的鍵值 (TA001: 請購單別, TA002: 請購單號)
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
-
 
                                         TASK_ID,
                                         TASK_STATUS,
                                         TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'PUR10.請購單申請'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1 [TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-
-                                        WHERE 1=1
-                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
-	                                    AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                       ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = 'PUR10.請購單申請'
+                                    AND TASK_STATUS = '2'   -- 已結案
+                                    AND TASK_RESULT = '0'   -- 通過/核准
+                                )
+                                SELECT TEMP.*,
+                                (
+                                    -- 獲取最後一個非空簽核者的 ACCOUNT (MODIFIER)
+                                    SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                        ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
                                     WHERE 1=1
-                                    AND REPLACE(TA001+TA002,',','')  IN
-                                    (                                      
-                                        SELECT REPLACE(TA001+TA002,' ' ,'')
-                                        FROM[192.168.1.105].[TK].dbo.PURTA
-                                        WHERE TA007 IN('N')
-                                    )                                   
+                                    AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'') <> ''
+                                    AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    ORDER BY FINISH_TIME DESC
+                                ) AS ACCOUNT
+                                FROM TEMP
+                                WHERE 1=1
+                                -- 篩選條件：請購單號必須存在於 ERP 的 PURTA 表格中，且 PURTA.TA007 欄位為 'N' (尚未確認)
+                                AND REPLACE(TA001+TA002,',','') IN
+                                (
+                                    SELECT REPLACE(TA001+TA002,' ' ,'')
+                                    FROM [192.168.1.105].[TK].dbo.PURTA
+                                    WHERE TA007 IN('N')
+                                );
+                            ");
 
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 執行查詢
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        // 設置查詢的超時時間
+                        adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
 
-                }
-                else
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
+                } // using 塊結束，連線會自動關閉和釋放
+
+                if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    return null;
+                    resultTable = ds1.Tables["ds1"];
                 }
+            }
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
+            {
+                // 捕獲並處理異常
+                // 可以在此處加入日誌記錄: EX.Message
+                resultTable = null;
+            }
 
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
+            return resultTable;
         }
 
         public void UPDATE_PURTA_PORTB_EXE(string TA001, string TA002, string FORMID, string MODIFIER)
         {
+            // 預設更新值
+            string TA007_Status = "Y"; // 請購單狀態: Y = 已確認
+            string TA016_Source = "3"; // 單據來源: 3 (通常代表來自電子流程或特定系統)
+            string TB025_Status = "Y"; // 明細狀態: Y = 已確認
+
+            // 系統欄位
             string COMPANY = "TK";
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
-            
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:ss"); // 修正時間格式
 
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 1. 建立資料庫連線字串
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            // 2. 建立 SQL 查詢語句 (批量更新 PURTA 和 PURTB)
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"   
-                                        UPDATE [TK].dbo.PURTA 
-                                        SET TA007='Y'
-                                        ,TA016='3'
-                                        ,TA014=@TA014
-                                        ,UDF02=@UDF02
-                                        WHERE TA001=@TA001 AND TA002=@TA002 
+            queryString.Append(@"
+                                -- 更新 PURTA (請購單頭)
+                                UPDATE [TK].dbo.PURTA
+                                SET TA007 = @TA007,     -- 狀態設為 'Y' (已確認)
+                                    TA016 = @TA016,     -- 來源設為 '3'
+                                    TA014 = @TA014,     -- 確認人 (UOF 簽核人)
+                                    UDF02 = @UDF02,     -- 存儲 UOF 的單號 (FORMID)
+                                    FLAG = ISNULL(FLAG, 0) + 1,
+                                    COMPANY = @COMPANY, 
+                                    MODIFIER = @MODIFIER, 
+                                    MODI_DATE = @MODI_DATE, 
+                                    MODI_TIME = @MODI_TIME
+                                WHERE TA001 = @TA001 AND TA002 = @TA002;
 
-                                        UPDATE [TK].dbo.PURTB 
-                                        SET TB025='Y' 
-                                        WHERE TB001=@TA001 AND TB002=@TA002 
-
-                                        ");
+                                -- 更新 PURTB (請購單身)
+                                UPDATE [TK].dbo.PURTB
+                                SET TB025 = @TB025,     -- 明細狀態設為 'Y' (已確認)
+                                    FLAG = ISNULL(FLAG, 0) + 1,
+                                    COMPANY = @COMPANY, 
+                                    MODIFIER = @MODIFIER, 
+                                    MODI_DATE = @MODI_DATE, 
+                                    MODI_TIME = @MODI_TIME
+                                WHERE TB001 = @TA001 AND TB002 = @TA002;
+                            ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                    {
+                        // 3. 參數化
+                        command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                        command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
-                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
-                    command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+                        // PURTA 更新值
+                        command.Parameters.Add("@TA007", SqlDbType.NVarChar).Value = TA007_Status;
+                        command.Parameters.Add("@TA016", SqlDbType.NVarChar).Value = TA016_Source;
+                        command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = MODIFIER; // 確認人
+                        command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID; // UOF 單號
 
+                        // PURTB 更新值
+                        command.Parameters.Add("@TB025", SqlDbType.NVarChar).Value = TB025_Status;
 
-                    command.Connection.Open();
+                        // 系統欄位
+                        command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = COMPANY;
+                        command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                        command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = MODI_DATE;
+                        command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = MODI_TIME;
 
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                        // 4. 執行操作
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
-            catch
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
             {
-
+                // 捕獲並處理異常
+                // 在實際應用中，您應該在這裡記錄錯誤日誌 (EX.Message)
             }
-            finally
-            {
-
-            }
+            // 由於使用了 using，連線會自動關閉和釋放，無需 finally 塊
         }
 
         public void UPDATE_PURTA_PURTB_CHANGE()
