@@ -2490,6 +2490,7 @@ namespace TKSCHEDULEUOF
         /// <param name="fillerAccount"></param>
         /// <param name="realValue"></param>
         /// <returns></returns>
+        ///  AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
         private XmlElement AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
         {
             XmlElement fieldItem = xmlDoc.CreateElement("FieldItem");
@@ -35630,95 +35631,111 @@ namespace TKSCHEDULEUOF
 
         public void ADD_ERP_INVMB_TO_UOF_9001()
         {
-            string YEATERDAY = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+            // 將日期計算放在 try 外部
+            // 獲取昨天的日期，格式為 YYYYMMDD (與 SQL 查詢中的 LIKE '%')
+            string yesterday = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+            DataTable invmbData = new DataTable();
+
+            // 1. 連線字串處理 (解密)
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+            );
+
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
+                // 2. SQL 查詢字串
                 sbSql.Clear();
-                sbSqlQuery.Clear();
+                sbSql.Append(@"
+                            SELECT 
+                                INVMB.CREATOR,
+                                INVMB.CREATE_DATE,
+                                MB001 AS '品號',
+                                MB002 AS '品名',
+                                MB003 AS '規格',
+                                MB004 AS '庫存單位',
+                                MB046 AS '標準進價',
+                                MB047 AS '標準售價',
+                                MB051 AS '零售價',
+                                MB052 AS '零售價含稅',
+                                MB053 AS 'IP價格',
+                                MB054 AS 'DM價格',
+                                MB055 AS '通路售價',
+                                MB056 AS '售價定價四',
+                                MB069 AS '售價定價五',
+                                MB070 AS '售價定價六',
+                                INVMB.UDF04 AS '品號目的',
+                                MA003 AS '會計類別',
+                                CONVERT(NVARCHAR, MB023) + (
+                                    CASE 
+                                        WHEN MB198 = '1' THEN '天' 
+                                        WHEN MB198 = '2' THEN '月' 
+                                        WHEN MB198 = '3' THEN '年' 
+                                    END
+                                ) AS '效期'
+                            FROM [TK].dbo.INVMB WITH(NOLOCK)
+                            LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
+                            WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
+                            -- **** 優化：使用參數化查詢來替代字串格式化 ****
+                            AND INVMB.CREATE_DATE LIKE @YesterdayDate + '%';
+                        ");
+                string sqlQuery = sbSql.ToString();
 
-                sbSql.AppendFormat(@"    
-                                    SELECT 
-                                    INVMB.CREATOR,
-                                    INVMB.CREATE_DATE,
-                                    MB001 AS '品號',
-                                    MB002 AS '品名',
-                                    MB003 AS '規格',
-                                    MB004 AS '庫存單位',
-                                    MB046 AS '標準進價' ,
-                                    MB047 AS '標準售價',
-                                    MB051 AS '零售價',
-                                    MB052 AS '零售價含稅',
-                                    MB053 AS 'IP價格',
-                                    MB054 AS 'DM價格',
-                                    MB055 AS '通路售價' ,
-                                    MB056 AS '售價定價四',
-                                    MB069 AS '售價定價五',
-                                    MB070 AS '售價定價六',
-                                    INVMB.UDF04 AS '品號目的',
-                                    MA003 AS '會計類別'
-                                    ,CONVERT(NVARCHAR,MB023) +(CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END ) AS '效期'
-
-                                    FROM [TK].dbo.INVMB WITH(NOLOCK)
-                                    LEFT JOIN  [TK].dbo.INVMA WITH(NOLOCK) ON MA001='1' AND MA002=MB005
-                                    WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                                    AND INVMB.CREATE_DATE LIKE '{0}%'
-
-                                    ", YEATERDAY);
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 使用 using 確保資源釋放
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(sqlQuery, sqlConn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
-                    foreach (DataRow dr in ds1.Tables["ds1"].Rows)
+                    // **** 優化：使用參數化來傳遞日期變數，防止 SQL 注入 ****
+                    cmd.Parameters.AddWithValue("@YesterdayDate", yesterday);
+
+                    sqlConn.Open();
+                    // adapter.Fill(DataSet, tableName)
+                    adapter.Fill(invmbData);
+                } // Connection and Adapter are disposed here.
+
+                // 4. 處理查詢結果 (如果 DataAdapter.Fill 成功，invmbData 將不為 null)
+                if (invmbData.Rows.Count >= 1)
+                {
+                    // 逐筆呼叫外部處理方法
+                    foreach (DataRow dr in invmbData.Rows)
                     {
-                        ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(dr["品號"].ToString().Trim());
+                        // 確保品號不為空或 null
+                        string itemCode = dr["品號"].ToString().Trim();
+                        if (!string.IsNullOrEmpty(itemCode))
+                        {
+                            // 呼叫外部方法進行進一步處理
+                            // 注意：假設 ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK 已經存在
+                            ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(itemCode);
+                        }
                     }
-
                 }
-                else
-                {
-
-                }
+                // else { /* 沒有資料，無需操作 */ }
 
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 處理和記錄錯誤訊息 (避免空的 catch 區塊)
+                Console.WriteLine("ADD_ERP_INVMB_TO_UOF_9001 執行失敗。錯誤訊息: " + ex.Message);
+                // 重新拋出異常，讓呼叫方知道失敗
+                throw new Exception("處理 ERP INVMB 資料到 UOF 時發生錯誤。", ex);
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
+            // finally 區塊已不再需要手動關閉 sqlConn，因為 using 語句會自動處理。
+            // 原本的 sqlConn 變數已改為區域變數，並在 using 語句中初始化。
         }
         public void ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(string MB001)
         {
             DataTable DT = SEARCH_INVMB_NEW(MB001);
+            if (DT == null || DT.Rows.Count == 0) return;
+
+            // 檢查 DTUPFDEP 是否有資料，避免索引超出範圍
             DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
+            if (DTUPFDEP == null || DTUPFDEP.Rows.Count == 0) return;
 
             string account = DT.Rows[0]["CREATOR"].ToString();
             string groupId = DT.Rows[0]["GROUP_ID"].ToString();
@@ -35726,18 +35743,19 @@ namespace TKSCHEDULEUOF
             string fillerName = DT.Rows[0]["MV002"].ToString();
             string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
 
+            // 雖然 DEPNAME/DEPNO 未被使用於 XML 建立，但保留其取值邏輯
             string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
             string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
 
             string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
 
-            int rowscounts = 0;
+            int rowscounts = 0; // 雖然此方法未使用，但保留
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
+            // 建立根節點 <Form>
             XmlElement Form = xmlDoc.CreateElement("Form");
 
-            //正式的id
+            // 取得 formVersionId
             string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9001.新品號通知單");
 
             if (!string.IsNullOrEmpty(FORM_ID))
@@ -35745,421 +35763,197 @@ namespace TKSCHEDULEUOF
                 Form.SetAttribute("formVersionId", FORM_ID);
             }
 
-
             Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
             xmlDoc.AppendChild(Form);
 
-            ////建立節點Applicant
+            // 建立節點 <Applicant>
             XmlElement Applicant = xmlDoc.CreateElement("Applicant");
             Applicant.SetAttribute("account", account);
             Applicant.SetAttribute("groupId", groupId);
             Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
             Form.AppendChild(Applicant);
 
-            //建立節點 Comment
+            // 建立節點 <Comment>
             XmlElement Comment = xmlDoc.CreateElement("Comment");
             Comment.InnerText = "申請者意見";
-            //加入至節點底下
             Applicant.AppendChild(Comment);
 
-            //建立節點 FormFieldValue
+            // 建立節點 <FormFieldValue>
             XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
             Form.AppendChild(FormFieldValue);
 
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // ==========================================================
+            // 1. 使用 AddFieldItem 處理所有 FieldItem
+            // ==========================================================
 
-            //建立節點FieldItem
-            //UDF04	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "UDF04");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品號目的"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
+            DataRow dr = DT.Rows[0]; // 只處理第一行資料
 
-            //建立節點FieldItem
-            //MB001	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB001");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品號"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB002	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB002");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["品名"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["規格"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB004	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB004");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["庫存單位"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB046	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB046");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["標準進價"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB047	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB047");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["標準售價"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB051	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB051");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["零售價"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB052	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB052");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["零售價含稅"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB053	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB053");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["IP價格"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB054	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB054");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["DM價格"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB055	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB055");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["通路售價"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB056	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB056");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價四"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB069	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB069");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價五"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB070	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB070");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["售價定價六"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MA003	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MA003");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["會計類別"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
-
-            //建立節點FieldItem
-            //MB023
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "MB023");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["效期"].ToString());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            FormFieldValue.AppendChild(FieldItem);
-            //加入至members節點底下
+            // ID 表單編號 (fieldValue 為空)
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            // UDF04 (品號目的)
+            AddFieldItem(xmlDoc, FormFieldValue, "UDF04", dr["品號目的"].ToString(), fillerName, fillerUserGuid, account);
+            // MB001 (品號)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB001", dr["品號"].ToString(), fillerName, fillerUserGuid, account);
+            // MB002 (品名)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB002", dr["品名"].ToString(), fillerName, fillerUserGuid, account);
+            // MB003 (規格)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB003", dr["規格"].ToString(), fillerName, fillerUserGuid, account);
+            // MB004 (庫存單位)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB004", dr["庫存單位"].ToString(), fillerName, fillerUserGuid, account);
+            // MB046 (標準進價)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB046", dr["標準進價"].ToString(), fillerName, fillerUserGuid, account);
+            // MB047 (標準售價)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB047", dr["標準售價"].ToString(), fillerName, fillerUserGuid, account);
+            // MB051 (零售價)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB051", dr["零售價"].ToString(), fillerName, fillerUserGuid, account);
+            // MB052 (零售價含稅)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB052", dr["零售價含稅"].ToString(), fillerName, fillerUserGuid, account);
+            // MB053 (IP價格)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB053", dr["IP價格"].ToString(), fillerName, fillerUserGuid, account);
+            // MB054 (DM價格)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB054", dr["DM價格"].ToString(), fillerName, fillerUserGuid, account);
+            // MB055 (通路售價)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB055", dr["通路售價"].ToString(), fillerName, fillerUserGuid, account);
+            // MB056 (售價定價四)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB056", dr["售價定價四"].ToString(), fillerName, fillerUserGuid, account);
+            // MB069 (售價定價五)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB069", dr["售價定價五"].ToString(), fillerName, fillerUserGuid, account);
+            // MB070 (售價定價六)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB070", dr["售價定價六"].ToString(), fillerName, fillerUserGuid, account);
+            // MA003 (會計類別)
+            AddFieldItem(xmlDoc, FormFieldValue, "MA003", dr["會計類別"].ToString(), fillerName, fillerUserGuid, account);
+            // MB023 (效期)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB023", dr["效期"].ToString(), fillerName, fillerUserGuid, account);
 
 
+            // ==========================================================
+            // 2. 後續資料庫操作 (保持不變)
+            // ==========================================================
 
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
+            // ... (省略 ADDTACK 註解部分)
 
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // ADD TO DB
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
             String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
+            SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString);
             connectionString = sqlConn.ConnectionString.ToString();
 
             StringBuilder queryString = new StringBuilder();
 
 
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
+            // 假設 DBNAME 已定義
+            queryString.AppendFormat(@" 
+                                    INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                     (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
+                                     VALUES (NEWID(),@XML,2,'{1}')
+                                     ", EXTERNAL_FORM_NBR);
 
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-
                     SqlCommand command = new SqlCommand(queryString.ToString(), connection);
+                    // 使用 Form.OuterXml 取得完整的 XML 字串
                     command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
 
                     command.Connection.Open();
-
                     int count = command.ExecuteNonQuery();
-
                     connection.Close();
                     connection.Dispose();
-
                 }
             }
             catch
             {
-
+                // 錯誤處理
             }
             finally
             {
-
+                // Finalize
             }
         }
 
         public DataTable SEARCH_INVMB_NEW(string MB001)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            DataTable resultTable = new DataTable();
+
+            // 1. 連線字串處理 (解密)
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+            );
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 2. SQL 查詢字串
                 sbSql.Clear();
-                sbSqlQuery.Clear();
+                sbSql.Append(@"
+                            SELECT 
+                                INVMB.CREATOR
+                                ,CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE'
+                                ,MB001 AS '品號'
+                                ,MB002 AS '品名'
+                                ,MB003 AS '規格'
+                                ,MB004 AS '庫存單位'
+                                ,MB046 AS '標準進價' 
+                                ,MB047 AS '標準售價'
+                                ,MB051 AS '零售價'
+                                ,MB052 AS '零售價含稅'
+                                ,MB053 AS 'IP價格'
+                                ,MB054 AS 'DM價格'
+                                ,MB055 AS '通路售價' 
+                                ,MB056 AS '售價定價四'
+                                ,MB069 AS '售價定價五'
+                                ,MB070 AS '售價定價六'
+                                ,INVMB.UDF04 AS '品號目的'
+                                ,MA1.MA003 AS '會計類別'
+                                ,CONVERT(NVARCHAR,MB023) + (CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END) AS '效期'
+                                ,MA2.MA003 AS '產地'
+                                ,CONVERT(NVARCHAR,MB039) + ' ' + MB004 AS 'MOQ'
+                                ,CONVERT(NVARCHAR,MB023) + (CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END) AS '保存期限'
+                                ,[TB_EB_USER].USER_GUID 	
+                                ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
+                                ,GROUP_ID AS 'GROUP_ID'
+                                ,TITLE_ID AS 'TITLE_ID'
+                            FROM [TK].dbo.INVMB WITH(NOLOCK)
+                            -- 注意: 跨伺服器查詢，確保 [192.168.1.223].[UOF] 是可用的連結伺服器或完整路徑
+                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT = INVMB.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                            LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID = [TB_EB_USER].USER_GUID AND ORDERS='0'
+                            LEFT JOIN [TK].dbo.INVMA MA1 WITH(NOLOCK) ON MA1.MA001='1' AND MA1.MA002 = MB005
+                            LEFT JOIN [TK].dbo.INVMA MA2 WITH(NOLOCK) ON MA2.MA001='7' AND MA2.MA002 = MB113
+                            WHERE MB001 = @MB001; -- **** 優化：使用參數化查詢 ****
+                        ");
+                string sqlQuery = sbSql.ToString();
 
-                sbSql.AppendFormat(@"  
-                                    SELECT 
-                                    INVMB.CREATOR
-                                    ,CONVERT(NVARCHAR, DATEADD(DAY, -1, GETDATE()), 112) AS 'CREATE_DATE'
-                                    ,MB001 AS '品號'
-                                    ,MB002 AS '品名'
-                                    ,MB003 AS '規格'
-                                    ,MB004 AS '庫存單位'
-                                    ,MB046 AS '標準進價' 
-                                    ,MB047 AS '標準售價'
-                                    ,MB051 AS '零售價'
-                                    ,MB052 AS '零售價含稅'
-                                    ,MB053 AS 'IP價格'
-                                    ,MB054 AS 'DM價格'
-                                    ,MB055 AS '通路售價' 
-                                    ,MB056 AS '售價定價四'
-                                    ,MB069 AS '售價定價五'
-                                    ,MB070 AS '售價定價六'
-                                    ,INVMB.UDF04 AS '品號目的'
-                                    ,MA1.MA003 AS '會計類別'
-                                    ,CONVERT(NVARCHAR,MB023) +(CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END ) AS '效期'
-                                    ,MA2.MA003 AS '產地'
-                                    ,CONVERT(NVARCHAR,MB039) +' '+MB004 AS 'MOQ'
-                                    ,CONVERT(NVARCHAR,MB023) +(CASE WHEN MB198='1' THEN '天' WHEN MB198='2' THEN '月' WHEN MB198='3' THEN '年' END ) AS '保存期限'
-
-                                    ,[TB_EB_USER].USER_GUID   	
-                                    ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
-                                    ,GROUP_ID  AS 'GROUP_ID'
-                                    ,TITLE_ID  AS 'TITLE_ID'
-                                    FROM [TK].dbo.INVMB
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT= INVMB.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                    LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID=[TB_EB_USER].USER_GUID AND ORDERS='0'
-                                    LEFT JOIN  [TK].dbo.INVMA MA1 WITH(NOLOCK) ON MA1.MA001='1' AND MA1.MA002=MB005
-                                    LEFT JOIN  [TK].dbo.INVMA MA2 WITH(NOLOCK) ON MA2.MA001='7' AND MA2.MA002=MB113
-                                    WHERE 1=1
-                                    AND MB001='{0}'
-              
-                                    ", MB001);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 使用 using 確保資源釋放
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(sqlQuery, sqlConn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
-                    return ds1.Tables["ds1"];
+                    // **** 核心安全優化：使用參數化查詢傳遞 MB001 ****
+                    cmd.Parameters.Add("@MB001", SqlDbType.NVarChar).Value = MB001;
 
+                    // 設置查詢的超時時間
+                    cmd.CommandTimeout = TIMEOUT_LIMITS;
+
+                    // adapter.Fill 將自動使用 cmd.Connection (sqlConn)
+                    adapter.Fill(resultTable);
+                } // Connection and Adapter are disposed here.
+
+                // 4. 判斷並返回結果
+                if (resultTable.Rows.Count >= 1)
+                {
+                    return resultTable;
                 }
                 else
                 {
@@ -36167,14 +35961,14 @@ namespace TKSCHEDULEUOF
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
+                // 處理和記錄錯誤訊息 (避免空的 catch 區塊)
+                Console.WriteLine($"SEARCH_INVMB_NEW 查詢品號 {MB001} 失敗。錯誤訊息: {ex.Message}");
+                // 在發生錯誤時返回 null
                 return null;
             }
-            finally
-            {
-                sqlConn.Close();
-            }
+            // finally 區塊已不再需要手動關閉 sqlConn，因為 using 語句會自動處理。
         }
 
         public void ADD_ERP_INVMB_TO_UOF_9002()
