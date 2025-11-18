@@ -23204,10 +23204,13 @@ namespace TKSCHEDULEUOF
 
         public void ADD_TB_UOF_COPMA_100A(string MA001)
         {
+            SqlConnection sqlConn = null;
+            SqlTransaction tran = null;
+
             try
             {
-                // 20210902密
-                Class1 TKID = new Class1(); // 建立類別實體
+                // --- 處理連線字串取得和解密 (依照原程式碼邏輯) ---
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
                     ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
                 );
@@ -23216,430 +23219,289 @@ namespace TKSCHEDULEUOF
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                // --- 資料庫連線與操作 ---
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                sqlConn.Open();
+
+                // 開始事務
+                tran = sqlConn.BeginTransaction();
+
+                using (SqlCommand cmd = sqlConn.CreateCommand())
                 {
-                    sqlConn.Open();
-                    using (SqlTransaction tran = sqlConn.BeginTransaction())
-                    using (SqlCommand cmd = sqlConn.CreateCommand())
+                    cmd.Transaction = tran;
+                    cmd.CommandTimeout = 60; // 60秒超時
+
+                    // 優化後的 SQL 批次：包含 DELETE 和 INSERT，將多個 UPDATE 邏輯整合到 INSERT 的 CASE WHEN 中。
+                    string sqlBatch = @"
+                                        -- 1. 刪除現有資料 (只針對傳入的 MA001)
+                                        DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
+                                        WHERE [MA001] = @MA001;
+
+                                        -- 2. 插入新資料並計算分數 (單次查詢優化)
+                                        INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA100A]
+                                        (
+                                            [MA001],[MA016],[sd001],[sd002],[sd003],[sd004],[sd005],[sd90],[sd006],[sd007],[sd008],[sd009],[sd010],[sd011],[sd012],[sd013],[sd014],[sd015],[sd016],[sd017],[sd018],[sd019],[sd020],[sd021],[sd022],[sd023],[sd024],[sd025],[sd026],[sd027],[sd028],[sd029],[sd030],[sd031],[sd032],[sd033],[sd034],[sd035],[sd036],[sd037],[sd038],[sd039],[sd041],[sd040],[sd042],[sd043],[sd044],[sd0],[sd051],[sd052],[sd053],[sd054],[sd055],
+                                            [sd056],[sd057],[sd058], -- 信用額度評分欄位
+                                            [sd060],[sd061],[sd062],[sd063],[sd064],[sd065],[sd066],[sd067],[sd068],[sd069],
+                                            [sd070],[sd071], -- 去年銷貨額評分欄位
+                                            [sd072],[sd073],[sd074],[sd075],[sd076],[sd077],[sd078],[sd079],[sd080],[sd081],[sd082],[sd083]
+                                        )
+                                        SELECT
+                                             T1.MA001
+                                            ,T1.MA016
+                                            ,'' AS sd001
+                                            ,CONVERT(NVARCHAR,GETDATE(),111) AS sd002
+                                            ,'修改' AS sd003
+                                            ,T1.MA002 AS sd004
+                                            ,T1.MA003 AS sd005
+                                            ,(CASE 
+                                                WHEN T1.MA001 LIKE '2%' OR T1.MA001 LIKE 'A%' THEN '國內業務@國內業務' 
+                                                WHEN T1.MA001 LIKE '3%' OR T1.MA001 LIKE 'B%' THEN '國外業務@國外業務' 
+                                              END) AS sd90
+                                            ,T1.MA023 AS sd006
+                                            ,T1.MA025 AS sd007
+                                            ,T1.MA010 AS sd008
+                                            ,T1.MA004 AS sd009
+                                            ,T1.MA005 AS sd010
+                                            ,T1.MA007 AS sd011
+                                            ,T1.MA079 AS sd012
+                                            ,T1.MA008 AS sd013
+                                            ,T1.MA006 AS sd014
+                                            ,T1.MA007 AS sd015
+                                            ,T1.MA009 AS sd016
+                                            ,(CASE WHEN ISDATE(T1.MA020) = 1 THEN CONVERT(NVARCHAR, CONVERT(DATETIME, T1.MA020), 111) END) AS sd017
+                                            ,T1.MA011 * 10000 AS sd018 -- 原始程式碼的邏輯
+                                            ,'有限公司' AS sd019
+                                            ,T1.MA013 AS sd020
+                                            ,(CASE WHEN T1.MA067 >= 1 THEN '有' ELSE '無' END) AS sd021
+                                            ,'' AS sd022
+                                            ,(CASE WHEN T1.MA067 >= 1 THEN '有' ELSE '無' END) AS sd023
+                                            ,'' AS sd024
+                                            ,'自有' AS sd025
+                                            ,'0' AS sd026
+                                            ,'電子發票' AS sd027
+                                            ,(CASE 
+                                                WHEN T1.MA041='1' THEN '現金'  
+                                                WHEN T1.MA041='2' THEN '電匯' 
+                                                WHEN T1.MA041='3' THEN '支票' 
+                                                WHEN T1.MA041='4' THEN '其他'
+                                              END) AS sd028 
+                                            ,'法人' AS sd029
+                                            ,T1.UDF02 AS sd030
+                                            ,'0' AS sd031
+                                            ,'無' AS sd032
+                                            ,'0' AS sd033
+                                            ,'25號' AS sd034
+                                            ,T2.MO006 AS sd035
+                                            ,'月結' AS sd036
+                                            ,'' AS sd037
+                                            ,'' AS sd038
+                                            ,T3.NA003 AS sd039
+                                            ,T3.NA003 AS sd041
+                                            ,T3.NA005 AS sd040
+                                            ,T1.MA033 AS sd042
+                                            ,T1.MA033 AS sd043
+                                            ,T1.MA014 AS sd044
+                                            ,'客戶信用評分及信用額度' AS sd0
+                                            ,'信用評分' AS sd051
+                                            ,'' AS sd052
+                                            ,'' AS sd053
+                                            ,'' AS sd054
+                                            ,'' AS sd055
+                                            ,'信用評分' AS sd056
+                                            -- sd057 (信用額度評分描述)
+                                            ,CASE 
+                                                WHEN T1.MA011 * 10000 >= 50000001 THEN '5001萬~1億以上(10分)'
+                                                WHEN T1.MA011 * 10000 >= 30000001 THEN '3001萬~5000萬(6分)'
+                                                ELSE '3000萬以下(4分)' 
+                                            END AS sd057
+                                            -- sd058 (信用額度評分數值)
+                                            ,CASE 
+                                                WHEN T1.MA011 * 10000 >= 50000001 THEN '10'
+                                                WHEN T1.MA011 * 10000 >= 30000001 THEN '6'
+                                                ELSE '4' 
+                                            END AS sd058
+                                            ,'0' AS sd060
+                                            ,'0' AS sd061
+                                            ,'0' AS sd062
+                                            ,'' AS sd063
+                                            ,'3000萬以下（4分）' AS sd064 
+                                            ,'4' AS sd065
+                                            ,'0' AS sd066
+                                            ,'0' AS sd067
+                                            ,'0' AS sd068
+                                            ,'0' AS sd069
+                                            -- sd070 (去年銷貨額評分描述) 和 sd071 (去年銷貨額評分數值)
+                                            -- 子查詢計算去年銷貨額 (LASTMONEYS)
+                                            ,CASE 
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 3000000 THEN '300萬以上(20分)'
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 1510000 THEN '151萬~300萬(15分)'
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 510000 THEN '51萬~150萬(10分)'
+                                                ELSE '50萬以下(5分)'
+                                            END AS sd070
+                                            ,CASE 
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 3000000 THEN '20'
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 1510000 THEN '15'
+                                                WHEN (
+                                                    SELECT SUM(LA017 - LA020 - LA022 - LA023) 
+                                                    FROM [TK].dbo.SASLA (NOLOCK)
+                                                    WHERE LA006 = T1.MA001 
+                                                      AND YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
+                                                ) > 510000 THEN '10'
+                                                ELSE '5'
+                                            END AS sd071
+                        
+                                            -- 靜態評分欄位
+                                            ,'沒有(10分)' AS sd072
+                                            ,'10' AS sd073
+                                            ,'正常(10分)' AS sd074
+                                            ,'10' AS sd075
+                                            ,'' AS sd076
+                                            ,'5%以下(5分)' AS sd077
+                                            ,'5' AS sd078
+                                            ,'38' AS sd079
+                                            ,'0' AS sd080
+                                            ,'0' AS sd081
+                                            ,'38' AS sd082
+                                            ,'0' AS sd083
+                                        FROM [TK].dbo.COPMA AS T1 (NOLOCK)
+                                        LEFT JOIN [DSCSYS].dbo.CMSMO AS T2 (NOLOCK) ON T2.MO001 = T1.MA046
+                                        LEFT JOIN [TK].dbo.CMSNA AS T3 (NOLOCK) ON T3.NA001 = '2' AND T3.NA002 = T1.MA083
+                                        WHERE (T1.MA001 LIKE '2%' OR T1.MA001 LIKE 'A%' OR T1.MA001 LIKE '3%' OR T1.MA001 LIKE 'B%')
+                                        AND T1.MA001 = @MA001;
+                                    ";
+
+                    // 設置 CommandText 和參數
+                    cmd.CommandText = sqlBatch;
+                    // 使用參數化查詢，防止 SQL 注入
+                    cmd.Parameters.Add("@MA001", SqlDbType.NVarChar, 20).Value = MA001;
+
+                    // 執行 SQL
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    // 檢查 INSERT 是否成功 (DELETE 成功不代表 INSERT 成功)
+                    if (rowsAffected == 0)
                     {
-                        cmd.Transaction = tran;
-                        cmd.CommandTimeout = 60;
-
-                        StringBuilder SQL_EXE = new StringBuilder();
-                        SQL_EXE.AppendFormat(@"
-                                    DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                     INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    (
-                                    [MA001]
-                                    ,[MA016]
-                                    ,[sd001]
-                                    ,[sd002]
-                                    ,[sd003]
-                                    ,[sd004]
-                                    ,[sd005]
-                                    ,[sd90]
-                                    ,[sd006]
-                                    ,[sd007]
-                                    ,[sd008]
-                                    ,[sd009]
-                                    ,[sd010]
-                                    ,[sd011]
-                                    ,[sd012]
-                                    ,[sd013]
-                                    ,[sd014]
-                                    ,[sd015]
-                                    ,[sd016]
-                                    ,[sd017]
-                                    ,[sd018]
-                                    ,[sd019]
-                                    ,[sd020]
-                                    ,[sd021]
-                                    ,[sd022]
-                                    ,[sd023]
-                                    ,[sd024]
-                                    ,[sd025]
-                                    ,[sd026]
-                                    ,[sd027]
-                                    ,[sd028]
-                                    ,[sd029]
-                                    ,[sd030]
-                                    ,[sd031]
-                                    ,[sd032]
-                                    ,[sd033]
-                                    ,[sd034]
-                                    ,[sd035]
-                                    ,[sd036]
-                                    ,[sd037]
-                                    ,[sd038]
-                                    ,[sd039]
-                                    ,[sd040]
-                                    ,[sd041]
-                                    ,[sd042]
-                                    ,[sd043]
-                                    ,[sd044]
-                                    ,[sd0]
-                                    ,[sd051]
-                                    ,[sd052]
-                                    ,[sd053]
-                                    ,[sd054]
-                                    ,[sd055]
-                                    ,[sd056]
-                                    ,[sd057]
-                                    ,[sd058]
-                                    ,[sd060]
-                                    ,[sd061]
-                                    ,[sd062]
-                                    ,[sd063]
-                                    ,[sd064]
-                                    ,[sd065]
-                                    ,[sd066]
-                                    ,[sd067]
-                                    ,[sd068]
-                                    ,[sd069]
-                                    ,[sd070]
-                                    ,[sd071]
-                                    ,[sd072]
-                                    ,[sd073]
-                                    ,[sd074]
-                                    ,[sd075]
-                                    ,[sd076]
-                                    ,[sd077]
-                                    ,[sd078]
-                                    ,[sd079]
-                                    ,[sd080]
-                                    ,[sd081]
-                                    ,[sd082]
-                                    ,[sd083]
-                                    )
-
-                                   SELECT   
-                                    MA001
-                                    ,MA016
-                                    ,'' AS  sd001
-                                    ,CONVERT(NVARCHAR,CONVERT(DATETIME,GETDATE()),111) AS  sd002
-                                    ,'修改' AS  sd003
-                                    ,MA002 AS  sd004
-                                    ,MA003 AS  sd005
-                                    ,(CASE WHEN MA001 LIKE '2%' THEN '國內業務@國內業務' WHEN MA001 LIKE 'A%' THEN '國內業務@國內業務'  WHEN MA001 LIKE '3%' THEN '國外業務@國外業務' WHEN MA001 LIKE 'B%' THEN '國外業務@國外業務' END  )AS  sd90
-                                    ,MA023 AS  sd006
-                                    ,MA025 AS  sd007
-                                    ,MA010 AS  sd008
-                                    ,MA004 AS  sd009
-                                    ,MA005 AS  sd010
-                                    ,MA007 AS  sd011
-                                    ,MA079 AS  sd012
-                                    ,MA008 AS  sd013
-                                    ,MA006 AS  sd014
-                                    ,MA007 AS  sd015
-                                    ,MA009 AS  sd016
-                                    ,(CASE WHEN ISDATE(MA020) = 1  THEN (CONVERT(NVARCHAR,CONVERT(DATETIME,COPMA.MA020),111)) END)  AS  sd017
-                                    ,MA011*10000  AS  sd018
-                                    ,'有限公司' AS  sd019
-                                    ,MA013 AS  sd020
-                                    ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd021
-                                    ,'' AS  sd022
-                                    ,(CASE WHEN MA067>=1 THEN '有' ELSE '無' END ) AS  sd023
-                                    ,'' AS  sd024
-                                    ,'自有' AS  sd025
-                                    ,'0' AS  sd026
-                                    ,'電子發票' AS  sd027
-                                    ,(CASE WHEN MA041='1' THEN '現金'  WHEN MA041='2' THEN '電匯' WHEN MA041='3' THEN '支票' WHEN MA041='4' THEN '其他'END ) AS  sd028 
-                                    ,'法人' AS  sd029
-                                    ,COPMA.UDF02 AS  sd030
-                                    ,'0' AS  sd031
-                                    ,'無' AS  sd032
-                                    ,'0' AS  sd033
-                                    ,'25號' AS  sd034
-                                    ,MO006 AS  sd035
-                                    ,'月結' AS  sd036
-                                    ,'' AS  sd037
-                                    ,'' AS  sd038
-                                    ,NA003 AS  sd039
-                                    ,NA003 AS  sd041
-                                    ,NA005 AS  sd040
-                                    ,MA033 AS  sd042
-                                    ,MA033 AS  sd043
-                                    ,MA014 AS  sd044
-                                    ,'客戶信用評分及信用額度' AS  sd0
-                                    ,'信用評分' AS  sd051
-                                    ,'' AS  sd052
-                                    ,'' AS  sd053
-                                    ,'' AS  sd054
-                                    ,'' AS  sd055
-                                    ,'信用評分' AS  sd056
-                                    ,'3000萬以下(4分)' AS  sd057
-                                    ,'4' AS  sd058
-                                    ,'0' AS  sd060
-                                    ,'0' AS  sd061
-                                    ,'0' AS  sd062
-                                    ,'' AS  sd063
-                                    ,'3000萬以下（4分）' AS  sd064
-                                    ,'4' AS  sd065
-                                    ,'0' AS  sd066
-                                    ,'0' AS  sd067
-                                    ,'0' AS  sd068
-                                    ,'0' AS  sd069
-                                    ,'50萬以下(5分)' AS  sd070
-                                    ,'5' AS  sd071
-                                    ,'沒有(10分)' AS  sd072
-                                    ,'10' AS  sd073
-                                    ,'正常(10分)' AS  sd074
-                                    ,'10' AS  sd075
-                                    ,'' AS  sd076
-                                    ,'5%以下(5分)' AS  sd077
-                                    ,'5' AS  sd078
-                                    ,'38' AS  sd079
-                                    ,'0' AS  sd080
-                                    ,'0' AS  sd081
-                                    ,'38' AS  sd082
-                                    ,'0' AS  sd083
-                                    FROM [TK].dbo.COPMA
-                                    LEFT JOIN [DSCSYS].dbo.CMSMO ON MO001=MA046
-                                    LEFT JOIN [TK].dbo.CMSNA ON NA001='2' AND NA002=MA083
-                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND    MA001='{0}' 
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd057]='3000萬以下(4分)'
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd057]='3001萬~5000萬(6分)'
-                                    WHERE MA001 IN (
-                                    SELECT MA001 
-                                    FROM [TK].dbo.COPMA
-                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND  MA011>=30000001
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd057]='5001萬~1億以上(10分)'
-                                    WHERE MA001 IN (
-                                    SELECT MA001 
-                                    FROM [TK].dbo.COPMA
-                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND  MA011>=50000001
-                                    )
-
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET sd058='4'
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET sd058='6'
-                                    WHERE MA001 IN (
-                                    SELECT MA001 
-                                    FROM [TK].dbo.COPMA
-                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND  MA011>=30000001
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET sd058='10'
-                                    WHERE MA001 IN (
-                                    SELECT MA001 
-                                    FROM [TK].dbo.COPMA
-                                    WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    AND  MA011>=50000001
-                                    )
-
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd070]='50萬以下(5分)'
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd070]='51萬~150萬(10分)'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 510000
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd070]='151萬~300萬(15分)'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 1510000
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd070]='300萬以上(20分)'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 3000000
-                                    )
-
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd071]='5'
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd071]='10'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 510000
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd071]='15'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 1510000
-                                    )
-
-                                    UPDATE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    SET [sd071]='20'
-                                    WHERE MA001 IN (
-                                    SELECT MA001
-                                    FROM (
-                                        SELECT MA001,
-                                            (
-                                                SELECT SUM(LA017 - LA020 - LA022 - LA023)
-                                                FROM [TK].dbo.SASLA
-                                                WHERE LA006 = MA001 AND  YEAR(LA015) = YEAR(DATEADD(YEAR, -1, GETDATE()))
-                                            ) AS LASTMONEYS
-                                        FROM [TK].dbo.COPMA
-                                        WHERE (MA001 LIKE '2%' OR MA001 LIKE 'A%' OR MA001 LIKE '3%' OR MA001 LIKE 'B%')
-                                    ) AS TEMP
-                                    WHERE LASTMONEYS > 3000000
-                                    )
-                                    ", MA001);
-
-                        cmd.CommandText = SQL_EXE.ToString();
-                        int result = cmd.ExecuteNonQuery();
-
-                        if (result == 0)
-                        {
-                            tran.Rollback(); // 交易取消
-                        }
-                        else
-                        {
-                            tran.Commit(); // 執行交易
-                        }
+                        tran.Rollback(); // 交易取消
+                        throw new DataException($"客戶代碼 {MA001} 在 COPMA 表中找不到符合條件的資料，UOF 暫存表插入失敗，事務已回滾。");
+                    }
+                    else
+                    {
+                        tran.Commit(); // 執行交易
                     }
                 }
             }
             catch (Exception ex)
             {
+                // 確保在任何錯誤發生時都能進行回滾
+                if (tran != null)
+                {
+                    // 如果事務已經開始，則回滾
+                    try { tran.Rollback(); }
+                    catch (Exception rbEx)
+                    {
+                        // 記錄回滾失敗的訊息
+                        Console.WriteLine($"事務回滾失敗: {rbEx.Message}");
+                    }
+                }
+
+                // 紀錄錯誤並重新拋出
                 Console.WriteLine("ADD_TB_UOF_COPMA_100A 發生錯誤: " + ex.Message);
-                throw;
+                throw; // 重新拋出原始異常
+            }
+            finally
+            {
+                // 確保連線被關閉和釋放
+                if (sqlConn != null)
+                {
+                    sqlConn.Close();
+                    sqlConn.Dispose();
+                }
+                // tran 已經在 catch 或 finally 區塊外部通過 Dispose 釋放，此處僅處理 sqlConn。
             }
         }
 
 
         public DataTable FIND_TB_UOF_COPMA_100A()
         {
-            DataTable dt = new DataTable();
-            DataTable DT = new DataTable();
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
+            // 最終返回的結果集
+            DataTable resultTable = new DataTable();
+
+            // 1. 連線字串處理 (解密)
+            // 假設 Class1.Decryption 已經定義
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+            );
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 2. SQL 查詢字串
                 sbSql.Clear();
-                sbSqlQuery.Clear();
+                sbSql.Append(@"
+                                SELECT *
+                                FROM [TKBUSINESS].[dbo].[UOF_COPMA100A];
+                            ");
+                string sqlQuery = sbSql.ToString();
 
-                //庫存數量看LA009 IN ('20004','20006','20008','20019','20020'
-
-                sbSql.AppendFormat(@"  
-                                    SELECT *
-                                    FROM [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 使用 using 確保 SqlConnection 和 SqlDataAdapter 資源被正確釋放
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(sqlQuery, sqlConn))
                 {
-                    return ds1.Tables["ds1"];
+                    // 不需要顯式打開和關閉連線，SqlDataAdapter.Fill 會自動處理
+                    adapter.Fill(resultTable);
+
+                    // 4. 判斷並返回結果
+                    if (resultTable.Rows.Count > 0)
+                    {
+                        return resultTable;
+                    }
+                    else
+                    {
+                        // 返回 null 表示沒有找到資料
+                        return null;
+                    }
                 }
-                else
-                {
-                    return null;
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
+                // 記錄錯誤訊息（在實際應用中應使用 Log 框架）
+                Console.WriteLine("FIND_TB_UOF_COPMA_100A 發生錯誤: " + ex.Message);
 
+                // 根據業務需求決定拋出或返回 null
+                throw new DataException("執行資料庫查詢失敗。", ex);
             }
-            finally
-            {
-                sqlConn.Close();
-            }
-
-            return dt;
         }
-
 
         public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(DataTable dt)
         {
@@ -33429,114 +33291,114 @@ namespace TKSCHEDULEUOF
            
         }
 
-        public DataTable FIND_SASLA_DEPT30(string DEP)
+        public DataTable FIND_SASLA_DEPT30_Split(string DEP)
         {
+            string connectionString;
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 1. 設定連線字串並解密
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                //TL006='N' AND (UDF01 IN ('Y','y') ) 
-                if (DEP.Equals("國內"))
-                {
-                    sbSql.AppendFormat(@" 
-                                        SELECT TOP 30 '國內' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
-                                        FROM [TK].dbo.SASLA
-                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
-                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
-                                        AND ( LA006 LIKE '2%' OR LA006 LIKE 'A%')
-                                        AND LA007 LIKE '117700%'
-                                        GROUP BY LA006,LA041
-                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
-
-
-                                    ");
-                }
-                else if (DEP.Equals("國外"))
-                {
-                    sbSql.AppendFormat(@"                                     
-                                        SELECT TOP 30 '國外' AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
-                                        FROM [TK].dbo.SASLA
-                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
-                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
-                                        AND ( LA006 LIKE '3%' OR LA006 LIKE 'B%')
-                                        AND LA007 LIKE '117800%'
-                                        GROUP BY LA006,LA041
-                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
-
-                                    ");
-                }
-                else if (DEP.Equals("張協"))
-                {
-                    sbSql.AppendFormat(@"                                     
-                                        SELECT TOP 30 '張協'AS DEPNO,LA006,LA041,SUM(LA017-LA020-LA022-LA023) AS NUM
-                                        FROM [TK].dbo.SASLA
-                                        WHERE  CONVERT(NVARCHAR,LA015,112)>=  CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'0101'
-                                        AND CONVERT(NVARCHAR,LA015,112)<= CONVERT(NVARCHAR,YEAR(DATEADD(YEAR, -1, GETDATE())))+'1231'
-                                        AND LA006 IN (
-                                        SELECT MA001
-                                        FROM [TK].dbo.COPMA
-                                        WHERE MA016 LIKE '200050%'
-                                        )
-
-                                        GROUP BY LA006,LA041
-                                        ORDER BY SUM(LA017-LA020-LA022-LA023) DESC
-
-
-                                    ");
-                }
-
-
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-                }
-                else
-                {
-                    return null;
-                }
-
+                connectionString = sqlsb.ConnectionString;
             }
-            catch
+            catch (Exception ex)
+            {
+                // 建議在此記錄 ex
+                return null;
+            }
+
+            // 2. 計算上一年度的日期範圍 (用於 SQL 參數)
+            int lastYear = DateTime.Now.Year - 1;
+            string startDate = lastYear.ToString() + "0101";
+            string endDate = lastYear.ToString() + "1231";
+
+            // 3. 根據 DEP 參數設定完整的 SQL 查詢字串
+            string coreSql = null;
+
+            if (DEP.Equals("國內"))
+            {
+                coreSql = @" 
+                            SELECT TOP 30 '國內' AS DEPNO, LA006, LA041, SUM(LA017 - LA020 - LA022 - LA023) AS NUM
+                            FROM [TK].dbo.SASLA (NOLOCK)
+                            WHERE CONVERT(NVARCHAR(8), LA015, 112) >= @StartDate 
+                              AND CONVERT(NVARCHAR(8), LA015, 112) <= @EndDate
+                              AND ( LA006 LIKE '2%' OR LA006 LIKE 'A%') 
+                              AND LA007 LIKE '117700%'
+                            GROUP BY LA006, LA041
+                            ORDER BY SUM(LA017 - LA020 - LA022 - LA023) DESC;
+                        ";
+                        }
+            else if (DEP.Equals("國外"))
+            {
+                coreSql = @"                      
+                            SELECT TOP 30 '國外' AS DEPNO, LA006, LA041, SUM(LA017 - LA020 - LA022 - LA023) AS NUM
+                            FROM [TK].dbo.SASLA (NOLOCK)
+                            WHERE CONVERT(NVARCHAR(8), LA015, 112) >= @StartDate 
+                              AND CONVERT(NVARCHAR(8), LA015, 112) <= @EndDate
+                              AND ( LA006 LIKE '3%' OR LA006 LIKE 'B%') 
+                              AND LA007 LIKE '117800%'
+                            GROUP BY LA006, LA041
+                            ORDER BY SUM(LA017 - LA020 - LA022 - LA023) DESC;
+                        ";
+                        }
+            else if (DEP.Equals("張協"))
+            {
+                coreSql = @"                      
+                            SELECT TOP 30 '張協'AS DEPNO, LA006, LA041, SUM(LA017 - LA020 - LA022 - LA023) AS NUM
+                            FROM [TK].dbo.SASLA (NOLOCK)
+                            WHERE CONVERT(NVARCHAR(8), LA015, 112) >= @StartDate 
+                              AND CONVERT(NVARCHAR(8), LA015, 112) <= @EndDate
+                              AND LA006 IN (
+                                  SELECT MA001
+                                  FROM [TK].dbo.COPMA
+                                  WHERE MA016 LIKE '200050%'
+                              )
+                            GROUP BY LA006, LA041
+                            ORDER BY SUM(LA017 - LA020 - LA022 - LA023) DESC;
+                        ";
+                        }
+
+            // 如果沒有匹配到任何部門，則返回 null
+            if (coreSql == null)
             {
                 return null;
             }
-            finally
+
+            // 4. 執行查詢並確保資源釋放 (使用 using)
+            try
             {
-                sqlConn.Close();
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(coreSql, sqlConn))
+                {
+                    // 使用參數化查詢傳遞日期
+                    cmd.Parameters.Add("@StartDate", SqlDbType.NVarChar, 8).Value = startDate;
+                    cmd.Parameters.Add("@EndDate", SqlDbType.NVarChar, 8).Value = endDate;
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+
+                        if (dt.Rows.Count >= 1)
+                        {
+                            return dt;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
             }
-
-           
+            catch (Exception ex)
+            {
+                // 建議在此記錄 ex
+                return null;
+            }
         }
-
         //當請購單的數量=0，手動結案
         public void UPDATE_PURTA_PURTB_TB039()
         {
@@ -39400,11 +39262,12 @@ namespace TKSCHEDULEUOF
         }
         private void button99_Click(object sender, EventArgs e)
         {
+            //各部門前30大-稽用-ERP客戶轉-100A客戶基本資料表
             string MA001 = null;
 
-            DataTable DT1 = FIND_SASLA_DEPT30("國內");
-            DataTable DT2 = FIND_SASLA_DEPT30("國外");
-            DataTable DT3 = FIND_SASLA_DEPT30("張協");
+            DataTable DT1 = FIND_SASLA_DEPT30_Split("國內");
+            DataTable DT2 = FIND_SASLA_DEPT30_Split("國外");
+            DataTable DT3 = FIND_SASLA_DEPT30_Split("張協");
 
             //國內
             if (DT1!=null && DT1.Rows.Count>=1)
