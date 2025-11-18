@@ -32568,30 +32568,26 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_MOCTA()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
+            // 呼叫 FIND_UOF_MOCTA 取得需要更新的資料表
+            var DT = FIND_UOF_MOCTA();
 
-            string FORMID;
-            string TA001;
-            string TA002;
-            
-            string ISCLOSE;
-
-            DataTable DT = FIND_UOF_MOCTA();
-
+            // 檢查是否有資料需要處理
             if (DT != null && DT.Rows.Count >= 1)
             {
-                foreach (DataRow DR in DT.Rows)
+                // 遍歷所有資料列
+                foreach (DataRow DR in DT.AsEnumerable())
                 {
-                    TA001 = DR["TA001"].ToString().Trim();
-                    TA002 = DR["TA002"].ToString().Trim();
+                    // 提取並清理所需的欄位值
+                    var TA001 = DR["TA001"]?.ToString().Trim() ?? string.Empty;
+                    var TA002 = DR["TA002"]?.ToString().Trim() ?? string.Empty;
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
+                    // DOC_NBR 和 FORMID 來自相同的欄位
+                    var FORMID = DR["DOC_NBR"]?.ToString().Trim() ?? string.Empty;
 
+                    // ACCOUNT 和 MODIFIER 來自相同的欄位
+                    var MODIFIER = DR["ACCOUNT"]?.ToString().Trim() ?? string.Empty;
+
+                    // 執行更新操作
                     UPDATE_MOCTA_EXE(TA001, TA002, FORMID, MODIFIER);
                 }
             }
@@ -32599,183 +32595,177 @@ namespace TKSCHEDULEUOF
 
         public DataTable FIND_UOF_MOCTA()
         {
-           
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
+            // 初始化 DataTable 變數
+            DataTable resultTable = null;
             DataSet ds1 = new DataSet();
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
-
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                // 1. 建立資料庫連線字串
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 2. 建立 SQL 查詢語句
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
-                sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
+                sbSql.Append(@"
+                                WITH TEMP AS (
                                     SELECT 
                                         [FORM_NAME],
                                         [DOC_NBR],
-	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                        -- 提取單頭欄位：MOCTA 的鍵值
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
-
 
                                         TASK_ID,
                                         TASK_STATUS,
                                         TASK_RESULT
-                                        FROM[UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'MOCI02.製令單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1[TB_EB_USER].ACCOUNT
-                                        FROM[UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
-                                    WHERE[TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = 'MOCI02.製令單'
+                                    AND TASK_STATUS = '2'   -- 已結案
+                                    AND TASK_RESULT = '0'   -- 通過/核准
+                                )
+                                SELECT TEMP.*,
+                                (
+                                    -- 獲取最後一個簽核者的 ACCOUNT (MODIFIER)
+                                    SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                    FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                    LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                        ON [TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                    WHERE [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
                                     ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-                                    AND REPLACE(TA001+TA002,',','')  IN
-                                    (
+                                ) AS ACCOUNT
+                                FROM TEMP
+                                WHERE 1=1
+                                -- 篩選條件：製令單號必須存在於 ERP 的 MOCTA 表格中，且 MOCTA.TA013 欄位為 'N' (尚未確認)
+                                AND REPLACE(TA001+TA002,',','') IN
+                                (
                                     SELECT REPLACE(TA001+TA002,' ' ,'')
-                                    FROM[192.168.1.105].[TK].dbo.MOCTA
+                                    FROM [192.168.1.105].[TK].dbo.MOCTA
                                     WHERE TA013 IN('N')
+                                )
+                            ");
 
-                                    )
-
-                                    ");
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 3. 執行查詢
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
-                    return ds1.Tables["ds1"];
+                    using (SqlDataAdapter adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn))
+                    {
+                        // 設置查詢的超時時間
+                        adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
 
-                }
-                else
+                        sqlConn.Open();
+                        adapter1.Fill(ds1, "ds1");
+                    }
+                } // using 塊結束，連線會自動關閉和釋放
+
+                if (ds1.Tables.Contains("ds1") && ds1.Tables["ds1"].Rows.Count >= 1)
                 {
-                    return null;
+                    resultTable = ds1.Tables["ds1"];
                 }
+            }
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
+            {
+                // 捕獲並處理異常 (保留 EX 變數)
+                // 可以在此處加入日誌記錄: EX.Message
+                resultTable = null;
+            }
 
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sqlConn.Close();
-            }
+            return resultTable;
         }
 
         public void UPDATE_MOCTA_EXE(string TA001, string TA002, string FORMID, string MODIFIER)
         {
+            // 預設更新值
+            string TA013 = "Y"; // 主表狀態：設為已確認/核准
+            string TB018 = "Y"; // 明細狀態：設為已確認/核准
+            string TA049_Value = "N"; // 假設 TA049 固定設為 'N'
             string COMPANY = "TK";
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
-            string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
+            string MODI_TIME = DateTime.Now.ToString("HH:mm:ss"); // 修正時間格式
 
-            string TA013 = "Y";
-            string TC048 = "N";
-            string TB018 = "Y";
-
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
+            // 1. 建立資料庫連線字串
+            Class1 TKID = new Class1();
             SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-
-            //資料庫使用者密碼解密
+            // 資料庫使用者密碼解密
             sqlsb.Password = TKID.Decryption(sqlsb.Password);
             sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+            // 2. 建立 SQL 查詢語句 (批量更新 MOCTA 和 MOCTB)
             StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"   
-                                     UPDATE [TK].dbo.MOCTA
-                                        SET TA013=@TA013,TA040=TA003,TA041=@TA041,TA049=@TA049
-                                        ,UDF03=@UDF03
-                                        ,FLAG=FLAG+1
-                                        ,COMPANY=@COMPANY,MODIFIER=@MODIFIER ,MODI_DATE=@MODI_DATE, MODI_TIME=@MODI_TIME
-                                        WHERE TA001=@TA001 AND TA002=@TA002
+            queryString.Append(@"
+                                -- 更新 MOCTA (製令單頭)
+                                UPDATE [TK].dbo.MOCTA
+                                SET TA013 = @TA013, 
+                                    TA040 = TA003, -- 假設 TA040 = TA003 (可能是確認日期)
+                                    TA041 = @TA041, -- 確認人 (來自 UOF 的簽核人)
+                                    TA049 = @TA049, -- 假設為固定值 'N'
+                                    UDF03 = @UDF03, -- 存儲 UOF 的單號 (FORMID)
+                                    FLAG = ISNULL(FLAG, 0) + 1,
+                                    COMPANY = @COMPANY, 
+                                    MODIFIER = @MODIFIER, 
+                                    MODI_DATE = @MODI_DATE, 
+                                    MODI_TIME = @MODI_TIME
+                                WHERE TA001 = @TA001 AND TA002 = @TA002;
 
-                                        UPDATE [TK].dbo.MOCTB
-                                        SET TB018=@TB018
-                                        ,FLAG=FLAG+1
-                                        ,COMPANY=@COMPANY,MODIFIER=@MODIFIER ,MODI_DATE=@MODI_DATE, MODI_TIME=@MODI_TIME 
-                                        WHERE TB001=@TB001 AND TB002=@TB002
-
-                                        ");
+                                -- 更新 MOCTB (製令單身)
+                                UPDATE [TK].dbo.MOCTB
+                                SET TB018 = @TB018, -- 設為 'Y' (已確認)
+                                    FLAG = ISNULL(FLAG, 0) + 1,
+                                    COMPANY = @COMPANY, 
+                                    MODIFIER = @MODIFIER, 
+                                    MODI_DATE = @MODI_DATE, 
+                                    MODI_TIME = @MODI_TIME
+                                WHERE TB001 = @TB001 AND TB002 = @TB002;
+                            ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                    {
+                        // 3. 參數化
+                        command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
+                        command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
+                        command.Parameters.Add("@TB001", SqlDbType.NVarChar).Value = TA001;
+                        command.Parameters.Add("@TB002", SqlDbType.NVarChar).Value = TA002;
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@TA001", SqlDbType.NVarChar).Value = TA001;
-                    command.Parameters.Add("@TA002", SqlDbType.NVarChar).Value = TA002;
-                    command.Parameters.Add("@TB001", SqlDbType.NVarChar).Value = TA001;
-                    command.Parameters.Add("@TB002", SqlDbType.NVarChar).Value = TA002;
-                    command.Parameters.Add("@TA013", SqlDbType.NVarChar).Value = TA013;
+                        // 更新值參數
+                        command.Parameters.Add("@TA013", SqlDbType.NVarChar).Value = TA013;
+                        command.Parameters.Add("@TA041", SqlDbType.NVarChar).Value = MODIFIER;
+                        command.Parameters.Add("@TA049", SqlDbType.NVarChar).Value = TA049_Value;
+                        command.Parameters.Add("@TB018", SqlDbType.NVarChar).Value = TB018;
+                        command.Parameters.Add("@UDF03", SqlDbType.NVarChar).Value = FORMID;
 
-                    command.Parameters.Add("@TA041", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@TA049", SqlDbType.NVarChar).Value = "N";
-                    command.Parameters.Add("@TB018", SqlDbType.NVarChar).Value = TB018;
+                        // 系統欄位參數
+                        command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = COMPANY;
+                        command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
+                        command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = MODI_DATE;
+                        command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = MODI_TIME;
 
-                    command.Parameters.Add("@COMPANY", SqlDbType.NVarChar).Value = "TK";
-                    command.Parameters.Add("@MODIFIER", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@MODI_DATE", SqlDbType.NVarChar).Value = DateTime.Now.ToString("yyyyMMdd");
-                    command.Parameters.Add("@MODI_TIME", SqlDbType.NVarChar).Value = DateTime.Now.ToString("HH:mm:ss");
-                    command.Parameters.Add("@UDF03", SqlDbType.NVarChar).Value = FORMID;
-                    
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                        // 4. 執行操作
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
-            catch
+            catch (Exception EX) // 依照您的要求，修改為 catch (Exception EX)
             {
-
+                // 捕獲並處理異常
+                // 在實際應用中，您應該在這裡記錄錯誤日誌 (EX.Message)
             }
-            finally
-            {
-
-            }
+            // 由於使用了 using，連線會自動關閉和釋放，無需 finally 塊
         }
 
         public void UPDATE_PURTA_PORTB()
