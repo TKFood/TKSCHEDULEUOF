@@ -2542,6 +2542,32 @@ namespace TKSCHEDULEUOF
             row.AppendChild(cell);
         }
 
+        private void AppendCellToRow_string(XmlDocument xmlDoc, XmlElement row, string od, string fid, bool withFieldMessage = false, string cellfieldValue = "", string customValue = "")
+        {
+            string value = od;
+
+            if (!string.IsNullOrEmpty(cellfieldValue))
+            {
+                value = cellfieldValue;
+            }
+
+
+            XmlElement cell = xmlDoc.CreateElement("Cell");
+            cell.SetAttribute("fieldId", fid);
+            cell.SetAttribute("fieldValue", value);
+            cell.SetAttribute("realValue", "");
+            cell.SetAttribute("customValue", customValue);
+            cell.SetAttribute("enableSearch", "True");
+
+            if (withFieldMessage)
+            {
+                cell.SetAttribute("fieldMessage", "Y");
+            }
+            // *** 關鍵修改：使用傳入的 customValue 覆寫預設值 "" ***   
+
+            row.AppendChild(cell);
+        }
+
         public void ADDTACK(XmlElement Form)
         {
             //Ede.Uof.WKF.Utility.TaskUtilityUCO taskUCO = new Ede.Uof.WKF.Utility.TaskUtilityUCO();
@@ -35753,7 +35779,7 @@ namespace TKSCHEDULEUOF
 
             XmlDocument xmlDoc = new XmlDocument();
             // 建立根節點 <Form>
-            XmlElement Form = xmlDoc.CreateElement("Form");
+            XmlElement Form = xmlDoc.CreateElement("Form");          
 
             // 取得 formVersionId
             string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9001.新品號通知單");
@@ -38370,6 +38396,332 @@ namespace TKSCHEDULEUOF
             }
         }
 
+
+        public void ADD_2001_TO1004()
+        {
+            try
+            {
+                //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
+                DataSet ds1 = new DataSet();
+                SqlDataAdapter adapter1;
+                SqlCommandBuilder sqlCmdBuilder1;
+
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append(@"                                
+                                WITH TEMP AS (
+                                    SELECT 
+                                        [USER_GUID],
+                                        [FORM_NAME],
+                                        [DOC_NBR],
+		                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD42,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD43""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD43,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD44""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD44,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD45""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD45,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD3,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD34,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD36,
+                                        TASK_ID,
+                                        TASK_STATUS,
+                                        TASK_RESULT
+                                    FROM[UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
+                                        ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM
+                                        ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE[FORM_NAME] = '2001.產品開發+包裝設計申請單'
+                                        --AND TASK_STATUS = '2'
+                                        --AND TASK_RESULT = '0'
+                                )
+
+                                SELECT*
+                                FROM TEMP
+                                WHERE 1 = 1
+                                    AND DOC_NBR NOT IN
+                                    (
+                                        SELECT DV12
+                                        FROM
+                                        (
+                                            SELECT
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                                            FROM[UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
+                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
+                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE[FORM_NAME] = '1004.無品號試吃製作申請單'
+                                            UNION ALL
+                                            SELECT
+                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                                            FROM[UOF].[dbo].TB_WKF_TASK
+                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
+                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
+                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                            WHERE[FORM_NAME] = '1008.無品號-烘培試吃製作申請單'
+                                        )  AS TEMP
+                                        WHERE ISNULL(DV12, '') <> ''
+	                                )
+                                    AND DOC_NBR >= 'NEWDESIGN251100018'
+                                    AND FIELD42 IN('1004.無品號試吃製作申請單')
+
+                            ");
+
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
+
+                }
+
+                //ds1有資料要轉
+                if (ds1!=null && ds1.Tables["ds1"].Rows.Count>=1)
+                {
+                    string USER_GUID_FORM = "";
+                    string EXTERNAL_FORM_NBR_FORM = "";
+                    string DV = "1.方塊酥，數量1kg"+ Environment.NewLine 
+                        + "2.雪花酥-單顆規格7.5g，數量50顆"+ Environment.NewLine
+                        +"3.手工餅系列-單片/包規格-10片";
+                    string DV01 = "";
+                    string DV02 = "";
+                    string DV03 = "";
+                    string DV05 = "";
+                    string DV06 = "";
+                    string DV07 = "";
+                    string DV08 = "";
+                    string DV09 = "";
+                    string DV10 = "";
+                    string DV11 = "";
+                    string DVV01 = "";
+                    string DVV02 = "";
+                    string DVV03 = "";
+                    string DVV04 = "";
+                    string DVV05 = "";
+                    string DVV06 = "";
+                    string DVV07 = "";
+                    string DVV08 = "";
+
+                    foreach(DataRow DR in ds1.Tables["ds1"].Rows)
+                    {
+                        USER_GUID_FORM = DR["USER_GUID"].ToString();
+                        EXTERNAL_FORM_NBR_FORM = DR["DOC_NBR"].ToString();
+
+                        DV01 = DR["FIELD43"].ToString();
+                        DV02 = "";
+                        DV03 = DateTime.Now.ToString("yyyy/MM/dd");
+                        DV05 = "others";
+                        DV06 = DR["FIELD44"].ToString();
+                        DV07 = DR["FIELD34"].ToString();
+                        DV08 = DR["FIELD45"].ToString();
+                        DV09 = DR["FIELD36"].ToString();
+                        DV10 = "";
+                        DV11 = "";
+                        DVV01 = DR["FIELD3"].ToString();
+                        DVV02 = "others";
+                        DVV03 = "";
+                        DVV04 = "";
+                        DVV05 = "";
+                        DVV06 = "";
+                        DVV07 = "";
+                        DVV08 = "";
+
+                        ADD_UOF_RESEARCH_1004(
+                                    USER_GUID_FORM,
+                                    EXTERNAL_FORM_NBR_FORM,
+                                    DV,
+                                    DV01,
+                                    DV02,
+                                    DV03,
+                                    DV05,
+                                    DV06,
+                                    DV07,
+                                    DV08,
+                                    DV09,
+                                    DV10,
+                                    DV11,
+                                    DVV01,
+                                    DVV02,
+                                    DVV03,
+                                    DVV04,
+                                    DVV05,
+                                    DVV06,
+                                    DVV07,
+                                    DVV08
+                                    );
+                    }
+
+                }
+            }
+            catch (Exception EX)
+            {
+
+            }
+            finally
+            {
+
+            }
+        }
+
+        public void ADD_UOF_RESEARCH_1004(
+            string USER_GUID_FORM,
+            string EXTERNAL_FORM_NBR_FORM,
+            string DV ,
+            string DV01,
+            string DV02,
+            string DV03,
+            string DV05,
+            string DV06,
+            string DV07,
+            string DV08,
+            string DV09,
+            string DV10,
+            string DV11,
+            string DVV01,
+            string DVV02,
+            string DVV03,
+            string DVV04,
+            string DVV05,
+            string DVV06,
+            string DVV07,
+            string DVV08
+            )
+        {
+            string USER_GUID = USER_GUID_FORM;
+            string EXTERNAL_FORM_NBR = EXTERNAL_FORM_NBR_FORM;
+
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+
+            string account, groupId, jobTitleId, fillerName, fillerUserGuid;
+            string DEPNAME, DEPNO;
+
+            account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
+            groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
+            jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
+            fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
+            fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+            DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
+            DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
+
+            int rowscounts = 0;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement Form = xmlDoc.CreateElement("Form");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("1004.無品號試吃製作申請單");
+            if (!string.IsNullOrEmpty(FORMID))
+            {
+                Form.SetAttribute("formVersionId", FORMID);
+            }
+            Form.SetAttribute("urgentLevel", "2");
+            xmlDoc.AppendChild(Form);
+
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            Form.AppendChild(Applicant);
+
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            Applicant.AppendChild(Comment);
+
+            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            Form.AppendChild(FormFieldValue);
+
+            // 一般欄位
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            //AddFieldItem(XmlDocument xmlDoc, XmlElement parent, string fieldId, string fieldValue, string fillerName, string fillerUserGuid, string fillerAccount, string realValue = "", string customValue = "")
+            //AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account, "", "@null");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV", DV, fillerName, fillerUserGuid, account, "", "");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV11", DV11, fillerName, fillerUserGuid, account, "", "");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV03", DV03, fillerName, fillerUserGuid, account, "", "");
+
+
+            AddFieldItem(xmlDoc, FormFieldValue, "DV01", DV01, fillerName, fillerUserGuid, account, "", "@null");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV09", DV09, fillerName, fillerUserGuid, account, "", "");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV05", DV05, fillerName, fillerUserGuid, account, "", "");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV06", DV06, fillerName, fillerUserGuid, account, "", "@null");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV07", DV07, fillerName, fillerUserGuid, account, "", "@null");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV08", DV08, fillerName, fillerUserGuid, account, "", "@null");
+
+
+            //建立userset
+            var xElement = new XElement(
+                  new XElement("UserSet",
+                      new XElement("Element", new XAttribute("type", "user"),
+                          new XElement("userId", fillerUserGuid)
+                          )
+                          )
+                        );       
+            //特殊組合字串和 realValue
+            string DV10_Value = fillerName +"(" + account + ")";
+            string DV10_RealValue = xElement.ToString();
+            AddFieldItem(xmlDoc, FormFieldValue, "DV10", DV10_Value, fillerName, fillerUserGuid, account, DV10_RealValue);
+            string DV02_Value = DEPNAME;
+            string DV02_RealValue = DEPNO;
+            AddFieldItem(xmlDoc, FormFieldValue, "DV02", DV02_Value, fillerName, fillerUserGuid, account, DV02_RealValue);
+            // DataGrid 欄位
+            XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+            FieldItem.AppendChild(DataGrid);
+
+            XmlElement Row = xmlDoc.CreateElement("Row");
+            Row.SetAttribute("order", rowscounts.ToString());
+
+            AppendCellToRow_string(xmlDoc, Row, DVV01, "DVV01");
+            AppendCellToRow_string(xmlDoc, Row, DVV02, "DVV02");
+
+            DataGrid.AppendChild(Row);
+            rowscounts++;
+
+            //foreach (DataRow od in DT.Rows)
+            //{
+            //    XmlElement Row = xmlDoc.CreateElement("Row");
+            //    Row.SetAttribute("order", rowscounts.ToString());
+
+            //    AppendCellToRow(xmlDoc, Row, od, "GG002");
+
+            //    DataGrid.AppendChild(Row);
+            //    rowscounts++;
+            //}
+
+            // 寫入資料庫
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+            {
+                string queryString = $@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                                    ";
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void ADD_2001_TO1008()
+        {
+
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -39257,9 +39609,18 @@ namespace TKSCHEDULEUOF
             ADD_ERP_INVMB_TO_UOF_9003();
             MessageBox.Show("OK");
         }
+        private void button116_Click(object sender, EventArgs e)
+        {
+            //2001.產品開發轉試吃單
+            //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
+            ADD_2001_TO1004();
+            //2001.產品開發轉試吃單>1008.無品號-烘培試吃製作申請單
+            ADD_2001_TO1008();
+            MessageBox.Show("OK");
+        }
 
         #endregion
 
-      
+
     }
 }

@@ -159,6 +159,7 @@
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
+            this.button116 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -262,6 +263,7 @@
             this.tableLayoutPanel1.Controls.Add(this.button79, 1, 9);
             this.tableLayoutPanel1.Controls.Add(this.button115, 1, 10);
             this.tableLayoutPanel1.Controls.Add(this.button14, 3, 14);
+            this.tableLayoutPanel1.Controls.Add(this.button116, 5, 4);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -1709,6 +1711,16 @@
             // 
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
+            // button116
+            // 
+            this.button116.Location = new System.Drawing.Point(713, 163);
+            this.button116.Name = "button116";
+            this.button116.Size = new System.Drawing.Size(171, 34);
+            this.button116.TabIndex = 72;
+            this.button116.Text = "2001.產品開發轉試吃單";
+            this.button116.UseVisualStyleBackColor = true;
+            this.button116.Click += new System.EventHandler(this.button116_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1864,5 +1876,6 @@
         private System.Windows.Forms.Button button115;
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Timer timer6;
+        private System.Windows.Forms.Button button116;
     }
 }
