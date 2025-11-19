@@ -38502,6 +38502,7 @@ namespace TKSCHEDULEUOF
                     string DV09 = "";
                     string DV10 = "";
                     string DV11 = "";
+                    string DV12 = "";
                     string DVV01 = "";
                     string DVV02 = "";
                     string DVV03 = "";
@@ -38526,6 +38527,7 @@ namespace TKSCHEDULEUOF
                         DV09 = DR["FIELD36"].ToString();
                         DV10 = "";
                         DV11 = "";
+                        DV12 = DR["DOC_NBR"].ToString();
                         DVV01 = DR["FIELD3"].ToString();
                         DVV02 = "others";
                         DVV03 = "";
@@ -38549,6 +38551,7 @@ namespace TKSCHEDULEUOF
                                     DV09,
                                     DV10,
                                     DV11,
+                                    DV12,
                                     DVV01,
                                     DVV02,
                                     DVV03,
@@ -38586,6 +38589,7 @@ namespace TKSCHEDULEUOF
             string DV09,
             string DV10,
             string DV11,
+            string DV12,
             string DVV01,
             string DVV02,
             string DVV03,
@@ -38652,7 +38656,7 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "DV06", DV06, fillerName, fillerUserGuid, account, "", "@null");
             AddFieldItem(xmlDoc, FormFieldValue, "DV07", DV07, fillerName, fillerUserGuid, account, "", "@null");
             AddFieldItem(xmlDoc, FormFieldValue, "DV08", DV08, fillerName, fillerUserGuid, account, "", "@null");
-
+            AddFieldItem(xmlDoc, FormFieldValue, "DV12", DV12, fillerName, fillerUserGuid, account, "", "");
 
             //建立userset
             var xElement = new XElement(
