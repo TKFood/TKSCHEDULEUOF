@@ -762,7 +762,16 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-
+             
+            }
+            catch { }
+            try
+            {
+                //2001.產品開發轉試吃單
+                //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
+                ADD_2001_TO1004();
+                //2001.產品開發轉試吃單>1008.無品號-烘培試吃製作申請單
+                ADD_2001_TO1008();
 
             }
             catch { }
@@ -38437,8 +38446,8 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN[UOF].[dbo].TB_WKF_FORM
                                         ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                     WHERE[FORM_NAME] = '2001.產品開發+包裝設計申請單'
-                                        --AND TASK_STATUS = '2'
-                                        --AND TASK_RESULT = '0'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
                                 )
 
                                 SELECT*
@@ -38760,8 +38769,8 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN[UOF].[dbo].TB_WKF_FORM
                                         ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
                                     WHERE[FORM_NAME] = '2001.產品開發+包裝設計申請單'
-                                        --AND TASK_STATUS = '2'
-                                        --AND TASK_RESULT = '0'
+                                        AND TASK_STATUS = '2'
+                                        AND TASK_RESULT = '0'
                                 )
 
                                 SELECT*
