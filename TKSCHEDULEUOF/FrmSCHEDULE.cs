@@ -644,9 +644,9 @@ namespace TKSCHEDULEUOF
             try
             {
                 //更新附件 GA1005
-                //UPDATE_UOF_GA1005_ATTACH_ID();
+                UPDATE_UOF_GA1005_ATTACH_ID();
                 //更新附件 QC1001
-                //UPDATE_UOF_QC1001_ATTACH_ID();
+                UPDATE_UOF_QC1001_ATTACH_ID();
             }
             catch { }
 
@@ -11832,7 +11832,7 @@ namespace TKSCHEDULEUOF
                 }
             }
 
-            //UPDATE_UOF_QC1001_ATTACH_ID();
+            UPDATE_UOF_QC1001_ATTACH_ID();
 
         }
 
@@ -12188,7 +12188,7 @@ namespace TKSCHEDULEUOF
                                                         TB_WKF_TASK.DOC_NBR,
                                                         TB_WKF_TASK.TASK_ID,
                                                         TB_WKF_TASK.ATTACH_ID,
-                                                        [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,
+                                                        TB_WKF_EXTERNAL_TASK.EXTERNAL_FORM_NBR,
                                                         TB_WKF_TASK2.ATTACH_ID AS NEW_ATTACH_ID
                                                     FROM [UOF].[dbo].TB_WKF_TASK
                                                     JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
@@ -12196,9 +12196,13 @@ namespace TKSCHEDULEUOF
                                                     JOIN [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2 
                                                         ON [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR = TB_WKF_TASK2.DOC_NBR
                                                     WHERE TB_WKF_TASK.DOC_NBR LIKE 'QC%'
-                                                      AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+		                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '')=''
+		                                                AND ISNULL(TB_WKF_TASK2.ATTACH_ID, '')<>''
+                                                        AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+		
                                                 ) AS TEMP
                                                 WHERE TEMP.TASK_ID = TB_WKF_TASK.TASK_ID
+
                                             ");
 
                             using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
@@ -27003,7 +27007,7 @@ namespace TKSCHEDULEUOF
                                                         TB_WKF_TASK.DOC_NBR,
                                                         TB_WKF_TASK.TASK_ID,
                                                         TB_WKF_TASK.ATTACH_ID,
-                                                        [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR,
+                                                        TB_WKF_EXTERNAL_TASK.EXTERNAL_FORM_NBR,
                                                         TB_WKF_TASK2.ATTACH_ID AS NEW_ATTACH_ID
                                                     FROM [UOF].[dbo].TB_WKF_TASK
                                                     JOIN [UOF].[dbo].[TB_WKF_EXTERNAL_TASK] 
@@ -27011,11 +27015,12 @@ namespace TKSCHEDULEUOF
                                                     JOIN [UOF].[dbo].TB_WKF_TASK TB_WKF_TASK2 
                                                         ON [TB_WKF_EXTERNAL_TASK].EXTERNAL_FORM_NBR = TB_WKF_TASK2.DOC_NBR
                                                     WHERE TB_WKF_TASK.DOC_NBR LIKE 'GA1005%'
-		                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <>''
+		                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '')=''
+		                                                AND ISNULL(TB_WKF_TASK2.ATTACH_ID, '')<>''
                                                         AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <> ISNULL(TB_WKF_TASK2.ATTACH_ID, '')
+		
                                                 ) AS TEMP
                                                 WHERE TEMP.TASK_ID = TB_WKF_TASK.TASK_ID
-                                                AND ISNULL(TB_WKF_TASK.ATTACH_ID, '') <>''
                                             ");
 
                             using (SqlCommand cmd = new SqlCommand(sbSql.ToString(), sqlConn, tran))
@@ -39333,7 +39338,8 @@ namespace TKSCHEDULEUOF
             //ADD_UOF_FORM_GRAFFIRS_1005_GG004_NOT_NULL(ACCOUNT, DEFAUL_NAME);
 
             //更新附件
-            //UPDATE_UOF_GA1005_ATTACH_ID();
+            //來源有才更新，來源沒有附件就不更新
+            UPDATE_UOF_GA1005_ATTACH_ID();
             MessageBox.Show("完成");
 
         }
