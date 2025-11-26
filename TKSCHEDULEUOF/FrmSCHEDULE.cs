@@ -23276,7 +23276,7 @@ namespace TKSCHEDULEUOF
                     string sqlBatch = @"
                                         -- 1. 刪除現有資料 (只針對傳入的 MA001)
                                         DELETE [TKBUSINESS].[dbo].[UOF_COPMA100A]
-                                        WHERE [MA001] = @MA001;
+                                      
 
                                         -- 2. 插入新資料並計算分數 (單次查詢優化)
                                         INSERT INTO [TKBUSINESS].[dbo].[UOF_COPMA100A]
