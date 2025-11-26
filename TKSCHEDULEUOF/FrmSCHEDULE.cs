@@ -39798,8 +39798,7 @@ namespace TKSCHEDULEUOF
 
             DataTable DT1 = FIND_SASLA_DEPT30_Split("國內");
             DataTable DT2 = FIND_SASLA_DEPT30_Split("國外");
-            DataTable DT3 = FIND_SASLA_DEPT30_Split("張協");
-
+            
             //國內
             if (DT1!=null && DT1.Rows.Count>=1)
             {
@@ -39820,15 +39819,6 @@ namespace TKSCHEDULEUOF
                 }
             }
 
-            //張協
-            if (DT3 != null && DT3.Rows.Count >= 1)
-            {
-                foreach (DataRow DR in DT3.Rows)
-                {
-                    MA001 = DR["LA006"].ToString();
-                    ADD_UOF_COPMA_100A(MA001);
-                }
-            }
 
             MessageBox.Show("OK");
 
