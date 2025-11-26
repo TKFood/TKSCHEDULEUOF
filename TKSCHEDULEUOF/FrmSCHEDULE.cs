@@ -2804,13 +2804,14 @@ namespace TKSCHEDULEUOF
 
         public DataTable SEARCHUOFDEP(string account)
         {
+            StringBuilder SQLQUERYS = new StringBuilder();
             try
             {
                 string connectionString = BuildDecryptedConnection("dberp");
 
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
-                {
-                    string sql = string.Format(@"
+                {    
+                    SQLQUERYS.AppendFormat(@"
                                        SELECT 
                                         [GROUP_NAME] AS 'DEPNAME',
                                         [TB_EB_EMPL_DEP].[GROUP_ID] + ',' + [GROUP_NAME] + ',False' AS 'DEPNO',
@@ -2828,10 +2829,10 @@ namespace TKSCHEDULEUOF
                                         WHERE ISNULL([TB_EB_GROUP].[GROUP_CODE], '') <> ''
                                         AND [TB_EB_USER] .[ACCOUNT] = '{0}'
                                         ORDER BY [TB_EB_EMPL_DEP].ORDERS
-                                        ",
-                                         account);
 
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(sql, sqlConn))
+                                        ", account);
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(SQLQUERYS.ToString(), sqlConn))
                     using (DataSet ds = new DataSet())
                     {
                         sqlConn.Open();
@@ -23545,14 +23546,20 @@ namespace TKSCHEDULEUOF
 
         public void ADD_TB_WKF_EXTERNAL_TASK_UOF_COPMA_100A(DataTable dt)
         {
-            DataTable DTUPFDEP = SEARCHUOFDEP("140078");          
+            DataTable DTUPFDEP = SEARCHUOFDEP("140078");
+          
 
             string VERSION_ID = SEARCHFORM_UOF_VERSION_ID("100A.客戶基本資料表");
 
             foreach (DataRow DR in dt.Rows)
             {
                 // 更新申請者資訊
-                DTUPFDEP = SEARCHUOFDEP(DR["MA016"].ToString());
+                //999999是停用
+                if (!DR["MA016"].ToString().Equals("999999"))
+                {
+                    DTUPFDEP = SEARCHUOFDEP(DR["MA016"].ToString());
+                }
+                
                 string account = DTUPFDEP.Rows[0]["ACCOUNT"].ToString();
                 string groupId = DTUPFDEP.Rows[0]["GROUP_ID"].ToString();
                 string jobTitleId = DTUPFDEP.Rows[0]["TITLE_ID"].ToString();
@@ -39525,9 +39532,27 @@ namespace TKSCHEDULEUOF
             //「CURRENT_DOC」，修改表單內申請時間
 
             //要指定客戶代號來產生「100A.客戶基本資料表」
-            string MA001 = "A221400600";
+            // 📌 定義一個 string 陣列來存放多筆資料
+            // 1. 定義一個 string 陣列來存放多筆資料
+            string[] MA_DATA = new string[] {
+            "2221400600",
+            "2254208500",
+            "2221100500",
+            "2220300200",
+            "2221104300",
+            "2246300900",
+            "2242404200",
+            "A214640000"
+            };
 
-            ADD_UOF_COPMA_100A(MA001);
+            // 2. 📌 在呼叫前使用 foreach 迴圈
+            foreach (var MA001 in MA_DATA)
+            {
+                // 3. 每次迴圈都呼叫函式，並傳入單一字串               
+                ADD_UOF_COPMA_100A(MA001);
+            }
+
+            MessageBox.Show("完成");
         }
         private void button68_Click(object sender, EventArgs e)
         {

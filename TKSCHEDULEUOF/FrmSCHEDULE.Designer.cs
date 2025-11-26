@@ -92,6 +92,7 @@
             this.button79 = new System.Windows.Forms.Button();
             this.button115 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
+            this.button116 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -159,7 +160,6 @@
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
-            this.button116 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -920,6 +920,16 @@
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
+            // button116
+            // 
+            this.button116.Location = new System.Drawing.Point(713, 163);
+            this.button116.Name = "button116";
+            this.button116.Size = new System.Drawing.Size(171, 34);
+            this.button116.TabIndex = 72;
+            this.button116.Text = "2001.產品開發轉試吃單";
+            this.button116.UseVisualStyleBackColor = true;
+            this.button116.Click += new System.EventHandler(this.button116_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.tableLayoutPanel2);
@@ -1228,7 +1238,7 @@
             this.button67.Name = "button67";
             this.button67.Size = new System.Drawing.Size(314, 34);
             this.button67.TabIndex = 67;
-            this.button67.Text = "單客戶-稽用-ERP客戶轉-100A客戶基本資料表";
+            this.button67.Text = "指定客戶-稽用-ERP客戶轉-100A客戶基本資料表";
             this.button67.UseVisualStyleBackColor = true;
             this.button67.Click += new System.EventHandler(this.button67_Click);
             // 
@@ -1710,16 +1720,6 @@
             // timer6
             // 
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
-            // 
-            // button116
-            // 
-            this.button116.Location = new System.Drawing.Point(713, 163);
-            this.button116.Name = "button116";
-            this.button116.Size = new System.Drawing.Size(171, 34);
-            this.button116.TabIndex = 72;
-            this.button116.Text = "2001.產品開發轉試吃單";
-            this.button116.UseVisualStyleBackColor = true;
-            this.button116.Click += new System.EventHandler(this.button116_Click);
             // 
             // FrmSCHEDULE
             // 
