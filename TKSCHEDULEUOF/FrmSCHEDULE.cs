@@ -37844,6 +37844,8 @@ namespace TKSCHEDULEUOF
                 using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
                 {
                     var sbSql = new StringBuilder();
+
+                    ///增加排除，已重發UOF表單成功的EXTERNAL_FORM_NBR
                     sbSql.Append(@"
                                     SELECT 
                                         TG001, TG002, UDF01, STATUS, EXTERNAL_FORM_NBR, DOC_NBR, EXCEPTION_MSG
@@ -37853,6 +37855,14 @@ namespace TKSCHEDULEUOF
                                     WHERE UDF01 = 'UOF'
                                         AND STATUS = '0'
                                         AND TG013 = 'N'
+	                                    AND EXTERNAL_FORM_NBR NOT IN 
+	                                    (
+	                                        SELECT  EXTERNAL_FORM_NBR
+	                                        FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]  TB_WKF_EXTERNAL_TASK2
+	                                        WHERE ISNULL(TB_WKF_EXTERNAL_TASK2.DOC_NBR,'')<>''
+	                                        AND TB_WKF_EXTERNAL_TASK2.EXTERNAL_FORM_NBR=TB_WKF_EXTERNAL_TASK.EXTERNAL_FORM_NBR
+	                                    )
+
                                 ");
 
                     using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
@@ -37972,7 +37982,15 @@ namespace TKSCHEDULEUOF
                             ON EXTERNAL_FORM_NBR = TA001 + TA002 COLLATE Chinese_Taiwan_Stroke_BIN
                         WHERE UDF01 = 'UOF'
                             AND STATUS = '0'
-                            AND TA006 = 'N' ";
+                            AND TA006 = 'N' 
+                            AND EXTERNAL_FORM_NBR NOT IN 
+                            (
+                            SELECT  EXTERNAL_FORM_NBR
+                            FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]  TB_WKF_EXTERNAL_TASK2
+                            WHERE ISNULL(TB_WKF_EXTERNAL_TASK2.DOC_NBR,'')<>''
+                            AND TB_WKF_EXTERNAL_TASK2.EXTERNAL_FORM_NBR=TB_WKF_EXTERNAL_TASK.EXTERNAL_FORM_NBR
+                            )
+                            ";
 
             using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
             using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -38078,7 +38096,14 @@ namespace TKSCHEDULEUOF
                                     WHERE UDF01 IN ('UOF')
                                         AND STATUS IN ('0')
                                         AND TH023 IN ('N')
-                                ");
+                                        AND EXTERNAL_FORM_NBR NOT IN 
+                                        (
+                                        SELECT  EXTERNAL_FORM_NBR
+                                        FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]  TB_WKF_EXTERNAL_TASK2
+                                        WHERE ISNULL(TB_WKF_EXTERNAL_TASK2.DOC_NBR,'')<>''
+                                        AND TB_WKF_EXTERNAL_TASK2.EXTERNAL_FORM_NBR=TB_WKF_EXTERNAL_TASK.EXTERNAL_FORM_NBR
+                                        )
+                                    ");
 
                     using (SqlDataAdapter adapter = new SqlDataAdapter(sbSql.ToString(), sqlConn))
                     {
