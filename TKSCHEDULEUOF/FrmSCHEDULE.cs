@@ -23293,8 +23293,8 @@ namespace TKSCHEDULEUOF
                                             ,'' AS sd001
                                             ,CONVERT(NVARCHAR,GETDATE(),111) AS sd002
                                             ,'修改' AS sd003
-                                            ,T1.MA002 AS sd004
-                                            ,T1.MA003 AS sd005
+                                            ,T1.MA003 AS sd004
+                                            ,T1.MA002 AS sd005
                                             ,(CASE 
                                                 WHEN T1.MA001 LIKE '2%' OR T1.MA001 LIKE 'A%' THEN '國內業務@國內業務' 
                                                 WHEN T1.MA001 LIKE '3%' OR T1.MA001 LIKE 'B%' THEN '國外業務@國外業務' 
