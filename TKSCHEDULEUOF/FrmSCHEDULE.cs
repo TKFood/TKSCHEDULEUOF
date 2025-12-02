@@ -36857,11 +36857,14 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
                                     AND TASK_RESULT NOT IN('1','2')
+                                    AND DOC_NBR>='NEWDESIGN251100001'
                                     AND DOC_NBR NOT IN 
                                     (
-	                                    SELECT EXTERNAL_FORM_NBR
+	                                    SELECT EXTERNAL_FORM_NBR	                                    
 	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
 	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
+	                                    AND EXTERNAL_FORM_NBR LIKE '%NEWDESIGN%'	
+	                                    AND DOC_NBR  LIKE '%NEWDESIGN%'								
                                     )
                                   
                                     ");
@@ -37491,13 +37494,7 @@ namespace TKSCHEDULEUOF
                                     AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
-                                    AND TASK_RESULT NOT IN('1','2')
-                                    AND DOC_NBR NOT IN 
-                                    (
-	                                    SELECT EXTERNAL_FORM_NBR
-	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
-	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
-                                    )
+                                    AND TASK_RESULT NOT IN('1','2')                                   
                                     AND DOC_NBR='{0}'
                                     ",DOC_NBR);
 
@@ -39535,12 +39532,8 @@ namespace TKSCHEDULEUOF
             // 📌 定義一個 string 陣列來存放多筆資料
             // 1. 定義一個 string 陣列來存放多筆資料
             string[] MA_DATA = new string[] {
-            "32311051",
-            "32311072",
-            "32311001",
-            "32311073",
-            "32311036",
-            "32311050"
+            "32312036"
+
             };
 
             // 2. 📌 在呼叫前使用 foreach 迴圈
