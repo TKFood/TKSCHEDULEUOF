@@ -546,24 +546,28 @@ namespace TKSCHEDULEUOF
 
         /// <summary>
         /// 每分鐘檢查1次，但每天指定時間執行1次
-        /// 0810
+        /// 0750
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
             string RUNTIME = DateTime.Now.ToString("HHmm");
-            string HHmm = "0810";
+            string HHmm = "0750";
 
             if (RUNTIME.Equals(HHmm))
             {
                 try
                 {
-
+                   
                 }
                 catch { }
-
-
+                try
+                {
+                    //轉入驗收條件-物料
+                    ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS();
+                }
+                catch { }
 
                 try
                 {
