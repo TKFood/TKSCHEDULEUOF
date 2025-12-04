@@ -39259,7 +39259,7 @@ namespace TKSCHEDULEUOF
                                     ([MB001],[PRODUCTNAME],[CATEGORY],[PACKAGE_SPEC])
 
                                     SELECT 
-                                    LTRIM(RTRIM(INVMB.MB001)) MB001,LTRIM(RTRIM(INVMB.MB003)) MB003
+                                    LTRIM(RTRIM(INVMB.MB001)) MB001,LTRIM(RTRIM(INVMB.MB002)) MB002s
                                     ,(
                                     CASE WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS,'')<>'' THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS 
                                     ELSE (SELECT TOP 1 TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] WHERE MB001='*')
