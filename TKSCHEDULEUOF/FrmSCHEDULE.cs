@@ -39241,6 +39241,69 @@ namespace TKSCHEDULEUOF
                 }
             }
         }
+
+        public void ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS()
+        {
+            // 連線字串處理與解密
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+            string connectionString = sqlsb.ConnectionString;
+
+            // SQL 查詢字符串
+            StringBuilder queryString = new StringBuilder();
+            queryString.AppendFormat(@"
+                                    INSERT INTO  [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
+                                    ([MB001],[PRODUCTNAME],[CATEGORY],[PACKAGE_SPEC])
+
+                                    SELECT 
+                                    LTRIM(RTRIM(INVMB.MB001)) MB001,LTRIM(RTRIM(INVMB.MB003)) MB003
+                                    ,(
+                                    CASE WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS,'')<>'' THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS 
+                                    ELSE (SELECT TOP 1 TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] WHERE MB001='*')
+                                    END ) AS 'NEW_KINDS'
+                                    ,(
+                                    CASE WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC,'')<>'' THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC 
+                                    ELSE (SELECT TOP 1 TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] WHERE MB001='*')
+                                    END ) AS 'NEWP_ACKAGE_SPEC'
+                                    FROM [TK].dbo.INVMB
+                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] ON INVMB.MB001 LIKE [TB_ORIENTS_CHECKLISTS_MB001LIKE].[MB001]+'%'
+                                    WHERE 1=1
+                                    AND INVMB.MB001 LIKE '2%'
+                                    AND INVMB.MB001 NOT LIKE '29%'
+                                    AND INVMB.MB001 NOT IN
+                                    (
+	                                    SELECT MB001
+	                                    FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
+	                                    WHERE ISNULL(MB001,'')<>''
+                                    )
+                                    ORDER BY INVMB.MB001
+
+                                    ");
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                    {
+                        // 參數化
+                        //command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception EX)
+            {
+                // 異常處理
+            }
+        }
+
+
         #endregion
 
         #region BUTTON
@@ -40162,12 +40225,22 @@ namespace TKSCHEDULEUOF
         private void button117_Click(object sender, EventArgs e)
         {
             //更新ERP的COMPA的UDF05
+            //更新ERP的COMPA的UDF05
             //100A.客戶基本資料表
 
             //先在UOF找出「/100A.客戶基本資料表」，該客戶代號MA001的最新表單編號 DOC_NBR
             DataTable DT = FIND_UOF_100A_COPMA();
             //更新ERP COPMA.UDF05=DOC_NBR
             UPDATE_ERP_COPMA_UDF05(DT);
+
+            MessageBox.Show("OK");
+        }
+        private void button118_Click(object sender, EventArgs e)
+        {
+            //轉入驗收條件-物料
+            ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS();
+
+            MessageBox.Show("OK");
         }
 
         #endregion
