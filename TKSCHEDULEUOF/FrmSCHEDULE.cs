@@ -23330,6 +23330,7 @@ namespace TKSCHEDULEUOF
                                                 WHEN T1.MA041='2' THEN '電匯' 
                                                 WHEN T1.MA041='3' THEN '支票' 
                                                 WHEN T1.MA041='4' THEN '其他'
+                                                ELSE '電匯'
                                               END) AS sd028 
                                             ,'法人' AS sd029
                                             ,T1.UDF02 AS sd030
@@ -23597,7 +23598,7 @@ namespace TKSCHEDULEUOF
                 AddFieldItem(xmlDoc, FormFieldValue, "sd001", "", fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "MA001", DR["MA001"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd002", DR["sd002"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd003", DR["sd003"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd003", DR["sd003"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd004", DR["sd004"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd005", DR["sd005"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd90", DR["sd90"].ToString(), fillerName, fillerUserGuid, account);
@@ -23616,15 +23617,15 @@ namespace TKSCHEDULEUOF
                 AddFieldItem(xmlDoc, FormFieldValue, "sd018", DR["sd018"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd019", DR["sd019"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd020", DR["sd020"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd021", DR["sd021"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd021", DR["sd021"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd022", DR["sd022"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd023", DR["sd023"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd023", DR["sd023"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd024", DR["sd024"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd025", DR["sd025"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd025", DR["sd025"].ToString(), fillerName, fillerUserGuid, account,"", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd026", DR["sd026"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd027", DR["sd027"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd028", DR["sd028"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd029", DR["sd029"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd027", DR["sd027"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
+                AddFieldItem(xmlDoc, FormFieldValue, "sd028", DR["sd028"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
+                AddFieldItem(xmlDoc, FormFieldValue, "sd029", DR["sd029"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd030", DR["sd030"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd031", DR["sd031"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd032", DR["sd032"].ToString(), fillerName, fillerUserGuid, account);
@@ -23641,14 +23642,14 @@ namespace TKSCHEDULEUOF
                 AddFieldItem(xmlDoc, FormFieldValue, "sd043", DR["sd043"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd0", DR["sd0"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd044", DR["sd044"].ToString(), fillerName, fillerUserGuid, account);                
-                AddFieldItem(xmlDoc, FormFieldValue, "sd051", DR["sd051"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd057", DR["sd057"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd051", DR["sd051"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
+                AddFieldItem(xmlDoc, FormFieldValue, "sd057", DR["sd057"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd058", DR["sd058"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd060", DR["sd060"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd061", DR["sd061"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd062", DR["sd062"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd063", DR["sd063"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd064", DR["sd064"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd064", DR["sd064"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd065", DR["sd065"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd066", DR["sd066"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd067", DR["sd067"].ToString(), fillerName, fillerUserGuid, account);
@@ -23656,12 +23657,12 @@ namespace TKSCHEDULEUOF
                 AddFieldItem(xmlDoc, FormFieldValue, "sd069", DR["sd069"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd070", DR["sd070"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd071", DR["sd071"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd072", DR["sd072"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd072", DR["sd072"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd073", DR["sd073"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd074", DR["sd074"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd074", DR["sd074"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd075", DR["sd075"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd076", DR["sd076"].ToString(), fillerName, fillerUserGuid, account);
-                AddFieldItem(xmlDoc, FormFieldValue, "sd077", DR["sd077"].ToString(), fillerName, fillerUserGuid, account);
+                AddFieldItem(xmlDoc, FormFieldValue, "sd077", DR["sd077"].ToString(), fillerName, fillerUserGuid, account, "", "@null");
                 AddFieldItem(xmlDoc, FormFieldValue, "sd078", DR["sd078"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd079", DR["sd079"].ToString(), fillerName, fillerUserGuid, account);
                 AddFieldItem(xmlDoc, FormFieldValue, "sd080", DR["sd080"].ToString(), fillerName, fillerUserGuid, account);
@@ -39754,26 +39755,27 @@ namespace TKSCHEDULEUOF
             //要指定客戶代號來產生「100A.客戶基本資料表」
             // 📌 定義一個 string 陣列來存放多筆資料
             // 1. 定義一個 string 陣列來存放多筆資料
+            //"2221800600",
+            //"A221203500",
+            //"2248400100",
+            //"2221800601",
+            //"2221104500",
+            //"2221100500",
+            //"2246300000",
+            //"2221100800",
+            //"2221205600",
+            //"2246300900",
+            //"2220102400",
+            //"A221400600",
+            //"2242404200",
+            //"2221104300",
+            //"2146200201",
+            //"2254208500",
+            //"2220300200",
+            //"A214640000",
+            //"2221100100"
             string[] MA_DATA = new string[] {
-           "2221800600",
-            "A221203500",
-            "2248400100",
-            "2221800601",
-            "2221104500",
-            "2221100500",
-            "2246300000",
-            "2221100800",
-            "2221205600",
-            "2246300900",
-            "2220102400",
-            "A221400600",
-            "2242404200",
-            "2221104300",
-            "2146200201",
-            "2254208500",
-            "2220300200",
-            "A214640000",
-            "2221100100"
+           "2221800600"
 
 
             };
