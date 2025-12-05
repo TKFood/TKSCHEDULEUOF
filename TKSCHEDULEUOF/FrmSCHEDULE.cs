@@ -23343,8 +23343,8 @@ namespace TKSCHEDULEUOF
                                             ,'' AS sd037
                                             ,'' AS sd038
                                             ,T3.NA003 AS sd039
-                                            ,T3.NA003 AS sd041
-                                            ,T3.NA005 AS sd040
+                                            ,T3.NA003 AS sd040
+	                                        ,T3.NA005 AS sd041
                                             ,T1.MA033 AS sd042
                                             ,T1.MA033 AS sd043
                                             ,T1.MA014 AS sd044
