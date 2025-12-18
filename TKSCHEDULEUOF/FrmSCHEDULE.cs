@@ -33571,191 +33571,180 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PURTC_PURTD()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            string FORMID;
-            string TC001;
-            string TC002;
-
-            string ISCLOSE;
-
-            DataTable DT = FIND_UOF_PURTC_PORTD();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            var dt = FIND_UOF_PURTC_PORTD();
+            if (dt == null || dt.Rows.Count == 0)
             {
-                foreach (DataRow DR in DT.Rows)
+                return;
+            }
+
+            foreach (DataRow row in dt.Rows)
+            {
+                var tc001 = Convert.ToString(row["TC001"]).Trim();
+                var tc002 = Convert.ToString(row["TC002"]).Trim();
+                var docNbr = Convert.ToString(row["DOC_NBR"]).Trim();
+                var account = Convert.ToString(row["ACCOUNT"]).Trim();
+                var modifier = account; // 保持原行為：MODIFIER 使用 ACCOUNT
+
+                // 必要欄位檢查，若不完整則略過該列並記錄
+                if (string.IsNullOrEmpty(tc001) || string.IsNullOrEmpty(tc002) || string.IsNullOrEmpty(docNbr))
                 {
-                    TC001 = DR["TC001"].ToString().Trim();
-                    TC002 = DR["TC002"].ToString().Trim();
+                    System.Diagnostics.Trace.TraceInformation($"UPDATE_PURTC_PURTD: skip row with missing key (TC001='{tc001}', TC002='{tc002}', DOC_NBR='{docNbr}').");
+                    continue;
+                }
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["ACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["ACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
-
-                    UPDATE_PURTC_PORTD_EXE(TC001, TC002, FORMID, MODIFIER);
+                try
+                {
+                    UPDATE_PURTC_PORTD_EXE(tc001, tc002, docNbr, modifier);
+                }
+                catch (Exception ex)
+                {
+                    // 單列失敗不阻斷後續處理，並記錄詳細錯誤訊息以利調查
+                    System.Diagnostics.Trace.TraceError($"UPDATE_PURTC_PORTD_EXE failed for TC001='{tc001}', TC002='{tc002}', DOC_NBR='{docNbr}': {ex}");
                 }
             }
         }
 
         public DataTable FIND_UOF_PURTC_PORTD()
         {
-
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                // 取得並解密連線字串
+                var csSetting = ConfigurationManager.ConnectionStrings["dbUOF"];
+                if (csSetting == null)
+                {
+                    System.Diagnostics.Trace.TraceWarning("FIND_UOF_PURTC_PORTD: connection string 'dbUOF' not found.");
+                    return null;
+                }
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                Class1 TKID = new Class1(); // 解密 helper
+                var sqlsb = new SqlConnectionStringBuilder(csSetting.ConnectionString);
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
+                // 保留原本 SQL 組成（未修改 SQL 內容）
                 sbSql.Clear();
                 sbSqlQuery.Clear();
 
                 sbSql.AppendFormat(@"  
-                                    WITH TEMP AS (
-                                    SELECT 
-                                        [FORM_NAME],
-                                        [DOC_NBR],
-	                                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002,
-                                        TASK_ID,
-                                        TASK_STATUS,
-                                        TASK_RESULT
-                                        FROM [UOF].[dbo].TB_WKF_TASK
-                                        LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                        LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                        WHERE[FORM_NAME] = 'PUR40.採購單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
+                                            WITH TEMP AS (
+                                            SELECT 
+                                                [FORM_NAME],
+                                                [DOC_NBR],
+                                             [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC001,
+                                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TC002,
+                                                TASK_ID,
+                                                TASK_STATUS,
+                                                TASK_RESULT
+                                                FROM [UOF].[dbo].TB_WKF_TASK
+                                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                                WHERE[FORM_NAME] = 'PUR40.採購單'
+                                                AND TASK_STATUS = '2'
+                                                AND TASK_RESULT = '0'
 
-                                    )
-                                    SELECT TEMP.*,
-                                    (
-                                        SELECT TOP 1 [TB_EB_USER].ACCOUNT
-                                        FROM [UOF].[dbo].TB_WKF_TASK_NODE
-                                        LEFT JOIN [UOF].[dbo].[TB_EB_USER]
-                                            ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
+                                            )
+                                            SELECT TEMP.*,
+                                            (
+                                                SELECT TOP 1 [TB_EB_USER].ACCOUNT
+                                                FROM [UOF].[dbo].TB_WKF_TASK_NODE
+                                                LEFT JOIN [UOF].[dbo].[TB_EB_USER]
+                                                    ON[TB_EB_USER].USER_GUID = [TB_WKF_TASK_NODE].ACTUAL_SIGNER
 
-                                        WHERE 1=1
-                                        AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
-	                                    AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
-                                        ORDER BY FINISH_TIME DESC
-                                    ) AS ACCOUNT
-                                    FROM TEMP
-                                    WHERE 1=1
-                                    AND REPLACE(TC001+TC002,',','')  IN
-                                    (
-                                        SELECT REPLACE(TC001+TC002,' ' ,'')
-                                        FROM [192.168.1.105].[TK].dbo.PURTC
-                                        WHERE TC014 IN ('N')
-                                    )                            
+                                                WHERE 1=1
+                                                AND ISNULL([TB_WKF_TASK_NODE].ACTUAL_SIGNER,'')<>''
+                                             AND [TB_WKF_TASK_NODE].TASK_ID = TEMP.TASK_ID
+                                                ORDER BY FINISH_TIME DESC
+                                            ) AS ACCOUNT
+                                            FROM TEMP
+                                            WHERE 1=1
+                                            AND REPLACE(TC001+TC002,',','')  IN
+                                            (
+                                                SELECT REPLACE(TC001+TC002,' ' ,'')
+                                                FROM [192.168.1.105].[TK].dbo.PURTC
+                                                WHERE TC014 IN ('N')
+                                            )                            
 
-                                    ");
+                                            ");
 
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                // 設置查詢的超時時間，以秒為單位
-                adapter1.SelectCommand.CommandTimeout = TIMEOUT_LIMITS;
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                // 使用 using 自動釋放資源；不改變 SQL 內容，只優化連線/適配器用法
+                using (var conn = new SqlConnection(sqlsb.ConnectionString))
+                using (var adapter = new SqlDataAdapter(sbSql.ToString(), conn))
                 {
-                    return ds1.Tables["ds1"];
+                    adapter.SelectCommand.CommandTimeout = TIMEOUT_LIMITS > 0 ? TIMEOUT_LIMITS : 30;
 
-                }
-                else
-                {
-                    return null;
-                }
+                    var dt = new DataTable();
+                    conn.Open();
+                    adapter.Fill(dt);
 
+                    return dt.Rows.Count > 0 ? dt : null;
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError($"FIND_UOF_PURTC_PORTD failed: {ex}");
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
         public void UPDATE_PURTC_PORTD_EXE(string TC001, string TC002, string FORMID, string MODIFIER)
         {
+            // 參數檢查
+            if (string.IsNullOrWhiteSpace(TC001) || string.IsNullOrWhiteSpace(TC002))
+            {
+                System.Diagnostics.Trace.TraceWarning($"UPDATE_PURTC_PORTD_EXE: skip because TC001 or TC002 is empty (TC001='{TC001}', TC002='{TC002}').");
+                return;
+            }
+
             string COMPANY = "TK";
             string MODI_DATE = DateTime.Now.ToString("yyyyMMdd");
             string MODI_TIME = DateTime.Now.ToString("HH:mm:dd");
 
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-            StringBuilder queryString = new StringBuilder();
-
-            queryString.AppendFormat(@"   
-                                       UPDATE [TK].dbo.PURTC SET TC014='Y' WHERE TC001=@TC001 AND TC002=@TC002 
-                                       UPDATE [TK].dbo.PURTD SET TD018='Y' WHERE TD001=@TC001 AND TD002=@TC002 
-
-                                       UPDATE [TK].dbo.PURTC SET UDF02=@UDF02 WHERE TC001=@TC001 AND TC002=@TC002 
-
-                                        ");
-
             try
             {
-                using (SqlConnection connection = new SqlConnection(sqlConn.ConnectionString))
+                // 取得並解密連線字串
+                var csSetting = ConfigurationManager.ConnectionStrings["dbconn"];
+                if (csSetting == null)
                 {
+                    System.Diagnostics.Trace.TraceWarning("UPDATE_PURTC_PORTD_EXE: connection string 'dbconn' not found.");
+                    return;
+                }
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
-                    command.Parameters.Add("@TC002", SqlDbType.NVarChar).Value = TC002;
-                    //command.Parameters.Add("@TA014", SqlDbType.NVarChar).Value = MODIFIER;
-                    command.Parameters.Add("@UDF02", SqlDbType.NVarChar).Value = FORMID;
+                Class1 TKID = new Class1(); // 解密 helper
+                var sqlsb = new SqlConnectionStringBuilder(csSetting.ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
+                // 保留原 SQL 內容（不做任何修改 SQL）
+                var queryString = new StringBuilder();
+                queryString.AppendFormat(@"   
+                                               UPDATE [TK].dbo.PURTC SET TC014='Y' WHERE TC001=@TC001 AND TC002=@TC002 
+                                               UPDATE [TK].dbo.PURTD SET TD018='Y' WHERE TD001=@TC001 AND TD002=@TC002 
 
-                    command.Connection.Open();
+                                               UPDATE [TK].dbo.PURTC SET UDF02=@UDF02 WHERE TC001=@TC001 AND TC002=@TC002 
 
+                                                ");
+
+                // 使用 local connection 與 using 自動釋放資源，設定參數與 timeout
+                using (var connection = new SqlConnection(sqlsb.ConnectionString))
+                using (var command = new SqlCommand(queryString.ToString(), connection))
+                {
+                    command.Parameters.Add(new SqlParameter("@TC001", SqlDbType.NVarChar, 50) { Value = TC001 });
+                    command.Parameters.Add(new SqlParameter("@TC002", SqlDbType.NVarChar, 50) { Value = TC002 });
+                    // 保留原本把 FORMID 放到 UDF02 的行為；若為 null，傳 DBNull
+                    command.Parameters.Add(new SqlParameter("@UDF02", SqlDbType.NVarChar, 200) { Value = (object)(FORMID ?? (object)DBNull.Value) });
+
+                    // 使用 class-level TIMEOUT_LIMITS（若未設定則使用安全預設）
+                    command.CommandTimeout = (TIMEOUT_LIMITS > 0) ? TIMEOUT_LIMITS : 30;
+
+                    connection.Open();
                     int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    // 不需要顯式 Close/Dispose，using 會自動處理
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-
+                // 記錄錯誤但不拋出，保持與原行為相容
+                System.Diagnostics.Trace.TraceError($"UPDATE_PURTC_PORTD_EXE failed for TC001='{TC001}', TC002='{TC002}': {ex}");
             }
         }
 
@@ -41496,7 +41485,6 @@ namespace TKSCHEDULEUOF
         {
             //外購訂單轉請購+UOF簽核
             ADD_ERP_PURTA_PURTB_FROM_COP();
-
             MessageBox.Show("OK");
         }
 
