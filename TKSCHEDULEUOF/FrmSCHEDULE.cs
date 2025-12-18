@@ -41496,7 +41496,6 @@ namespace TKSCHEDULEUOF
         {
             //外購訂單轉請購+UOF簽核
             ADD_ERP_PURTA_PURTB_FROM_COP();
-
             MessageBox.Show("OK");
         }
 
