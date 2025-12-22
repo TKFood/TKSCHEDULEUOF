@@ -35735,8 +35735,8 @@ namespace TKSCHEDULEUOF
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
                             -- **** 優化：使用參數化查詢來替代字串格式化 ****
-                            AND INVMB.CREATE_DATE LIKE '202512%';
-                        ");
+                            AND INVMB.CREATE_DATE LIKE '{0}%';
+                        ", yesterday);
                 string sqlQuery = sbSql.ToString();
 
                 // 3. 使用 using 確保資源釋放
