@@ -156,14 +156,14 @@
             this.button109 = new System.Windows.Forms.Button();
             this.button117 = new System.Windows.Forms.Button();
             this.button118 = new System.Windows.Forms.Button();
+            this.button119 = new System.Windows.Forms.Button();
+            this.button120 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
-            this.button119 = new System.Windows.Forms.Button();
-            this.button120 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -824,7 +824,7 @@
             this.button110.Name = "button110";
             this.button110.Size = new System.Drawing.Size(155, 34);
             this.button110.TabIndex = 67;
-            this.button110.Text = "ERP品號銷售通知單";
+            this.button110.Text = "ERP成品-新品號通知單";
             this.button110.UseVisualStyleBackColor = true;
             this.button110.Click += new System.EventHandler(this.button110_Click);
             // 
@@ -1729,30 +1729,6 @@
             this.button118.UseVisualStyleBackColor = true;
             this.button118.Click += new System.EventHandler(this.button118_Click);
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // timer2
-            // 
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
-            // timer3
-            // 
-            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
-            // 
-            // timer4
-            // 
-            this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
-            // 
-            // timer5
-            // 
-            this.timer5.Tick += new System.EventHandler(this.timer5_Tick);
-            // 
-            // timer6
-            // 
-            this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
-            // 
             // button119
             // 
             this.button119.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -1776,6 +1752,30 @@
             this.button120.Text = " 外購訂單變更轉請購變更+UOF簽核";
             this.button120.UseVisualStyleBackColor = true;
             this.button120.Click += new System.EventHandler(this.button120_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // timer2
+            // 
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
+            // timer3
+            // 
+            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
+            // 
+            // timer4
+            // 
+            this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
+            // 
+            // timer5
+            // 
+            this.timer5.Tick += new System.EventHandler(this.timer5_Tick);
+            // 
+            // timer6
+            // 
+            this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
             // FrmSCHEDULE
             // 

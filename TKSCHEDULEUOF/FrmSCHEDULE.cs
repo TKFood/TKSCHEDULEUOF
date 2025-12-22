@@ -35704,7 +35704,7 @@ namespace TKSCHEDULEUOF
 
                 // 2. SQL 查詢字串
                 sbSql.Clear();
-                sbSql.Append(@"
+                sbSql.AppendFormat(@"
                             SELECT 
                                 INVMB.CREATOR,
                                 INVMB.CREATE_DATE,
@@ -35735,7 +35735,7 @@ namespace TKSCHEDULEUOF
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
                             -- **** 優化：使用參數化查詢來替代字串格式化 ****
-                            AND INVMB.CREATE_DATE LIKE @YesterdayDate + '%';
+                            AND INVMB.CREATE_DATE LIKE '202512%';
                         ");
                 string sqlQuery = sbSql.ToString();
 
@@ -35745,7 +35745,7 @@ namespace TKSCHEDULEUOF
                 using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
                     // **** 優化：使用參數化來傳遞日期變數，防止 SQL 注入 ****
-                    cmd.Parameters.AddWithValue("@YesterdayDate", yesterday);
+                    //cmd.Parameters.AddWithValue("@YesterdayDate", yesterday);
 
                     sqlConn.Open();
                     // adapter.Fill(DataSet, tableName)
@@ -35904,7 +35904,7 @@ namespace TKSCHEDULEUOF
             queryString.AppendFormat(@" 
                                     INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
                                      (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                     VALUES (NEWID(),@XML,2,'{1}')
+                                     VALUES (NEWID(),@XML,2,'{0}')
                                      ", EXTERNAL_FORM_NBR);
 
             try
@@ -41395,7 +41395,7 @@ namespace TKSCHEDULEUOF
 
         private void button110_Click(object sender, EventArgs e)
         {
-            //ERP品號銷售通知單
+            //ERP成品-新品號通知單
             //此表單為研發建立商品品號時
             //通知營銷、業務主管
             //該品號在ERP設定的標準售價、零售價、IP價格、DM價格、通路售價
