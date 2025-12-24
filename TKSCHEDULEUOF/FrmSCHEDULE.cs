@@ -33896,33 +33896,38 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PURTE_PURTF()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            string FORMID;
-            string TE001;
-            string TE002;
-            string TE003;
-
-            string ISCLOSE;
-
-            DataTable DT = FIND_UOF_PURTE_PORTF();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            var dt = FIND_UOF_PURTE_PORTF();
+            if (dt == null || dt.Rows.Count == 0)
             {
-                foreach (DataRow DR in DT.Rows)
+                return;
+            }
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                // 使用 Convert.ToString 防止 DBNull，並 Trim 統一處理空白
+                var te001 = Convert.ToString(dr["TE001"]).Trim();
+                var te002 = Convert.ToString(dr["TE002"]).Trim();
+                var te003 = Convert.ToString(dr["TE003"]).Trim();
+                var docNbr = Convert.ToString(dr["DOC_NBR"]).Trim();
+                var account = Convert.ToString(dr["NOWACCOUNT"]).Trim();
+                var modifier = string.IsNullOrEmpty(account) ? null : account;
+                var formId = docNbr; // 保持原本行為：FORMID 使用 DOC_NBR
+
+                // 必要欄位檢查，避免不必要的 DB 呼叫
+                if (string.IsNullOrEmpty(te001) || string.IsNullOrEmpty(te002) || string.IsNullOrEmpty(te003))
                 {
-                    TE001 = DR["TE001"].ToString().Trim();
-                    TE002 = DR["TE002"].ToString().Trim();
-                    TE003 = DR["TE003"].ToString().Trim();
+                    System.Diagnostics.Trace.TraceInformation($"UPDATE_PURTE_PURTF: skip row with missing key (TE001='{te001}', TE002='{te002}', TE003='{te003}').");
+                    continue;
+                }
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
-
-                    UPDATE_PURTE_PORTF_EXE(TE001, TE002, TE003, FORMID, MODIFIER);
+                try
+                {
+                    UPDATE_PURTE_PORTF_EXE(te001, te002, te003, formId, modifier);
+                }
+                catch (Exception ex)
+                {
+                    // 單筆失敗不阻斷整批流程，並記錄詳細錯誤方便調查
+                    System.Diagnostics.Trace.TraceError($"UPDATE_PURTE_PORTF_EXE failed for TE001='{te001}', TE002='{te002}', TE003='{te003}': {ex}");
                 }
             }
         }
