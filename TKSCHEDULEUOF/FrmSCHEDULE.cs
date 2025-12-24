@@ -15,8 +15,6 @@ using FastReport.Data;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml;
-using System.Xml.Linq;
 using TKITDLL;
 using TKSCHEDULEUOF.ServiceReference1;
 using System.Text.RegularExpressions;
@@ -35003,51 +35001,55 @@ namespace TKSCHEDULEUOF
         //TKUOF.TRIGGER.QCPURTGPURTH.EndFormTrigger
         public void UPDATE_PURTH_QC_CHECKS()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            string FORMID;
-            string TH001;
-            string TH002;
-            string TH003;
-            string TH007;
-            string TH028;
-            string CHECK;
-            string QCMAN;
-            string UDF01;
-
-            DataTable DT = FIND_UOF_PURTH_QC_CHECKS();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            var dt = FIND_UOF_PURTH_QC_CHECKS();
+            if (dt == null || dt.Rows.Count == 0)
             {
-                foreach (DataRow DR in DT.Rows)
+                return;
+            }
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (dr == null) continue;
+
+                // 使用 Convert.ToString 處理 DBNull 並 Trim 統一空白處理
+                var th001 = Convert.ToString(dr["TG001"]).Trim();
+                var th002 = Convert.ToString(dr["TG002"]).Trim();
+                var th003 = Convert.ToString(dr["TH003"]).Trim();
+                var th007 = Convert.ToString(dr["TH007"]).Trim();
+                var checks = Convert.ToString(dr["CHECKS"]).Trim();
+                var qcman = Convert.ToString(dr["NAME"]).Trim();
+                var docNbr = Convert.ToString(dr["DOC_NBR"]).Trim();
+                var account = Convert.ToString(dr["NOWACCOUNT"]).Trim();
+                var modifier = string.IsNullOrEmpty(account) ? null : account;
+                var formId = docNbr; // 保持原本以 DOC_NBR 作為 FORMID 的行為
+
+                // 必要欄位檢查：若主要 key 缺少則略過
+                if (string.IsNullOrEmpty(th001) || string.IsNullOrEmpty(th002) || string.IsNullOrEmpty(th003))
                 {
-                    TH001 = DR["TG001"].ToString().Trim();
-                    TH002 = DR["TG002"].ToString().Trim();
-                    TH003 = DR["TH003"].ToString().Trim();
-                    TH007 = DR["TH007"].ToString().Trim();
-                    CHECK = DR["CHECKS"].ToString().Trim();
-                    QCMAN = DR["NAME"].ToString().Trim();
-                    TH028 = "2";
+                    System.Diagnostics.Trace.TraceInformation(
+                        $"UPDATE_PURTH_QC_CHECKS: skip row with missing key (TH001='{th001}', TH002='{th002}', TH003='{th003}').");
+                    continue;
+                }
 
-                    if (CHECK.Equals("Y"))
-                    {
-                        TH028 = "2";
-                    }
-                    else
-                    {
-                        TH028 = "3";
-                    }
+                // 根據 CHECKS 決定 TH028（Y -> 2, else -> 3）
+                var th028 = string.Equals(checks, "Y", StringComparison.OrdinalIgnoreCase) ? "2" : "3";
 
-                    UDF01 = CHECK + ',' + QCMAN + '-' + DOC_NBR;
+                // 組 UDF01，確保使用已取得的 docNbr
+                string udf01 = null;
+                if (!string.IsNullOrEmpty(checks) || !string.IsNullOrEmpty(qcman) || !string.IsNullOrEmpty(docNbr))
+                {
+                    udf01 = string.Format("{0},{1}-{2}", checks, qcman, docNbr);
+                }
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
-
-                    UPDATE_PURTH_QC_CHECKS_EXE(TH001, TH002, TH003, TH007, TH028, UDF01);
+                try
+                {
+                    UPDATE_PURTH_QC_CHECKS_EXE(th001, th002, th003, th007, th028, udf01);
+                }
+                catch (Exception ex)
+                {
+                    // 單筆失敗不影響後續處理，並記錄錯誤細節
+                    System.Diagnostics.Trace.TraceError(
+                        $"UPDATE_PURTH_QC_CHECKS_EXE failed for TH001='{th001}', TH002='{th002}', TH003='{th003}': {ex}");
                 }
             }
         }
@@ -41377,7 +41379,8 @@ namespace TKSCHEDULEUOF
             //轉入資料來客-X:\kldatabase.db
             //要指定來客記錄的db的磁碟-X:\kldatabase.db
             //X=\\192.168.1.101\Users\Administrator\AppData\Roaming\CounterServerData
-
+            //改到另一隻排程中，先不在此排程執行
+            //TKSCHEDULE_SPECIALS
             ADDTKMKt_visitors();
             MessageBox.Show("OK");
         }
