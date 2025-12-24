@@ -34758,40 +34758,50 @@ namespace TKSCHEDULEUOF
         //TKUOF.TRIGGER.QCINVTAINVTB.EndFormTrigger
         public void UPDATE_INVTB_QC_CHECKS()
         {
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            string FORMID;
-            string TA001;
-            string TA002;
-            string TB003;
-            string TB007;
-            string CHECK;
-            string QCMAN;
-            string UDF01;
-
-            DataTable DT = FIND_UOF_INVTB_QC_CHECKS();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            var dt = FIND_UOF_INVTB_QC_CHECKS();
+            if (dt == null || dt.Rows.Count == 0)
             {
-                foreach (DataRow DR in DT.Rows)
+                return;
+            }
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                // 統一使用 Convert.ToString 處理 DBNull，並 Trim 去除前後空白
+                var ta001 = Convert.ToString(dr["TA001"]).Trim();
+                var ta002 = Convert.ToString(dr["TA002"]).Trim();
+                var tb003 = Convert.ToString(dr["TB003"]).Trim();
+                var tb007 = Convert.ToString(dr["TH015"]).Trim();
+                var checks = Convert.ToString(dr["CHECKS"]).Trim();
+                var qcman = Convert.ToString(dr["NAME"]).Trim();
+                var docNbr = Convert.ToString(dr["DOC_NBR"]).Trim();
+                var account = Convert.ToString(dr["NOWACCOUNT"]).Trim();
+                var modifier = string.IsNullOrEmpty(account) ? null : account;
+
+                // 組 UDF01（確保 docNbr 已取得）
+                string udf01 = null;
+                if (!string.IsNullOrEmpty(checks) || !string.IsNullOrEmpty(qcman) || !string.IsNullOrEmpty(docNbr))
                 {
-                    TA001 = DR["TA001"].ToString().Trim();
-                    TA002 = DR["TA002"].ToString().Trim();
-                    TB003 = DR["TB003"].ToString().Trim();
-                    TB007 = DR["TH015"].ToString().Trim();
-                    CHECK = DR["CHECKS"].ToString().Trim();
-                    QCMAN = DR["NAME"].ToString().Trim();
+                    udf01 = string.Format("{0},{1}-{2}", checks, qcman, docNbr);
+                }
 
-                    UDF01 = CHECK + ',' + QCMAN + '-' + DOC_NBR;
+                // 必要鍵檢查：若主要 Key 缺少，略過該列並記錄
+                if (string.IsNullOrEmpty(ta001) || string.IsNullOrEmpty(ta002) || string.IsNullOrEmpty(tb003))
+                {
+                    System.Diagnostics.Trace.TraceInformation(
+                        $"UPDATE_INVTB_QC_CHECKS: skip row with missing key (TA001='{ta001}', TA002='{ta002}', TB003='{tb003}').");
+                    continue;
+                }
 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
-
-                    UPDATE_INVTB_QC_CHECKS_EXE(TA001, TA002, TB003, TB007, UDF01);
+                try
+                {
+                    // 呼叫執行函式（保留原有 SQL 與外部行為）
+                    UPDATE_INVTB_QC_CHECKS_EXE(ta001, ta002, tb003, tb007, udf01);
+                }
+                catch (Exception ex)
+                {
+                    // 單筆錯誤不影響後續處理，並記錄完整錯誤方便追查
+                    System.Diagnostics.Trace.TraceError(
+                        $"UPDATE_INVTB_QC_CHECKS_EXE failed for TA001='{ta001}', TA002='{ta002}', TB003='{tb003}': {ex}");
                 }
             }
         }
