@@ -34277,33 +34277,37 @@ namespace TKSCHEDULEUOF
 
         public void UPDATE_PURTL_PURTM_PURTN()
         {
-
-            string DOC_NBR = "";
-            string ACCOUNT = "";
-            string MODIFIER = null;
-
-            string FORMID;
-            string TL001;
-            string TL002;
-           
-
-            string ISCLOSE;
-
-            DataTable DT = FIND_UOF_PURTL_PORTM_PURTN();
-
-            if (DT != null && DT.Rows.Count >= 1)
+            var dt = FIND_UOF_PURTL_PORTM_PURTN();
+            if (dt == null || dt.Rows.Count == 0)
             {
-                foreach (DataRow DR in DT.Rows)
-                {
-                    TL001 = DR["TL001"].ToString().Trim();
-                    TL002 = DR["TL002"].ToString().Trim();
-                 
-                    DOC_NBR = DR["DOC_NBR"].ToString().Trim();
-                    ACCOUNT = DR["NOWACCOUNT"].ToString().Trim();
-                    MODIFIER = DR["NOWACCOUNT"].ToString().Trim();
-                    FORMID = DR["DOC_NBR"].ToString().Trim();
+                return;
+            }
 
-                    UPDATE_PURTL_PORTM_PURTN_EXE(TL001, TL002, FORMID, MODIFIER);
+            foreach (DataRow dr in dt.Rows)
+            {
+                // 使用 Convert.ToString 處理 DBNull 並 Trim 統一空白
+                var tl001 = Convert.ToString(dr["TL001"]).Trim();
+                var tl002 = Convert.ToString(dr["TL002"]).Trim();
+                var docNbr = Convert.ToString(dr["DOC_NBR"]).Trim();
+                var account = Convert.ToString(dr["NOWACCOUNT"]).Trim();
+                var modifier = string.IsNullOrEmpty(account) ? null : account;
+                var formId = docNbr; // 保持原本行為：FORMID 使用 DOC_NBR
+
+                // 必要欄位檢查，避免無效的 DB 呼叫
+                if (string.IsNullOrEmpty(tl001) || string.IsNullOrEmpty(tl002))
+                {
+                    System.Diagnostics.Trace.TraceInformation($"UPDATE_PURTL_PURTM_PURTN: skip row with missing key (TL001='{tl001}', TL002='{tl002}').");
+                    continue;
+                }
+
+                try
+                {
+                    UPDATE_PURTL_PORTM_PURTN_EXE(tl001, tl002, formId, modifier);
+                }
+                catch (Exception ex)
+                {
+                    // 單筆失敗不阻斷後續處理，並記錄詳細錯誤便於排查
+                    System.Diagnostics.Trace.TraceError($"UPDATE_PURTL_PORTM_PURTN_EXE failed for TL001='{tl001}', TL002='{tl002}': {ex}");
                 }
             }
         }
@@ -41332,7 +41336,7 @@ namespace TKSCHEDULEUOF
         }
         private void button104_Click(object sender, EventArgs e)
         {
-            //ERP-PURTLPURTMPURTN採購核價單
+            //ERP-採購核價單
             //TKUOF.TRIGGER.PURTLPURTMPURTN.EndFormTrigger
 
             UPDATE_PURTL_PURTM_PURTN();
