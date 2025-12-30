@@ -35537,62 +35537,65 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string sql = @"
+                                UPDATE [TK].dbo.COPTD
+                                SET UDF01 = 'N'
+                                WHERE ISNULL(UDF01, '') = ''
+                            ";
 
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE  [TK].dbo.COPTD
-                                    SET UDF01='N'
-                                    WHERE  ISNULL(UDF01,'')=''                                  
-
-                                    ");
-
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    conn.Open();
+                    SqlTransaction transaction = conn.BeginTransaction();
+                    try
+                    {
+                        using (SqlCommand command = conn.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = sql;
+                            command.CommandTimeout = 60;
 
+                            int affected = command.ExecuteNonQuery();
 
+                            if (affected > 0)
+                            {
+                                transaction.Commit();
+                            }
+                            else
+                            {
+                                transaction.Rollback();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                            // 忽略 rollback 失敗，保留原始例外資訊
+                        }
+
+                        System.Diagnostics.Trace.WriteLine("UPDATE_COPTD_UDF01 發生例外: " + ex);
+                        throw;
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易                    
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                // 將例外往外拋或由上層統一處理，同時紀錄
+                System.Diagnostics.Trace.WriteLine("UPDATE_COPTD_UDF01 outer exception: " + ex);
+                throw;
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
 
         //作廢請購變更單不存在
