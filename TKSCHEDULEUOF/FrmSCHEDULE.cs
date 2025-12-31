@@ -30252,7 +30252,7 @@ namespace TKSCHEDULEUOF
         {
             // 獲取待處理的資料表
             DataTable DT = FIND_UOF_BOMMJ();                       
-            //UPDATE_BOMMJ_BOMMK_EXE("3010109901", "BOM251200030", "04001");
+            //UPDATE_BOMMJ_BOMMK_EXE("3010110001", "BOM251200031", "04001");
 
             // 使用 Null 條件運算符 (?. ) 進行簡潔的資料檢查
             if (DT?.Rows.Count >= 1)
@@ -30659,10 +30659,11 @@ namespace TKSCHEDULEUOF
                                     AND TC.TC004 NOT IN (SELECT MD002 FROM [TK].dbo.BOMMD WHERE MD001 = @TB004_PARAM);
 
                                     -- UPDATE BOMMD (更新已存在的子階料件)
+                                    -- T1.MD016 = T2.TC018+T2.TC029,
                                     UPDATE T1
                                     SET T1.MD003 = T2.TC005, T1.MD004 = T2.TC006, T1.MD005 = T2.TC007, T1.MD006 = T2.TC008, T1.MD007 = T2.TC009, 
                                         T1.MD008 = T2.TC010, T1.MD009 = T2.TC011, T1.MD010 = T2.TC012, T1.MD011 = T2.TC013, T1.MD012 = T2.TC014, 
-                                        T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017, T1.MD016 = T2.TC018, T1.MD017 = T2.TC019, 
+                                        T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017,  T1.MD017 = T2.TC019, 
                                         T1.MD018 = T2.TC020, T1.MD019 = T2.TC021, T1.MD020 = T2.TC022, T1.MD021 = T2.TC023, T1.MD022 = T2.TC024, 
                                         T1.MD023 = T2.TC025, T1.MD029 = T2.TC032, T1.MD035 = T2.MB002, T1.MD036 = T2.MB003, T1.FLAG = T1.FLAG + 1,
                                         T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_DATE = T2.MODI_DATE, T1.MODI_TIME = T2.MODI_TIME
@@ -30672,7 +30673,7 @@ namespace TKSCHEDULEUOF
                                             TA.COMPANY, TA.MODIFIER, TA.MODI_DATE, TA.MODI_TIME, 
                                             TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
                                             TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
-                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003
+                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003,TC.TC029
                                         FROM [TK].dbo.BOMMD AS MD
                                         INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = @TA001 AND TA.TA002 = @TA002
                                         INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
