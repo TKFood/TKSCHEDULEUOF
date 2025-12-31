@@ -35605,93 +35605,96 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
+                Class1 TKID = new Class1();
                 SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                string sql = @"
+                    UPDATE [UOF].[dbo].TB_WKF_TASK 
+                    SET TASK_RESULT='2'
+                    WHERE DOC_NBR IN (	
+                     SELECT DOC_NBR 
+                     FROM (
+                      SELECT 
+                       T.FORM_NAME,
+                       T.DOC_NBR,
+                       T.CURRENT_DOC,
+                       T.TASK_RESULT,
+                       T.TA001,
+                       T.TA002,
+                       T.VERSIONS
+                      FROM (
+                       SELECT 
+                        F.FORM_NAME,
+                        W.DOC_NBR,
+                        W.CURRENT_DOC,
+                        W.TASK_RESULT,
+                        W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
+                                    W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
+                                    W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS
+                                FROM [UOF].[dbo].TB_WKF_TASK W
+                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON FV.FORM_VERSION_ID = W.FORM_VERSION_ID
+                                LEFT JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = FV.FORM_ID
+                                WHERE F.FORM_NAME = 'PUR20.請購單變更單'
+                                AND W.TASK_RESULT = '0'
+                            ) T
+                     ) TEMP
+                        LEFT JOIN [192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE] P
+                           ON TEMP.TA001 = P.TA001
+                            AND TEMP.TA002 = P.TA002
+                            AND TEMP.VERSIONS = CONVERT(NVARCHAR, P.VERSIONS)
+                        WHERE P.TA001 IS NULL
+                        AND DOC_NBR LIKE 'PURTACHANGE%'
+                    )                       
+                ";
 
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@"
-                                    UPDATE [UOF].[dbo].TB_WKF_TASK 
-                                    SET TASK_RESULT='2'
-                                    WHERE DOC_NBR IN (	
-	                                    SELECT DOC_NBR 
-	                                    FROM (
-		                                    SELECT 
-			                                    T.FORM_NAME,
-			                                    T.DOC_NBR,
-			                                    T.CURRENT_DOC,
-			                                    T.TASK_RESULT,
-			                                    T.TA001,
-			                                    T.TA002,
-			                                    T.VERSIONS
-		                                    FROM (
-			                                    SELECT 
-				                                    F.FORM_NAME,
-				                                    W.DOC_NBR,
-				                                    W.CURRENT_DOC,
-				                                    W.TASK_RESULT,
-				                                    W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA001""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA001,
-                                                    W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TA002""]/@fieldValue)[1]', 'NVARCHAR(100)') AS TA002,
-                                                    W.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""VERSIONS""]/@fieldValue)[1]', 'NVARCHAR(100)') AS VERSIONS
-                                                FROM[UOF].[dbo].TB_WKF_TASK W
-                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON FV.FORM_VERSION_ID = W.FORM_VERSION_ID
-                                                LEFT JOIN[UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = FV.FORM_ID
-                                                WHERE F.FORM_NAME = 'PUR20.請購單變更單'
-                                                AND W.TASK_RESULT = '0'
-                                            ) T
-	                                    ) TEMP
-                                        LEFT JOIN[192.168.1.105].[TKPUR].[dbo].[PURTATBCHAGE] P
-                                           ON TEMP.TA001 = P.TA001
-                                            AND TEMP.TA002 = P.TA002
-                                            AND TEMP.VERSIONS = CONVERT(NVARCHAR, P.VERSIONS)
-                                        WHERE P.TA001 IS NULL
-                                        AND DOC_NBR LIKE 'PURTACHANGE%'
-                                    )                      
-
-                                    ");
-
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    conn.Open();
+                    SqlTransaction transaction = conn.BeginTransaction();
+                    try
+                    {
+                        using (SqlCommand command = conn.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = sql;
+                            command.CommandTimeout = 60;
 
+                            int affected = command.ExecuteNonQuery();
 
+                            if (affected > 0)
+                            {
+                                transaction.Commit();
+                            }
+                            else
+                            {
+                                transaction.Rollback();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                            // 忽略 rollback 失敗，保持原始例外傳遞
+                        }
+
+                        System.Diagnostics.Trace.WriteLine("UPDATE_UOF_PUR20_TASK_RESULT inner exception: " + ex);
+                        throw;
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易                    
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                System.Diagnostics.Trace.WriteLine("UPDATE_UOF_PUR20_TASK_RESULT outer exception: " + ex);
+                throw;
             }
         }
 
