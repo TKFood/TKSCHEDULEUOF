@@ -30251,7 +30251,8 @@ namespace TKSCHEDULEUOF
         public void UPDATE_BOMMJ_BOMMK()
         {
             // 獲取待處理的資料表
-            DataTable DT = FIND_UOF_BOMMJ();
+            DataTable DT = FIND_UOF_BOMMJ();                       
+            //UPDATE_BOMMJ_BOMMK_EXE("3010109901", "BOM251200030", "04001");
 
             // 使用 Null 條件運算符 (?. ) 進行簡潔的資料檢查
             if (DT?.Rows.Count >= 1)
@@ -30264,7 +30265,8 @@ namespace TKSCHEDULEUOF
                     string mj001 = (DR["MJ001_FieldValue"]?.ToString() ?? string.Empty).Trim();
                     string docNbr = DR["DOC_NBR"]?.ToString() ?? string.Empty;
                     string account = DR["ACCOUNT"]?.ToString() ?? string.Empty;
-
+                    //3010109901
+                    //BOM251200030
                     UPDATE_BOMMJ_BOMMK_EXE(mj001, docNbr, account);
                 }
             }
@@ -30404,7 +30406,7 @@ namespace TKSCHEDULEUOF
                                     @UDF01, @UDF02, [BOMMJ].[UDF03], [BOMMJ].[UDF04], [BOMMJ].[UDF05]
                                 FROM [TK].[dbo].[BOMMJ]
                                 INNER JOIN [TK].[dbo].INVMB ON BOMMJ.MJ001 = INVMB.MB001
-                                WHERE MJ001 = @MJ001;
+                                WHERE MJ001 = @MJ001
 
                                 -- 2. 插入 BOMMD (BOM結構明細)
                                 INSERT INTO [TK].[dbo].[BOMMD]
@@ -30432,7 +30434,7 @@ namespace TKSCHEDULEUOF
                                     '' AS MD037, 0 AS MD038
                                 FROM [TK].[dbo].[BOMMK]
                                 INNER JOIN [TK].[dbo].INVMB ON BOMMK.MK003 = INVMB.MB001
-                                WHERE MK001 = @MK001;
+                                WHERE MK001 = @MK001
 
                                 -- 3. 更新 BOMMJ (來源單據主檔)
                                 UPDATE [TK].dbo.BOMMJ
@@ -30443,7 +30445,7 @@ namespace TKSCHEDULEUOF
                                     MODI_DATE = @MODI_DATE,
                                     MODI_TIME = @MODI_TIME,
                                     FLAG = FLAG + 1
-                                WHERE MJ001 = @MJ001;
+                                WHERE MJ001 = @MJ001
 
                                 -- 4. 更新 BOMMC (產品主檔，使用 MJ001 作為 MC001)
                                 UPDATE [TK].dbo.BOMMC
@@ -30454,7 +30456,7 @@ namespace TKSCHEDULEUOF
                                     MODI_DATE = @MODI_DATE,
                                     MODI_TIME = @MODI_TIME,
                                     FLAG = FLAG + 1
-                                WHERE MC001 = @MC001;
+                                WHERE MC001 = @MC001
                             ";
 
             try
