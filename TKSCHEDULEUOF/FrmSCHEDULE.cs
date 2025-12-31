@@ -30252,7 +30252,7 @@ namespace TKSCHEDULEUOF
         {
             // 獲取待處理的資料表
             DataTable DT = FIND_UOF_BOMMJ();                       
-            //UPDATE_BOMMJ_BOMMK_EXE("3010109901", "BOM251200030", "04001");
+            //UPDATE_BOMMJ_BOMMK_EXE("3010110001", "BOM251200031", "04001");
 
             // 使用 Null 條件運算符 (?. ) 進行簡潔的資料檢查
             if (DT?.Rows.Count >= 1)
@@ -30659,10 +30659,11 @@ namespace TKSCHEDULEUOF
                                     AND TC.TC004 NOT IN (SELECT MD002 FROM [TK].dbo.BOMMD WHERE MD001 = @TB004_PARAM);
 
                                     -- UPDATE BOMMD (更新已存在的子階料件)
+                                    -- T1.MD016 = T2.TC018+T2.TC029,
                                     UPDATE T1
                                     SET T1.MD003 = T2.TC005, T1.MD004 = T2.TC006, T1.MD005 = T2.TC007, T1.MD006 = T2.TC008, T1.MD007 = T2.TC009, 
                                         T1.MD008 = T2.TC010, T1.MD009 = T2.TC011, T1.MD010 = T2.TC012, T1.MD011 = T2.TC013, T1.MD012 = T2.TC014, 
-                                        T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017, T1.MD016 = T2.TC018, T1.MD017 = T2.TC019, 
+                                        T1.MD013 = T2.TC015, T1.MD014 = T2.TC016, T1.MD015 = T2.TC017,  T1.MD017 = T2.TC019, 
                                         T1.MD018 = T2.TC020, T1.MD019 = T2.TC021, T1.MD020 = T2.TC022, T1.MD021 = T2.TC023, T1.MD022 = T2.TC024, 
                                         T1.MD023 = T2.TC025, T1.MD029 = T2.TC032, T1.MD035 = T2.MB002, T1.MD036 = T2.MB003, T1.FLAG = T1.FLAG + 1,
                                         T1.COMPANY = T2.COMPANY, T1.MODIFIER = T2.MODIFIER, T1.MODI_DATE = T2.MODI_DATE, T1.MODI_TIME = T2.MODI_TIME
@@ -30672,7 +30673,7 @@ namespace TKSCHEDULEUOF
                                             TA.COMPANY, TA.MODIFIER, TA.MODI_DATE, TA.MODI_TIME, 
                                             TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
                                             TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
-                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003
+                                            TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003,TC.TC029
                                         FROM [TK].dbo.BOMMD AS MD
                                         INNER JOIN [TK].dbo.BOMTA AS TA ON TA.TA001 = @TA001 AND TA.TA002 = @TA002
                                         INNER JOIN [TK].dbo.BOMTB AS TB ON TA.TA001 = TB.TB001 AND TA.TA002 = TB.TB002
@@ -36639,173 +36640,166 @@ namespace TKSCHEDULEUOF
 
         public void ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS(DataTable DT)
         {
-            string DOC_NBR = null;
-            string PROJECTNAMES = null;
-            string OWNER = null;
-            string KINDS = null;
-            string STAGES = "進行中";
-            string ISCLOSED = "N";
-            string DESIGNER = "";
-
-            StringBuilder SQL = new StringBuilder();
-            SQL.Clear();
-
-            foreach (DataRow dr in DT.Rows)
-            {
-                DOC_NBR = dr["DOC_NBR"].ToString();
-                PROJECTNAMES = dr["FIELD3"].ToString();
-                OWNER = dr["NAMES"].ToString();
-                KINDS = dr["FIELD6"].ToString();
-                DESIGNER = dr["FIELD41"].ToString();
-
-                //正規表達式（Regex）取出名字
-                string original = DESIGNER;
-                string nameOnly = Regex.Match(original, @"^(.*?)\(").Groups[1].Value;
-                DESIGNER = nameOnly;
-
-                SQL.AppendFormat(@" 
-                                INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED],[DESIGNER])
-                                VALUES
-                                ('{0}','{1}',N'{2}','{3}','{4}','{5}','{6}')
-                                ", DOC_NBR, PROJECTNAMES, OWNER, KINDS, STAGES, ISCLOSED, DESIGNER);
-
-            }
+            // 最少防呆：沒有資料就直接返回
+            if (DT == null || DT.Rows.Count == 0) return;
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                Class1 TKID = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 解密帳號密碼
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+                const string insertSql = @"
+                    INSERT INTO [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                    ([DOC_NBR],[PROJECTNAMES],[OWNER],[KINDS],[STAGES],[ISCLOSED],[DESIGNER])
+                    VALUES (@DOC_NBR, @PROJECTNAMES, @OWNER, @KINDS, @STAGES, @ISCLOSED, @DESIGNER);
+                ";
 
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (var conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    conn.Open();
+                    using (var tran = conn.BeginTransaction())
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandText = insertSql;
+                        cmd.CommandTimeout = 60;
+
+                        // 預先建立參數以重用命令
+                        cmd.Parameters.Add(new SqlParameter("@DOC_NBR", SqlDbType.NVarChar, 50));
+                        cmd.Parameters.Add(new SqlParameter("@PROJECTNAMES", SqlDbType.NVarChar, 400));
+                        cmd.Parameters.Add(new SqlParameter("@OWNER", SqlDbType.NVarChar, 200));
+                        cmd.Parameters.Add(new SqlParameter("@KINDS", SqlDbType.NVarChar, 200));
+                        cmd.Parameters.Add(new SqlParameter("@STAGES", SqlDbType.NVarChar, 50));
+                        cmd.Parameters.Add(new SqlParameter("@ISCLOSED", SqlDbType.NVarChar, 1));
+                        cmd.Parameters.Add(new SqlParameter("@DESIGNER", SqlDbType.NVarChar, 200));
+
+                        int totalAffected = 0;
+
+                        try
+                        {
+                            foreach (DataRow dr in DT.Rows)
+                            {
+                                var docNbr = dr["DOC_NBR"]?.ToString() ?? string.Empty;
+                                var projectNames = dr["FIELD3"]?.ToString() ?? string.Empty;
+                                var owner = dr["NAMES"]?.ToString() ?? string.Empty;
+                                var kinds = dr["FIELD6"]?.ToString() ?? string.Empty;
+                                var designerRaw = dr["FIELD41"]?.ToString() ?? string.Empty;
+
+                                // 以 Regex 取 "(" 之前的名字，若無則用原字串（簡潔處理）
+                                var nameOnly = Regex.Match(designerRaw, @"^(.*?)\(").Groups[1].Value;
+                                var designer = string.IsNullOrEmpty(nameOnly) ? designerRaw : nameOnly;
+
+                                cmd.Parameters["@DOC_NBR"].Value = docNbr;
+                                cmd.Parameters["@PROJECTNAMES"].Value = projectNames;
+                                cmd.Parameters["@OWNER"].Value = owner;
+                                cmd.Parameters["@KINDS"].Value = kinds;
+                                cmd.Parameters["@STAGES"].Value = "進行中";
+                                cmd.Parameters["@ISCLOSED"].Value = "N";
+                                cmd.Parameters["@DESIGNER"].Value = designer;
+
+                                totalAffected += cmd.ExecuteNonQuery();
+                            }
+
+                            if (totalAffected > 0)
+                            {
+                                tran.Commit();
+                            }
+                            else
+                            {
+                                tran.Rollback();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            try { tran.Rollback(); } catch { /* 忽略 rollback 失敗 */ }
+
+                            System.Diagnostics.Trace.WriteLine("ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS exception: " + ex);
+                            throw;
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Trace.WriteLine("ADD_TKRESEARCH_TB_PROJECTS_PRODUCTS outer exception: " + ex);
+                throw;
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
 
         public void UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO()
         {
-            StringBuilder SQL = new StringBuilder();
-            SQL.Clear();
+            var sqlBuilder = new StringBuilder();
 
-            //NO的規格=西元年4碼+月份2碼+流水號2碼
-            SQL.AppendFormat(@" 
-                                DECLARE @Prefix VARCHAR(6) = CONVERT(VARCHAR(6), GETDATE(), 112); -- 例：202504
-                                DECLARE @StartSeq INT;
+            sqlBuilder.AppendLine(@"
+                                    DECLARE @Prefix VARCHAR(6) = CONVERT(VARCHAR(6), GETDATE(), 112); -- 例：202504
+                                    DECLARE @StartSeq INT;
 
-                                -- 找出該年月中已存在的最大流水號
-                                SELECT @StartSeq = 
-                                MAX(CAST(RIGHT([NO], 2) AS INT))
-                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                WHERE [NO] LIKE @Prefix + '%'
+                                    -- 找出該年月中已存在的最大流水號
+                                    SELECT @StartSeq =
+                                    MAX(CAST(RIGHT([NO], 2) AS INT))
+                                    FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                    WHERE [NO] LIKE @Prefix + '%'
 
-                                -- 若沒找到，就從 0 開始（接下來會 +1）
-                                IF @StartSeq IS NULL
-                                SET @StartSeq = 0;
+                                    -- 若沒找到，就從 0 開始（接下來會 +1）
+                                    IF @StartSeq IS NULL
+                                        SET @StartSeq = 0;
 
-                                -- 用 CTE 給 NO 為空的資料編流水號
-                                WITH CTE AS (
-                                SELECT 
-                                    ID,
-                                    ROW_NUMBER() OVER (ORDER BY ID ASC) AS RowNum
-                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                WHERE ISNULL([NO], '') = ''  -- 僅限 NO 為空
-                                )
-                                UPDATE T
-                                SET NO = @Prefix + RIGHT('00' + CAST(@StartSeq + C.RowNum AS VARCHAR), 2)
-                                FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] T
-                                JOIN CTE C ON T.ID = C.ID
-                                WHERE ISNULL(T.NO, '') = '';  -- 再次保險：僅更新空值
-                                ");
+                                    -- 用 CTE 給 NO 為空的資料編流水號
+                                    WITH CTE AS (
+                                        SELECT 
+                                            ID,
+                                            ROW_NUMBER() OVER (ORDER BY ID ASC) AS RowNum
+                                        FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                        WHERE ISNULL([NO], '') = ''  -- 僅限 NO 為空
+                                    )
+                                    UPDATE T
+                                    SET NO = @Prefix + RIGHT('00' + CAST(@StartSeq + C.RowNum AS VARCHAR), 2)
+                                    FROM [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] T
+                                    JOIN CTE C ON T.ID = C.ID
+                                    WHERE ISNULL(T.NO, '') = '';  -- 再次保險：僅更新空值
+                                    ");
+
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                Class1 TKID = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
-
-                //資料庫使用者密碼解密
+                // 資料庫使用者密碼解密
                 sqlsb.Password = TKID.Decryption(sqlsb.Password);
                 sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = SQL.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (var conn = new SqlConnection(sqlsb.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    conn.Open();
+                    using (var tran = conn.BeginTransaction())
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = tran;
+                        cmd.CommandText = sqlBuilder.ToString();
+                        cmd.CommandTimeout = 60;
+
+                        int affected = cmd.ExecuteNonQuery();
+
+                        if (affected > 0)
+                        {
+                            tran.Commit();
+                        }
+                        else
+                        {
+                            tran.Rollback();
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                    //Console.WriteLine("ADDTOUOFTB_EIP_SCH_MEMO_MOC OK");
-
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Trace.WriteLine("UPDATE_TKRESEARCH_TB_PROJECTS_PRODUCTS_NEW_NO exception: " + ex);
+                throw;
             }
-
-            finally
-            {
-                sqlConn.Close();
-            }
-
         }
         public void ADD_UOF_FORM_2001A_TB_PROJECTS_PRODUCTS()
         {
