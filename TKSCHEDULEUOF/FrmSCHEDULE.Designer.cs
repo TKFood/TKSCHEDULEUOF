@@ -1725,7 +1725,7 @@
             this.button118.Name = "button118";
             this.button118.Size = new System.Drawing.Size(152, 32);
             this.button118.TabIndex = 107;
-            this.button118.Text = "轉入驗收條件-物料";
+            this.button118.Text = "轉入驗收條件-品號";
             this.button118.UseVisualStyleBackColor = true;
             this.button118.Click += new System.EventHandler(this.button118_Click);
             // 

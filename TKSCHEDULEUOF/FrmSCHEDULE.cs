@@ -39289,7 +39289,8 @@ namespace TKSCHEDULEUOF
                                     FROM [TK].dbo.INVMB
                                     LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] ON INVMB.MB001 LIKE [TB_ORIENTS_CHECKLISTS_MB001LIKE].[MB001]+'%'
                                     WHERE 1=1
-                                    AND INVMB.MB001 LIKE '2%'
+                                    AND (INVMB.MB001 LIKE '1%' OR INVMB.MB001 LIKE'2%')
+                                    AND INVMB.MB001 NOT LIKE '19%'
                                     AND INVMB.MB001 NOT LIKE '29%'
                                     AND INVMB.MB001 NOT IN
                                     (
@@ -41500,7 +41501,7 @@ namespace TKSCHEDULEUOF
         }
         private void button118_Click(object sender, EventArgs e)
         {
-            //轉入驗收條件-物料
+            //轉入驗收條件-品號
             ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS();
 
             MessageBox.Show("OK");
