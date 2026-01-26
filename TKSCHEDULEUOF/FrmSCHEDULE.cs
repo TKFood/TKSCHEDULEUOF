@@ -557,7 +557,13 @@ namespace TKSCHEDULEUOF
             {
                 try
                 {
-                   
+                    
+                }
+                catch { }
+                try
+                {
+                    //更新-外購品物料庫存
+                    UPDATE_TKPUR_TBPURGOODS();
                 }
                 catch { }
                 try
