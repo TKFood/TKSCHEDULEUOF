@@ -40564,7 +40564,64 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_TKPUR_TBPURGOODS()
+        {
+            try
+            {
+                //20210902密
+                Class1 TKID = new Class1();//用new 建立類別實體
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
 
+                //資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                String connectionString;
+                sqlConn = new SqlConnection(sqlsb.ConnectionString);
+
+                sqlConn.Close();
+                sqlConn.Open();
+                tran = sqlConn.BeginTransaction();
+
+                sbSql.Clear();
+                //UPDATE TB039='N'
+
+                sbSql.AppendFormat(@"                                
+                                UPDATE T
+                                SET T.[NUMS] = ISNULL(SubQuery.TotalNums, 0)
+                                FROM [TKPUR].[dbo].[TBPURGOODS] AS T
+                                INNER JOIN (
+                                    -- 先在子查詢中完成彙總，減少與主表的對接壓力
+                                    SELECT LA001, SUM(LA005 * LA011) AS TotalNums
+                                    FROM [TK].dbo.INVLA
+                                    WHERE LA001 IN (SELECT [MB001] FROM [TKPUR].[dbo].[TBPURGOODS] WHERE ISNULL([MB001],'') <> '')
+                                    GROUP BY LA001
+                                ) AS SubQuery ON T.[MB001] = SubQuery.LA001
+                                WHERE ISNULL(T.[MB001], '') <> '';
+                                ");
+
+                cmd.Connection = sqlConn;
+                cmd.CommandTimeout = 60;
+                cmd.CommandText = sbSql.ToString();
+                cmd.Transaction = tran;
+                result = cmd.ExecuteNonQuery();
+
+                if (result == 0)
+                {
+                    tran.Rollback();    //交易取消
+                }
+                else
+                {
+                    tran.Commit();      //執行交易  
+                }
+            }
+            catch(Exception EX)
+            {
+
+            }
+            finally { }
+           
+        }
 
         #endregion
 
@@ -41523,6 +41580,7 @@ namespace TKSCHEDULEUOF
         private void button121_Click(object sender, EventArgs e)
         {
             //更新-外購品物料庫存
+            UPDATE_TKPUR_TBPURGOODS();
 
             MessageBox.Show("OK");
         }
