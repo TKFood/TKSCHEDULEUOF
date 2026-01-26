@@ -41520,6 +41520,12 @@ namespace TKSCHEDULEUOF
 
             MessageBox.Show("OK");
         }
+        private void button121_Click(object sender, EventArgs e)
+        {
+            //更新-外購品物料庫存
+
+            MessageBox.Show("OK");
+        }
         #endregion
 
 
