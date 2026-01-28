@@ -35756,6 +35756,8 @@ namespace TKSCHEDULEUOF
                                         WHEN MB198 = '3' THEN '年' 
                                     END
                                 ) AS '效期'
+                            ,MB009 AS '商品描述'
+
                             FROM [TK].dbo.INVMB WITH(NOLOCK)
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
@@ -35902,6 +35904,8 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "MA003", dr["會計類別"].ToString(), fillerName, fillerUserGuid, account);
             // MB023 (效期)
             AddFieldItem(xmlDoc, FormFieldValue, "MB023", dr["效期"].ToString(), fillerName, fillerUserGuid, account);
+            // MB009 (商品描述)
+            AddFieldItem(xmlDoc, FormFieldValue, "MB009", dr["商品描述"].ToString(), fillerName, fillerUserGuid, account);
 
 
             // ==========================================================
@@ -36003,6 +36007,7 @@ namespace TKSCHEDULEUOF
                                 ,(SELECT TOP 1 MV002 FROM [TK].dbo.CMSMV WHERE MV001=INVMB.CREATOR) AS 'MV002'
                                 ,GROUP_ID AS 'GROUP_ID'
                                 ,TITLE_ID AS 'TITLE_ID'
+                                ,MB009 AS '商品描述'
                             FROM [TK].dbo.INVMB WITH(NOLOCK)
                             -- 注意: 跨伺服器查詢，確保 [192.168.1.223].[UOF] 是可用的連結伺服器或完整路徑
                             LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].ACCOUNT = INVMB.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
