@@ -30649,12 +30649,12 @@ namespace TKSCHEDULEUOF
                                     INSERT INTO [TK].dbo.BOMMD 
                                     (
                                         MD001,MD002,MD003,MD004,MD005,MD006,MD007,MD008,MD009,MD010,MD011,MD012,MD013,MD014,MD015,
-                                        MD016,MD017,MD018,MD019,MD020,MD021,MD022,MD023,MD029,MD035,MD036,
+                                        MD017,MD018,MD019,MD020,MD021,MD022,MD023,MD029,MD035,MD036,
                                         COMPANY, CREATOR, USR_GROUP, CREATE_DATE, FLAG, CREATE_TIME, MODI_TIME, TRANS_TYPE, TRANS_NAME
                                     ) 
                                     SELECT
                                         TB.TB004, TC.TC004, TC.TC005, TC.TC006, TC.TC007, TC.TC008, TC.TC009, TC.TC010, TC.TC011, TC.TC012, 
-                                        TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC018, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
+                                        TC.TC013, TC.TC014, TC.TC015, TC.TC016, TC.TC017, TC.TC019, TC.TC020, TC.TC021, TC.TC022,
                                         TC.TC023, TC.TC024, TC.TC025, TC.TC032, MB.MB002, MB.MB003,
                                         TA.COMPANY, TA.CREATOR, TA.USR_GROUP, TA.CREATE_DATE, TA.FLAG, TA.CREATE_TIME, TA.MODI_TIME, 'P004', 'BOMI04'
                                     FROM [TK].dbo.BOMTA AS TA
