@@ -30331,11 +30331,11 @@ namespace TKSCHEDULEUOF
                                         ) AS ACCOUNT
                                         FROM TEMP
                                         WHERE 1=1
+                                        AND [DOC_NBR]>='BOM260100001'
                                         AND REPLACE(MJ001_FieldValue,' ','') NOT IN 
                                         (
-                                            SELECT REPLACE(MJ001,' ','')
-                                            FROM [192.168.1.105].[TK].dbo.BOMMJ
-                                            WHERE UDF02 LIKE 'BOM%'
+	                                        SELECT REPLACE(MC001,' ','')
+	                                        FROM [192.168.1.105].[TK].dbo.BOMMC
                                         )
                                     ");
 
@@ -41247,6 +41247,7 @@ namespace TKSCHEDULEUOF
             //ERP-BOM02.BOM表           
 
             UPDATE_BOMMC_BOMI02();
+            MessageBox.Show("OK");
         }
 
         private void button87_Click(object sender, EventArgs e)
@@ -41255,6 +41256,8 @@ namespace TKSCHEDULEUOF
             //ERP-BOMI11.EBOM表
 
             UPDATE_BOMMJ_BOMMK();
+
+            MessageBox.Show("OK");
         }
         private void button88_Click(object sender, EventArgs e)
         {
@@ -41262,6 +41265,7 @@ namespace TKSCHEDULEUOF
             //ERP-BOM變更單核準
 
             UPDATE_MOCTA_BOMTB_BOMTC();
+            MessageBox.Show("OK");
 
         }
         private void button89_Click(object sender, EventArgs e)
@@ -41270,6 +41274,7 @@ namespace TKSCHEDULEUOF
             //1003.客戶信用額度變更申請單
             //ERP-客戶授信-信用額度
             UPDATE_COMPA_1003();
+            MessageBox.Show("OK");
         }
         private void button90_Click(object sender, EventArgs e)
         {
@@ -41277,6 +41282,7 @@ namespace TKSCHEDULEUOF
             //ERP-COPTAB報價單簽核
 
             UPDATE_COPTA_COPTB();
+            MessageBox.Show("OK");
 
         }
         private void button91_Click(object sender, EventArgs e)
@@ -41285,6 +41291,7 @@ namespace TKSCHEDULEUOF
             //ERP-COPTCD訂單主管簽核
 
             UPDATE_COPTC_COPTD();
+            MessageBox.Show("OK");
         }
         private void button92_Click(object sender, EventArgs e)
         {
@@ -41292,6 +41299,7 @@ namespace TKSCHEDULEUOF
             //ERP-備註-訂單生管+採購簽核回寫備註
 
             UPDATE_COPTC_MOC_PUR();
+            MessageBox.Show("OK");
         }
         private void button93_Click(object sender, EventArgs e)
         {
@@ -41299,6 +41307,7 @@ namespace TKSCHEDULEUOF
             //ERP-COPTEF訂單變更主管簽核
 
             UPDATE_COPTE_COPTF();
+            MessageBox.Show("OK");
         }
         private void button94_Click(object sender, EventArgs e)
         {
@@ -41306,6 +41315,7 @@ namespace TKSCHEDULEUOF
             //ERP-備註-訂單變更生管+採購簽核回寫備註
 
             UPDATE_COPTE_MOC_PUR();
+            MessageBox.Show("OK");
         }
         private void button95_Click(object sender, EventArgs e)
         {
@@ -41314,6 +41324,7 @@ namespace TKSCHEDULEUOF
             //將1004.無品號試吃製作申請單轉到TKRESEARCH_TBSAMPLE中
 
             ADD_TKRESEARCH_TBSAMPLE();
+            MessageBox.Show("OK");
         }
         private void button96_Click(object sender, EventArgs e)
         {
@@ -41321,6 +41332,7 @@ namespace TKSCHEDULEUOF
             //ERP-MOCI02.製令單簽核
 
             UPDATE_MOCTA();
+            MessageBox.Show("OK");
 
         }
 
@@ -41329,7 +41341,8 @@ namespace TKSCHEDULEUOF
             //TKUOF.TRIGGER.PURTAB.EndFormTrigger
             //ERP-PURTAB-請購單申請V2
 
-            UPDATE_PURTA_PORTB(); 
+            UPDATE_PURTA_PORTB();
+            MessageBox.Show("OK");
         }
 
         private void button98_Click(object sender, EventArgs e)
@@ -41350,6 +41363,7 @@ namespace TKSCHEDULEUOF
             //PUR20.請購單變更單
 
             UPDATE_PURTA_PURTB_CHANGE();
+            MessageBox.Show("OK");
         }
         private void button99_Click(object sender, EventArgs e)
         {
