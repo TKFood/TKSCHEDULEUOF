@@ -651,6 +651,12 @@ namespace TKSCHEDULEUOF
 
             try
             {
+                //ERP-BOMI11.EBOM表
+                UPDATE_BOMMJ_BOMMK();
+            }
+            catch { }
+            try
+            {
                 //更新附件 GA1005
                 UPDATE_UOF_GA1005_ATTACH_ID();
                 //更新附件 QC1001
