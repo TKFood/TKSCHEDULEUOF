@@ -36148,315 +36148,113 @@ namespace TKSCHEDULEUOF
             }
 
         }
-        public void ADD_INVMB_NEW_9002_TB_WKF_EXTERNAL_TASK(string YEATERDAY)
+        public void ADD_INVMB_NEW_9002_TB_WKF_EXTERNAL_TASK(string yesterday)
         {
-            DataTable DT = SEARCH_INVMB_MODIFY_9002(YEATERDAY);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["CREATOR"].ToString());
+            DataTable inventory = SEARCH_INVMB_MODIFY_9002(yesterday);
+            if (inventory == null || inventory.Rows.Count == 0) return;
 
-            string account = DT.Rows[0]["CREATOR"].ToString();
-            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName = DT.Rows[0]["MV002"].ToString();
-            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+            DataTable deptData = SEARCHUOFDEP(inventory.Rows[0]["CREATOR"].ToString());
 
-            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
-            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
+            string account = inventory.Rows[0]["CREATOR"].ToString();
+            string groupId = inventory.Rows[0]["GROUP_ID"].ToString();
+            string jobTitleId = inventory.Rows[0]["TITLE_ID"].ToString();
+            string fillerName = inventory.Rows[0]["MV002"].ToString();
+            string fillerUserGuid = inventory.Rows[0]["USER_GUID"].ToString();
 
-            //string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
-            string EXTERNAL_FORM_NBR = YEATERDAY +"-"+ DT.Rows[0]["品號"].ToString().Trim() + "-" + DT.Rows[0]["變更版次"].ToString().Trim();
-
-            int rowscounts = 0;
+            string externalFormNbr = $"{yesterday}-{inventory.Rows[0]["品號"].ToString().Trim()}-{inventory.Rows[0]["變更版次"].ToString().Trim()}";
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
-            XmlElement Form = xmlDoc.CreateElement("Form");
+            XmlElement form = xmlDoc.CreateElement("Form");
 
-            //正式的id
-            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("9002.品號變更通知(成品+外購品)");
+            string formId = SEARCHFORM_UOF_VERSION_ID("9002.品號變更通知(成品+外購品)");
+            if (!string.IsNullOrEmpty(formId))
+                form.SetAttribute("formVersionId", formId);
 
-            if (!string.IsNullOrEmpty(FORM_ID))
+            form.SetAttribute("urgentLevel", "2");
+            xmlDoc.AppendChild(form);
+
+            // ------- Applicant -------
+            XmlElement applicant = xmlDoc.CreateElement("Applicant");
+            applicant.SetAttribute("account", account);
+            applicant.SetAttribute("groupId", groupId);
+            applicant.SetAttribute("jobTitleId", jobTitleId);
+            form.AppendChild(applicant);
+
+            XmlElement comment = xmlDoc.CreateElement("Comment");
+            comment.InnerText = "申請者意見";
+            applicant.AppendChild(comment);
+
+            // ------- FormFieldValue -------
+            XmlElement formFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            form.AppendChild(formFieldValue);
+
+            // ------- 單頭欄位 (使用 AddFieldItem) -------
+            AddFieldItem(xmlDoc, formFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+
+            string instructionText = "本表單是通知「研發變更過的 成品品號、外購品品號 的資料」\r\n" +
+                                    "請協助確認變更後是否正確\r\n\r\n" +
+                                    "變更欄位可能包含:\r\n" +
+                                    "規格\r\n有效天(月\\年)數\r\n超收率%\r\n" +
+                                    "標準售價\r\n零售價\r\n售價定價一\r\n售價定價二\r\n\r\n以上說明";
+            AddFieldItem(xmlDoc, formFieldValue, "ID2", instructionText, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
+
+            // ------- DataGrid -------
+            XmlElement dataGrid = xmlDoc.CreateElement("DataGrid");
+            XmlNode detailsNode = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
+            detailsNode.AppendChild(dataGrid);
+
+            int rowCount = 0;
+            foreach (DataRow row in inventory.Rows)
             {
-                Form.SetAttribute("formVersionId", FORM_ID);
+                XmlElement rowElement = xmlDoc.CreateElement("Row");
+                rowElement.SetAttribute("order", rowCount.ToString());
+
+                // ------- 使用 AppendCellToRow 添加網格數據 -------
+                AppendCellToRow(xmlDoc, rowElement, row, "TL005");  // 變更日期
+                AppendCellToRow(xmlDoc, rowElement, row, "TL001");  // 品號
+                AppendCellToRow(xmlDoc, rowElement, row, "TL007");  // 新品名
+                AppendCellToRow(xmlDoc, rowElement, row, "TL008");  // 新規格
+                AppendCellToRow(xmlDoc, rowElement, row, "TL002");  // 舊品名
+                AppendCellToRow(xmlDoc, rowElement, row, "TL003");  // 舊規格
+                AppendCellToRow(xmlDoc, rowElement, row, "TM005");  // 欄位名稱
+                AppendCellToRow(xmlDoc, rowElement, row, "TM006");  // 新值
+                AppendCellToRow(xmlDoc, rowElement, row, "TM007");  // 舊值
+                AppendCellToRow(xmlDoc, rowElement, row, "TL010");  // 單頭備註
+                AppendCellToRow(xmlDoc, rowElement, row, "TM012");  // 單身備註
+                AppendCellToRow(xmlDoc, rowElement, row, "TL004");  // 變更版次
+
+                rowCount++;
+                XmlNode gridNode = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
+                gridNode.AppendChild(rowElement);
             }
 
+            // ------- 寫入資料庫 -------
+            Class1 decryptor = new Class1();
+            SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+            sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-            Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
-            xmlDoc.AppendChild(Form);
-
-            ////建立節點Applicant
-            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account);
-            Applicant.SetAttribute("groupId", groupId);
-            Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
-            Form.AppendChild(Applicant);
-
-            //建立節點 Comment
-            XmlElement Comment = xmlDoc.CreateElement("Comment");
-            Comment.InnerText = "申請者意見";
-            //加入至節點底下
-            Applicant.AppendChild(Comment);
-
-            //建立節點 FormFieldValue
-            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
-            Form.AppendChild(FormFieldValue);
-
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //ID 表單編號	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID2");
-
-            string newLine = Environment.NewLine;
-            string xmlContent = "本表單是通知「研發變更過的 成品品號、外購品品號 的資料」"  +newLine +
-                    "請協助確認變更後是否正確" + newLine+newLine +
-                    "變更欄位可能包含:" + newLine +
-                    "規格" + newLine +
-                    "有效天(月\\年)數" + newLine +
-                    "超收率%" + newLine +
-                    "標準售價" + newLine +
-                    "零售價" + newLine +
-                    "售價定價一" + newLine +
-                    "售價定價二" + newLine+newLine +
-                    "以上說明";
-            FieldItem.SetAttribute("fieldValue", xmlContent);
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-            //建立節點FieldItem
-            //DETAILS 表單編號	
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "DETAILS");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點 DataGrid
-            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
-            //DataGrid 加入至 TB 節點底下
-            XmlNode DETAILS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']");
-            DETAILS.AppendChild(DataGrid);
-
-
-
-            foreach (DataRow od in DT.Rows)
-            {
-                // 新增 Row
-                XmlElement Row = xmlDoc.CreateElement("Row");
-                Row.SetAttribute("order", (rowscounts).ToString());
-
-                //Row	UDF01
-                XmlElement Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL005");
-                Cell.SetAttribute("fieldValue", od["變更日期"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL001");
-                Cell.SetAttribute("fieldValue", od["品號"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL007");
-                Cell.SetAttribute("fieldValue", od["新品名"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL008");
-                Cell.SetAttribute("fieldValue", od["新規格"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL002");
-                Cell.SetAttribute("fieldValue", od["舊品名"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL003");
-                Cell.SetAttribute("fieldValue", od["舊規格"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TM005");
-                Cell.SetAttribute("fieldValue", od["欄位名稱"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TM006");
-                Cell.SetAttribute("fieldValue", od["新值"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TM007");
-                Cell.SetAttribute("fieldValue", od["舊值"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL010");
-                Cell.SetAttribute("fieldValue", od["單頭備註"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TM012");
-                Cell.SetAttribute("fieldValue", od["單身備註"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-                //Row	
-                Cell = xmlDoc.CreateElement("Cell");
-                Cell.SetAttribute("fieldId", "TL004");
-                Cell.SetAttribute("fieldValue", od["變更版次"].ToString());
-                Cell.SetAttribute("realValue", "");
-                Cell.SetAttribute("customValue", "");
-                Cell.SetAttribute("enableSearch", "True");
-                //Row
-                Row.AppendChild(Cell);
-
-
-
-                rowscounts = rowscounts + 1;
-
-                XmlNode DataGridS = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
-                DataGridS.AppendChild(Row);
-
-            }
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
+            string connectionStr = sqlBuilder.ConnectionString;
 
             StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
+            queryString.AppendFormat($@"INSERT INTO [{DBNAME}].dbo.TB_WKF_EXTERNAL_TASK
+                                (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                               VALUES (NEWID(), @XML, 2, '{externalFormNbr}')");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(connectionStr))
+                using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
                 {
-
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = form.OuterXml;
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-
+                System.Diagnostics.Debug.WriteLine($"錯誤: {ex.Message}");
             }
         }
 
