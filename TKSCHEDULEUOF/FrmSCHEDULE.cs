@@ -21254,6 +21254,8 @@ namespace TKSCHEDULEUOF
             }
 
             // 更新 BOMMC.UDF01
+            // 如果是Y就改成 UOF簽核中
+            // 如果表單已簽完，則由簽核完成的流程去更新為 UOF簽核完成-120023，已簽核:2026-02-10 17:00:18 +08:00
             UPDATE_BOMMC_UDF01();
         }
 
@@ -21563,6 +21565,39 @@ namespace TKSCHEDULEUOF
                                             UPDATE [TK].dbo.BOMMC
                                             SET UDF01 = 'UOF簽核中'                                   
                                             WHERE UDF01 IN ('Y','y')
+
+                                            UPDATE B
+                                            SET B.UDF01 = TMP.ACCOUNT_SIGN
+                                            FROM [TK].dbo.BOMMC B
+                                            INNER JOIN (
+                                                -- 封裝所有遠端 XML 解析與簽核邏輯
+                                                SELECT * FROM OPENQUERY([192.168.1.223], '
+                                                    SELECT 
+                                                        Sub.FORM_MC001,
+                                                        (
+                                                            SELECT TOP 1 
+                                                                U.ACCOUNT + ''，已簽核:'' + CONVERT(NVARCHAR, N.FINISH_TIME, 120)
+                                                            FROM [UOF].[dbo].TB_WKF_TASK_NODE N
+                                                            LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON U.USER_GUID = N.ACTUAL_SIGNER
+                                                            WHERE N.TASK_ID = Sub.TASK_ID
+                                                            ORDER BY N.FINISH_TIME DESC
+                                                        ) AS ACCOUNT_SIGN
+                                                    FROM (
+                                                        SELECT
+                                                            T.TASK_ID,
+                                                            CAST(T.CURRENT_DOC.value(''(/Form/FormFieldValue/FieldItem[@fieldId=""MC001""]/@fieldValue)[1]'', ''NVARCHAR(100)'') AS NVARCHAR(100)) AS FORM_MC001
+                                                        FROM [UOF].[dbo].TB_WKF_TASK T
+                                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON FV.FORM_VERSION_ID = T.FORM_VERSION_ID
+                                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = FV.FORM_ID
+                                                        WHERE F.FORM_NAME = ''BOM02.BOM表''
+                                                          AND T.TASK_STATUS = ''2''
+                                                          AND T.TASK_RESULT = ''0''
+                                                          -- 建議加上時間過濾，避免全表掃描
+                                                          AND T.BEGIN_TIME >= DATEADD(MONTH, -6, GETDATE())
+                                                    ) Sub
+                                                ')
+                                            ) AS TMP ON TMP.FORM_MC001 = B.MC001 COLLATE Chinese_Taiwan_Stroke_BIN
+                                            AND  B.UDF01 <> TMP.ACCOUNT_SIGN COLLATE Chinese_Taiwan_Stroke_CI_AS
                                         ");
 
                         cmd.Connection = sqlConn;
@@ -36737,522 +36772,113 @@ namespace TKSCHEDULEUOF
             }
         }
 
-        public void ADD_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK(string DOC_NBR)
+        public void ADD_UOF_FORM_2001A_TB_WKF_EXTERNAL_TASK(string docNbr)
         {
-            DataTable DT = SEARCH_UOF_FORM_2001A(DOC_NBR);
-            DataTable DTUPFDEP = SEARCHUOFDEP(DT.Rows[0]["ACCOUNT"].ToString());
+            DataTable formData = SEARCH_UOF_FORM_2001A(docNbr);
+            if (formData == null || formData.Rows.Count == 0) return;
 
-            string account = DT.Rows[0]["ACCOUNT"].ToString();
-            string groupId = DT.Rows[0]["GROUP_ID"].ToString();
-            string jobTitleId = DT.Rows[0]["TITLE_ID"].ToString();
-            string fillerName = DT.Rows[0]["NAME"].ToString();
-            string fillerUserGuid = DT.Rows[0]["USER_GUID"].ToString();
+            DataTable deptData = SEARCHUOFDEP(formData.Rows[0]["ACCOUNT"].ToString());
+            DataRow dataRow = formData.Rows[0];
 
-            string DEPNAME = DTUPFDEP.Rows[0]["DEPNAME"].ToString();
-            string DEPNO = DTUPFDEP.Rows[0]["DEPNO"].ToString();
-
-            //string EXTERNAL_FORM_NBR = DT.Rows[0]["品號"].ToString().Trim();
-            string EXTERNAL_FORM_NBR =  DT.Rows[0]["DOC_NBR"].ToString().Trim();
-
-            int rowscounts = 0;
+            string account = dataRow["ACCOUNT"].ToString();
+            string groupId = dataRow["GROUP_ID"].ToString();
+            string jobTitleId = dataRow["TITLE_ID"].ToString();
+            string fillerName = dataRow["NAME"].ToString();
+            string fillerUserGuid = dataRow["USER_GUID"].ToString();
 
             XmlDocument xmlDoc = new XmlDocument();
-            //建立根節點
-            XmlElement Form = xmlDoc.CreateElement("Form");
+            XmlElement form = xmlDoc.CreateElement("Form");
 
-            //正式的id
-            string FORM_ID = SEARCHFORM_UOF_VERSION_ID("2001A.產品開發+包裝設計申請單(行企專用)");
+            string formId = SEARCHFORM_UOF_VERSION_ID("2001A.產品開發+包裝設計申請單(行企專用)");
+            if (!string.IsNullOrEmpty(formId))
+                form.SetAttribute("formVersionId", formId);
 
-            if (!string.IsNullOrEmpty(FORM_ID))
+            form.SetAttribute("urgentLevel", "2");
+            xmlDoc.AppendChild(form);
+
+            // ------- Applicant -------
+            XmlElement applicant = xmlDoc.CreateElement("Applicant");
+            applicant.SetAttribute("account", account);
+            applicant.SetAttribute("groupId", groupId);
+            applicant.SetAttribute("jobTitleId", jobTitleId);
+            form.AppendChild(applicant);
+
+            XmlElement comment = xmlDoc.CreateElement("Comment");
+            comment.InnerText = "申請者意見";
+            applicant.AppendChild(comment);
+
+            // ------- FormFieldValue -------
+            XmlElement formFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            form.AppendChild(formFieldValue);
+
+            // ------- 標準欄位 (使用 AddFieldItem) -------
+            AddFieldItem(xmlDoc, formFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, formFieldValue, "SDOC_NBR", dataRow["DOC_NBR"].ToString().Trim(), fillerName, fillerUserGuid, account);
+
+            // ------- 特殊處理 FIELD41 (設計人員解析) -------
+            string field41Value = dataRow["FIELD41"].ToString().Trim();
+            string field41Display = field41Value;
+            string field41UserId = "";
+
+            // 提取第一個設計人員
+            int separatorIndex = field41Value.IndexOf('、');
+            if (separatorIndex > 0)
+                field41Display = field41Value.Substring(0, separatorIndex);
+
+            // 提取帳號並查詢 USER_GUID
+            Match accountMatch = Regex.Match(field41Display.Trim(), @"\((\d+)\)");
+            if (accountMatch.Success)
             {
-                Form.SetAttribute("formVersionId", FORM_ID);
+                string designerAccount = accountMatch.Groups[1].Value;
+                DataTable userTable = FIND_UOF_TB_EB_USER_ACCOUNT(designerAccount);
+                if (userTable != null && userTable.Rows.Count > 0)
+                    field41UserId = userTable.Rows[0]["USER_GUID"].ToString();
             }
 
+            AddFieldItem(xmlDoc, formFieldValue, "FIELD41", field41Display, fillerName, fillerUserGuid, account);
 
-            Form.SetAttribute("urgentLevel", "2");
-            //加入節點底下
-            xmlDoc.AppendChild(Form);
+            // ------- 批量添加標準欄位 -------
+            string[] fieldIds = { "FIELD2", "FIELD3", "FIELD4", "FIELD5", "FIELD6", "FIELD7", "FIELD9",
+                          "FIELD10", "FIELD12", "FIELD14", "FIELD20", "FIELD21", "FIELD23",
+                          "FIELD26", "FIELD27", "FIELD30", "FIELD33", "FIELD34", "FIELD35",
+                          "FIELD36", "FIELD37", "FIELD38", "FIELD39", "FIELD40" };
 
-            ////建立節點Applicant
-            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
-            Applicant.SetAttribute("account", account);
-            Applicant.SetAttribute("groupId", groupId);
-            Applicant.SetAttribute("jobTitleId", jobTitleId);
-            //加入節點底下
-            Form.AppendChild(Applicant);
-
-            //建立節點 Comment
-            XmlElement Comment = xmlDoc.CreateElement("Comment");
-            Comment.InnerText = "申請者意見";
-            //加入至節點底下
-            Applicant.AppendChild(Comment);
-
-            //建立節點 FormFieldValue
-            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
-            //加入至節點底下
-            Form.AppendChild(FormFieldValue);
-
-            //建立節點FieldItem
-            //ID 表單編號	
-            XmlElement FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "ID");
-            FieldItem.SetAttribute("fieldValue", "");
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //建立節點FieldItem
-            //SDOC_NBR
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "SDOC_NBR");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["DOC_NBR"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-            //先找出第1個設計人員 
-            //張璟瑩(220058)、黃量懋(240022)、嚴佳雯(240026)
-            string FIELD41_fieldValue = "";
-            string ACCOUNT = "";
-            string FIELD41_realValue = "";
-            // 找出第一個「、」的位置
-            int index = DT.Rows[0]["FIELD41"].ToString().Trim().IndexOf('、');
-            if (index > 0)
+            foreach (string fieldId in fieldIds)
             {
-                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString().Trim().Substring(0, index);
+                string fieldValue = dataRow.Table.Columns.Contains(fieldId)
+                    ? dataRow[fieldId].ToString().Trim()
+                    : "";
+                AddFieldItem(xmlDoc, formFieldValue, fieldId, fieldValue, fillerName, fillerUserGuid, account);
             }
-            else
-            {
-                FIELD41_fieldValue = DT.Rows[0]["FIELD41"].ToString();
-            }
-            //找出第1個設計人員的USER_GUID
-            //使用正則表達式擷取括號中的數字ACCOUNT
-            Match match = Regex.Match(FIELD41_fieldValue.Trim(), @"\((\d+)\)");
-            if (match.Success)
-            {
-                ACCOUNT = match.Groups[1].Value;
-                DataTable DTS = FIND_UOF_TB_EB_USER_ACCOUNT(ACCOUNT);
-                if (DTS != null && DTS.Rows.Count >= 1)
-                {
-                    FIELD41_realValue = DTS.Rows[0]["USER_GUID"].ToString();
-                }
-                //Console.WriteLine($"第一筆 ID 是: {id}");
-            }
-            else
-            {
-                //找不到設計人員 ACCOUNT 就不繼續
-                //return;
-            }
-            //先組出USERSET的XML
-            XmlDocument doc = new XmlDocument();
-            // 建立根節點 <UserSet>
-            XmlElement root = doc.CreateElement("UserSet");
-            doc.AppendChild(root);
-            // 建立 <Element type='user'>
-            XmlElement element = doc.CreateElement("Element");
-            element.SetAttribute("type", "user");
-            // 建立 <userId> 並設定內容
-            XmlElement userId = doc.CreateElement("userId");
-            userId.InnerText = FIELD41_realValue;
-            // 組裝節點
-            element.AppendChild(userId);
-            root.AppendChild(element);
 
-            //建立節點FieldItem
-            //FIELD41
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD41");
-            FieldItem.SetAttribute("fieldValue", FIELD41_fieldValue);
-            FieldItem.SetAttribute("realValue", "");
-            //FieldItem.SetAttribute("realValue", root.OuterXml);
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
+            // ------- 寫入資料庫 -------
+            Class1 decryptor = new Class1();
+            SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+            sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-            //
-            //建立節點FieldItem
-            //FIELD2
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD2");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD2"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD3
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD3");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD3"].ToString().Trim());
-            FieldItem.SetAttribute("realValue","");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD4
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD4");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD4"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD5
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD5");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD5"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD6
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD6");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD6"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD7
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD7");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD7"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD9
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD9");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD9"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD10
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD10");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD10"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD12
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD12");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD12"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD14
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD14");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD14"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD20
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD20");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD20"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD21
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD21");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD21"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD23
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD23");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD23"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD26
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD26");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD26"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD27
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD27");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD27"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD30
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD30");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD30"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD33
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD33");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD33"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD34
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD34");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD34"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD35
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD35");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD35"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD36
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD36");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD36"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD37
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD37");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD37"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD38
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD38");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD38"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //建立節點FieldItem
-            //FIELD39
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD39");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD39"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-            //FIELD40
-            FieldItem = xmlDoc.CreateElement("FieldItem");
-            FieldItem.SetAttribute("fieldId", "FIELD40");
-            FieldItem.SetAttribute("fieldValue", DT.Rows[0]["FIELD40"].ToString().Trim());
-            FieldItem.SetAttribute("realValue", "");
-            FieldItem.SetAttribute("enableSearch", "True");
-            FieldItem.SetAttribute("fillerName", fillerName);
-            FieldItem.SetAttribute("fillerUserGuid", fillerUserGuid);
-            FieldItem.SetAttribute("fillerAccount", account);
-            FieldItem.SetAttribute("fillSiteId", "");
-            //加入至members節點底下
-            FormFieldValue.AppendChild(FieldItem);
-
-
-
-            ////用ADDTACK，直接啟動起單
-            //ADDTACK(Form);
-
-            //ADD TO DB
-            ////string connectionString = ConfigurationManager.ConnectionStrings["dbUOF"].ToString();
-
-            //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-            //sqlConn = new SqlConnection(connectionString);
-
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-            connectionString = sqlConn.ConnectionString.ToString();
-
-            StringBuilder queryString = new StringBuilder();
-
-
-
-
-            queryString.AppendFormat(@" INSERT INTO [{0}].dbo.TB_WKF_EXTERNAL_TASK
-                                         (EXTERNAL_TASK_ID,FORM_INFO,STATUS,EXTERNAL_FORM_NBR)
-                                        VALUES (NEWID(),@XML,2,'{1}')
-                                        ", DBNAME, EXTERNAL_FORM_NBR);
+            string connectionStr = sqlBuilder.ConnectionString;
+            string externalFormNbr = dataRow["DOC_NBR"].ToString().Trim();
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                using (SqlConnection connection = new SqlConnection(connectionStr))
+                using (SqlCommand command = new SqlCommand(
+                    $"INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK " +
+                    "(EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR) " +
+                    "VALUES (NEWID(), @XML, 2, @formNbr)", connection))
                 {
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = form.OuterXml;
+                    command.Parameters.Add("@formNbr", SqlDbType.NVarChar).Value = externalFormNbr;
 
-                    SqlCommand command = new SqlCommand(queryString.ToString(), connection);
-                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
-
-                    command.Connection.Open();
-
-                    int count = command.ExecuteNonQuery();
-
-                    connection.Close();
-                    connection.Dispose();
-
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-
+                System.Diagnostics.Debug.WriteLine($"錯誤: {ex.Message}");
             }
         }
         public DataTable SEARCH_UOF_FORM_2001A(string DOC_NBR)
@@ -37431,78 +37057,60 @@ namespace TKSCHEDULEUOF
                 UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER_EXE(DT);
             }
         }
-        public void UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER_EXE(DataTable DT)
+        public void UPDATE_TB_PROJECTS_PRODUCTS_DESIGNER_EXE(DataTable designerData)
         {
-            string DOC_NBR = "";
-            string FirstNameFIELD41 = "";
-
-            StringBuilder SQLEXE = new StringBuilder();
-
-            if (DT != null && DT.Rows.Count >= 1)
-            {
-               foreach(DataRow DR in DT.Rows)
-                {
-                    DOC_NBR = DR["DOC_NBR"].ToString();
-                    FirstNameFIELD41 = DR["FirstNameFIELD41"].ToString();
-
-                    SQLEXE.AppendFormat(@"
-                                        UPDATE [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                        SET [DESIGNER]='{1}'
-                                        WHERE [DOC_NBR]='{0}'
-
-                                        ", DOC_NBR,FirstNameFIELD41);
-                }
-            }
-
+            if (designerData == null || designerData.Rows.Count == 0)
+                return;
 
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dberp"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql = SQLEXE;
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    connection.Open();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            foreach (DataRow row in designerData.Rows)
+                            {
+                                string docNbr = row["DOC_NBR"]?.ToString() ?? "";
+                                string designer = row["FirstNameFIELD41"]?.ToString() ?? "";
+
+                                using (SqlCommand command = new SqlCommand(
+                                    "UPDATE [TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS] " +
+                                    "SET [DESIGNER] = @designer " +
+                                    "WHERE [DOC_NBR] = @docNbr", connection, transaction))
+                                {
+                                    command.CommandTimeout = 60;
+                                    command.Parameters.AddWithValue("@designer", designer);
+                                    command.Parameters.AddWithValue("@docNbr", docNbr);
+
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            System.Diagnostics.Debug.WriteLine($"事務失敗，已回滾: {ex.Message}");
+                            throw;
+                        }
+                    }
                 }
-                else
-                {
-                    tran.Commit();      //執行交易  
-                }
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                System.Diagnostics.Debug.WriteLine($"更新設計人員失敗: {ex.Message}");
             }
         }
 
@@ -37510,99 +37118,60 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //connectionString = ConfigurationManager.ConnectionStrings["dberp"].ConnectionString;
-                //sqlConn = new SqlConnection(connectionString);
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1 = new SqlDataAdapter();
-                SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-
-
-                sbSql.AppendFormat(@"                                      
-                                   SELECT 
-                                    [TB_PROJECTS_PRODUCTS].DOC_NBR
-                                    ,[TB_PROJECTS_PRODUCTS].[DESIGNER]
-                                    ,SDOC_NBR
-                                    ,FIELD41
-                                    ,LEFT(FIELD41, CHARINDEX('(', FIELD41) - 1) AS FirstNameFIELD41
+                string query = @"
+                                    SELECT 
+                                        [TB_PROJECTS_PRODUCTS].DOC_NBR,
+                                        [TB_PROJECTS_PRODUCTS].[DESIGNER],
+                                        SDOC_NBR,
+                                        FIELD41,
+                                        LEFT(FIELD41, CHARINDEX('(', FIELD41) - 1) AS FirstNameFIELD41
                                     FROM 
                                     (
-	                                    SELECT 
-	                                    TB_WKF_TASK.DOC_NBR AS 'DOC_NBR'
-	                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""SDOC_NBR""]/@fieldValue)[1]', 'nvarchar(max)') AS 'SDOC_NBR'                 
-                                        , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
-
-                                        , TB_WKF_FORM.FORM_NAME
-                                        , [TB_EB_USER].NAME AS 'NAME'
-                                        , [TB_EB_USER].ACCOUNT  AS 'ACCOUNT'
-                                        , [TB_EB_USER].USER_GUID AS 'USER_GUID'
-                                        , [TB_EB_EMPL_DEP].GROUP_ID  AS 'GROUP_ID'
-                                        , [TB_EB_EMPL_DEP].TITLE_ID  AS 'TITLE_ID'
-
-
-                                        FROM[UOF].dbo.TB_WKF_TASK
-
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_USER] ON[TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
-
-                                        LEFT JOIN[UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID =[TB_EB_USER].USER_GUID AND ORDERS = '0'
-                                        ,[UOF].dbo.TB_WKF_FORM,[UOF].dbo.TB_WKF_FORM_VERSION
-
-                                        WHERE 1 = 1
-
-                                        AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
-
+                                        SELECT 
+                                            TB_WKF_TASK.DOC_NBR,
+                                            CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""SDOC_NBR""]/@fieldValue)[1]', 'nvarchar(max)') AS SDOC_NBR,
+                                            CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS FIELD41,
+                                            TB_WKF_FORM.FORM_NAME,
+                                            [TB_EB_USER].NAME,
+                                            [TB_EB_USER].ACCOUNT,
+                                            [TB_EB_USER].USER_GUID,
+                                            [TB_EB_EMPL_DEP].GROUP_ID,
+                                            [TB_EB_EMPL_DEP].TITLE_ID
+                                        FROM [UOF].dbo.TB_WKF_TASK
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_USER] ON [TB_EB_USER].USER_GUID = TB_WKF_TASK.USER_GUID
+                                        LEFT JOIN [UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_EMPL_DEP].USER_GUID = [TB_EB_USER].USER_GUID AND ORDERS = '0'
+                                        , [UOF].dbo.TB_WKF_FORM
+                                        , [UOF].dbo.TB_WKF_FORM_VERSION
+                                        WHERE TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                         AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-
                                         AND TB_WKF_FORM.FORM_NAME IN('2001A.產品開發+包裝設計申請單(行企專用)')
-                                    )  AS TEMP
-                                    ,[192.168.1.105].[TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
-                                            WHERE[TB_PROJECTS_PRODUCTS].[DOC_NBR]=TEMP.SDOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
-                                    AND ISNULL([TB_PROJECTS_PRODUCTS].[DESIGNER],'')=''
-                                    AND ISNULL(FIELD41,'')<>''
-                      
+                                    ) AS TEMP
+                                    , [192.168.1.105].[TKRESEARCH].[dbo].[TB_PROJECTS_PRODUCTS]
+                                    WHERE [TB_PROJECTS_PRODUCTS].[DOC_NBR] = TEMP.SDOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                    AND ISNULL([TB_PROJECTS_PRODUCTS].[DESIGNER],'') = ''
+                                    AND ISNULL(FIELD41,'') <> ''";
 
-                                    ");
+                DataSet resultSet = new DataSet();
 
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
                 {
-                    return ds1.Tables["ds1"];
-
-                }
-                else
-                {
-                    return null;
+                    adapter.Fill(resultSet, "ds1");
                 }
 
+                return resultSet.Tables["ds1"].Rows.Count > 0 ? resultSet.Tables["ds1"] : null;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"錯誤: {ex.Message}");
                 return null;
-            }
-            finally
-            {
-                sqlConn.Close();
             }
         }
 
@@ -38278,27 +37847,21 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1;
-                SqlCommandBuilder sqlCmdBuilder1;
+                // 2001.產品開發轉試吃單 > 1004.無品號試吃製作申請單
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
-                {
-                    StringBuilder sbSql = new StringBuilder();
-
-                    sbSql.Append(@"                                
+                string query = @"
                                 WITH TEMP AS (
                                     SELECT 
                                         [USER_GUID],
                                         [FORM_NAME],
                                         [DOC_NBR],
-		                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD42,
+                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD42,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD43""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD43,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD44""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD44,
                                         [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD45""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD45,
@@ -38308,147 +37871,88 @@ namespace TKSCHEDULEUOF
                                         TASK_ID,
                                         TASK_STATUS,
                                         TASK_RESULT
-                                    FROM[UOF].[dbo].TB_WKF_TASK
-                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                        ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                        ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                    WHERE[FORM_NAME] = '2001.產品開發+包裝設計申請單'
+                                    FROM [UOF].[dbo].TB_WKF_TASK
+                                    LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                                        ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                    LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                                        ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                    WHERE [FORM_NAME] = '2001.產品開發+包裝設計申請單'
                                         AND TASK_STATUS = '2'
                                         AND TASK_RESULT = '0'
                                 )
-
-                                SELECT*
+                                SELECT *
                                 FROM TEMP
-                                WHERE 1 = 1
-                                    AND DOC_NBR NOT IN
-                                    (
-                                        SELECT DV12
-                                        FROM
-                                        (
-                                            SELECT
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = '1004.無品號試吃製作申請單'
-                                            UNION ALL
-                                            SELECT
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = '1008.無品號-烘培試吃製作申請單'
-                                        )  AS TEMP
-                                        WHERE ISNULL(DV12, '') <> ''
-	                                )
-                                    AND DOC_NBR >= 'NEWDESIGN251100018'
-                                    AND FIELD42 IN('1004.無品號試吃製作申請單')
+                                WHERE DOC_NBR NOT IN (
+                                    SELECT DV12
+                                    FROM (
+                                        SELECT [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                                        FROM [UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                                            ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                                            ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE [FORM_NAME] = '1004.無品號試吃製作申請單'
+                                        UNION ALL
+                                        SELECT [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                                        FROM [UOF].[dbo].TB_WKF_TASK
+                                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                                            ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                                            ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                                        WHERE [FORM_NAME] = '1008.無品號-烘培試吃製作申請單'
+                                    ) AS TEMP
+                                    WHERE ISNULL(DV12, '') <> ''
+                                )
+                                AND DOC_NBR >= 'NEWDESIGN251100018'
+                                AND FIELD42 IN('1004.無品號試吃製作申請單')";
 
-                            ");
+                DataSet formData = new DataSet();
 
-                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
-                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-
-                    sqlConn.Open();
-                    ds1.Clear();
-                    adapter1.Fill(ds1, "ds1");
-                    sqlConn.Close();
-
-                }
-
-                //ds1有資料要轉
-                if (ds1!=null && ds1.Tables["ds1"].Rows.Count>=1)
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
                 {
-                    string USER_GUID_FORM = "";
-                    string EXTERNAL_FORM_NBR_FORM = "";
-                    string DV = "1.方塊酥，數量1kg"+ Environment.NewLine 
-                        + "2.雪花酥-單顆規格7.5g，數量50顆"+ Environment.NewLine
-                        +"3.手工餅系列-單片/包規格-10片";
-                    string DV01 = "";
-                    string DV02 = "";
-                    string DV03 = "";
-                    string DV05 = "";
-                    string DV06 = "";
-                    string DV07 = "";
-                    string DV08 = "";
-                    string DV09 = "";
-                    string DV10 = "";
-                    string DV11 = "";
-                    string DV12 = "";
-                    string DVV01 = "";
-                    string DVV02 = "";
-                    string DVV03 = "";
-                    string DVV04 = "";
-                    string DVV05 = "";
-                    string DVV06 = "";
-                    string DVV07 = "";
-                    string DVV08 = "";
+                    adapter.Fill(formData, "ds1");
+                }
 
-                    foreach(DataRow DR in ds1.Tables["ds1"].Rows)
+                // 處理查詢結果
+                if (formData?.Tables["ds1"].Rows.Count > 0)
+                {
+                    string sampleDescription = "1.方塊酥，數量1kg" + Environment.NewLine
+                        + "2.雪花酥-單顆規格7.5g，數量50顆" + Environment.NewLine
+                        + "3.手工餅系列-單片/包規格-10片";
+
+                    foreach (DataRow row in formData.Tables["ds1"].Rows)
                     {
-                        USER_GUID_FORM = DR["USER_GUID"].ToString();
-                        EXTERNAL_FORM_NBR_FORM = DR["DOC_NBR"].ToString();
-
-                        DV01 = DR["FIELD43"].ToString();
-                        DV02 = "";
-                        DV03 = DateTime.Now.ToString("yyyy/MM/dd");
-                        DV05 = "others";
-                        DV06 = DR["FIELD44"].ToString();
-                        DV07 = DR["FIELD34"].ToString();
-                        DV08 = DR["FIELD45"].ToString();
-                        DV09 = DR["FIELD36"].ToString();
-                        DV10 = "";
-                        DV11 = "";
-                        DV12 = DR["DOC_NBR"].ToString();
-                        DVV01 = DR["FIELD3"].ToString();
-                        DVV02 = "others";
-                        DVV03 = "";
-                        DVV04 = "";
-                        DVV05 = "";
-                        DVV06 = "";
-                        DVV07 = "";
-                        DVV08 = "";
-
                         ADD_UOF_RESEARCH_1004(
-                                    USER_GUID_FORM,
-                                    EXTERNAL_FORM_NBR_FORM,
-                                    DV,
-                                    DV01,
-                                    DV02,
-                                    DV03,
-                                    DV05,
-                                    DV06,
-                                    DV07,
-                                    DV08,
-                                    DV09,
-                                    DV10,
-                                    DV11,
-                                    DV12,
-                                    DVV01,
-                                    DVV02,
-                                    DVV03,
-                                    DVV04,
-                                    DVV05,
-                                    DVV06,
-                                    DVV07,
-                                    DVV08
-                                    );
+                            USER_GUID_FORM: row["USER_GUID"]?.ToString() ?? "",
+                            EXTERNAL_FORM_NBR_FORM: row["DOC_NBR"]?.ToString() ?? "",
+                            DV: sampleDescription,
+                            DV01: row["FIELD43"]?.ToString() ?? "",
+                            DV02: "",
+                            DV03: DateTime.Now.ToString("yyyy/MM/dd"),
+                            DV05: "others",
+                            DV06: row["FIELD44"]?.ToString() ?? "",
+                            DV07: row["FIELD34"]?.ToString() ?? "",
+                            DV08: row["FIELD45"]?.ToString() ?? "",
+                            DV09: row["FIELD36"]?.ToString() ?? "",
+                            DV10: "",
+                            DV11: "",
+                            DV12: row["DOC_NBR"]?.ToString() ?? "",
+                            DVV01: row["FIELD3"]?.ToString() ?? "",
+                            DVV02: "others",
+                            DVV03: "",
+                            DVV04: "",
+                            DVV05: "",
+                            DVV06: "",
+                            DVV07: "",
+                            DVV08: ""
+                        );
                     }
-
                 }
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-
+                System.Diagnostics.Debug.WriteLine($"轉檔失敗: {ex.Message}");
             }
         }
 
@@ -38601,177 +38105,120 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1;
-                SqlCommandBuilder sqlCmdBuilder1;
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
 
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                string query = @"
+            WITH TEMP AS (
+                SELECT 
+                    [USER_GUID],
+                    [FORM_NAME],
+                    [DOC_NBR],
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD42,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD43""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD43,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD44""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD44,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD45""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD45,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD3,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD34,
+                    [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD36,
+                    TASK_ID,
+                    TASK_STATUS,
+                    TASK_RESULT
+                FROM [UOF].[dbo].TB_WKF_TASK
+                LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                    ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                    ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                WHERE [FORM_NAME] = '2001.產品開發+包裝設計申請單'
+                    AND TASK_STATUS = '2'
+                    AND TASK_RESULT = '0'
+            )
+            SELECT *
+            FROM TEMP
+            WHERE 1 = 1
+                AND DOC_NBR NOT IN
+                (
+                    SELECT DV12
+                    FROM
+                    (
+                        SELECT
+                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                        FROM [UOF].[dbo].TB_WKF_TASK
+                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                            ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                            ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                        WHERE [FORM_NAME] = '1004.無品號試吃製作申請單'
+                        UNION ALL
+                        SELECT
+                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
+                        FROM [UOF].[dbo].TB_WKF_TASK
+                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM_VERSION
+                            ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
+                        LEFT JOIN [UOF].[dbo].TB_WKF_FORM
+                            ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
+                        WHERE [FORM_NAME] = '1008.無品號-烘培試吃製作申請單'
+                    ) AS TEMP
+                    WHERE ISNULL(DV12, '') <> ''
+                )
+                AND DOC_NBR >= 'NEWDESIGN251100018'
+                AND FIELD42 IN ('1008.無品號-烘培試吃製作申請單')";
+
+                DataTable sourceData = new DataTable();
+
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
                 {
-                    StringBuilder sbSql = new StringBuilder();
-
-                    sbSql.Append(@"                                
-                                WITH TEMP AS (
-                                    SELECT 
-                                        [USER_GUID],
-                                        [FORM_NAME],
-                                        [DOC_NBR],
-		                                [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD42""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD42,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD43""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD43,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD44""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD44,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD45""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD45,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD3""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD3,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD34""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD34,
-                                        [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""FIELD36""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS FIELD36,
-                                        TASK_ID,
-                                        TASK_STATUS,
-                                        TASK_RESULT
-                                    FROM[UOF].[dbo].TB_WKF_TASK
-                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                        ON[TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                    LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                        ON[TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                    WHERE[FORM_NAME] = '2001.產品開發+包裝設計申請單'
-                                        AND TASK_STATUS = '2'
-                                        AND TASK_RESULT = '0'
-                                )
-
-                                SELECT*
-                                FROM TEMP
-                                WHERE 1 = 1
-                                    AND DOC_NBR NOT IN
-                                    (
-                                        SELECT DV12
-                                        FROM
-                                        (
-                                            SELECT
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = '1004.無品號試吃製作申請單'
-                                            UNION ALL
-                                            SELECT
-                                            [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
-                                            FROM[UOF].[dbo].TB_WKF_TASK
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM_VERSION
-                                                ON [TB_WKF_FORM_VERSION].FORM_VERSION_ID = TB_WKF_TASK.FORM_VERSION_ID
-                                            LEFT JOIN[UOF].[dbo].TB_WKF_FORM
-                                                ON [TB_WKF_FORM].FORM_ID = [TB_WKF_FORM_VERSION].FORM_ID
-                                            WHERE[FORM_NAME] = '1008.無品號-烘培試吃製作申請單'
-                                        )  AS TEMP
-                                        WHERE ISNULL(DV12, '') <> ''
-	                                )
-                                    AND DOC_NBR >= 'NEWDESIGN251100018'
-                                    AND FIELD42 IN('1008.無品號-烘培試吃製作申請單')
-
-                            ");
-
-                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
-                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-
-                    sqlConn.Open();
-                    ds1.Clear();
-                    adapter1.Fill(ds1, "ds1");
-                    sqlConn.Close();
-
+                    adapter.Fill(sourceData);
                 }
 
-                //ds1有資料要轉
-                if (ds1 != null && ds1.Tables["ds1"].Rows.Count >= 1)
+                if (sourceData == null || sourceData.Rows.Count == 0)
+                    return;
+
+                // 預設值
+                string defaultDescription = "1.方塊酥，數量1kg" + Environment.NewLine
+                    + "2.雪花酥-單顆規格7.5g，數量50顆" + Environment.NewLine
+                    + "3.手工餅系列-單片/包規格-10片";
+
+                // 批量處理資料
+                foreach (DataRow row in sourceData.Rows)
                 {
-                    string USER_GUID_FORM = "";
-                    string EXTERNAL_FORM_NBR_FORM = "";
-                    string DV = "1.方塊酥，數量1kg" + Environment.NewLine
-                        + "2.雪花酥-單顆規格7.5g，數量50顆" + Environment.NewLine
-                        + "3.手工餅系列-單片/包規格-10片";
-                    string DV01 = "";
-                    string DV02 = "";
-                    string DV03 = "";
-                    string DV05 = "";
-                    string DV06 = "";
-                    string DV07 = "";
-                    string DV08 = "";
-                    string DV09 = "";
-                    string DV10 = "";
-                    string DV11 = "";
-                    string DV12 = "";
-                    string DVV01 = "";
-                    string DVV02 = "";
-                    string DVV03 = "";
-                    string DVV04 = "";
-                    string DVV05 = "";
-                    string DVV06 = "";
-                    string DVV07 = "";
-                    string DVV08 = "";
+                    string userGuid = row["USER_GUID"]?.ToString() ?? "";
+                    string docNbr = row["DOC_NBR"]?.ToString() ?? "";
 
-                    foreach (DataRow DR in ds1.Tables["ds1"].Rows)
-                    {
-                        USER_GUID_FORM = DR["USER_GUID"].ToString();
-                        EXTERNAL_FORM_NBR_FORM = DR["DOC_NBR"].ToString();
-
-                        DV01 = DR["FIELD43"].ToString();
-                        DV02 = "";
-                        DV03 = DateTime.Now.ToString("yyyy/MM/dd");
-                        DV05 = "others";
-                        DV06 = DR["FIELD44"].ToString();
-                        DV07 = DR["FIELD34"].ToString();
-                        DV08 = DR["FIELD45"].ToString();
-                        DV09 = DR["FIELD36"].ToString();
-                        DV10 = "";
-                        DV11 = "";
-                        DV12 = DR["DOC_NBR"].ToString();
-                        DVV01 = DR["FIELD3"].ToString();
-                        DVV02 = "others";
-                        DVV03 = "";
-                        DVV04 = "";
-                        DVV05 = "";
-                        DVV06 = "";
-                        DVV07 = "";
-                        DVV08 = "";
-
-                        ADD_UOF_RESEARCH_1008(
-                                    USER_GUID_FORM,
-                                    EXTERNAL_FORM_NBR_FORM,
-                                    DV,
-                                    DV01,
-                                    DV02,
-                                    DV03,
-                                    DV05,
-                                    DV06,
-                                    DV07,
-                                    DV08,
-                                    DV09,
-                                    DV10,
-                                    DV11,
-                                    DV12,
-                                    DVV01,
-                                    DVV02,
-                                    DVV03,
-                                    DVV04,
-                                    DVV05,
-                                    DVV06,
-                                    DVV07,
-                                    DVV08
-                                    );
-                    }
-
+                    ADD_UOF_RESEARCH_1008(
+                        userGuid,
+                        docNbr,
+                        defaultDescription,
+                        row["FIELD43"]?.ToString() ?? "",
+                        "",
+                        DateTime.Now.ToString("yyyy/MM/dd"),
+                        "others",
+                        row["FIELD44"]?.ToString() ?? "",
+                        row["FIELD34"]?.ToString() ?? "",
+                        row["FIELD45"]?.ToString() ?? "",
+                        row["FIELD36"]?.ToString() ?? "",
+                        "",
+                        "",
+                        docNbr,
+                        row["FIELD3"]?.ToString() ?? "",
+                        "others",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    );
                 }
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
-
-            }
-            finally
-            {
-
+                System.Diagnostics.Debug.WriteLine($"轉換 2001 到 1008 失敗: {ex.Message}");
             }
         }
         public void ADD_UOF_RESEARCH_1008(
