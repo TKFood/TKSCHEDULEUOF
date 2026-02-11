@@ -21254,6 +21254,8 @@ namespace TKSCHEDULEUOF
             }
 
             // 更新 BOMMC.UDF01
+            // 如果是Y就改成 UOF簽核中
+            // 如果表單已簽完，則由簽核完成的流程去更新為 UOF簽核完成-120023，已簽核:2026-02-10 17:00:18 +08:00
             UPDATE_BOMMC_UDF01();
         }
 
@@ -21563,6 +21565,39 @@ namespace TKSCHEDULEUOF
                                             UPDATE [TK].dbo.BOMMC
                                             SET UDF01 = 'UOF簽核中'                                   
                                             WHERE UDF01 IN ('Y','y')
+
+                                            UPDATE B
+                                            SET B.UDF01 = TMP.ACCOUNT_SIGN
+                                            FROM [TK].dbo.BOMMC B
+                                            INNER JOIN (
+                                                -- 封裝所有遠端 XML 解析與簽核邏輯
+                                                SELECT * FROM OPENQUERY([192.168.1.223], '
+                                                    SELECT 
+                                                        Sub.FORM_MC001,
+                                                        (
+                                                            SELECT TOP 1 
+                                                                U.ACCOUNT + ''，已簽核:'' + CONVERT(NVARCHAR, N.FINISH_TIME, 120)
+                                                            FROM [UOF].[dbo].TB_WKF_TASK_NODE N
+                                                            LEFT JOIN [UOF].[dbo].[TB_EB_USER] U ON U.USER_GUID = N.ACTUAL_SIGNER
+                                                            WHERE N.TASK_ID = Sub.TASK_ID
+                                                            ORDER BY N.FINISH_TIME DESC
+                                                        ) AS ACCOUNT_SIGN
+                                                    FROM (
+                                                        SELECT
+                                                            T.TASK_ID,
+                                                            CAST(T.CURRENT_DOC.value(''(/Form/FormFieldValue/FieldItem[@fieldId=""MC001""]/@fieldValue)[1]'', ''NVARCHAR(100)'') AS NVARCHAR(100)) AS FORM_MC001
+                                                        FROM [UOF].[dbo].TB_WKF_TASK T
+                                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] FV ON FV.FORM_VERSION_ID = T.FORM_VERSION_ID
+                                                        INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = FV.FORM_ID
+                                                        WHERE F.FORM_NAME = ''BOM02.BOM表''
+                                                          AND T.TASK_STATUS = ''2''
+                                                          AND T.TASK_RESULT = ''0''
+                                                          -- 建議加上時間過濾，避免全表掃描
+                                                          AND T.BEGIN_TIME >= DATEADD(MONTH, -6, GETDATE())
+                                                    ) Sub
+                                                ')
+                                            ) AS TMP ON TMP.FORM_MC001 = B.MC001 COLLATE Chinese_Taiwan_Stroke_BIN
+                                            AND  B.UDF01 <> TMP.ACCOUNT_SIGN COLLATE Chinese_Taiwan_Stroke_CI_AS
                                         ");
 
                         cmd.Connection = sqlConn;
