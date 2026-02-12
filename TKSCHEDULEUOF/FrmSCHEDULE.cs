@@ -38516,91 +38516,108 @@ namespace TKSCHEDULEUOF
 
         public void ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS()
         {
-            // 連線字串處理與解密
-            Class1 TKID = new Class1();
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-            string connectionString = sqlsb.ConnectionString;
-
-            // SQL 查詢字符串
-            StringBuilder queryString = new StringBuilder();
-            queryString.AppendFormat(@"
-                                    INSERT INTO  [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
-                                    ([MB001],[PRODUCTNAME],[CATEGORY],[PACKAGE_SPEC])
-
-                                    SELECT 
-                                    LTRIM(RTRIM(INVMB.MB001)) MB001,LTRIM(RTRIM(INVMB.MB002)) MB002s
-                                    ,(
-                                    CASE WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS,'')<>'' THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS 
-                                    ELSE (SELECT TOP 1 TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] WHERE MB001='*')
-                                    END ) AS 'NEW_KINDS'
-                                    ,(
-                                    CASE WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC,'')<>'' THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC 
-                                    ELSE (SELECT TOP 1 TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] WHERE MB001='*')
-                                    END ) AS 'NEWP_ACKAGE_SPEC'
-                                    FROM [TK].dbo.INVMB
-                                    LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] ON INVMB.MB001 LIKE [TB_ORIENTS_CHECKLISTS_MB001LIKE].[MB001]+'%'
-                                    WHERE 1=1
-                                    AND (INVMB.MB001 LIKE '1%' OR INVMB.MB001 LIKE'2%')
-                                    AND INVMB.MB001 NOT LIKE '19%'
-                                    AND INVMB.MB001 NOT LIKE '29%'
-                                    AND INVMB.MB001 NOT IN
-                                    (
-	                                    SELECT MB001
-	                                    FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
-	                                    WHERE ISNULL(MB001,'')<>''
-                                    )
-                                    ORDER BY INVMB.MB001
-
-                                    ");
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
-                    {
-                        // 參數化
-                        //command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
+                var tkId = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlsb.Password = tkId.Decryption(sqlsb.Password);
+                sqlsb.UserID = tkId.Decryption(sqlsb.UserID);
 
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
+                string GetInsertOrientChecklistsQuery = @"
+                            INSERT INTO [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
+                            ([MB001], [PRODUCTNAME], [CATEGORY], [PACKAGE_SPEC])
+                            SELECT 
+                                LTRIM(RTRIM(INVMB.MB001)) AS MB001,
+                                LTRIM(RTRIM(INVMB.MB002)) AS MB002,
+                                CASE 
+                                    WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS, '') <> '' 
+                                        THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.KINDS 
+                                    ELSE (SELECT TOP 1 KINDS 
+                                          FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] 
+                                          WHERE MB001 = '*')
+                                END AS NEW_KINDS,
+                                CASE 
+                                    WHEN ISNULL(TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC, '') <> '' 
+                                        THEN TB_ORIENTS_CHECKLISTS_MB001LIKE.PACKAGE_SPEC 
+                                    ELSE (SELECT TOP 1 PACKAGE_SPEC 
+                                          FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] 
+                                          WHERE MB001 = '*')
+                                END AS NEW_PACKAGE_SPEC
+                            FROM [TK].dbo.INVMB
+                            LEFT JOIN [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS_MB001LIKE] 
+                                ON INVMB.MB001 LIKE TB_ORIENTS_CHECKLISTS_MB001LIKE.MB001 + '%'
+                            WHERE (INVMB.MB001 LIKE '1%' OR INVMB.MB001 LIKE '2%')
+                                AND INVMB.MB001 NOT LIKE '19%'
+                                AND INVMB.MB001 NOT LIKE '29%'
+                                AND INVMB.MB001 NOT IN (
+                                    SELECT MB001
+                                    FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
+                                    WHERE ISNULL(MB001, '') <> ''
+                                )
+                            ORDER BY INVMB.MB001;"";
+                    ";
+                using (var connection = new SqlConnection(sqlsb.ConnectionString))
+                using (var command = new SqlCommand(GetInsertOrientChecklistsQuery, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
                 }
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
-                // 異常處理
+                System.Diagnostics.Debug.WriteLine($"Error in ADD_TKRESEARCH_TB_ORIENTS_CHECKLISTS: {ex.Message}");
             }
         }
 
         public void ADD_ERP_PURTA_PURTB_FROM_COP()
         {
-            DateTime DT_NOW = DateTime.Now;
-            string SDATES = DT_NOW.ToString("yyyyMMdd");
-            string EDATES = DT_NOW.ToString("yyyyMMdd");
-            DataTable DT = SEARCH_COPTC_COPTD(SDATES, EDATES);
-
-            if(DT!=null && DT.Rows.Count>=1)
+            try
             {
-                foreach(DataRow DR in DT.Rows)
+                DateTime now = DateTime.Now;
+                string dateStr = now.ToString("yyyyMMdd");
+
+                DataTable coptcData = SEARCH_COPTC_COPTD(dateStr, dateStr);
+
+                if (coptcData == null || coptcData.Rows.Count == 0)
+                    return;
+
+                const string purchaseOrderType = "A311";
+
+                foreach (DataRow row in coptcData.Rows)
                 {
-                    //轉ERP的請購單並送簽
-                    string COPTC_TC001 = DR["單別"].ToString();
-                    string COPTC_TC002 = DR["單號"].ToString();
-                    string PURTA_TA001 = "A311";
-                    string PURTA_TA003 = DateTime.Now.ToString("yyyyMMdd");
-                    string PURTA_TA002 = GETMAXMOCTA002(PURTA_TA001, PURTA_TA003);
+                    try
+                    {
+                        string coptcType = row["單別"]?.ToString() ?? "";
+                        string coptcNumber = row["單號"]?.ToString() ?? "";
 
-                    ADDMOCTAB_BY_COPTC_COPTD(COPTC_TC001, COPTC_TC002, PURTA_TA001, PURTA_TA002, PURTA_TA003);
-                    //ADDCOPPURBATCHPUR(textBoxID.Text.Trim(), MOCTA001, MOCTA002);
-                    //SEARCHCOPPURBATCHPUR(textBoxID.Text.Trim());
+                        if (string.IsNullOrEmpty(coptcType) || string.IsNullOrEmpty(coptcNumber))
+                            continue;
 
-                    //將ERP的請購單，轉入UOF的請購單
-                    ADDTB_WKF_EXTERNAL_TASK_PURTAB(PURTA_TA001, PURTA_TA002);
+                        string purchaseOrderNumber = GETMAXMOCTA002(purchaseOrderType, dateStr);
+
+                        if (string.IsNullOrEmpty(purchaseOrderNumber))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"無法取得請購單號: {coptcType}/{coptcNumber}");
+                            continue;
+                        }
+
+                        // 轉 ERP 的請購單
+                        ADDMOCTAB_BY_COPTC_COPTD(coptcType, coptcNumber, purchaseOrderType, purchaseOrderNumber, dateStr);
+
+                        // 將 ERP 的請購單轉入 UOF 的請購單
+                        ADDTB_WKF_EXTERNAL_TASK_PURTAB(purchaseOrderType, purchaseOrderNumber);
+                    }
+                    catch (Exception rowEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"處理單據失敗: {rowEx.Message}");
+                        // 繼續處理下一筆記錄
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"轉換請購單失敗: {ex.Message}");
             }
 
         }
@@ -38912,194 +38929,166 @@ namespace TKSCHEDULEUOF
 
             return PURTA;
         }
-        public void ADDMOCTAB_BY_COPTC_COPTD(string COPTC_TC001, string COPTC_TC002, string PURTA_TA001, string PURTA_TA002, string PURTA_TA003)
+        public void ADDMOCTAB_BY_COPTC_COPTD(string coptcType, string coptcNumber, string purchaseOrderType,
+                                      string purchaseOrderNumber, string purchaseDate)
         {
             try
             {
-                PURTA PURTA = new PURTA();
-                PURTA = SETPURTA();
+                // 1. 初始化 PURTA 對象
+                PURTA purta = SETPURTA();
+                purta.TA001 = purchaseOrderType;
+                purta.TA002 = purchaseOrderNumber;
+                purta.TA003 = purchaseDate;
+                purta.TA005 = coptcType.Trim() + coptcNumber.Trim();
+                purta.TA013 = purchaseDate;
+                purta.UDF01 = "UOF";
 
-                PURTA.TA001 = PURTA_TA001;
-                PURTA.TA002 = PURTA_TA002;
-                PURTA.TA003 = PURTA_TA003;
-                PURTA.TA005 = COPTC_TC001.Trim() + COPTC_TC002.Trim();
-                PURTA.TA013 = PURTA_TA003;
-                PURTA.UDF01 = "UOF";
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                // 2. 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-                sqlConn.Close();
-                sqlConn.Open();
-                tran = sqlConn.BeginTransaction();
-
-                sbSql.Clear();
-
-                sbSql.AppendFormat(@" 
-                                    INSERT INTO [TK].[dbo].[PURTA]
-                                    (
-                                        [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],
-                                        [MODI_DATE],[FLAG],[CREATE_TIME],[MODI_TIME],[TRANS_TYPE],
-                                        [TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
-                                        [DataUser],[DataGroup],
-                                        [TA001],[TA002],[TA003],[TA004],[TA005],
-                                        [TA006],[TA007],[TA008],[TA009],[TA010],
-                                        [TA011],[TA012],[TA013],[TA014],[TA015],
-                                        [TA016],[TA017],[TA018],[TA019],[TA020],
-                                        [TA021],[TA022],[TA023],[TA024],[TA025],
-                                        [TA026],[TA027],[TA028],[TA029],[TA030],
-                                        [TA031],[TA032],[TA033],[TA034],[TA035],
-                                        [TA036],[TA037],[TA038],[TA039],[TA040],
-                                        [TA041],[TA042],[TA043],[TA044],[TA045],
-                                        [TA046],[UDF01],[UDF02],[UDF03],[UDF04],
-                                        [UDF05],[UDF06],[UDF07],[UDF08],[UDF09],
-                                        [UDF10]
-                                    )
-                                    VALUES 
-                                    (
-                                        '{0}','{1}','{2}','{3}','{4}',
-                                        '{5}','{6}','{7}','{8}','{9}',
-                                        '{10}','{11}','{12}','{13}','{14}',
-                                        '{15}','{16}',
-                                        '{17}','{18}','{19}','{20}','{21}',
-                                        '{22}','{23}','{24}','{25}','{26}',
-                                        '{27}','{28}','{29}','{30}','{31}',
-                                        '{32}','{33}','{34}','{35}','{36}',
-                                        '{37}','{38}','{39}','{40}','{41}',
-                                        '{42}','{43}','{44}','{45}','{46}',
-                                        '{47}','{48}','{49}','{50}','{51}',
-                                        '{52}','{53}','{54}','{55}','{56}',
-                                        '{57}','{58}','{59}','{60}','{61}',
-                                        '{62}','{63}','{64}','{65}','{66}',
-                                        '{67}','{68}','{69}','{70}','{71}',
-                                        '{72}'
-                                    )",
-                                    PURTA.COMPANY, PURTA.CREATOR, PURTA.USR_GROUP, PURTA.CREATE_DATE, PURTA.MODIFIER,
-                                    PURTA.MODI_DATE, PURTA.FLAG, PURTA.CREATE_TIME, PURTA.MODI_TIME, PURTA.TRANS_TYPE,
-                                    PURTA.TRANS_NAME, PURTA.sync_date, PURTA.sync_time, PURTA.sync_mark, PURTA.sync_count,
-                                    PURTA.DataUser, PURTA.DataGroup,
-
-                                    // 索引 17 - 62: TA 欄位 (46 個)
-                                    PURTA.TA001, PURTA.TA002, PURTA.TA003, PURTA.TA004, PURTA.TA005,
-                                    PURTA.TA006, PURTA.TA007, PURTA.TA008, PURTA.TA009, PURTA.TA010,
-                                    PURTA.TA011, PURTA.TA012, PURTA.TA013, PURTA.TA014, PURTA.TA015,
-                                    PURTA.TA016, PURTA.TA017, PURTA.TA018, PURTA.TA019, PURTA.TA020,
-                                    PURTA.TA021, PURTA.TA022, PURTA.TA023, PURTA.TA024, PURTA.TA025,
-                                    PURTA.TA026, PURTA.TA027, PURTA.TA028, PURTA.TA029, PURTA.TA030,
-                                    PURTA.TA031, PURTA.TA032, PURTA.TA033, PURTA.TA034, PURTA.TA035,
-                                    PURTA.TA036, PURTA.TA037, PURTA.TA038, PURTA.TA039, PURTA.TA040,
-                                    PURTA.TA041, PURTA.TA042, PURTA.TA043, PURTA.TA044, PURTA.TA045,
-                                    PURTA.TA046,
-
-                                    // 索引 63 - 72: UDF 欄位 (10 個)
-                                    PURTA.UDF01, PURTA.UDF02, PURTA.UDF03, PURTA.UDF04,
-                                    PURTA.UDF05, PURTA.UDF06, PURTA.UDF07, PURTA.UDF08, PURTA.UDF09,
-                                    PURTA.UDF10
-                                    );
-
-                sbSql.AppendFormat(@" 
-                                     INSERT INTO [TK].[dbo].[PURTB]
-                                    (
-                                    [COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER]
-                                    ,[MODI_DATE],[FLAG],[CREATE_TIME],[MODI_TIME],[TRANS_TYPE]
-                                    ,[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count]
-                                    ,[DataUser],[DataGroup]
-                                    ,[TB001],[TB002],[TB003],[TB004],[TB005]
-                                    ,[TB006],[TB007],[TB008],[TB009],[TB010]
-                                    ,[TB011],[TB012],[TB013],[TB014],[TB015]
-                                    ,[TB016],[TB017],[TB018],[TB019],[TB020]
-                                    ,[TB021],[TB022],[TB023],[TB024],[TB025]
-                                    ,[TB026],[TB027],[TB028],[TB029],[TB030]
-                                    ,[TB031],[TB032],[TB033],[TB034],[TB035]
-                                    ,[TB036],[TB037],[TB038],[TB039],[TB040]
-                                    ,[TB041],[TB042],[TB043],[TB044],[TB045]
-                                    ,[TB046],[TB047],[TB048],[TB049],[TB050]
-                                    ,[TB051],[TB052],[TB053],[TB054],[TB055]
-                                    ,[TB056],[TB057],[TB058],[TB059],[TB060]
-                                    ,[TB061],[TB062],[TB063],[TB064],[TB065]
-                                    ,[TB066],[TB067],[TB068],[TB069],[TB070]
-                                    ,[TB071],[TB072],[TB073],[TB074],[TB075]
-                                    ,[TB076],[TB077],[TB078],[TB079],[TB080]
-                                    ,[TB081],[TB082],[TB083],[TB084],[TB085]
-                                    ,[TB086],[TB087],[TB088],[TB089],[TB090]
-                                    ,[TB091],[TB092],[TB093],[TB094],[TB095]
-                                    ,[TB096],[TB097],[TB098],[TB099],[UDF01]
-                                    ,[UDF02],[UDF03],[UDF04],[UDF05],[UDF06]
-                                    ,[UDF07],[UDF08],[UDF09],[UDF10]
-                                    )
-
-                                    SELECT 
-                                    'TK'[COMPANY],'120025' [CREATOR],'103400' [USR_GROUP],CONVERT(NVARCHAR,GETDATE(),112) [CREATE_DATE],'160115' [MODIFIER]
-                                    ,CONVERT(NVARCHAR,GETDATE(),112) [MODI_DATE],0 [FLAG],CONVERT(NVARCHAR,GETDATE(),108) [CREATE_TIME],CONVERT(NVARCHAR,GETDATE(),108) [MODI_TIME],'P001' [TRANS_TYPE]
-                                    ,'PURI05' [TRANS_NAME],'' [sync_date],'' [sync_time],'' [sync_mark],0 [sync_count]
-                                    ,'' [DataUser],'103400' [DataGroup]
-                                    ,'{0}' [TB001],'{1}' [TB002],RIGHT(REPLICATE('0', 4) + CONVERT(VARCHAR, ROW_NUMBER() OVER (ORDER BY TD003)), 4) [TB003],TD004 [TB004],TD005 [TB005]
-                                    ,TD006 [TB006],TD010 [TB007],MB017 [TB008],(TD008+TD024) [TB009],MB032 [TB010]
-                                    ,TD013 [TB011],'' [TB012],'' [TB013],0 [TB014],'' [TB015]
-                                    ,'NTD' [TB016],0 [TB017],0 [TB018],'' [TB019],'N' [TB020]
-                                    ,'N' [TB021],'' [TB022],'' [TB023],'' [TB024],'N' [TB025]
-                                    ,(CASE WHEN MB100='Y' THEN '1' ELSE '2' END) [TB026],'' [TB027] ,'' [TB028],COPTD.TD001 [TB029],COPTD.TD002 [TB030]
-                                    ,COPTD.TD003 [TB031],'N' [TB032],'0001' [TB033],0 [TB034],0 [TB035]
-                                    ,'' [TB036],'' [TB037],'' [TB038],'N' [TB039],0 [TB040]
-                                    ,0 [TB041],'' [TB042],'' [TB043],'' [TB044],'' [TB045]
-                                    ,'' [TB046],'' [TB047],'' [TB048],0 [TB049],'' [TB050]
-                                    ,0 [TB051],0 [TB052],0 [TB053],'' [TB054],'' [TB055]
-                                    ,'' [TB056],'' [TB057],'1' [TB058],'' [TB059],'' [TB060]
-                                    ,'' [TB061],'' [TB062],0 [TB063],'N' [TB064],'1' [TB065]
-                                    ,'' [TB066],'2' [TB067],0 [TB068],0 [TB069],'' [TB070]
-                                    ,'' [TB071],'' [TB072],'' [TB073],'' [TB074],0 [TB075]
-                                    ,'' [TB076],0 [TB077],'' [TB078],'' [TB079],'' [TB080]
-                                    ,0 [TB081],0 [TB082],0 [TB083],0 [TB084],0 [TB085]
-                                    ,'' [TB086],'' [TB087],0 [TB088],'1' [TB089],0 [TB090]
-                                    ,0 [TB091],0 [TB092],0 [TB093],'' [TB094],'' [TB095]
-                                    ,'' [TB096],'' [TB097],'' [TB098],'' [TB099]
-                                    ,'Y' [UDF01]
-                                    ,'' [UDF02],'' [UDF03],'' [UDF04],'' [UDF05]
-                                    ,0 [UDF06],0 [UDF07],0 [UDF08],0 [UDF09],0 [UDF10]
-                                    FROM [TK].dbo.COPTC,[TK].dbo.COPTD,[TK].dbo.INVMB
-                                    WHERE TC001=TD001 AND TC002=TD002
-                                    AND TD004=MB001
-                                    AND TC001='{2}' AND TC002='{3}'
-                                    AND TD004 LIKE '5%'
-                                    ", PURTA_TA001, PURTA_TA002, COPTC_TC001, COPTC_TC002);
-
-
-
-                cmd.Connection = sqlConn;
-                cmd.CommandTimeout = 60;
-                cmd.CommandText = sbSql.ToString();
-                cmd.Transaction = tran;
-                result = cmd.ExecuteNonQuery();
-
-                if (result == 0)
+                // 3. 執行批量插入
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
                 {
-                    tran.Rollback();    //交易取消
+                    connection.Open();
 
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // 插入 PURTA 記錄
+                            string purtaQuery = @"
+                        INSERT INTO [TK].[dbo].[PURTA]
+                        ([COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],[CREATE_TIME],
+                         [MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],[sync_mark],[sync_count],
+                         [DataUser],[DataGroup],[TA001],[TA002],[TA003],[TA004],[TA005],[TA006],[TA007],[TA008],
+                         [TA009],[TA010],[TA011],[TA012],[TA013],[TA014],[TA015],[TA016],[TA017],[TA018],[TA019],
+                         [TA020],[TA021],[TA022],[TA023],[TA024],[TA025],[TA026],[TA027],[TA028],[TA029],[TA030],
+                         [TA031],[TA032],[TA033],[TA034],[TA035],[TA036],[TA037],[TA038],[TA039],[TA040],[TA041],
+                         [TA042],[TA043],[TA044],[TA045],[TA046],[UDF01],[UDF02],[UDF03],[UDF04],[UDF05],
+                         [UDF06],[UDF07],[UDF08],[UDF09],[UDF10])
+                        VALUES
+                        (@COMPANY,@CREATOR,@USR_GROUP,@CREATE_DATE,@MODIFIER,@MODI_DATE,@FLAG,@CREATE_TIME,
+                         @MODI_TIME,@TRANS_TYPE,@TRANS_NAME,@sync_date,@sync_time,@sync_mark,@sync_count,
+                         @DataUser,@DataGroup,@TA001,@TA002,@TA003,@TA004,@TA005,@TA006,@TA007,@TA008,
+                         @TA009,@TA010,@TA011,@TA012,@TA013,@TA014,@TA015,@TA016,@TA017,@TA018,@TA019,
+                         @TA020,@TA021,@TA022,@TA023,@TA024,@TA025,@TA026,@TA027,@TA028,@TA029,@TA030,
+                         @TA031,@TA032,@TA033,@TA034,@TA035,@TA036,@TA037,@TA038,@TA039,@TA040,@TA041,
+                         @TA042,@TA043,@TA044,@TA045,@TA046,@UDF01,@UDF02,@UDF03,@UDF04,@UDF05,
+                         @UDF06,@UDF07,@UDF08,@UDF09,@UDF10)";
 
-                }
-                else
-                {
-                    tran.Commit();      //執行交易  
+                            using (SqlCommand purtaCmd = new SqlCommand(purtaQuery, connection, transaction))
+                            {
+                                purtaCmd.CommandTimeout = 60;
 
-                    UPDATEPURTA_BY_COPTC_COPTD(PURTA_TA001, PURTA_TA002);
+                                // 添加 PURTA 參數
+                                purtaCmd.Parameters.AddWithValue("@COMPANY", purta.COMPANY ?? "");
+                                purtaCmd.Parameters.AddWithValue("@CREATOR", purta.CREATOR ?? "");
+                                purtaCmd.Parameters.AddWithValue("@USR_GROUP", purta.USR_GROUP ?? "");
+                                purtaCmd.Parameters.AddWithValue("@CREATE_DATE", purta.CREATE_DATE ?? "");
+                                purtaCmd.Parameters.AddWithValue("@MODIFIER", purta.MODIFIER ?? "");
+                                purtaCmd.Parameters.AddWithValue("@MODI_DATE", purta.MODI_DATE ?? "");
+                                purtaCmd.Parameters.AddWithValue("@FLAG", purta.FLAG ?? "");
+                                purtaCmd.Parameters.AddWithValue("@CREATE_TIME", purta.CREATE_TIME ?? "");
+                                purtaCmd.Parameters.AddWithValue("@MODI_TIME", purta.MODI_TIME ?? "");
+                                purtaCmd.Parameters.AddWithValue("@TRANS_TYPE", purta.TRANS_TYPE ?? "");
+                                purtaCmd.Parameters.AddWithValue("@TRANS_NAME", purta.TRANS_NAME ?? "");
+                                purtaCmd.Parameters.AddWithValue("@sync_date", purta.sync_date ?? "");
+                                purtaCmd.Parameters.AddWithValue("@sync_time", purta.sync_time ?? "");
+                                purtaCmd.Parameters.AddWithValue("@sync_mark", purta.sync_mark ?? "");
+                                purtaCmd.Parameters.AddWithValue("@sync_count", purta.sync_count ?? "");
+                                purtaCmd.Parameters.AddWithValue("@DataUser", purta.DataUser ?? "");
+                                purtaCmd.Parameters.AddWithValue("@DataGroup", purta.DataGroup ?? "");
+
+                                // TA001-TA046
+                                for (int i = 1; i <= 46; i++)
+                                {
+                                    var property = purta.GetType().GetProperty($"TA{i:D3}");
+                                    var value = property?.GetValue(purta) ?? "";
+                                    purtaCmd.Parameters.AddWithValue($"@TA{i:D3}", value);
+                                }
+
+                                // UDF01-UDF10
+                                for (int i = 1; i <= 10; i++)
+                                {
+                                    var property = purta.GetType().GetProperty($"UDF{i:D2}");
+                                    var value = property?.GetValue(purta) ?? "";
+                                    purtaCmd.Parameters.AddWithValue($"@UDF{i:D2}", value);
+                                }
+
+                                purtaCmd.ExecuteNonQuery();
+                            }
+
+                            // 插入 PURTB 記錄
+                            string purtbQuery = @"
+                        INSERT INTO [TK].[dbo].[PURTB]
+                        ([COMPANY],[CREATOR],[USR_GROUP],[CREATE_DATE],[MODIFIER],[MODI_DATE],[FLAG],
+                         [CREATE_TIME],[MODI_TIME],[TRANS_TYPE],[TRANS_NAME],[sync_date],[sync_time],
+                         [sync_mark],[sync_count],[DataUser],[DataGroup],[TB001],[TB002],[TB003],
+                         [TB004],[TB005],[TB006],[TB007],[TB008],[TB009],[TB010],[TB011],[TB012],
+                         [TB013],[TB014],[TB015],[TB016],[TB017],[TB018],[TB019],[TB020],[TB021],
+                         [TB022],[TB023],[TB024],[TB025],[TB026],[TB027],[TB028],[TB029],[TB030],
+                         [TB031],[TB032],[TB033],[TB034],[TB035],[TB036],[TB037],[TB038],[TB039],
+                         [TB040],[TB041],[TB042],[TB043],[TB044],[TB045],[TB046],[TB047],[TB048],
+                         [TB049],[TB050],[TB051],[TB052],[TB053],[TB054],[TB055],[TB056],[TB057],
+                         [TB058],[TB059],[TB060],[TB061],[TB062],[TB063],[TB064],[TB065],[TB066],
+                         [TB067],[TB068],[TB069],[TB070],[TB071],[TB072],[TB073],[TB074],[TB075],
+                         [TB076],[TB077],[TB078],[TB079],[TB080],[TB081],[TB082],[TB083],[TB084],
+                         [TB085],[TB086],[TB087],[TB088],[TB089],[TB090],[TB091],[TB092],[TB093],
+                         [TB094],[TB095],[TB096],[TB097],[TB098],[TB099],[UDF01],[UDF02],[UDF03],
+                         [UDF04],[UDF05],[UDF06],[UDF07],[UDF08],[UDF09],[UDF10])
+                        SELECT 
+                            'TK','120025','103400',CONVERT(NVARCHAR,GETDATE(),112),'160115',
+                            CONVERT(NVARCHAR,GETDATE(),112),0,CONVERT(NVARCHAR,GETDATE(),108),
+                            CONVERT(NVARCHAR,GETDATE(),108),'P001','PURI05','','','',0,'','103400',
+                            @purchaseOrderType,@purchaseOrderNumber,
+                            RIGHT(REPLICATE('0',4)+CONVERT(VARCHAR,ROW_NUMBER() OVER (ORDER BY TD003)),4),
+                            TD004,TD005,TD006,TD010,MB017,(TD008+TD024),MB032,TD013,'','',0,'','NTD',
+                            0,0,'','N','N','','','','N',(CASE WHEN MB100='Y' THEN '1' ELSE '2' END),
+                            '','',COPTD.TD001,COPTD.TD002,COPTD.TD003,'N','0001',0,0,'','','','N',0,
+                            0,'','','','','','','',0,'','',0,'','',0,'','',0,'','','1','','',
+                            '','2',0,0,'','','','',0,'',0,'','','',0,0,0,0,0,'','',0,'1',0,
+                            0,0,0,'','','','','','','',
+                            'Y','','','','',0,0,0,0,0
+                        FROM [TK].dbo.COPTC
+                        INNER JOIN [TK].dbo.COPTD ON TC001=TD001 AND TC002=TD002
+                        INNER JOIN [TK].dbo.INVMB ON TD004=MB001
+                        WHERE TC001=@coptcType 
+                          AND TC002=@coptcNumber
+                          AND TD004 LIKE '5%'";
+
+                            using (SqlCommand purtbCmd = new SqlCommand(purtbQuery, connection, transaction))
+                            {
+                                purtbCmd.CommandTimeout = 60;
+                                purtbCmd.Parameters.AddWithValue("@purchaseOrderType", purchaseOrderType);
+                                purtbCmd.Parameters.AddWithValue("@purchaseOrderNumber", purchaseOrderNumber);
+                                purtbCmd.Parameters.AddWithValue("@coptcType", coptcType);
+                                purtbCmd.Parameters.AddWithValue("@coptcNumber", coptcNumber);
+
+                                purtbCmd.ExecuteNonQuery();
+                            }
+
+                            // 提交事務
+                            transaction.Commit();
+
+                            // 更新記錄
+                            UPDATEPURTA_BY_COPTC_COPTD(purchaseOrderType, purchaseOrderNumber);
+                        }
+                        catch (Exception transEx)
+                        {
+                            transaction.Rollback();
+                            System.Diagnostics.Debug.WriteLine($"事務失敗，已回滾: {transEx.Message}");
+                            throw;
+                        }
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
-            }
-
-            finally
-            {
-                sqlConn.Close();
+                System.Diagnostics.Debug.WriteLine($"新增採購單失敗: {ex.Message}");
             }
         }
         public void UPDATEPURTA_BY_COPTC_COPTD(string TA001, string TA002)
@@ -39347,222 +39336,182 @@ namespace TKSCHEDULEUOF
                 throw new FormatException(String.Format("MAXID 的序列號部分 ('{0}') 無法轉換為數字。", sernoString));
             }
         }
-        public string SERACHlDOC_NBR_CHECK(string EXTERNAL_FORM_NBR)
+        public string SERACHlDOC_NBR_CHECK(string externalFormNbr)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                // 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                // 執行查詢
+                string query = @"
+                    SELECT TOP 1 EXTERNAL_FORM_NBR, DOC_NBR, TASK_RESULT
+                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                    INNER JOIN [UOF].[dbo].[TB_WKF_TASK] ON [TB_WKF_EXTERNAL_TASK].DOC_NBR = TB_WKF_TASK.DOC_NBR
+                    WHERE ISNULL(TB_WKF_TASK.TASK_RESULT, '-1') NOT IN ('0','1','2')
+                      AND EXTERNAL_FORM_NBR LIKE @externalFormNbr
+                    ORDER BY DOC_NBR DESC";
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    SELECT TOP 1 EXTERNAL_FORM_NBR,[TB_WKF_EXTERNAL_TASK].DOC_NBR,TB_WKF_TASK.TASK_RESULT
-                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK],[UOF].[dbo].TB_WKF_TASK 
-                                    WHERE [TB_WKF_EXTERNAL_TASK].DOC_NBR=TB_WKF_TASK.DOC_NBR
-                                    AND ISNULL(TB_WKF_TASK.TASK_RESULT,'-1') NOT IN ('0','1','2')
-                                    AND EXTERNAL_FORM_NBR LIKE '%{0}%'
-                                    ORDER BY DOC_NBR DESC
-                                    ", EXTERNAL_FORM_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    return "Y";
+                    command.CommandTimeout = 60;
+                    command.Parameters.AddWithValue("@externalFormNbr", $"%{externalFormNbr}%");
 
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        return reader.HasRows ? "Y" : "N";
+                    }
                 }
-                else
-                {
-                    return "N";
-                }
-
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"查詢文件號碼失敗: {ex.Message}");
                 return "N";
             }
-            finally
-            {
-                sqlConn.Close();
-            }
         }
-        public void ADD_TKPUR_PURTATBCHAGE(string TA001, string TA002, string VERSIONS)
+        public void ADD_TKPUR_PURTATBCHAGE(string ta001, string ta002, string versions)
         {
-            //20210902密
-            Class1 TKID = new Class1();//用new 建立類別實體
-            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+            try
+            {
+                // 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-            //資料庫使用者密碼解密
-            sqlsb.Password = TKID.Decryption(sqlsb.Password);
-            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                // 執行插入
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                {
+                    connection.Open();
 
-            String connectionString;
-            sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-            sqlConn.Close();
-            sqlConn.Open();
-            tran = sqlConn.BeginTransaction();
-
-            sbSql.Clear();
-            //UPDATE TB039='N'
-
-            sbSql.AppendFormat(@" 
-                               INSERT INTO [TKPUR].[dbo].[PURTATBCHAGE]
-                                (
-                                [VERSIONS]
-                                ,[TA001]
-                                ,[TA002]
-                                ,[TA003]
-                                ,[TA006]
-                                ,[TA012]
-                                ,[TB003]
-                                ,[TB004]
-                                ,[TB005]
-                                ,[TB006]
-                                ,[TB007]
-                                ,[TB009]
-                                ,[TB010]
-                                ,[TB011]
-                                ,[TB012]
-                                ,[USER_GUID]
-                                ,[NAME]
-                                ,[GROUP_ID]
-                                ,[TITLE_ID]
-                                ,[MA002]
-                                )
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string query = @"
+                                INSERT INTO [TKPUR].[dbo].[PURTATBCHAGE]
+                                ([VERSIONS],[TA001],[TA002],[TA003],[TA006],[TA012],[TB003],[TB004],
+                                 [TB005],[TB006],[TB007],[TB009],[TB010],[TB011],[TB012],[USER_GUID],
+                                 [NAME],[GROUP_ID],[TITLE_ID],[MA002])
                                 SELECT 
-                                '{0}'[VERSIONS]
-                                ,PURTA.TA001 [TA001]
-                                ,PURTA.TA002 [TA002]
-                                ,PURTA.TA003 [TA003]
-                                ,PURTA.TA006 [TA006]
-                                ,PURTA.TA012 [TA012]
-                                ,PURTB.TB003 [TB003]
-                                ,COPTF.TF004 [TB004]
-                                ,COPTF.TF005 [TB005]
-                                ,COPTF.TF006 [TB006]
-                                ,COPTF.TF010 [TB007]
-                                ,COPTF.TF009 [TB009]
-                                ,PURTB.TB010 [TB010]
-                                ,COPTF.TF015 [TB011]
-                                ,COPTF.TF032 [TB012]
-                                ,[TB_EB_USER].USER_GUID [USER_GUID]
-                                ,[TB_EB_USER].NAME [NAME]
-                                ,[TB_EB_EMPL_DEP].GROUP_ID [GROUP_ID]
-                                ,[TB_EB_EMPL_DEP].TITLE_ID [TITLE_ID]
-                                ,PURMA.MA002 [MA002]
-                                FROM  [TK].dbo.COPTE
-                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] ON [ACCOUNT]=COPTE.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
-                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] ON [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
-                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_GROUP] ON [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID] AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
-                                ,[TK].dbo.COPTF
+                                    @versions [VERSIONS]
+                                    ,PURTA.TA001 [TA001]
+                                    ,PURTA.TA002 [TA002]
+                                    ,PURTA.TA003 [TA003]
+                                    ,PURTA.TA006 [TA006]
+                                    ,PURTA.TA012 [TA012]
+                                    ,PURTB.TB003 [TB003]
+                                    ,COPTF.TF004 [TB004]
+                                    ,COPTF.TF005 [TB005]
+                                    ,COPTF.TF006 [TB006]
+                                    ,COPTF.TF010 [TB007]
+                                    ,COPTF.TF009 [TB009]
+                                    ,PURTB.TB010 [TB010]
+                                    ,COPTF.TF015 [TB011]
+                                    ,COPTF.TF032 [TB012]
+                                    ,[TB_EB_USER].USER_GUID [USER_GUID]
+                                    ,[TB_EB_USER].NAME [NAME]
+                                    ,[TB_EB_EMPL_DEP].GROUP_ID [GROUP_ID]
+                                    ,[TB_EB_EMPL_DEP].TITLE_ID [TITLE_ID]
+                                    ,PURMA.MA002 [MA002]
+                                FROM [TK].dbo.COPTE
+                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_USER] 
+                                    ON [ACCOUNT]=COPTE.CREATOR COLLATE Chinese_Taiwan_Stroke_BIN
+                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_EMPL_DEP] 
+                                    ON [TB_EB_USER].[USER_GUID]=[TB_EB_EMPL_DEP].[USER_GUID]
+                                LEFT JOIN [192.168.1.223].[UOF].[dbo].[TB_EB_GROUP] 
+                                    ON [TB_EB_EMPL_DEP].[GROUP_ID]=[TB_EB_GROUP].[GROUP_ID] 
+                                    AND ISNULL([TB_EB_GROUP].[GROUP_CODE],'')<>''
+                                LEFT JOIN [TK].dbo.COPTF ON 1=1
                                 LEFT JOIN [TK].dbo.PURTB ON TB029=TF001 AND TB030=TF002 AND TB031=TF104
                                 LEFT JOIN [TK].dbo.PURTA ON TA001=TB001 AND TA002=TB002
                                 LEFT JOIN [TK].dbo.PURMA ON MA001=TB010
-                                WHERE 1=1
-                                AND TE001=TF001 AND TE002=TF002
-                                AND TA001='{1}' AND TA002='{2}'
-                                ", VERSIONS, TA001, TA002);
+                                WHERE TE001=TF001 
+                                  AND TE002=TF002
+                                  AND TA001=@ta001 
+                                  AND TA002=@ta002";
 
+                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                            {
+                                command.CommandTimeout = 60;
+                                command.Parameters.AddWithValue("@versions", versions);
+                                command.Parameters.AddWithValue("@ta001", ta001);
+                                command.Parameters.AddWithValue("@ta002", ta002);
 
-            cmd.Connection = sqlConn;
-            cmd.CommandTimeout = 60;
-            cmd.CommandText = sbSql.ToString();
-            cmd.Transaction = tran;
-            result = cmd.ExecuteNonQuery();
+                                int result = command.ExecuteNonQuery();
 
-            if (result == 0)
-            {
-                tran.Rollback();    //交易取消
-
-
+                                if (result > 0)
+                                {
+                                    transaction.Commit();
+                                }
+                                else
+                                {
+                                    transaction.Rollback();
+                                    System.Diagnostics.Debug.WriteLine("無符合條件的記錄可插入");
+                                }
+                            }
+                        }
+                        catch (Exception transEx)
+                        {
+                            transaction.Rollback();
+                            System.Diagnostics.Debug.WriteLine($"事務失敗，已回滾: {transEx.Message}");
+                            throw;
+                        }
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                tran.Commit();      //執行交易  
+                System.Diagnostics.Debug.WriteLine($"新增購買變更記錄失敗: {ex.Message}");
             }
         }
-        public string SERACHlDOC_NBR(string EXTERNAL_FORM_NBR)
+        public string SERACHlDOC_NBR(string externalFormNbr)
         {
-            SqlDataAdapter adapter1 = new SqlDataAdapter();
-            SqlCommandBuilder sqlCmdBuilder1 = new SqlCommandBuilder();
-            DataSet ds1 = new DataSet();
-
             try
             {
-                //20210902密
-                Class1 TKID = new Class1();//用new 建立類別實體
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                // 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
 
-                //資料庫使用者密碼解密
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                // 執行查詢
+                string query = @"
+                    SELECT TOP 1 EXTERNAL_FORM_NBR, DOC_NBR
+                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                    WHERE EXTERNAL_FORM_NBR = @externalFormNbr
+                    ORDER BY DOC_NBR DESC";
 
-                String connectionString;
-                sqlConn = new SqlConnection(sqlsb.ConnectionString);
-
-
-
-                sbSql.Clear();
-                sbSqlQuery.Clear();
-
-                sbSql.AppendFormat(@"  
-                                    SELECT TOP 1 EXTERNAL_FORM_NBR,DOC_NBR
-                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
-                                    WHERE EXTERNAL_FORM_NBR='{0}'
-                                    ORDER BY DOC_NBR DESC
-                                    ", EXTERNAL_FORM_NBR);
-
-
-                adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
-
-                sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-                sqlConn.Open();
-                ds1.Clear();
-                adapter1.Fill(ds1, "ds1");
-                sqlConn.Close();
-
-                if (ds1.Tables["ds1"].Rows.Count >= 1)
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    return ds1.Tables["ds1"].Rows[0]["DOC_NBR"].ToString();
+                    command.CommandTimeout = 60;
+                    command.Parameters.AddWithValue("@externalFormNbr", externalFormNbr);
 
-                }
-                else
-                {
-                    return null;
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return reader["DOC_NBR"]?.ToString() ?? null;
+                        }
+                    }
                 }
 
-            }
-            catch
-            {
                 return null;
             }
-            finally
+            catch (Exception ex)
             {
-                sqlConn.Close();
+                System.Diagnostics.Debug.WriteLine($"查詢外部表單號碼失敗: {ex.Message}");
+                return null;
             }
         }
 
