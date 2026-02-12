@@ -40764,7 +40764,7 @@ namespace TKSCHEDULEUOF
 
         private void button110_Click(object sender, EventArgs e)
         {
-            //ERP成品-新品號通知單
+            1//ERP成品-新品號通知單
             //此表單為研發建立商品品號時
             //通知營銷、業務主管
             //該品號在ERP設定的標準售價、零售價、IP價格、DM價格、通路售價
