@@ -35802,14 +35802,31 @@ namespace TKSCHEDULEUOF
                             FROM [TK].dbo.INVMB WITH(NOLOCK)
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                            AND  EXISTS (
-                                        SELECT 1 
-                                        FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
-                                        INNER JOIN [TK].dbo.BOMMD MD WITH(NOLOCK) ON MC.MC001 = MD.MD001
-                                        WHERE MC.MC001 = INVMB.MB001
-                                    )
-                            AND INVMB.CREATE_DATE LIKE '{0}%';
-                        ", yesterday);
+                            AND INVMB.CREATE_DATE>='20260101'
+                            AND EXISTS (
+                                SELECT 1 
+                                FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
+                                INNER JOIN [TK].dbo.BOMMD MD WITH(NOLOCK) ON MC.MC001 = MD.MD001
+                                WHERE MC.MC001 = INVMB.MB001
+                            )
+                            AND MB001 COLLATE Chinese_Taiwan_Stroke_CI_AS NOT IN
+                            (
+                                SELECT MB001
+                                FROM OPENQUERY([192.168.1.223], '
+                                    SELECT 
+                                        T.DOC_NBR,
+                                        -- 修正 1: 將 XML 轉為 NVARCHAR(MAX) 才能傳回本地端
+                                        CAST(T.CURRENT_DOC AS NVARCHAR(MAX)) AS CURRENT_DOC_TEXT,
+                                        -- 修正 2: 加上路徑開頭的斜線 /
+                                        T.CURRENT_DOC.value(''(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]'', ''nvarchar(50)'') AS MB001
+                                    FROM [UOF].[dbo].[TB_WKF_TASK] T
+                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] V ON V.FORM_VERSION_ID = T.FORM_VERSION_ID
+                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = V.FORM_ID
+                                    WHERE F.FORM_NAME = ''9001.新品號通知單''
+                                    AND T.END_TIME >= DATEADD(MONTH, -6, GETDATE()) 
+                                ')
+                            );
+                        ");
                 string sqlQuery = sbSql.ToString();
 
                 // 3. 使用 using 確保資源釋放
