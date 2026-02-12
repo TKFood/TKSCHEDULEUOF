@@ -35802,7 +35802,12 @@ namespace TKSCHEDULEUOF
                             FROM [TK].dbo.INVMB WITH(NOLOCK)
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                            -- **** 優化：使用參數化查詢來替代字串格式化 ****
+                            AND  EXISTS (
+                                        SELECT 1 
+                                        FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
+                                        INNER JOIN [TK].dbo.BOMMD MD WITH(NOLOCK) ON MC.MC001 = MD.MD001
+                                        WHERE MC.MC001 = INVMB.MB001
+                                    )
                             AND INVMB.CREATE_DATE LIKE '{0}%';
                         ", yesterday);
                 string sqlQuery = sbSql.ToString();
