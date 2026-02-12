@@ -38393,21 +38393,18 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-                //2001.產品開發轉試吃單>1004.無品號試吃製作申請單
-                DataSet ds1 = new DataSet();
-                SqlDataAdapter adapter1;
-                SqlCommandBuilder sqlCmdBuilder1;
+                var ds1 = new DataSet();
+                var tkId = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlsb.Password = tkId.Decryption(sqlsb.Password);
+                sqlsb.UserID = tkId.Decryption(sqlsb.UserID);
 
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
 
-                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                using (var sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                using (var adapter1 = new SqlDataAdapter())
                 {
-                    StringBuilder sbSql = new StringBuilder();
-
-                    sbSql.Append(@" 
+                    var sbSql = new StringBuilder();
+                    sbSql.Append(@"
                                 WITH RankedData AS (
                                     SELECT
                                         DOC_NBR AS 'DOC_NBR'
@@ -38420,9 +38417,6 @@ namespace TKSCHEDULEUOF
                                         ,[TB_EB_USER].USER_GUID AS 'USER_GUID'
                                         ,[TB_EB_EMPL_DEP].GROUP_ID AS 'GROUP_ID'
                                         ,[TB_EB_EMPL_DEP].TITLE_ID AS 'TITLE_ID'
-
-                                        -- 使用 ROW_NUMBER() 依 MA001 分組，並依 BEGIN_TIME 降冪排序 (DESC)，
-                                        -- 最新的一筆資料 (BEGIN_TIME 最大) 會得到 ROWNUM = 1
                                         , ROW_NUMBER() OVER(PARTITION BY CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""MA001""]/@fieldValue)[1]', 'nvarchar(max)') ORDER BY TB_WKF_TASK.BEGIN_TIME DESC) AS ROWNUM
                                     FROM
                                         [UOF].dbo.TB_WKF_TASK
@@ -38431,15 +38425,14 @@ namespace TKSCHEDULEUOF
                                     LEFT JOIN
                                         [UOF].[dbo].[TB_EB_EMPL_DEP] ON[TB_EB_EMPL_DEP].USER_GUID = [TB_EB_USER].USER_GUID AND ORDERS = '0'
                                     JOIN
-                                        [UOF].dbo.TB_WKF_FORM_VERSION ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID-- 修正 JOIN 寫法
+                                        [UOF].dbo.TB_WKF_FORM_VERSION ON TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     JOIN
-                                        [UOF].dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID-- 修正 JOIN 寫法
+                                        [UOF].dbo.TB_WKF_FORM ON TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
                                     WHERE
                                         TB_WKF_FORM.FORM_NAME IN('100A.客戶基本資料表')
                                         AND TASK_RESULT IN('0')
                                         AND TASK_STATUS IN('2')
                                 )
-                                -- 從 CTE 中選取 ROWNUM = 1 的資料，即為 MA001 不重複、且日期最新的記錄
                                 SELECT
                                     DOC_NBR
                                     ,CURRENT_DOC
@@ -38451,96 +38444,73 @@ namespace TKSCHEDULEUOF
                                     ,USER_GUID
                                     ,GROUP_ID
                                     ,TITLE_ID
-	                                ,COPMA.UDF05
+                                    ,COPMA.UDF05
                                 FROM
                                     RankedData
                                 INNER JOIN[192.168.1.105].[TK].dbo.COPMA ON COPMA.MA001 = RankedData.MA001
-                                WHERE 1 = 1
-                                    AND ROWNUM = 1
-
-                                    AND ISNULL(COPMA.UDF05, '')<> DOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
+                                WHERE
+                                    ROWNUM = 1
+                                    AND ISNULL(COPMA.UDF05, '') <> DOC_NBR COLLATE Chinese_Taiwan_Stroke_CI_AS
                                 ORDER BY
-                                    MA001,BEGIN_TIME DESC; --最後再依日期降冪排序輸出結果
-
-
+                                    MA001,BEGIN_TIME DESC;
                             ");
 
-                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
-                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
-
+                    adapter1.SelectCommand = new SqlCommand(sbSql.ToString(), sqlConn);
                     sqlConn.Open();
-                    ds1.Clear();
                     adapter1.Fill(ds1, "ds1");
-                    sqlConn.Close();
-
                 }
 
-                //ds1有資料要轉
-                if (ds1 != null && ds1.Tables["ds1"].Rows.Count >= 1)
-                {
-                    return ds1.Tables["ds1"];
-                }
-                else
-                {
-                    return null;
-                }
+                return ds1.Tables["ds1"]?.Rows.Count > 0 ? ds1.Tables["ds1"] : null;
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error in FIND_UOF_100A_COPMA: {ex.Message}");
                 return null;
-            }
-            finally
-            {
-
             }
         }
 
         public void UPDATE_ERP_COPMA_UDF05(DataTable DT)
         {
-            StringBuilder SQL_EXE = new StringBuilder();
-            if(DT!=null && DT.Rows.Count>=1)
+            if (DT == null || DT.Rows.Count == 0)
+                return;
+
+            try
             {
-                foreach(DataRow DR in DT.Rows)
+                var tkId = new Class1();
+                var sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlsb.Password = tkId.Decryption(sqlsb.Password);
+                sqlsb.UserID = tkId.Decryption(sqlsb.UserID);
+
+                using (var connection = new SqlConnection(sqlsb.ConnectionString))
+                using (var transaction = connection.BeginTransaction())
                 {
-                    string MA001 = DR["MA001"].ToString();
-                    string UDF05 = DR["DOC_NBR"].ToString();
+                    connection.Open();
 
-                    SQL_EXE.AppendFormat(@"
-                                            UPDATE [TK].dbo.COPMA 
-                                            SET UDF05='{1}'
-                                            WHERE MA001='{0}'
-                                            ", MA001, UDF05);
-                }
-                // 連線字串處理與解密
-                Class1 TKID = new Class1();
-                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
-
-                sqlsb.Password = TKID.Decryption(sqlsb.Password);
-                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
-                string connectionString = sqlsb.ConnectionString;
-
-                // SQL 查詢字符串
-                StringBuilder queryString = new StringBuilder();
-                queryString = SQL_EXE;
-
-                try
-                {
-                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    foreach (DataRow row in DT.Rows)
                     {
-                        using (SqlCommand command = new SqlCommand(queryString.ToString(), connection))
+                        var ma001 = row["MA001"]?.ToString();
+                        var docNbr = row["DOC_NBR"]?.ToString();
+
+                        if (string.IsNullOrWhiteSpace(ma001) || string.IsNullOrWhiteSpace(docNbr))
+                            continue;
+
+                        using (var command = new SqlCommand(
+                            "UPDATE [TK].dbo.COPMA SET UDF05 = @UDF05 WHERE MA001 = @MA001",
+                            connection,
+                            transaction))
                         {
-                            // 參數化
-                            //command.Parameters.Add("@TC001", SqlDbType.NVarChar).Value = TC001;
-                       
-                            connection.Open();
+                            command.Parameters.AddWithValue("@MA001", ma001);
+                            command.Parameters.AddWithValue("@UDF05", docNbr);
                             command.ExecuteNonQuery();
                         }
                     }
+
+                    transaction.Commit();
                 }
-                catch (Exception EX)
-                {
-                    // 異常處理
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in UPDATE_ERP_COPMA_UDF05: {ex.Message}");
             }
         }
 
@@ -40843,7 +40813,6 @@ namespace TKSCHEDULEUOF
         }
         private void button117_Click(object sender, EventArgs e)
         {
-            //更新ERP的COMPA的UDF05
             //更新ERP的COMPA的UDF05
             //100A.客戶基本資料表
 
