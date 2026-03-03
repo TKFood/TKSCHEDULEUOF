@@ -39780,20 +39780,24 @@ namespace TKSCHEDULEUOF
 
                 // 執行更新
                 string query = @"
-                    UPDATE T
-                    SET T.[NUMS] = ISNULL(SubQuery.TotalNums, 0)
-                    FROM [TKPUR].[dbo].[TBPURGOODS] AS T
-                    INNER JOIN (
-                        SELECT LA001, SUM(LA005 * LA011) AS TotalNums
-                        FROM [TK].dbo.INVLA
-                        WHERE LA001 IN (
-                            SELECT [MB001] 
-                            FROM [TKPUR].[dbo].[TBPURGOODS] 
-                            WHERE ISNULL([MB001],'') <> ''
-                        )
-                        GROUP BY LA001
-                    ) AS SubQuery ON T.[MB001] = SubQuery.LA001
-                    WHERE ISNULL(T.[MB001], '') <> ''";
+                                UPDATE T
+                                SET T.[NUMS] = ISNULL(SubQuery.TotalNums, 0)
+                                FROM [TKPUR].[dbo].[TBPURGOODS] AS T
+                                INNER JOIN (
+                                    SELECT 
+                                        LA001, 
+                                        -- 先加總，然後轉換為 INT (會直接去小數點，若需四捨五入可加 ROUND)
+                                        CAST(SUM(LA005 * LA011) AS INT) AS TotalNums
+                                    FROM [TK].dbo.INVLA WITH(NOLOCK)
+                                    WHERE LA001 IN (
+                                        SELECT [MB001] 
+                                        FROM [TKPUR].[dbo].[TBPURGOODS] 
+                                        WHERE ISNULL([MB001],'') <> ''
+                                    )
+                                    GROUP BY LA001
+                                ) AS SubQuery ON T.[MB001] = SubQuery.LA001
+                                WHERE ISNULL(T.[MB001], '') <> ''
+                                ";
 
                 using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
                 {
