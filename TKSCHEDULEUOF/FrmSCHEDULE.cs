@@ -38555,7 +38555,7 @@ namespace TKSCHEDULEUOF
                                     FROM [TKRESEARCH].[dbo].[TB_ORIENTS_CHECKLISTS]
                                     WHERE ISNULL(MB001, '') <> ''
                                 )
-                            ORDER BY INVMB.MB001;"";
+                            ORDER BY INVMB.MB001
                     ";
                 using (var connection = new SqlConnection(sqlsb.ConnectionString))
                 using (var command = new SqlCommand(GetInsertOrientChecklistsQuery, connection))
