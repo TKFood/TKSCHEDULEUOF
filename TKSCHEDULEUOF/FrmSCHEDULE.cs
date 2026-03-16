@@ -37904,7 +37904,7 @@ namespace TKSCHEDULEUOF
                                 )
                                 SELECT *
                                 FROM TEMP
-                                WHERE DOC_NBR NOT IN (
+                                WHERE DOC_NBR  NOT IN (
                                     SELECT DV12
                                     FROM (
                                         SELECT [CURRENT_DOC].value('(/Form/FormFieldValue/FieldItem[@fieldId=""DV12""]/@fieldValue)[1]', 'NVARCHAR(1000)') AS DV12
@@ -37926,7 +37926,7 @@ namespace TKSCHEDULEUOF
                                     WHERE ISNULL(DV12, '') <> ''
                                 )
                                 AND DOC_NBR >= 'NEWDESIGN251100018'
-                                AND FIELD42 IN('1004.無品號試吃製作申請單')";
+                                AND FIELD42 IN('1004.無品號試吃製作申請單') ";
 
                 DataSet formData = new DataSet();
 
@@ -37960,6 +37960,8 @@ namespace TKSCHEDULEUOF
                             DV10: "",
                             DV11: "",
                             DV12: row["DOC_NBR"]?.ToString() ?? "",
+                            DV13: "一般",
+                            DV14: "",
                             DVV01: row["FIELD3"]?.ToString() ?? "",
                             DVV02: "others",
                             DVV03: "",
@@ -37993,6 +37995,8 @@ namespace TKSCHEDULEUOF
             string DV10,
             string DV11,
             string DV12,
+            string DV13,
+            string DV14,
             string DVV01,
             string DVV02,
             string DVV03,
@@ -38060,6 +38064,8 @@ namespace TKSCHEDULEUOF
             AddFieldItem(xmlDoc, FormFieldValue, "DV07", DV07, fillerName, fillerUserGuid, account, "", "@null");
             AddFieldItem(xmlDoc, FormFieldValue, "DV08", DV08, fillerName, fillerUserGuid, account, "", "@null");
             AddFieldItem(xmlDoc, FormFieldValue, "DV12", DV12, fillerName, fillerUserGuid, account, "", "");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV13", "一般", fillerName, fillerUserGuid, account, "", "@null");
+            AddFieldItem(xmlDoc, FormFieldValue, "DV14", "", fillerName, fillerUserGuid, account, "", "");
 
             //建立userset
             var xElement = new XElement(
