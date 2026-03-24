@@ -36729,7 +36729,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
-                                    
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD47""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD47'
 
                                    , TB_WKF_FORM.FORM_NAME
                                     , [TB_EB_USER].NAME AS 'NAME'
@@ -36751,12 +36751,13 @@ namespace TKSCHEDULEUOF
                                     AND DOC_NBR>='NEWDESIGN251100001'
                                     AND DOC_NBR NOT IN 
                                     (
-	                                    SELECT EXTERNAL_FORM_NBR	                                    
-	                                    FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
-	                                    WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
-	                                    AND EXTERNAL_FORM_NBR LIKE '%NEWDESIGN%'	
-	                                    AND DOC_NBR  LIKE '%NEWDESIGN%'								
+                                        SELECT EXTERNAL_FORM_NBR	                                    
+                                        FROM [UOF].[dbo].[TB_WKF_EXTERNAL_TASK]
+                                        WHERE ISNULL(EXTERNAL_FORM_NBR,'')<>''
+                                        AND EXTERNAL_FORM_NBR LIKE '%NEWDESIGN%'	
+                                        AND DOC_NBR  LIKE '%NEWDESIGN%'								
                                     )
+                                   
                                     ");
 
                 adapter1 = new SqlDataAdapter(@"" + sbSql, sqlConn);
@@ -36863,7 +36864,7 @@ namespace TKSCHEDULEUOF
             string[] fieldIds = { "FIELD2", "FIELD3", "FIELD4", "FIELD5", "FIELD6", "FIELD7", "FIELD9",
                           "FIELD10", "FIELD12", "FIELD14", "FIELD20", "FIELD21", "FIELD23",
                           "FIELD26", "FIELD27", "FIELD30", "FIELD33", "FIELD34", "FIELD35",
-                          "FIELD36", "FIELD37", "FIELD38", "FIELD39", "FIELD40" };
+                          "FIELD36", "FIELD37", "FIELD38", "FIELD39", "FIELD40", "FIELD47" };
 
             foreach (string fieldId in fieldIds)
             {
@@ -36959,6 +36960,7 @@ namespace TKSCHEDULEUOF
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD39""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD39'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD40""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD40'
                                     , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD41""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD41'
+                                    , CURRENT_DOC.value('(Form/FormFieldValue/FieldItem[@fieldId=""FIELD47""]/@fieldValue)[1]', 'nvarchar(max)') AS 'FIELD47'
 
                                    , TB_WKF_FORM.FORM_NAME
                                     , [TB_EB_USER].NAME AS 'NAME'
@@ -36974,9 +36976,7 @@ namespace TKSCHEDULEUOF
                                     WHERE 1 = 1
                                     AND TB_WKF_TASK.FORM_VERSION_ID = TB_WKF_FORM_VERSION.FORM_VERSION_ID
                                     AND TB_WKF_FORM.FORM_ID = TB_WKF_FORM_VERSION.FORM_ID
-                                    AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')
-                                    AND TASK_RESULT IN ('0')
-                                    AND TASK_STATUS IN ('2')                             
+                                    AND TB_WKF_FORM.FORM_NAME IN('2001.產品開發+包裝設計申請單')                                                               
                                     AND DOC_NBR='{0}'
                                     ", DOC_NBR);
 
