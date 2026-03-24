@@ -39787,22 +39787,27 @@ namespace TKSCHEDULEUOF
                 // 執行更新
                 string query = @"
                                 UPDATE T
-                                SET T.[NUMS] = ISNULL(SubQuery.TotalNums, 0)
+                                SET 
+                                    -- 1. 更新數量：有品號才更新，沒品號保持原狀
+                                    T.[NUMS] = CASE 
+                                                WHEN ISNULL(T.[MB001], '') <> '' THEN ISNULL(SubQuery.TotalNums, 0) 
+                                                ELSE T.[NUMS] 
+                                               END,
+    
+                                    -- 2. 更新金額：強制轉換 nvarchar 為 decimal 再運算
+                                    T.[MONEYS] = CASE 
+                                                    WHEN ISNULL(T.[MB001], '') <> '' 
+                                                    THEN CAST(ISNULL(SubQuery.TotalNums, 0) * CAST(ISNULL(T.[PRICES], '0') AS DECIMAL(16,2)) AS DECIMAL(16, 2))
+                                                    ELSE CAST(CAST(ISNULL(T.[NUMS], '0') AS DECIMAL(16,2)) * CAST(ISNULL(T.[PRICES], '0') AS DECIMAL(16,2)) AS DECIMAL(16, 2))
+                                                 END
                                 FROM [TKPUR].[dbo].[TBPURGOODS] AS T
-                                INNER JOIN (
+                                LEFT JOIN (
                                     SELECT 
                                         LA001, 
-                                        -- 先加總，然後轉換為 INT (會直接去小數點，若需四捨五入可加 ROUND)
-                                        CAST(SUM(LA005 * LA011) AS INT) AS TotalNums
+                                        CAST(SUM(LA011 * LA005) AS INT) AS TotalNums
                                     FROM [TK].dbo.INVLA WITH(NOLOCK)
-                                    WHERE LA001 IN (
-                                        SELECT [MB001] 
-                                        FROM [TKPUR].[dbo].[TBPURGOODS] 
-                                        WHERE ISNULL([MB001],'') <> ''
-                                    )
                                     GROUP BY LA001
-                                ) AS SubQuery ON T.[MB001] = SubQuery.LA001
-                                WHERE ISNULL(T.[MB001], '') <> ''
+                                ) AS SubQuery ON T.[MB001] = SubQuery.LA001;
                                 ";
 
                 using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
