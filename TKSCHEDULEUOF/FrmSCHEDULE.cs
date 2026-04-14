@@ -36268,18 +36268,18 @@ namespace TKSCHEDULEUOF
                 rowElement.SetAttribute("order", rowCount.ToString());
 
                 // ------- 使用 AppendCellToRow 添加網格數據 -------
-                AppendCellToRow(xmlDoc, rowElement, row, "TL005");  // 變更日期
-                AppendCellToRow(xmlDoc, rowElement, row, "TL001");  // 品號
-                AppendCellToRow(xmlDoc, rowElement, row, "TL007");  // 新品名
-                AppendCellToRow(xmlDoc, rowElement, row, "TL008");  // 新規格
-                AppendCellToRow(xmlDoc, rowElement, row, "TL002");  // 舊品名
-                AppendCellToRow(xmlDoc, rowElement, row, "TL003");  // 舊規格
-                AppendCellToRow(xmlDoc, rowElement, row, "TM005");  // 欄位名稱
-                AppendCellToRow(xmlDoc, rowElement, row, "TM006");  // 新值
-                AppendCellToRow(xmlDoc, rowElement, row, "TM007");  // 舊值
-                AppendCellToRow(xmlDoc, rowElement, row, "TL010");  // 單頭備註
-                AppendCellToRow(xmlDoc, rowElement, row, "TM012");  // 單身備註
-                AppendCellToRow(xmlDoc, rowElement, row, "TL004");  // 變更版次
+                AppendCellToRow(xmlDoc, rowElement, row, "變更日期");  // 變更日期
+                AppendCellToRow(xmlDoc, rowElement, row, "品號");  // 品號
+                AppendCellToRow(xmlDoc, rowElement, row, "新品名");  // 新品名
+                AppendCellToRow(xmlDoc, rowElement, row, "新規格");  // 新規格
+                AppendCellToRow(xmlDoc, rowElement, row, "舊品名");  // 舊品名
+                AppendCellToRow(xmlDoc, rowElement, row, "舊規格");  // 舊規格
+                AppendCellToRow(xmlDoc, rowElement, row, "欄位名稱");  // 欄位名稱
+                AppendCellToRow(xmlDoc, rowElement, row, "新值");  // 新值
+                AppendCellToRow(xmlDoc, rowElement, row, "舊值");  // 舊值
+                AppendCellToRow(xmlDoc, rowElement, row, "單頭備註");  // 單頭備註
+                AppendCellToRow(xmlDoc, rowElement, row, "單身備註");  // 單身備註
+                AppendCellToRow(xmlDoc, rowElement, row, "變更版次");  // 變更版次
 
                 rowCount++;
                 XmlNode gridNode = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
