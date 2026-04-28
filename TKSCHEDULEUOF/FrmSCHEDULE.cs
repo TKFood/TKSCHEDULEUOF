@@ -36120,6 +36120,7 @@ namespace TKSCHEDULEUOF
         public void ADD_ERP_INVMB_TO_UOF_9002()
         {
             string YEATERDAY = DateTime.Now.AddDays(-1).ToString("yyyyMMdd");
+            //YEATERDAY = "20260427";
             try
             {
                 //connectionString = ConfigurationManager.ConnectionStrings["dberp22"].ConnectionString;
@@ -36268,18 +36269,32 @@ namespace TKSCHEDULEUOF
                 rowElement.SetAttribute("order", rowCount.ToString());
 
                 // ------- 使用 AppendCellToRow 添加網格數據 -------
-                AppendCellToRow(xmlDoc, rowElement, row, "變更日期");  // 變更日期
-                AppendCellToRow(xmlDoc, rowElement, row, "品號");  // 品號
-                AppendCellToRow(xmlDoc, rowElement, row, "新品名");  // 新品名
-                AppendCellToRow(xmlDoc, rowElement, row, "新規格");  // 新規格
-                AppendCellToRow(xmlDoc, rowElement, row, "舊品名");  // 舊品名
-                AppendCellToRow(xmlDoc, rowElement, row, "舊規格");  // 舊規格
-                AppendCellToRow(xmlDoc, rowElement, row, "欄位名稱");  // 欄位名稱
-                AppendCellToRow(xmlDoc, rowElement, row, "新值");  // 新值
-                AppendCellToRow(xmlDoc, rowElement, row, "舊值");  // 舊值
-                AppendCellToRow(xmlDoc, rowElement, row, "單頭備註");  // 單頭備註
-                AppendCellToRow(xmlDoc, rowElement, row, "單身備註");  // 單身備註
-                AppendCellToRow(xmlDoc, rowElement, row, "變更版次");  // 變更版次
+                //AppendCellToRow(xmlDoc, rowElement, row, "變更日期");  // 變更日期
+                //AppendCellToRow(xmlDoc, rowElement, row, "品號");  // 品號
+                //AppendCellToRow(xmlDoc, rowElement, row, "新品名");  // 新品名
+                //AppendCellToRow(xmlDoc, rowElement, row, "新規格");  // 新規格
+                //AppendCellToRow(xmlDoc, rowElement, row, "舊品名");  // 舊品名
+                //AppendCellToRow(xmlDoc, rowElement, row, "舊規格");  // 舊規格
+                //AppendCellToRow(xmlDoc, rowElement, row, "欄位名稱");  // 欄位名稱
+                //AppendCellToRow(xmlDoc, rowElement, row, "新值");  // 新值
+                //AppendCellToRow(xmlDoc, rowElement, row, "舊值");  // 舊值
+                //AppendCellToRow(xmlDoc, rowElement, row, "單頭備註");  // 單頭備註
+                //AppendCellToRow(xmlDoc, rowElement, row, "單身備註");  // 單身備註
+                //AppendCellToRow(xmlDoc, rowElement, row, "變更版次");  // 變更版次
+
+                AppendCellToRow_string(xmlDoc, rowElement, row["變更日期"].ToString().Trim(), "TL005");
+                AppendCellToRow_string(xmlDoc, rowElement, row["品號"].ToString().Trim(), "TL001");
+                AppendCellToRow_string(xmlDoc, rowElement, row["新品名"].ToString().Trim(), "TL007");
+                AppendCellToRow_string(xmlDoc, rowElement, row["新規格"].ToString().Trim(), "TL008");
+                AppendCellToRow_string(xmlDoc, rowElement, row["舊品名"].ToString().Trim(), "TL002");
+                AppendCellToRow_string(xmlDoc, rowElement, row["舊規格"].ToString().Trim(), "TL003");
+                AppendCellToRow_string(xmlDoc, rowElement, row["欄位名稱"].ToString().Trim(), "TM005");
+                AppendCellToRow_string(xmlDoc, rowElement, row["新值"].ToString().Trim(), "TM006");
+                AppendCellToRow_string(xmlDoc, rowElement, row["舊值"].ToString().Trim(), "TM007");
+                AppendCellToRow_string(xmlDoc, rowElement, row["單頭備註"].ToString().Trim(), "TL010");
+                AppendCellToRow_string(xmlDoc, rowElement, row["單身備註"].ToString().Trim(), "TM012");
+                AppendCellToRow_string(xmlDoc, rowElement, row["變更版次"].ToString().Trim(), "TL004");
+
 
                 rowCount++;
                 XmlNode gridNode = xmlDoc.SelectSingleNode("./Form/FormFieldValue/FieldItem[@fieldId='DETAILS']/DataGrid");
