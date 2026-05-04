@@ -35823,7 +35823,7 @@ namespace TKSCHEDULEUOF
                                     INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] V ON V.FORM_VERSION_ID = T.FORM_VERSION_ID
                                     INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = V.FORM_ID
                                     WHERE F.FORM_NAME = ''9001.新品號通知單''
-                                    AND T.END_TIME >= DATEADD(MONTH, -6, GETDATE()) 
+                                    AND T.BEGIN_TIME >= DATEADD(MONTH, -30, GETDATE()) 
                                 ')
                             );
                         ");
