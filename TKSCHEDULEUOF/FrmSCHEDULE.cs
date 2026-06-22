@@ -39864,6 +39864,66 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void UPDATE_TK_BOMMD()
+        {
+            try
+            {
+                // 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbconn"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
+
+                // 執行更新
+                string query = @"
+                                UPDATE [TK].dbo.BOMMD
+                                SET MD035=MB002
+                                FROM [TK].dbo.BOMMD,[TK].dbo.INVMB
+                                WHERE MD003=MB001
+                                AND MD035<>MB002
+                                AND (MD003 LIKE '2%' OR MD003 LIKE '1%')
+                                ";
+
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                {
+                    connection.Open();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                            {
+                                command.CommandTimeout = 60;
+                                int result = command.ExecuteNonQuery();
+
+                                if (result > 0)
+                                {
+                                    transaction.Commit();
+                                }
+                                else
+                                {
+                                    transaction.Rollback();
+                                    //System.Diagnostics.Debug.WriteLine("無符合條件的記錄可更新");
+                                }
+                            }
+                        }
+                        catch (Exception transEx)
+                        {
+                            transaction.Rollback();
+                            System.Diagnostics.Debug.WriteLine($"事務失敗，已回滾: {transEx.Message}");
+                            throw;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"失敗: {ex.Message}");
+            }
+        }
+
         #endregion
 
         #region BUTTON
@@ -40838,6 +40898,14 @@ namespace TKSCHEDULEUOF
 
             MessageBox.Show("OK");
         }
+        private void button122_Click(object sender, EventArgs e)
+        {
+            //更新 - BOM品名
+            UPDATE_TK_BOMMD();
+
+            MessageBox.Show("OK");
+        }
+
         #endregion
 
 

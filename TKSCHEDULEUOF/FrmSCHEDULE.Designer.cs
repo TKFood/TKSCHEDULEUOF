@@ -158,13 +158,14 @@
             this.button118 = new System.Windows.Forms.Button();
             this.button119 = new System.Windows.Forms.Button();
             this.button120 = new System.Windows.Forms.Button();
+            this.button121 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
-            this.button121 = new System.Windows.Forms.Button();
+            this.button122 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1215,6 +1216,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button119, 1, 14);
             this.tableLayoutPanel3.Controls.Add(this.button120, 1, 15);
             this.tableLayoutPanel3.Controls.Add(this.button121, 2, 12);
+            this.tableLayoutPanel3.Controls.Add(this.button122, 2, 13);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1243,7 +1245,7 @@
             // 
             this.button67.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel3.SetColumnSpan(this.button67, 2);
-            this.button67.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button67.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.button67.ForeColor = System.Drawing.Color.Blue;
             this.button67.Location = new System.Drawing.Point(3, 3);
             this.button67.Name = "button67";
@@ -1257,7 +1259,7 @@
             // 
             this.button99.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel3.SetColumnSpan(this.button99, 2);
-            this.button99.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.button99.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.button99.ForeColor = System.Drawing.Color.Blue;
             this.button99.Location = new System.Drawing.Point(3, 43);
             this.button99.Name = "button99";
@@ -1755,6 +1757,17 @@
             this.button120.UseVisualStyleBackColor = true;
             this.button120.Click += new System.EventHandler(this.button120_Click);
             // 
+            // button121
+            // 
+            this.button121.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button121.Location = new System.Drawing.Point(323, 483);
+            this.button121.Name = "button121";
+            this.button121.Size = new System.Drawing.Size(154, 34);
+            this.button121.TabIndex = 110;
+            this.button121.Text = "更新-外購品物料庫存";
+            this.button121.UseVisualStyleBackColor = true;
+            this.button121.Click += new System.EventHandler(this.button121_Click);
+            // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
@@ -1779,16 +1792,16 @@
             // 
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
-            // button121
+            // button122
             // 
-            this.button121.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.button121.Location = new System.Drawing.Point(323, 483);
-            this.button121.Name = "button121";
-            this.button121.Size = new System.Drawing.Size(154, 34);
-            this.button121.TabIndex = 110;
-            this.button121.Text = "更新-外購品物料庫存";
-            this.button121.UseVisualStyleBackColor = true;
-            this.button121.Click += new System.EventHandler(this.button121_Click);
+            this.button122.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button122.Location = new System.Drawing.Point(323, 523);
+            this.button122.Name = "button122";
+            this.button122.Size = new System.Drawing.Size(154, 34);
+            this.button122.TabIndex = 111;
+            this.button122.Text = "更新-BOM品名";
+            this.button122.UseVisualStyleBackColor = true;
+            this.button122.Click += new System.EventHandler(this.button122_Click);
             // 
             // FrmSCHEDULE
             // 
@@ -1796,7 +1809,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 702);
             this.Controls.Add(this.tabControl1);
-            this.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.Font = new System.Drawing.Font("PMingLiU", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrmSCHEDULE";
             this.Text = "FrmSCHEDULE";
@@ -1951,5 +1964,6 @@
         private System.Windows.Forms.Button button119;
         private System.Windows.Forms.Button button120;
         private System.Windows.Forms.Button button121;
+        private System.Windows.Forms.Button button122;
     }
 }
