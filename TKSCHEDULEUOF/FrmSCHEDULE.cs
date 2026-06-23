@@ -562,6 +562,12 @@ namespace TKSCHEDULEUOF
                 catch { }
                 try
                 {
+                    //更新 - BOM品名
+                    UPDATE_TK_BOMMD();
+                }
+                catch { }
+                try
+                {
                     //更新-外購品物料庫存
                     UPDATE_TKPUR_TBPURGOODS();
                 }
