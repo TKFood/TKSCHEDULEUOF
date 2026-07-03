@@ -35775,6 +35775,7 @@ namespace TKSCHEDULEUOF
                 string connectionString = sqlsb.ConnectionString;
 
                 // 2. SQL 查詢字串
+                //AND INVMB.CREATE_DATE = CONVERT(NVARCHAR(8), DATEADD(DAY, -1, GETDATE()), 112)
                 sbSql.Clear();
                 sbSql.AppendFormat(@"
                             SELECT 
@@ -35808,7 +35809,8 @@ namespace TKSCHEDULEUOF
                             FROM [TK].dbo.INVMB WITH(NOLOCK)
                             LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
                             WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                            AND INVMB.CREATE_DATE>='20260101'
+                            AND INVMB.CREATE_DATE = CONVERT(NVARCHAR(8), DATEADD(DAY, -1, GETDATE()), 112)
+
                             AND EXISTS (
                                 SELECT 1 
                                 FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
