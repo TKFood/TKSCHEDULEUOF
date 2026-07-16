@@ -39932,6 +39932,192 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_MARKING_PLAN_PUR()
+        {
+            //檢查是否有行企的請購單要轉到行企的採購單
+            DataTable DT = SEARCH_UOF_MARKING_PLAN_PUR();
+
+            if(DT!=null && DT.Rows.Count>=1)
+            {
+                NEW_UOF_MARKING_PLAN_PUR(DT);
+            }
+
+        }
+
+        public DataTable SEARCH_UOF_MARKING_PLAN_PUR()
+        {
+            DataSet ds1 = new DataSet();
+            SqlDataAdapter adapter1;
+            SqlCommandBuilder sqlCmdBuilder1;
+
+            try
+            {
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.Append(@"
+                                WITH GAData AS
+                                (
+                                    SELECT
+                                        T.DOC_NBR,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+                                        T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
+                                    FROM [UOF].dbo.TB_WKF_TASK T
+                                )
+
+                                SELECT 
+                                    T.DOC_NBR, T.CURRENT_DOC,
+                                    GA.GA001, GA.GA002, GA.GA003, GA.GA004, GA.GA005,
+                                    GA.GA006, GA.GA007, GA.GA008, GA.GA009, GA.GA010,    
+                                    T.TASK_RESULT, F.FORM_NAME, U.NAME, U.ACCOUNT, U.USER_GUID,
+                                    DEP.GROUP_ID, DEP.TITLE_ID
+                                FROM [UOF].dbo.TB_WKF_TASK T
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                INNER JOIN [UOF].dbo.TB_WKF_FORM F ON F.FORM_ID = FV.FORM_ID
+                                LEFT JOIN [UOF].dbo.TB_EB_USER U ON U.USER_GUID = T.USER_GUID
+                                LEFT JOIN [UOF].dbo.TB_EB_EMPL_DEP DEP ON DEP.USER_GUID = U.USER_GUID AND DEP.ORDERS = '0'
+                                LEFT JOIN GAData GA ON GA.DOC_NBR = T.DOC_NBR
+                                WHERE 
+                                    T.DOC_NBR >= 'GA1050260700001'
+                                    AND F.FORM_NAME = '1050 行企廣告請購單'
+                                    AND T.TASK_RESULT = '0'                                   
+                                    AND NOT EXISTS (
+                                        SELECT 1
+                                        FROM [UOF].dbo.TB_WKF_EXTERNAL_TASK EXT
+                                        WHERE EXT.EXTERNAL_FORM_NBR = T.DOC_NBR
+                                        AND STATUS IN ('1', '2')
+                                        AND ISNULL(EXTERNAL_FORM_NBR, '') <> ''
+                                    )
+                                ORDER BY T.DOC_NBR
+                            ");
+
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SEARCH_UOF_MARKING_PLAN_PUR 發生錯誤: " + ex.Message);
+                return null;
+            }
+
+            return ds1.Tables["ds1"].Rows.Count > 0 ? ds1.Tables["ds1"] : null;
+        }
+
+        public DataTable SEARCH_UOF_MARKING_PLAN_PUR_DETAILS(string DOC_NBR)
+        {
+            DataSet ds1 = new DataSet();
+            SqlDataAdapter adapter1;
+            SqlCommandBuilder sqlCmdBuilder1;
+
+            try
+            {
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+                using (SqlConnection sqlConn = new SqlConnection(sqlsb.ConnectionString))
+                {
+                    StringBuilder sbSql = new StringBuilder();
+
+                    sbSql.AppendFormat(@"
+                                        WITH GGData AS
+                                        (
+                                            SELECT
+                                                T.DOC_NBR,
+                                                RowNode.value('(Cell[@fieldId=""GG002""]/@fieldValue)[1]', 'nvarchar(200)') AS GG002,
+                                                LTRIM(RTRIM(RowNode.value('(Cell[@fieldId=""GG010""]/@fieldValue)[1]', 'nvarchar(200)'))) AS GG010,
+                                                RowNode.value('(Cell[@fieldId=""GG003""]/@fieldValue)[1]', 'nvarchar(200)') AS GG003,
+                                                RowNode.value('(Cell[@fieldId=""GG004""]/@fieldValue)[1]', 'nvarchar(200)') AS GG004,
+                                                RowNode.value('(Cell[@fieldId=""GG005""]/@fieldValue)[1]', 'nvarchar(200)') AS GG005,
+                                                RowNode.value('(Cell[@fieldId=""GG009""]/@fieldValue)[1]', 'nvarchar(200)') AS GG009,
+                                                RowNode.value('(Cell[@fieldId=""GG006""]/@fieldValue)[1]', 'nvarchar(200)') AS GG006,
+                                                RowNode.value('(Cell[@fieldId=""GG007""]/@fieldValue)[1]', 'nvarchar(200)') AS GG007,
+                                                RowNode.value('(Cell[@fieldId=""GG008""]/@fieldValue)[1]', 'nvarchar(200)') AS GG008
+        
+                                            FROM [UOF].dbo.TB_WKF_TASK T
+                                            CROSS APPLY T.CURRENT_DOC.nodes('/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/DataGrid/Row') AS R(RowNode)
+                                        ),
+                                        GAData AS
+                                        (
+                                            SELECT
+                                                T.DOC_NBR,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA001""]/@fieldValue)[1]', 'nvarchar(200)') AS GA001,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA002""]/@fieldValue)[1]', 'nvarchar(200)') AS GA002,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA003""]/@fieldValue)[1]', 'nvarchar(200)') AS GA003,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA004""]/@fieldValue)[1]', 'nvarchar(200)') AS GA004,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA005""]/@fieldValue)[1]', 'nvarchar(200)') AS GA005,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA006""]/@fieldValue)[1]', 'nvarchar(200)') AS GA006,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA007""]/@fieldValue)[1]', 'nvarchar(200)') AS GA007,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA008""]/@fieldValue)[1]', 'nvarchar(200)') AS GA008,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA009""]/@fieldValue)[1]', 'nvarchar(200)') AS GA009,
+                                                T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""GA010""]/@fieldValue)[1]', 'nvarchar(200)') AS GA010
+                                            FROM [UOF].dbo.TB_WKF_TASK T
+                                        )
+
+                                        SELECT 
+                                            T.DOC_NBR, T.CURRENT_DOC,
+                                            GA.GA001, GA.GA002, GA.GA003, GA.GA004, GA.GA005,
+                                            GA.GA006, GA.GA007, GA.GA008, GA.GA009, GA.GA010,
+                                            GG.GG002, GG.GG010, GG.GG003, GG.GG004, GG.GG005,
+                                            GG.GG009, GG.GG006, GG.GG007, GG.GG008,
+                                            T.TASK_RESULT, F.FORM_NAME, U.NAME, U.ACCOUNT, U.USER_GUID,
+                                            DEP.GROUP_ID, DEP.TITLE_ID
+                                        FROM [UOF].dbo.TB_WKF_TASK T
+                                        INNER JOIN [UOF].dbo.TB_WKF_FORM_VERSION FV ON T.FORM_VERSION_ID = FV.FORM_VERSION_ID
+                                        INNER JOIN [UOF].dbo.TB_WKF_FORM F ON F.FORM_ID = FV.FORM_ID
+                                        LEFT JOIN [UOF].dbo.TB_EB_USER U ON U.USER_GUID = T.USER_GUID
+                                        LEFT JOIN [UOF].dbo.TB_EB_EMPL_DEP DEP ON DEP.USER_GUID = U.USER_GUID AND DEP.ORDERS = '0'
+                                        LEFT JOIN GGData GG ON GG.DOC_NBR = T.DOC_NBR
+                                        LEFT JOIN GAData GA ON GA.DOC_NBR = T.DOC_NBR
+                                        WHERE F.FORM_NAME = '1050 行企廣告請購單'  
+                                        AND  T.DOC_NBR = '{0}'       
+                                        ORDER BY T.DOC_NBR
+                            ", DOC_NBR);
+
+                    adapter1 = new SqlDataAdapter(sbSql.ToString(), sqlConn);
+                    sqlCmdBuilder1 = new SqlCommandBuilder(adapter1);
+
+                    sqlConn.Open();
+                    ds1.Clear();
+                    adapter1.Fill(ds1, "ds1");
+                    sqlConn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("SEARCH_UOF_MARKING_PLAN_PUR_DETAILS 發生錯誤: " + ex.Message);
+                return null;
+            }
+
+            return ds1.Tables["ds1"].Rows.Count > 0 ? ds1.Tables["ds1"] : null;
+        }
+
+        public void NEW_UOF_MARKING_PLAN_PUR(DataTable DT)
+        {
+
+        }
+
         #endregion
 
         #region BUTTON
@@ -40910,6 +41096,13 @@ namespace TKSCHEDULEUOF
         {
             //更新 - BOM品名
             UPDATE_TK_BOMMD();
+
+            MessageBox.Show("OK");
+        }
+        private void button123_Click(object sender, EventArgs e)
+        {
+            //行企請購轉採購
+            ADD_MARKING_PLAN_PUR();
 
             MessageBox.Show("OK");
         }
