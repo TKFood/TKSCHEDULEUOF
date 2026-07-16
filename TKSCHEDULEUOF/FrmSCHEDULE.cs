@@ -39934,12 +39934,20 @@ namespace TKSCHEDULEUOF
 
         public void ADD_MARKING_PLAN_PUR()
         {
+            string USER_GUID;
+            string DOC_NBR;
             //檢查是否有行企的請購單要轉到行企的採購單
             DataTable DT = SEARCH_UOF_MARKING_PLAN_PUR();
 
             if(DT!=null && DT.Rows.Count>=1)
             {
-                NEW_UOF_MARKING_PLAN_PUR(DT);
+                foreach (DataRow DR in DT.Rows)
+                {
+                    USER_GUID = DR["USER_GUID"].ToString();
+                    DOC_NBR = DR["DOC_NBR"].ToString();
+                    NEW_UOF_MARKING_PLAN_PUR(USER_GUID, DOC_NBR);
+                }
+               
             }
 
         }
@@ -40113,9 +40121,112 @@ namespace TKSCHEDULEUOF
             return ds1.Tables["ds1"].Rows.Count > 0 ? ds1.Tables["ds1"] : null;
         }
 
-        public void NEW_UOF_MARKING_PLAN_PUR(DataTable DT)
+        public void NEW_UOF_MARKING_PLAN_PUR(string USER_GUID, string  DOC_NBR)
         {
+            string account, groupId, jobTitleId, fillerName, fillerUserGuid;
+            string DEPNAME, DEPNO;
 
+            DataTable DTUSERDEP = SEARCHUOFUSERDEP(USER_GUID);
+            DataTable DT_DETAILS = SEARCH_UOF_MARKING_PLAN_PUR_DETAILS(DOC_NBR);
+
+            account = DTUSERDEP.Rows[0]["ACCOUNT"].ToString();
+            groupId = DTUSERDEP.Rows[0]["GROUP_ID"].ToString();
+            jobTitleId = DTUSERDEP.Rows[0]["TITLE_ID"].ToString();
+            fillerName = DTUSERDEP.Rows[0]["NAME"].ToString();
+            fillerUserGuid = DTUSERDEP.Rows[0]["USER_GUID"].ToString();
+            DEPNAME = DTUSERDEP.Rows[0]["DEPNAME"].ToString();
+            DEPNO = DTUSERDEP.Rows[0]["DEPNO"].ToString();
+
+            string EXTERNAL_FORM_NBR = DOC_NBR;
+            int rowscounts = 0;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement Form = xmlDoc.CreateElement("Form");
+            string FORMID = SEARCHFORM_UOF_VERSION_ID("1051 行企廣告採購單");
+            if (!string.IsNullOrEmpty(FORMID))
+            {
+                Form.SetAttribute("formVersionId", FORMID);
+            }
+            Form.SetAttribute("urgentLevel", "2");
+            xmlDoc.AppendChild(Form);
+
+            XmlElement Applicant = xmlDoc.CreateElement("Applicant");
+            Applicant.SetAttribute("account", account);
+            Applicant.SetAttribute("groupId", groupId);
+            Applicant.SetAttribute("jobTitleId", jobTitleId);
+            Form.AppendChild(Applicant);
+
+            XmlElement Comment = xmlDoc.CreateElement("Comment");
+            Comment.InnerText = "申請者意見";
+            Applicant.AppendChild(Comment);
+
+            XmlElement FormFieldValue = xmlDoc.CreateElement("FormFieldValue");
+            Form.AppendChild(FormFieldValue);
+
+            // 一般欄位
+            string GA002 = DT_DETAILS.Rows[0]["DOC_NBR"].ToString();
+            string GA999 = "王淯璽(240021)、余睿洋(260018)、陳思涵(240024)、嚴佳雯(240026)、林思妤(240003)";
+            string GA999_real = "&lt;UserSet&gt;&lt;Element type='user'&gt; &lt;userId&gt;cc156bb9-621f-4b17-9e90-93c60c48733a&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;e0165e74-99be-49b4-aa46-ed441b7f796b&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;fc53a507-1d6a-41d8-9b27-022396a04d18&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;0a2642cc-6d88-4a59-8571-3cf97e7b878a&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;f5fd99cb-f3f3-4608-bb66-74bffd2ceedd&lt;/userId&gt;&lt;/Element&gt;&lt;/UserSet&gt;&#xD;&#xA;\" enableSearch=\"True\" fillerName=\"張健洲\" fillerUserGuid=\"b6f50a95-17ec-47f2-b842-4ad12512b431";
+            string GA018 = "否";
+            string GATOTAL = "0";
+            string GATAX = "";
+            string GA099 = "";
+            string GA100 = "";
+
+            AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA002", GA002, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account, GA999_real, "");
+            AddFieldItem(xmlDoc, FormFieldValue, "GA018", GA018, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GATOTAL", GATOTAL, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GATAX", GATAX, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA099", GA099, fillerName, fillerUserGuid, account);
+            AddFieldItem(xmlDoc, FormFieldValue, "GA100", GA100, fillerName, fillerUserGuid, account);
+            
+
+            // DataGrid 欄位
+            XmlElement FieldItem = AddFieldItem(xmlDoc, FormFieldValue, "DETAILS", "", fillerName, fillerUserGuid, account);
+            XmlElement DataGrid = xmlDoc.CreateElement("DataGrid");
+            FieldItem.AppendChild(DataGrid);
+
+            foreach (DataRow od in DT_DETAILS.Rows)
+            {
+                XmlElement Row = xmlDoc.CreateElement("Row");
+                Row.SetAttribute("order", rowscounts.ToString());
+
+                AppendCellToRow(xmlDoc, Row, od, "C001", false, od["GG004"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG002", false, od["GG002"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG005", false, od["GG005"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG009", false, od["GG009"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG011", false, "0");
+                AppendCellToRow(xmlDoc, Row, od, "GG012", false, "0");
+                AppendCellToRow(xmlDoc, Row, od, "GG006", false, od["GG006"].ToString());
+                AppendCellToRow(xmlDoc, Row, od, "GG010", false, od["GG010"].ToString());     
+       
+
+                DataGrid.AppendChild(Row);
+                rowscounts++;
+            }
+
+            // 寫入資料庫
+            Class1 TKID = new Class1();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+            sqlsb.Password = TKID.Decryption(sqlsb.Password);
+            sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+
+            using (SqlConnection connection = new SqlConnection(sqlsb.ConnectionString))
+            {
+                string queryString = $@"
+                                        INSERT INTO [UOF].dbo.TB_WKF_EXTERNAL_TASK
+                                        (EXTERNAL_TASK_ID, FORM_INFO, STATUS, EXTERNAL_FORM_NBR)
+                                        VALUES (NEWID(), @XML, 2, '{EXTERNAL_FORM_NBR}')
+                                    ";
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    command.Parameters.Add("@XML", SqlDbType.NVarChar).Value = Form.OuterXml;
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         #endregion
