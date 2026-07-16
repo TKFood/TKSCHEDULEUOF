@@ -40165,17 +40165,47 @@ namespace TKSCHEDULEUOF
 
             // 一般欄位
             string GA002 = DT_DETAILS.Rows[0]["DOC_NBR"].ToString();
-            string GA999 = "王淯璽(240021)、余睿洋(260018)、陳思涵(240024)、嚴佳雯(240026)、林思妤(240003)";
-            string GA999_real = "&lt;UserSet&gt;&lt;Element type='user'&gt; &lt;userId&gt;cc156bb9-621f-4b17-9e90-93c60c48733a&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;e0165e74-99be-49b4-aa46-ed441b7f796b&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;fc53a507-1d6a-41d8-9b27-022396a04d18&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;0a2642cc-6d88-4a59-8571-3cf97e7b878a&lt;/userId&gt;&lt;/Element&gt;&lt;Element type='user'&gt; &lt;userId&gt;f5fd99cb-f3f3-4608-bb66-74bffd2ceedd&lt;/userId&gt;&lt;/Element&gt;&lt;/UserSet&gt;&#xD;&#xA;\" enableSearch=\"True\" fillerName=\"張健洲\" fillerUserGuid=\"b6f50a95-17ec-47f2-b842-4ad12512b431";
+            string GA999 = "";
+            //string GA999_real = "";
+            StringBuilder GA999_real = new StringBuilder();
+
             string GA018 = "否";
             string GATOTAL = "0";
             string GATAX = "";
             string GA099 = "";
             string GA100 = "";
 
+            //GA999_real.AppendFormat(@"                        
+            //              <UserSet>
+            //                <Element type=""user"">
+            //                  <userId>cc156bb9-621f-4b17-9e90-93c60c48733a</userId>
+            //                </Element>
+            //                <Element type=""user"">
+            //                  <userId>e0165e74-99be-49b4-aa46-ed441b7f796b</userId>
+            //                </Element>
+            //                <Element type=""user"">
+            //                  <userId>fc53a507-1d6a-41d8-9b27-022396a04d18</userId>
+            //                </Element>
+            //                <Element type=""user"">
+            //                  <userId>0a2642cc-6d88-4a59-8571-3cf97e7b878a</userId>
+            //                </Element>
+            //                <Element type=""user"">
+            //                  <userId>f5fd99cb-f3f3-4608-bb66-74bffd2ceedd</userId>
+            //                </Element>
+            //              </UserSet>                       
+            //            ");
+            ////建立userset
+            //var xElement_GA999_real = new XElement(
+            //      new XElement("UserSet",
+            //          new XElement("Element", new XAttribute("type", "user"),
+            //              new XElement("userId", "cc156bb9-621f-4b17-9e90-93c60c48733a")
+            //              )
+            //              )
+            //            );
+
             AddFieldItem(xmlDoc, FormFieldValue, "ID", "", fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GA002", GA002, fillerName, fillerUserGuid, account);
-            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account, GA999_real, "");
+            AddFieldItem(xmlDoc, FormFieldValue, "GA999", GA999, fillerName, fillerUserGuid, account, "", "");
             AddFieldItem(xmlDoc, FormFieldValue, "GA018", GA018, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GATOTAL", GATOTAL, fillerName, fillerUserGuid, account);
             AddFieldItem(xmlDoc, FormFieldValue, "GATAX", GATAX, fillerName, fillerUserGuid, account);
