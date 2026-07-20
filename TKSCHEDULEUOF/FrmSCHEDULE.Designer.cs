@@ -93,6 +93,7 @@
             this.button115 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.button116 = new System.Windows.Forms.Button();
+            this.button123 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.button11 = new System.Windows.Forms.Button();
@@ -166,7 +167,6 @@
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
-            this.button123 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -937,6 +937,16 @@
             this.button116.Text = "2001.產品開發轉試吃單";
             this.button116.UseVisualStyleBackColor = true;
             this.button116.Click += new System.EventHandler(this.button116_Click);
+            // 
+            // button123
+            // 
+            this.button123.Location = new System.Drawing.Point(713, 83);
+            this.button123.Name = "button123";
+            this.button123.Size = new System.Drawing.Size(171, 34);
+            this.button123.TabIndex = 73;
+            this.button123.Text = "行企請購轉採購";
+            this.button123.UseVisualStyleBackColor = true;
+            this.button123.Click += new System.EventHandler(this.button123_Click);
             // 
             // tabPage2
             // 
@@ -1804,16 +1814,6 @@
             // timer6
             // 
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
-            // 
-            // button123
-            // 
-            this.button123.Location = new System.Drawing.Point(713, 83);
-            this.button123.Name = "button123";
-            this.button123.Size = new System.Drawing.Size(171, 34);
-            this.button123.TabIndex = 73;
-            this.button123.Text = "行企請購轉採購";
-            this.button123.UseVisualStyleBackColor = true;
-            this.button123.Click += new System.EventHandler(this.button123_Click);
             // 
             // FrmSCHEDULE
             // 

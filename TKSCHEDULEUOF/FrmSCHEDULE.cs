@@ -651,7 +651,13 @@ namespace TKSCHEDULEUOF
         {
             try
             {
-               
+
+            }
+            catch { }
+            try
+            {
+                //行企請購轉採購
+                ADD_MARKING_PLAN_PUR();
             }
             catch { }
 
