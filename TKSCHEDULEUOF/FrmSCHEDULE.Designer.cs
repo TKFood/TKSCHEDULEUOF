@@ -167,6 +167,7 @@
             this.timer4 = new System.Windows.Forms.Timer(this.components);
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
+            this.button124 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1229,6 +1230,7 @@
             this.tableLayoutPanel3.Controls.Add(this.button120, 1, 15);
             this.tableLayoutPanel3.Controls.Add(this.button121, 2, 12);
             this.tableLayoutPanel3.Controls.Add(this.button122, 2, 13);
+            this.tableLayoutPanel3.Controls.Add(this.button124, 1, 16);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -1815,6 +1817,17 @@
             // 
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
+            // button124
+            // 
+            this.button124.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button124.Location = new System.Drawing.Point(163, 643);
+            this.button124.Name = "button124";
+            this.button124.Size = new System.Drawing.Size(154, 34);
+            this.button124.TabIndex = 112;
+            this.button124.Text = "新增採購的簽核意見";
+            this.button124.UseVisualStyleBackColor = true;
+            this.button124.Click += new System.EventHandler(this.button124_Click);
+            // 
             // FrmSCHEDULE
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
@@ -1978,5 +1991,6 @@
         private System.Windows.Forms.Button button121;
         private System.Windows.Forms.Button button122;
         private System.Windows.Forms.Button button123;
+        private System.Windows.Forms.Button button124;
     }
 }

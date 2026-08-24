@@ -182,7 +182,7 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer2_Tick(object sender, EventArgs e)
         {
-            //每天鐘執行1次
+            //每天每分鐘執行1次
 
             try
             {               
@@ -40265,6 +40265,119 @@ namespace TKSCHEDULEUOF
             }
         }
 
+        public void ADD_UOF_TB_WKF_TASK_PUR_COMMENT()
+        {
+            try
+            {
+                // 取得加密的連接字符串
+                Class1 decryptor = new Class1();
+                SqlConnectionStringBuilder sqlBuilder = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dbUOF"].ConnectionString);
+                sqlBuilder.Password = decryptor.Decryption(sqlBuilder.Password);
+                sqlBuilder.UserID = decryptor.Decryption(sqlBuilder.UserID);
+
+                // 執行更新
+                string query = @"
+                               --20260824 挅購意見
+                                WITH CTE_TASK AS (
+                                    SELECT 
+                                        F.FORM_NAME,
+                                        T.DOC_NBR,
+                                        -- 自動相容 採購單(TC001) 與 採購變更單(TE001)
+                                        COALESCE(
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC001""]/@fieldValue)[1]', 'NVARCHAR(100)'),
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE001""]/@fieldValue)[1]', 'NVARCHAR(100)')
+                                        ) AS FIELD_001,
+                                        -- 自動相容 採購單(TC002) 與 採購變更單(TE002)
+                                        COALESCE(
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TC002""]/@fieldValue)[1]', 'NVARCHAR(100)'),
+                                            T.CURRENT_DOC.value('(/Form/FormFieldValue/FieldItem[@fieldId=""TE002""]/@fieldValue)[1]', 'NVARCHAR(100)')
+                                        ) AS FIELD_002,
+                                        T.TASK_ID,
+                                        T.TASK_STATUS,
+                                        T.TASK_RESULT
+                                    FROM dbo.TB_WKF_TASK T
+                                    INNER JOIN dbo.TB_WKF_FORM_VERSION FV ON FV.FORM_VERSION_ID = T.FORM_VERSION_ID
+                                    INNER JOIN dbo.TB_WKF_FORM F ON F.FORM_ID = FV.FORM_ID
+                                    WHERE F.FORM_NAME IN (
+                                            'PUR40.採購單', 
+                                            'PUR50.採購變更單', 
+                                            'PUR40.採購單-大潁', 
+                                            'PUR50.採購變更單-大潁'
+                                          )
+                                      AND T.TASK_STATUS = '2'   -- 已結案
+                                      AND T.TASK_RESULT = '0'   -- 核准同意
+                                )
+                                INSERT INTO [UOF].[dbo].[TB_WKF_TASK_PUR_COMMENT]
+                                (
+                                    [FORM_NAME],
+                                    [DOC_NBR],
+                                    [TC001],
+                                    [TC002],
+                                    [TASK_ID],
+                                    [TASK_STATUS],
+                                    [TASK_RESULT],
+                                    [COMMENT]
+                                )
+                                SELECT 
+                                    T.FORM_NAME,
+                                    T.DOC_NBR,
+                                    T.FIELD_001 AS TC001,
+                                    T.FIELD_002 AS TC002,
+                                    T.TASK_ID,
+                                    T.TASK_STATUS,
+                                    T.TASK_RESULT,
+                                    N.COMMENT
+                                FROM CTE_TASK T
+                                CROSS APPLY (
+                                    SELECT TOP (1) 
+                                        CAST(TN.COMMENT AS NVARCHAR(MAX)) AS COMMENT
+                                    FROM dbo.TB_WKF_TASK_NODE TN
+                                    INNER JOIN dbo.TB_EB_USER U ON U.USER_GUID = TN.ACTUAL_SIGNER
+                                    WHERE TN.TASK_ID = T.TASK_ID
+                                      AND U.ACCOUNT = '070006'
+                                      AND ISNULL(TN.ACTUAL_SIGNER, '') <> ''
+                                      AND ISNULL(LTRIM(RTRIM(CAST(TN.COMMENT AS NVARCHAR(MAX)))), '') <> ''
+                                    ORDER BY TN.FINISH_TIME DESC
+                                ) N   -- 👈 別名 N 必須放在這裡
+                                WHERE NOT EXISTS (
+                                    SELECT 1 
+                                    FROM [UOF].[dbo].[TB_WKF_TASK_PUR_COMMENT] Target WITH(NOLOCK)
+                                    WHERE Target.[TASK_ID] = T.[TASK_ID]
+                                );
+                                ";
+
+                using (SqlConnection connection = new SqlConnection(sqlBuilder.ConnectionString))
+                {
+                    connection.Open();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            using (SqlCommand command = new SqlCommand(query, connection, transaction))
+                            {
+                                command.CommandTimeout = 180;
+                                int result = command.ExecuteNonQuery();
+
+                                // 只要執行無 Exception 拋出，就直接 Commit
+                                transaction.Commit();
+                                System.Diagnostics.Debug.WriteLine($"成功寫入 {result} 筆資料！");
+                            }
+                        }
+                        catch (Exception transEx)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("交易執行失敗: " + transEx.Message, transEx);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"失敗: {ex.Message}");
+            }
+        }
         #endregion
 
         #region BUTTON
@@ -41254,6 +41367,13 @@ namespace TKSCHEDULEUOF
             MessageBox.Show("OK");
         }
 
+        private void button124_Click(object sender, EventArgs e)
+        {
+            //新增採購的簽核意見
+            ADD_UOF_TB_WKF_TASK_PUR_COMMENT();
+
+            MessageBox.Show("OK");
+        }
         #endregion
 
 
