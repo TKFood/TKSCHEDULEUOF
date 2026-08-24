@@ -557,7 +557,13 @@ namespace TKSCHEDULEUOF
             {
                 try
                 {
-                    
+                   
+                }
+                catch { }
+                try
+                {
+                    //新增採購的簽核意見
+                    ADD_UOF_TB_WKF_TASK_PUR_COMMENT();
                 }
                 catch { }
                 try
