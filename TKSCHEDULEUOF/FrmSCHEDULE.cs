@@ -25,6 +25,8 @@ namespace TKSCHEDULEUOF
 {
     public partial class FrmSCHEDULE : Form
     {
+        // 1. 在 Form 類別層級宣告一個變數，用來紀錄最後執行的日期
+        private string lastRunDate_timer3 = "";
         int TIMEOUT_LIMITS = 240;      
 
         //測試ID = "";
@@ -550,34 +552,37 @@ namespace TKSCHEDULEUOF
         /// <param name="e"></param>
         private void timer3_Tick(object sender, EventArgs e)
         {
+            string today = DateTime.Now.ToString("yyyyMMdd"); // 今天的日期
             string RUNTIME = DateTime.Now.ToString("HHmm");
             string HHmm = "0750";
 
-            if (RUNTIME.Equals(HHmm))
+            // 2. 條件加上：時間必須是 07:50 且 今天「還沒執行過」
+            if (RUNTIME.Equals(HHmm) && lastRunDate_timer3 != today)
             {
-                try
-                {
-                   
-                }
-                catch { }
+                // 3. 立即更新最後執行日期，防止 Timer 再次進入觸發
+                lastRunDate_timer3 = today;
+
                 try
                 {
                     //新增採購的簽核意見
                     ADD_UOF_TB_WKF_TASK_PUR_COMMENT();
                 }
                 catch { }
+
                 try
                 {
                     //更新 - BOM品名
                     UPDATE_TK_BOMMD();
                 }
                 catch { }
+
                 try
                 {
                     //更新-外購品物料庫存
                     UPDATE_TKPUR_TBPURGOODS();
                 }
                 catch { }
+
                 try
                 {
                     //轉入驗收條件-物料
@@ -588,49 +593,40 @@ namespace TKSCHEDULEUOF
                 try
                 {
                     //ERP品號明細通知單(原料+物料)
-                    //如需修改，請通知研發在ERP上修改
-
                     ADD_ERP_INVMB_TO_UOF_9003();
-
                 }
                 catch { }
+
                 try
                 {
                     //ERP品號變更通知單(成品+外購品)
                     ADD_ERP_INVMB_TO_UOF_9002();
                 }
                 catch { }
+
                 try
                 {
                     //ERP品號通知單
-                    //此表單為研發建立商品品號時
-                    //通知營銷、業務主管
-                    //該品號在ERP設定的標準售價、零售價、IP價格、DM價格、通路售價
-
-                    //如需修改，請通知研發在ERP上修改
-
                     ADD_ERP_INVMB_TO_UOF_9001();
-
                 }
                 catch { }
 
                 try
                 {
                     //UOF-採購及變更單作廢
-                    //依UOF作廢的採購及變更單，修改ERP的採購及變更單作廢
                     //UPDATE_UOF_NOT_APPROVED_PURTC_PURTE();
-                }
-                catch { }
-                             
-                try
-                {
-                    //當請購單的數量=0，手動結案
-                    UPDATE_PURTA_PURTB_TB039();                  
                 }
                 catch { }
 
                 try
-                {                    
+                {
+                    //當請購單的數量=0，手動結案
+                    UPDATE_PURTA_PURTB_TB039();
+                }
+                catch { }
+
+                try
+                {
                     //當請購單的需求日，已過期1個月，請購數量=0，手動結案
                     UPDATE_PURTA_PURTB_TB039_TB009();
                 }
@@ -639,13 +635,9 @@ namespace TKSCHEDULEUOF
                 try
                 {
                     //作廢請購變更單不存在
-                    //UOF的請購變更單來源，已經不存在[PURTATBCHAGE]
-                    //經採購人員確認是多打的才會刪除，用TKPUR的「FrmPURTECHANGEDEL 」 採購變更刪除錯的請購變更
-
                     UPDATE_UOF_PUR20_TASK_RESULT();
                 }
-                catch { }                
-
+                catch { }
             }
         }
         /// <summary>
