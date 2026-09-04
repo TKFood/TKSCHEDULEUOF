@@ -35826,7 +35826,7 @@ namespace TKSCHEDULEUOF
                                     [MB001]
                                     FROM [TKSCHEDULEUOF].[dbo].[REASCH_NEW_MB001]
                                 )
-                                AND MB001='40106320748340'
+                                
                         ");
                 string sqlQuery = sbSql.ToString();
 
