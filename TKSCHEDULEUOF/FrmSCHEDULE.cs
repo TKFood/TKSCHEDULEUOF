@@ -35782,62 +35782,51 @@ namespace TKSCHEDULEUOF
                 //AND INVMB.CREATE_DATE = CONVERT(NVARCHAR(8), DATEADD(DAY, -1, GETDATE()), 112)
                 sbSql.Clear();
                 sbSql.AppendFormat(@"
-                            SELECT 
-                                INVMB.CREATOR,
-                                INVMB.CREATE_DATE,
-                                MB001 AS '品號',
-                                MB002 AS '品名',
-                                MB003 AS '規格',
-                                MB004 AS '庫存單位',
-                                MB046 AS '標準進價',
-                                MB047 AS '標準售價',
-                                MB051 AS '零售價',
-                                MB052 AS '零售價含稅',
-                                MB053 AS 'IP價格',
-                                MB054 AS 'DM價格',
-                                MB055 AS '通路售價',
-                                MB056 AS '售價定價四',
-                                MB069 AS '售價定價五',
-                                MB070 AS '售價定價六',
-                                INVMB.UDF04 AS '品號目的',
-                                MA003 AS '會計類別',
-                                CONVERT(NVARCHAR, MB023) + (
-                                    CASE 
-                                        WHEN MB198 = '1' THEN '天' 
-                                        WHEN MB198 = '2' THEN '月' 
-                                        WHEN MB198 = '3' THEN '年' 
-                                    END
-                                ) AS '效期'
-                            ,MB009 AS '商品描述'
-
-                            FROM [TK].dbo.INVMB WITH(NOLOCK)
-                            LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
-                            WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
-                            AND INVMB.CREATE_DATE = CONVERT(NVARCHAR(8), DATEADD(DAY, -1, GETDATE()), 112)
-
-                            AND EXISTS (
-                                SELECT 1 
-                                FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
-                                INNER JOIN [TK].dbo.BOMMD MD WITH(NOLOCK) ON MC.MC001 = MD.MD001
-                                WHERE MC.MC001 = INVMB.MB001
-                            )
-                            AND MB001 COLLATE Chinese_Taiwan_Stroke_CI_AS NOT IN
-                            (
-                                SELECT MB001
-                                FROM OPENQUERY([192.168.1.223], '
                                     SELECT 
-                                        T.DOC_NBR,
-                                        -- 修正 1: 將 XML 轉為 NVARCHAR(MAX) 才能傳回本地端
-                                        CAST(T.CURRENT_DOC AS NVARCHAR(MAX)) AS CURRENT_DOC_TEXT,
-                                        -- 修正 2: 加上路徑開頭的斜線 /
-                                        T.CURRENT_DOC.value(''(/Form/FormFieldValue/FieldItem[@fieldId=""MB001""]/@fieldValue)[1]'', ''nvarchar(50)'') AS MB001
-                                    FROM [UOF].[dbo].[TB_WKF_TASK] T
-                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM_VERSION] V ON V.FORM_VERSION_ID = T.FORM_VERSION_ID
-                                    INNER JOIN [UOF].[dbo].[TB_WKF_FORM] F ON F.FORM_ID = V.FORM_ID
-                                    WHERE F.FORM_NAME = ''9001.新品號通知單''
-                                    AND T.BEGIN_TIME >= DATEADD(MONTH, -30, GETDATE()) 
-                                ')
-                            );
+                                    INVMB.CREATOR,
+                                    INVMB.CREATE_DATE,
+                                    INVMB.MODI_DATE,
+                                    MB001 AS '品號',
+                                    MB002 AS '品名',
+                                    MB003 AS '規格',
+                                    MB004 AS '庫存單位',
+                                    MB046 AS '標準進價',
+                                    MB047 AS '標準售價',
+                                    MB051 AS '零售價',
+                                    MB052 AS '零售價含稅',
+                                    MB053 AS 'IP價格',
+                                    MB054 AS 'DM價格',
+                                    MB055 AS '通路售價',
+                                    MB056 AS '售價定價四',
+                                    MB069 AS '售價定價五',
+                                    MB070 AS '售價定價六',
+                                    INVMB.UDF04 AS '品號目的',
+                                    MA003 AS '會計類別',
+                                    CONVERT(NVARCHAR, MB023) + (
+                                        CASE 
+                                            WHEN MB198 = '1' THEN '天' 
+                                            WHEN MB198 = '2' THEN '月' 
+                                            WHEN MB198 = '3' THEN '年' 
+                                        END
+                                    ) AS '效期'
+                                ,MB009 AS '商品描述'
+
+                                FROM [TK].dbo.INVMB WITH(NOLOCK)
+                                LEFT JOIN [TK].dbo.INVMA WITH(NOLOCK) ON MA001 = '1' AND MA002 = MB005
+                                WHERE (MB001 LIKE '4%' OR MB001 LIKE '5%')
+                                AND EXISTS (
+                                    SELECT 1 
+                                    FROM [TK].dbo.BOMMC MC WITH(NOLOCK)
+                                    INNER JOIN [TK].dbo.BOMMD MD WITH(NOLOCK) ON MC.MC001 = MD.MD001
+                                    WHERE MC.MC001 = INVMB.MB001
+                                )
+                                AND MB001  NOT IN
+                                (
+                                    SELECT    
+                                    [MB001]
+                                    FROM [TKSCHEDULEUOF].[dbo].[REASCH_NEW_MB001]
+                                )
+                                AND MB001='40106320748340'
                         ");
                 string sqlQuery = sbSql.ToString();
 
@@ -35869,6 +35858,7 @@ namespace TKSCHEDULEUOF
                             ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(itemCode);
                         }
                     }
+                    ADD_TKSCHEDULEUOF_REASCH_NEW_MB001(invmbData);
                 }
                 // else { /* 沒有資料，無需操作 */ }
 
@@ -35883,6 +35873,58 @@ namespace TKSCHEDULEUOF
             // finally 區塊已不再需要手動關閉 sqlConn，因為 using 語句會自動處理。
             // 原本的 sqlConn 變數已改為區域變數，並在 using 語句中初始化。
         }
+        //用invmbData的CREATE_DATE、MB001，新增到 [TKSCHEDULEUOF].[dbo].[REASCH_NEW_MB001]
+        public void ADD_TKSCHEDULEUOF_REASCH_NEW_MB001(DataTable invmbData)
+        {
+            StringBuilder SQL = new StringBuilder();
+            if (invmbData!=null && invmbData.Rows.Count>=1)
+            {
+                foreach (DataRow dr in invmbData.Rows)
+                {
+                    SQL.AppendFormat(@" 
+                                    INSERT INTO  [TKSCHEDULEUOF].[dbo].[REASCH_NEW_MB001]
+                                    (
+                                    [CREATE_DATE]
+                                    ,[MB001]
+                                    )
+                                    VALUES
+                                    (
+                                    '{0}'
+                                    ,'{1}'
+                                    )
+                                    ", dr["CREATE_DATE"].ToString().Trim(), dr["品號"].ToString().Trim());
+                }
+            }
+
+            try
+            {
+                //SQL INSERT
+                // 1. 連線字串處理 (解密)
+                Class1 TKID = new Class1();
+                SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder(
+                    ConfigurationManager.ConnectionStrings["dberp"].ConnectionString
+                );
+                // 資料庫使用者密碼解密
+                sqlsb.Password = TKID.Decryption(sqlsb.Password);
+                sqlsb.UserID = TKID.Decryption(sqlsb.UserID);
+                string connectionString = sqlsb.ConnectionString;
+
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlCommand cmd = new SqlCommand(SQL.ToString(), sqlConn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception EX)
+            {
+
+            }
+            finally { }
+        }
+
         public void ADD_INVMB_NEW_9001_TB_WKF_EXTERNAL_TASK(string MB001)
         {
             DataTable DT = SEARCH_INVMB_NEW(MB001);
